@@ -27,7 +27,7 @@ print() const noexcept
 
   p = m_line_start;
 
-    while(p++ < m_pointer)
+    while(p++ < (m_pointer-1))
     {
       printf(" ");
     }

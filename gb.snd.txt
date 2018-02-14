@@ -62,16 +62,14 @@ noise        no;
 //C言語で言う関数は、ここではルーチンと呼びます
 //スクリプトの実行は、mainという名のルーチン（これをメイン・ルーチンと呼び、
 //これ以外のルーチンはサブ・ルーチンと呼ぶ）から開始されます
-//
-//サブ・ルーチン呼び出しは未実装
 
 
 
 
 routine
-ret(x,y,z)
+sub(n)
 {
-  return x+y*z;
+  no.keyon_flag = n;
 }
 
 
@@ -85,13 +83,20 @@ main()
   sq.volume=8;
   sq.keyon_flag=1;
 
+  no.volume = 8;
+
   b = 0;
+
+  n = 0;
 
     for(;;)
     {
+      sub(n&0b00111);
+
+      n += 1;
+
         if(!b)
         {
-print ret(1,2,3);
             if(sq.frequency < 800)
             {
               sq.frequency += 10;

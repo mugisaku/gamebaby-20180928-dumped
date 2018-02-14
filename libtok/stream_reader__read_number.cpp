@@ -13,6 +13,8 @@ read_binary_number() noexcept
 {
   uint64_t  i = 0;
 
+  ++m_pointer;
+
     while(!is_reached_end())
     {
       auto  c = *m_pointer;
@@ -48,6 +50,8 @@ stream_reader::
 read_octal_number() noexcept
 {
   uint64_t  i = 0;
+
+  ++m_pointer;
 
     while(!is_reached_end()   &&
           (*m_pointer >= '0') &&
@@ -89,6 +93,8 @@ read_hexadecimal_number() noexcept
 {
   uint64_t  i = 0;
 
+  ++m_pointer;
+
     while(!is_reached_end())
     {
       auto  c = *m_pointer;
@@ -98,7 +104,7 @@ read_hexadecimal_number() noexcept
         {
           i <<= 4;
 
-          i += c-'0';
+          i |= (c-'0');
 
           ++m_pointer;
         }
@@ -144,7 +150,7 @@ uint64_t
 stream_reader::
 read_number_that_begins_by_zero() noexcept
 {
-  auto  c = *m_pointer++;
+  auto  c = *++m_pointer;
 
   return ((c == 'b') || (c == 'B'))? read_binary_number()
         :((c == 'o') || (c == 'O'))? read_octal_number()

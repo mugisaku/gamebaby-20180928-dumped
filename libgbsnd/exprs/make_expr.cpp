@@ -245,10 +245,15 @@ read(script_token_cursor&  cur, maker&  mk) noexcept
                                                 : oe(preunop{opw},2,true));
             }
 
-          else if(opw == operator_word("&")){mk.push(oe(preunop{opw},2,true));}
+          else
+            if(opw == operator_word("&"))
+            {
+              mk.push(mk.get_last().is_operand()? oe(  binop{opw},9     )
+                                                : oe(preunop{opw},2,true));
+            }
+
           else if(opw == operator_word("!")){mk.push(oe(preunop{opw},2,true));}
           else if(opw == operator_word("~")){mk.push(oe(preunop{opw},2,true));}
-          else if(opw == operator_word("-")){mk.push(oe(preunop{opw},2,true));}
 
           else if(opw == operator_word( "+")){mk.push(oe(binop{opw},5));}
           else if(opw == operator_word( "/")){mk.push(oe(binop{opw},4));}
@@ -257,7 +262,6 @@ read(script_token_cursor&  cur, maker&  mk) noexcept
           else if(opw == operator_word(">>")){mk.push(oe(binop{opw},6));}
 
           else if(opw == operator_word(  "|")){mk.push(oe(binop{opw},13));}
-          else if(opw == operator_word(  "&")){mk.push(oe(binop{opw}, 9));}
           else if(opw == operator_word(  "^")){mk.push(oe(binop{opw},10));}
           else if(opw == operator_word( "||")){mk.push(oe(binop{opw},11));}
           else if(opw == operator_word( "&&")){mk.push(oe(binop{opw},12));}
