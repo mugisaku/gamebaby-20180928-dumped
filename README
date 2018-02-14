@@ -1,0 +1,13 @@
+画像データ等は下記アドレスに置いてあります
+https://drive.google.com/open?id=0B_7bNzvT8p7UdzVpN3ZUUjBLaVE
+
+利用は自由です
+
+
+以下を入力して、ビルド
+mkdir builddir
+cd builddir
+cmake ..
+make
+
+
