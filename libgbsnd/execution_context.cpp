@@ -311,7 +311,7 @@ finish_stmt(millisecond  ms) noexcept
   else
     if(stmt.is_sleep())
     {
-      m_rising_time = ms.value+(stack.size()? stack.top().evaluate(this).get_integer():0);
+      m_rising_time = ms.value+(stack.size()? stack.top().evaluate(this).get_integer_safely():0);
 
       m_state = state::sleeping;
     }

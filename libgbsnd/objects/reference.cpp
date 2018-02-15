@@ -24,32 +24,6 @@ sq_number_of_cycles_per_seconds(square_wave*  sq, const int*  v)
 
 
 int
-sq_play_length(square_wave*  sq, const int*  v)
-{
-    if(v)
-    {
-      sq->set_play_length(*v);
-    }
-
-
-  return sq->get_play_length();
-}
-
-
-int
-sq_play_length_flag(square_wave*  sq, const int*  v)
-{
-    if(v)
-    {
-      sq->set_play_length_flag(*v);
-    }
-
-
-  return sq->test_play_length_flag();
-}
-
-
-int
 sq_keyon_flag(square_wave*  sq, const int*  v)
 {
     if(v)
@@ -156,32 +130,6 @@ sq_duty_ratio(square_wave*  sq, const int*  v)
 
 
 int
-no_play_length(noise*  no, const int*  v)
-{
-    if(v)
-    {
-      no->set_play_length(*v);
-    }
-
-
-  return no->get_play_length();
-}
-
-
-int
-no_play_length_flag(noise*  no, const int*  v)
-{
-    if(v)
-    {
-      no->set_play_length_flag(*v);
-    }
-
-
-  return no->test_play_length_flag();
-}
-
-
-int
 no_keyon_flag(noise*  no, const int*  v)
 {
     if(v)
@@ -242,8 +190,6 @@ get_property(const identifier&  id) const noexcept
            if(name == sv("keyon_flag"          )){return property(sq,sq_keyon_flag);}
       else if(name == sv("volume"              )){return property(sq,sq_volume);}
       else if(name == sv("frequency"           )){return property(sq,sq_number_of_cycles_per_seconds);}
-      else if(name == sv("play_length"         )){return property(sq,sq_play_length);}
-      else if(name == sv("play_length_flag"    )){return property(sq,sq_play_length_flag);}
       else if(name == sv("vm_wait_count_source")){return property(sq,sq_vm_wait_count_source);}
       else if(name == sv("vm_moddir"           )){return property(sq,sq_vm_moddir);}
       else if(name == sv("fm_shift_amount"     )){return property(sq,sq_fm_shift_amount);}
@@ -263,8 +209,6 @@ get_property(const identifier&  id) const noexcept
 
            if(name == sv("keyon_flag"              )){return property(no,no_keyon_flag);}
       else if(name == sv("volume"                  )){return property(no,no_volume);}
-      else if(name == sv("play_length"             )){return property(no,no_play_length);}
-      else if(name == sv("play_length_flag"        )){return property(no,no_play_length_flag);}
       else if(name == sv("shortspan_flag"          )){return property(no,no_shortspan_flag);}
 //  else if(name == sv("")){return property();}
       else {printf("%sという名のプロパティは見つからない\n",name.data());}

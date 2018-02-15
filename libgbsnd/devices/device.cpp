@@ -23,7 +23,7 @@ set_number_of_cycles_per_seconds(double  n) noexcept
 {
   constexpr auto  dsp_freq = static_cast<double>(number_of_samples_per_seconds);
 
-    if((n >= 0.0) && (n <= dsp_freq))
+    if((n > 0.0) && (n <= dsp_freq))
     {
       m_number_of_cycles_per_seconds =          n;
       m_number_of_samples_per_cycles = dsp_freq/n;
@@ -54,26 +54,6 @@ modify_volume() noexcept
 
                if((m_vm_moddir == moddir::up  ) && (n < 255)){set_volume(n+1);}
           else if((m_vm_moddir == moddir::down) && (n      )){set_volume(n-1);}
-        }
-    }
-}
-
-
-void
-device::
-check_play_length() noexcept
-{
-    if(test_play_length_flag())
-    {
-        if(m_play_length)
-        {
-          --m_play_length;
-        }
-
-
-        if(!m_play_length)
-        {
-          unset_keyon_flag();
         }
     }
 }

@@ -57,7 +57,6 @@ output(uint32_t*  begin, uint32_t*  end) noexcept
       ++m_time;
 
       modify_volume();
-      check_play_length();
     }
 }
 

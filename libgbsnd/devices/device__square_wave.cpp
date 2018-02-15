@@ -167,7 +167,6 @@ REDO:
 
       modify_frequency();
       modify_volume();
-      check_play_length();
     }
 }
 

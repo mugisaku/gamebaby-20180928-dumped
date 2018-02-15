@@ -67,63 +67,25 @@ noise        no;
 
 
 routine
-sub(n)
+sound(hz,len,vol)
 {
-  no.keyon_flag = n;
+  sq.frequency   = hz;
+  sq.keyon_flag  = 1;
+  sq.volume      = vol;
+
+  sleep len;
+
+  sq.keyon_flag = 0;
 }
 
 
 routine
 main()
 {
-//  print x = (1,2,3,4,5,6);
-//  print x = 0? 10:20;
-
-  sq.frequency=32;
-  sq.volume=8;
-  sq.keyon_flag=1;
-
-  no.volume = 8;
-
-  b = 0;
-
-  n = 0;
-
-    for(;;)
-    {
-      sub(n&0b00111);
-
-      n += 1;
-
-        if(!b)
-        {
-            if(sq.frequency < 800)
-            {
-              sq.frequency += 10;
-            }
-
-          else
-            {
-              b = 1;
-            }
-        }
-
-      else
-        {
-            if(sq.frequency > 20)
-            {
-              sq.frequency -= 10;
-            }
-
-          else
-            {
-              b = 0;
-            }
-        }
-
-
-      sleep 40;
-    }
+  sound(440,1000,8);
+  sound(220,1000,16);
+  sound(110,100,32);
+  sound(880,1000,4);
 }
 
 

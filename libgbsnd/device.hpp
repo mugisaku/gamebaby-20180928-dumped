@@ -33,8 +33,6 @@ protected:
   double  m_number_of_cycles_per_seconds=0;//1秒あたりの周波数
   double  m_number_of_samples_per_cycles=0;//1周波あたりのサンプル数
 
-  uint32_t  m_play_length=0;
-
 //vm = Volume Modification = 音数変更
   uint32_t  m_vm_wait_count_source=0;//音量変更待機値元値
   uint32_t  m_vm_wait_count       =0;//音量変更待機値
@@ -43,14 +41,11 @@ protected:
 
   uint8_t  m_volume=0;
 
-  bool  m_play_length_flag=false;
   bool  m_keyon_flag=false;//真の時、音を鳴らす
 
   bool  m_need_update=true;
 
   void  modify_volume() noexcept;
-
-  void  check_play_length() noexcept;
 
 public:
   bool  operator==(gbstd::string_view  name) const noexcept{return m_name == name;}
@@ -64,14 +59,6 @@ public:
   uint32_t  get_number_of_cycles_per_seconds(         ) const noexcept{return m_number_of_cycles_per_seconds;}
 
   uint32_t  get_number_of_samples_per_cycles() const noexcept{return m_number_of_samples_per_cycles;}
-
-
-  void      set_play_length(uint32_t  v)       noexcept{       m_play_length = v;}
-  uint32_t  get_play_length(           ) const noexcept{return m_play_length    ;}
-
-  bool   test_play_length_flag() const noexcept{return m_play_length_flag;}
-  void    set_play_length_flag(bool  v=true) noexcept{m_play_length_flag = v;}
-  void  unset_play_length_flag() noexcept{m_play_length_flag = false;}
 
 
   void     set_volume(uint8_t  v)       noexcept{       m_volume = v&0x7F;}
