@@ -2,7 +2,7 @@
 //これらが持つプロパティーにアクセスすることで、音を変化させます
 square_wave  sq;
 noise        no;
-//どんな名前のプロパティーが存在するかは、libgbsnd/reference.cpp内のget_propertyを参照してください
+//どんな名前のプロパティーが存在するかは、libgbsnd/objects/reference.cpp内のget_propertyを参照してください
 
 
 //引数、ローカル変数はすべて整数型です
@@ -82,10 +82,10 @@ sound(hz,len,vol)
 routine
 main()
 {
-  sound(440,1000,8);
-  sound(220,1000,16);
-  sound(110,100,32);
-  sound(880,1000,4);
+  sound(880,400,8);
+  sound(220,300,16);
+  sound(550,600,3);
+  sound(880,100,4);
 }
 
 
