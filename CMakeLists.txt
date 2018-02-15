@@ -40,54 +40,9 @@ endif()
 
 
 
-set(GAME_SOURCES
-  Game/EventQueue.cpp
-  Game/Shop.cpp
-  Game/ShopManager.cpp
-  Game/Actor.cpp
-  Game/Director.cpp
-  Game/EffectObject.cpp
-  Game/Screen.cpp
-  Game/Game.cpp
-  Game/Game__Message.cpp
-  Game/Game__MainMenu.cpp
-  Game/Game__SackMenu.cpp
-  Game/Game__ShopMenu.cpp
-  Game/Game__Shopping.cpp
-  Game/Game__Choosing.cpp
-  Game/Game__StatusMonitor.cpp
-  Game/Game__StatusReportor.cpp
-  Game/Game__Debugger.cpp
-  Game/Game__controll_hero_piece.cpp
-  Game/Game__throw_item.cpp
-  Game/Game__process_string.cpp
-  Game/Game__process_script.cpp
-  Game/Game__process_event.cpp
-  Game/GameData.cpp
-  Game/GameItem.cpp
-  Game/GameItemSpecs.cpp
-  Game/Shop.cpp
-  Game/Sack.cpp
-  Game/Hero.cpp
-  Game/Role.cpp
-  Game/Piece.cpp
-  Game/Square.cpp
-  Game/Board.cpp
-  Game/Board__render.cpp
-  Game/ScriptManager.cpp
-  Game/Messembly.cpp
-  Game/Messembly_Image.cpp
-  Game/Messembly_ImageBuilder.cpp
-)
-
-
 add_subdirectory(libgbstd)
 add_subdirectory(libgbsnd)
-add_subdirectory(libgbdn)
-add_subdirectory(libty)
 add_subdirectory(libtok)
-add_subdirectory(libipre)
-add_subdirectory(Battle)
 
 include_directories(./)
 include_directories(/usr/include/SDL2)
