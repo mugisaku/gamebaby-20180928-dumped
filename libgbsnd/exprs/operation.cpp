@@ -136,9 +136,11 @@ unrefer() noexcept
     {
         if(!--m_data->reference_count)
         {
-          delete m_data          ;
-                 m_data = nullptr;
+          delete m_data;
         }
+
+
+      m_data = nullptr;
     }
 }
 

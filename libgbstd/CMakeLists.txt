@@ -1,6 +1,9 @@
 
 
 set(SOURCES
+  riff_chunk.cpp
+  riff_subchunk_view.cpp
+  wave.cpp
   image.cpp
   image__png.cpp
   image__draw.cpp

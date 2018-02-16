@@ -1,3 +1,4 @@
+#include"libgbstd/wave.hpp"
 #include"libgbsnd/device.hpp"
 #include"libgbsnd/script.hpp"
 #include"libgbsnd/expr.hpp"
@@ -151,6 +152,18 @@ show_usage() noexcept
 int
 main(int  argc, char**  argv)
 {
+gbstd::riff_chunk  chk;
+
+chk.load_file("/tmp/test.wav");
+
+gbstd::riff_subchunk_view  rv(chk);
+
+gbstd::wave  wav(rv);
+
+wav.print();
+
+return 0;
+
     if((argc == 1) || (argc >= 4))
     {
       show_usage();

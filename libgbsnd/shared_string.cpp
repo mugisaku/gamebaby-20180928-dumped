@@ -29,9 +29,11 @@ unrefer() noexcept
     {
         if(!--m_data->reference_count)
         {
-          free(m_data)         ;
-               m_data = nullptr;
+          free(m_data);
         }
+
+
+      m_data = nullptr;
     }
 }
 

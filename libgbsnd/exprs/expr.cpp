@@ -105,9 +105,11 @@ unrefer() noexcept
             }
 
 
-          free(m_data)         ;
-               m_data = nullptr;
+          free(m_data);
         }
+
+
+      m_data = nullptr;
     }
 }
 
