@@ -82,10 +82,10 @@ sound(hz,len,vol)
 routine
 main()
 {
-  sound(880,400,8);
-  sound(220,300,16);
-  sound(550,600,3);
-  sound(880,100,4);
+  sound(880,1000,8);
+  sound(220,1000,16);
+  sound(550,1000,3);
+  sound(880,1000,4);
 }
 
 

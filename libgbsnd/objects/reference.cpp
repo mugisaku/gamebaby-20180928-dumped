@@ -11,15 +11,15 @@ namespace objects{
 
 namespace{
 int
-sq_number_of_cycles_per_seconds(square_wave*  sq, const int*  v)
+sq_number_of_cycles_per_second(square_wave*  sq, const int*  v)
 {
     if(v)
     {
-      sq->set_number_of_cycles_per_seconds(*v);
+      sq->set_number_of_cycles_per_second(*v);
     }
 
 
-  return sq->get_number_of_cycles_per_seconds();
+  return sq->get_number_of_cycles_per_second();
 }
 
 
@@ -189,7 +189,7 @@ get_property(const identifier&  id) const noexcept
 
            if(name == sv("keyon_flag"          )){return property(sq,sq_keyon_flag);}
       else if(name == sv("volume"              )){return property(sq,sq_volume);}
-      else if(name == sv("frequency"           )){return property(sq,sq_number_of_cycles_per_seconds);}
+      else if(name == sv("frequency"           )){return property(sq,sq_number_of_cycles_per_second);}
       else if(name == sv("vm_wait_count_source")){return property(sq,sq_vm_wait_count_source);}
       else if(name == sv("vm_moddir"           )){return property(sq,sq_vm_moddir);}
       else if(name == sv("fm_shift_amount"     )){return property(sq,sq_fm_shift_amount);}

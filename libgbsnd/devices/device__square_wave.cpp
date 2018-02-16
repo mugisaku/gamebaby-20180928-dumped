@@ -11,13 +11,13 @@ void
 square_wave::
 update_parameters() noexcept
 {
-    if(m_number_of_samples_per_cycles == 0.0)
+    if(m_number_of_samples_per_cycle == 0.0)
     {
       return;
     }
 
 
-  double  high_part_samples = m_number_of_samples_per_cycles;
+  double  high_part_samples = m_number_of_samples_per_cycle;
 
     switch(m_duty_ratio)
     {
@@ -31,12 +31,12 @@ update_parameters() noexcept
     if(high_part_samples >= 0.0)
     {
       m_constant_of_high_part_samples = high_part_samples;
-      m_constant_of_low_part_samples  = (m_number_of_samples_per_cycles-high_part_samples);
+      m_constant_of_low_part_samples  = (m_number_of_samples_per_cycle-high_part_samples);
 
 //printf("%8d %8d\n",m_constant_of_high_part_samples,
 //          m_constant_of_low_part_samples);
 
-      auto  rem = m_time%static_cast<uint32_t>(m_number_of_samples_per_cycles);
+      auto  rem = m_time%static_cast<uint32_t>(m_number_of_samples_per_cycle);
 
         if(rem < m_constant_of_high_part_samples)
         {
@@ -96,13 +96,13 @@ modify_frequency() noexcept
           m_fm_wait_count = m_fm_wait_count_source;
 
 
-          auto  n = m_number_of_cycles_per_seconds;
+          auto  n = m_number_of_cycles_per_second;
 
                if(m_fm_moddir == moddir::up  ){n = n+(n/(1+1*m_fm_shift_amount));}
           else if(m_fm_moddir == moddir::down){n = n-(n/(1+1*m_fm_shift_amount));}
 
 
-          set_number_of_cycles_per_seconds((n > 0.0)? n:0.0);
+          set_number_of_cycles_per_second((n > 0.0)? n:0.0);
         }
     }
 }

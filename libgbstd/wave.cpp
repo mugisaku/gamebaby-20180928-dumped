@@ -14,9 +14,9 @@ read_fmt( const riff_subchunk_view&  rv) noexcept
 {
   auto  p = rv.data();
 
-  auto  format_id = bget_le16(p);
+  m_format.id = bget_le16(p);
 
-    if(format_id != 1)
+    if(m_format.id != 1)
     {
       printf("リニアPCMではない\n");
       return;
@@ -25,23 +25,23 @@ read_fmt( const riff_subchunk_view&  rv) noexcept
 
   p += 2;
 
-  m_number_of_channels = bget_le16(p);
+  m_format.number_of_channels = bget_le16(p);
 
   p += 2;
 
-  m_sampling_rate = bget_le32(p);
+  m_format.sampling_rate = bget_le32(p);
 
   p += 4;
 
-  m_byte_rate = bget_le32(p);
+  m_format.byte_rate = bget_le32(p);
 
   p += 4;
 
-  m_block_align = bget_le16(p);
+  m_format.block_align = bget_le16(p);
 
   p += 2;
 
-  m_number_of_bits_per_sample = bget_le16(p);
+  m_format.number_of_bits_per_sample = bget_le16(p);
 
   p += 2;
 }
@@ -105,6 +105,19 @@ assign(const riff_subchunk_view&  rv) noexcept
 }
 
 
+void
+wave::
+assign(const uint8_t*  data, size_t  length, const wave_format&  fmt) noexcept
+{
+  m_format = fmt;
+
+  m_length = length;
+  m_data   =   data;
+}
+
+
+
+
 namespace{
 void
 fput_le32(uint32_t  i, FILE*  f) noexcept
@@ -139,11 +152,11 @@ save_to_file(FILE*  f) const noexcept
   fput_le32(16,f);
 
   fput_le16( 1,f);//format_id
-  fput_le16( number_of_channels(),f);
-  fput_le32(sampling_rate(),f);
-  fput_le32(byte_rate(),f);
-  fput_le16(block_align(),f);
-  fput_le16(number_of_bits_per_sample(),f);
+  fput_le16( m_format.number_of_channels,f);
+  fput_le32(m_format.sampling_rate,f);
+  fput_le32(m_format.byte_rate,f);
+  fput_le16(m_format.block_align,f);
+  fput_le16(m_format.number_of_bits_per_sample,f);
 
   fwrite("data",1,4,f);
 
@@ -157,12 +170,12 @@ void
 wave::
 print() const noexcept
 {
-  printf("       number of channels: %8d\n",number_of_channels());
-  printf("            sampling rate: %8d\n",sampling_rate());
-  printf("                byte rate: %8d\n",byte_rate());
-  printf("              block align: %8d\n",block_align());
-  printf("number of bits per sample: %8d\n",number_of_bits_per_sample());
-  printf("              data length: %8d\n",length());
+  printf("       number of channels: %8d\n",m_format.number_of_channels);
+  printf("            sampling rate: %8d\n",m_format.sampling_rate);
+  printf("                byte rate: %8d\n",m_format.byte_rate);
+  printf("              block align: %8d\n",m_format.block_align);
+  printf("number of bits per sample: %8d\n",m_format.number_of_bits_per_sample);
+  printf("              data length: %8d\n",m_length);
 }
 
 

@@ -11,7 +11,7 @@ namespace gbsnd{
 namespace devices{
 
 
-constexpr int  number_of_samples_per_seconds = 24000;//1秒あたりのサンプル数
+constexpr int  number_of_samples_per_second = 24000;//1秒あたりのサンプル数
 
 
 enum class
@@ -30,8 +30,8 @@ device
 protected:
   uint32_t  m_time=0;
 
-  double  m_number_of_cycles_per_seconds=0;//1秒あたりの周波数
-  double  m_number_of_samples_per_cycles=0;//1周波あたりのサンプル数
+  double  m_number_of_cycles_per_second=0;//1秒あたりの周波数
+  double  m_number_of_samples_per_cycle=0;//1周波あたりのサンプル数
 
 //vm = Volume Modification = 音数変更
   uint32_t  m_vm_wait_count_source=0;//音量変更待機値元値
@@ -55,10 +55,10 @@ public:
 
   uint32_t  get_time() const noexcept{return m_time;}
 
-  void      set_number_of_cycles_per_seconds(double  n)       noexcept;
-  uint32_t  get_number_of_cycles_per_seconds(         ) const noexcept{return m_number_of_cycles_per_seconds;}
+  void      set_number_of_cycles_per_second(double  n)       noexcept;
+  uint32_t  get_number_of_cycles_per_second(         ) const noexcept{return m_number_of_cycles_per_second;}
 
-  uint32_t  get_number_of_samples_per_cycles() const noexcept{return m_number_of_samples_per_cycles;}
+  uint32_t  get_number_of_samples_per_cycle() const noexcept{return m_number_of_samples_per_cycle;}
 
 
   void     set_volume(uint8_t  v)       noexcept{       m_volume = v&0x7F;}
@@ -150,7 +150,7 @@ public:
 }
 
 
-using devices::number_of_samples_per_seconds;
+using devices::number_of_samples_per_second;
 using devices::square_wave;
 using devices::noise;
 using devices::moddir;

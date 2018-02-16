@@ -13,7 +13,7 @@ set_keyon_flag(bool  v) noexcept
 {
   device::set_keyon_flag(v);
 
-  m_time = m_number_of_samples_per_cycles;
+  m_time = m_number_of_samples_per_cycle;
 
   m_seed = 0xFFFF;
 
@@ -33,7 +33,7 @@ output(uint32_t*  begin, uint32_t*  end) noexcept
     {
         if(test_keyon_flag())
         {
-            if(m_time >= m_number_of_samples_per_cycles)
+            if(m_time >= m_number_of_samples_per_cycle)
             {
                 if(!m_seed)
                 {

@@ -19,14 +19,14 @@ set_keyon_flag(bool  v) noexcept
 
 void
 device::
-set_number_of_cycles_per_seconds(double  n) noexcept
+set_number_of_cycles_per_second(double  n) noexcept
 {
-  constexpr auto  dsp_freq = static_cast<double>(number_of_samples_per_seconds);
+  constexpr auto  dsp_freq = static_cast<double>(number_of_samples_per_second);
 
     if((n > 0.0) && (n <= dsp_freq))
     {
-      m_number_of_cycles_per_seconds =          n;
-      m_number_of_samples_per_cycles = dsp_freq/n;
+      m_number_of_cycles_per_second =          n;
+      m_number_of_samples_per_cycle = dsp_freq/n;
 
       m_need_update = true;
     }

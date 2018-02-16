@@ -48,11 +48,13 @@ include_directories(./)
 include_directories(/usr/include/SDL2)
 #add_executable("testGBSTD${EXECUTABLE_EXTENSION}" testGBSTD.cpp)
 add_executable("gbsnd_sdl${EXECUTABLE_EXTENSION}" gbsnd_sdl.cpp)
+add_executable("gbsnd_nogui${EXECUTABLE_EXTENSION}" gbsnd_nogui.cpp)
 #add_executable("testBattle${EXECUTABLE_EXTENSION}" Battle/testMain.cpp)
 #add_executable("testRandom${EXECUTABLE_EXTENSION}" Battle/testRandom.cpp)
 #add_executable("testMessembly${EXECUTABLE_EXTENSION}" Game/testMessembly.cpp ${GAME_SOURCES})
 #target_link_libraries("testGBSTD${EXECUTABLE_EXTENSION}" "gbstd")
 target_link_libraries("gbsnd_sdl${EXECUTABLE_EXTENSION}" "gbsnd" "tok" "gbstd")
+target_link_libraries("gbsnd_nogui${EXECUTABLE_EXTENSION}" "gbsnd" "tok" "gbstd")
 #target_link_libraries("testBattle${EXECUTABLE_EXTENSION}" "battle" "gbdn" "tok" "gbstd")
 
 

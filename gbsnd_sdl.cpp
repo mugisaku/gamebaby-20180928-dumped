@@ -1,4 +1,3 @@
-#include"libgbstd/wave.hpp"
 #include"libgbsnd/device.hpp"
 #include"libgbsnd/script.hpp"
 #include"libgbsnd/expr.hpp"
@@ -73,7 +72,7 @@ callback(void*  userdata, uint8_t*  buf, int  len)
 void
 initialize()
 {
-  spec.freq     = gbsnd::number_of_samples_per_seconds;
+  spec.freq     = gbsnd::number_of_samples_per_second;
   spec.format   = AUDIO_S8;
   spec.samples  = number_of_samples;
   spec.channels = 1;
@@ -152,18 +151,6 @@ show_usage() noexcept
 int
 main(int  argc, char**  argv)
 {
-gbstd::riff_chunk  chk;
-
-chk.load_file("/tmp/test.wav");
-
-gbstd::riff_subchunk_view  rv(chk);
-
-gbstd::wave  wav(rv);
-
-wav.print();
-
-return 0;
-
     if((argc == 1) || (argc >= 4))
     {
       show_usage();

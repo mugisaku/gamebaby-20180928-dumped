@@ -10,14 +10,23 @@ namespace gbstd{
 namespace waves{
 
 
+struct
+wave_format
+{
+  uint16_t  id;
+  uint16_t  number_of_channels;
+  uint32_t  sampling_rate;
+  uint32_t  byte_rate;
+  uint16_t  block_align;
+  uint16_t  number_of_bits_per_sample;
+
+};
+
+
 class
 wave
 {
-  uint16_t  m_number_of_channels=0;
-  uint32_t  m_sampling_rate=0;
-  uint32_t  m_byte_rate=0;
-  uint16_t  m_block_align=0;
-  uint16_t  m_number_of_bits_per_sample=0;
+  wave_format  m_format;
 
   uint32_t  m_length=0;
 
@@ -31,12 +40,9 @@ public:
   wave(const riff_subchunk_view&  rv) noexcept{assign(rv);}
 
   void  assign(const riff_subchunk_view&  rv) noexcept;
+  void  assign(const uint8_t*  data, size_t  length, const wave_format&  fmt) noexcept;
 
-  uint16_t  number_of_channels() const noexcept{return m_number_of_channels;}
-  uint32_t  sampling_rate() const noexcept{return m_sampling_rate;}
-  uint32_t  byte_rate() const noexcept{return m_byte_rate;}
-  uint16_t  block_align() const noexcept{return m_block_align;}
-  uint16_t  number_of_bits_per_sample() const noexcept{return m_number_of_bits_per_sample;}
+  const wave_format&  get_format() const noexcept{return m_format;}
 
   uint32_t  length() const noexcept{return m_length;}
 
@@ -53,6 +59,7 @@ public:
 
 
 using waves::wave;
+using waves::wave_format;
 
 
 }
