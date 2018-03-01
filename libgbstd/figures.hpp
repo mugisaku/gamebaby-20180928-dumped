@@ -209,6 +209,10 @@ line
   a_point(a),
   b_point(b){}
 
+  constexpr line(int  x0, int  y0, int  x1, int  y1) noexcept:
+  a_point(x0,y0),
+  b_point(x1,y1){}
+
 };
 
 

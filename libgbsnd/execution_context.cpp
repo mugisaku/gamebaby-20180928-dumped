@@ -427,13 +427,14 @@ run(millisecond  ms) noexcept
 
     while(m_number_of_frames)
     {
+/*
         if(++count >= count_limit)
         {
           printf("run error: カウンタ上限を越えた\n");
 
           break;
         }
-
+*/
 
       auto&  frame = *m_top_frame;
 

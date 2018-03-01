@@ -17,12 +17,13 @@ line_maker
 
   point  m_point;
 
-  int  m_distance;
+  int  m_distance=0;
 
-  int  m_x_add_amount;
-  int  m_y_add_amount;
+  int  m_x_add_amount=0;
+  int  m_y_add_amount=0;
 
 public:
+  line_maker() noexcept{}
   line_maker(line  ln) noexcept;
 
   int  get_distance() const noexcept{return m_distance;}
