@@ -1,10 +1,15 @@
-#include<SDL2/SDL.h>
+#include<SDL.h>
 #include<cstdint>
 #include<cstdlib>
 #include<cstdio>
 #include<cmath>
 #include<list>
 #include<random>
+
+
+#ifdef EMSCRIPTEN
+#include<emscripten.h>
+#endif
 
 
 namespace{
@@ -30,7 +35,7 @@ uint32_t
 bitmap[table_size][table_size];
 
 bool
-need_to_update = true;
+need_to_redraw = true;
 
 
 std::random_device  randev;
@@ -430,8 +435,8 @@ public:
     int  air_preasure = (m_center_height < sea_level)? (height_max-sea_level)
                                                      : (height_max-m_center_height);
 
-    int  water_preasure = 2*(m_center_height < sea_level)? (sea_level-m_center_height)
-                                                         : 0;
+    int  water_preasure = 2*((m_center_height < sea_level)? (sea_level-m_center_height)
+                                                          : 0);
 
     int  weight = 4*m_center_height;
 
@@ -493,46 +498,6 @@ public:
     return(m_y_pos < table_size);
   }
 
-
-  void  prepare_to_erode() noexcept
-  {
-    m_y_pos = 0;
-  }
-
-
-  bool  erode(int  h=1) noexcept
-  {
-      while(h-- && (m_y_pos < table_size))
-      {
-        element*  row = table[m_y_pos++];
-
-          for(int  x = 0;  x < table_size;  ++x)
-          {
-            auto&  e = *row++;
-
-            direction  dir;
-
-              while(dir)
-              {
-                auto  dst = e.get_link(dir++);
-
-                  if(dst && (e.get_height() > dst->get_height()))
-                  {
-                    e.erode(*dst,8000);
-
-                    dst->collect_fraction();
-                  }
-              }
-
-
-            e.collect_fraction();
-          }
-      }
-
-
-    return(m_y_pos < table_size);
-  }
-
 };
 
 
@@ -556,6 +521,51 @@ print() noexcept
 
 
   fclose(f);
+}
+
+
+bool
+erode(int  h=1) noexcept
+{
+  static int  y;
+
+    while(h-- && (y < table_size))
+    {
+      element*  row = table[y++];
+
+        for(int  x = 0;  x < table_size;  ++x)
+        {
+          auto&  e = *row++;
+
+          direction  dir;
+
+            while(dir)
+            {
+              auto  dst = e.get_link(dir++);
+
+                if(dst && (e.get_height() > dst->get_height()))
+                {
+                  e.erode(*dst,64000);
+
+                  dst->collect_fraction();
+                }
+            }
+
+
+          e.collect_fraction();
+        }
+    }
+
+
+    if(y >= table_size)
+    {
+      y = 0;
+
+      return true;
+    }
+
+
+  return false;
 }
 
 
@@ -651,9 +661,6 @@ draw() noexcept
             }
         }
     }
-
-
-  need_to_update = true;
 }
 
 
@@ -703,7 +710,15 @@ main_loop() noexcept
     }
 
 
-    if(current_ctx != ctxs.end())
+    if(ctxs.empty())
+    {
+        if(erode(64))
+        {
+          need_to_redraw = true;
+        }
+    }
+
+  else
     {
       static int  pc;
 
@@ -716,42 +731,51 @@ main_loop() noexcept
       case(1):
             if(!current_ctx->flow_lava(64))
             {
-                if(++current_ctx == ctxs.end())
+                if(!*current_ctx)
                 {
-                  current_ctx = ctxs.begin();
+                  current_ctx = ctxs.erase(current_ctx);
+                }
+
+              else
+                {
+                  ++current_ctx;
                 }
 
 
-              ++pc;
+                if(current_ctx == ctxs.end())
+                {
+                  current_ctx = ctxs.begin();
+
+                  ++pc;
+                }
+
+              else
+                {
+                  pc = 0;
+                }
             }
           break;
       case(2):
-          draw();
-
-          update();
-
-          current_ctx->prepare_to_erode();
-          ++pc;
-      case(3):
-            if(!current_ctx->erode(64))
+            if(erode(64))
             {
-                if(++current_ctx == ctxs.end())
-                {
-                  current_ctx = ctxs.begin();
-                }
+              pc = 0;
 
-
-              ++pc;
+              need_to_redraw = true;
             }
-          break;
-      case(4):
-          draw();
 
-          update();
-
-          pc = 0;
           break;
         }
+    }
+
+
+
+    if(need_to_redraw)
+    {
+      draw();
+
+      update();
+
+      need_to_redraw = false;
     }
 }
 
@@ -804,12 +828,16 @@ main(int  argc, char**  argv)
 
   update();
 
+#ifdef EMSCRIPTEN
+  emscripten_set_main_loop(main_loop,0,true);
+#else
     for(;;)
     {
       main_loop();
 
       SDL_Delay(20);
     }
+#endif
 
 
   quit();

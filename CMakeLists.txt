@@ -34,7 +34,7 @@ if(EMSC)
   set(CMAKE_CXX_COMPILER  em++)
   set(CMAKE_CXX_FLAGS "-Werror -std=c++1z -Wno-switch -O2")
   set(CMAKE_CXX_FLAGS_DEBUG "")
-  set(CMAKE_CXX_LINK_FLAGS  "${CMAKE_CXX_LINK_FLAGS} -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_SDL=2 --embed-file image.png --embed-file battle.gb.txt --embed-file large_font.gz --embed-file small_font.gz")
+  set(CMAKE_CXX_LINK_FLAGS  "${CMAKE_CXX_LINK_FLAGS} -s TOTAL_MEMORY=33554432 -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_SDL=2 --embed-file image.png --embed-file battle.gb.txt --embed-file large_font.gz --embed-file small_font.gz")
 endif()
 
 
@@ -70,6 +70,7 @@ if(EMSC)
 #add_custom_target(bincopy ALL COMMAND cp ../bin/image.png ../battle.gb.txt /usr/local/share/gmbb/large_font.gz /usr/local/share/gmbb/small_font.gz ./)
 #add_dependencies("testBattle${EXECUTABLE_EXTENSION}" bincopy)
 #set_target_properties("testBattle${EXECUTABLE_EXTENSION}"  PROPERTIES LINK_FLAGS "--shell-file ../shell.html")
+set_target_properties("landriser${EXECUTABLE_EXTENSION}"  PROPERTIES LINK_FLAGS "--shell-file ../shell.html")
 endif()
 
 
