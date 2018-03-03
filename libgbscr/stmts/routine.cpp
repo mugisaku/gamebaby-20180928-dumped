@@ -1,16 +1,15 @@
-#include"libgbsnd/object.hpp"
-#include"libgbsnd/script.hpp"
-#include"libgbsnd/stmt.hpp"
+#include"libgbscr/object.hpp"
+#include"libgbscr/stmt.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace stmts{
 
 
 
 
 routine::
-routine(const script_token_string&  parals_src, const script_token_string&  blk_src) noexcept
+routine(const token_string&  parals_src, const token_string&  blk_src) noexcept
 {
   std::vector<gbstd::string>  buf;
 
@@ -21,7 +20,7 @@ routine(const script_token_string&  parals_src, const script_token_string&  blk_
     {
          if(it->is_identifier())
          {
-           buf.emplace_back(it->get_identifier().view());
+           buf.emplace_back(it->get_string().view());
 
            ++it;
 

@@ -1,9 +1,8 @@
-#include"libgbsnd/expr.hpp"
-#include"libgbsnd/script.hpp"
+#include"libgbscr/expr.hpp"
 #include<new>
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace exprs{
 
 

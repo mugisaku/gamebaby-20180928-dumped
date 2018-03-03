@@ -73,6 +73,7 @@ public:
   identifier(const shared_string&  s) noexcept: m_string(s){}
 
   const shared_string&  operator*() const noexcept{return m_string;}
+  const shared_string*  operator->() const noexcept{return &m_string;}
 
 };
 

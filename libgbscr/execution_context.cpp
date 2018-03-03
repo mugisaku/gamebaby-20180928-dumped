@@ -1,9 +1,9 @@
-#include"libgbsnd/execution.hpp"
-#include"libgbsnd/object.hpp"
-#include"libgbsnd/stmt.hpp"
+#include"libgbscr/execution.hpp"
+#include"libgbscr/object.hpp"
+#include"libgbscr/stmt.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 
 
 struct
@@ -83,11 +83,11 @@ frame
 
 void
 execution_context::
-reset(const script&  scr) noexcept
+reset(const process&  prr) noexcept
 {
   clear();
 
-  m_script = scr;
+  m_process = prr;
 }
 
 
@@ -195,7 +195,7 @@ call(gbstd::string_view  routine_name, const value_list&  argument_list, value* 
   gbstd::string_copy  sc(routine_name);
 
 
-  auto  r = m_script.find_routine(routine_name);
+  auto  r = m_process.find_routine(routine_name);
 
     if(!r)
     {
@@ -278,13 +278,15 @@ get_value(gbstd::string_view  name) const noexcept
     }
 
 
-    for(auto&  obj: m_script.get_object_list())
+/*
+    for(auto&  obj: m_process.get_object_list())
     {
         if(obj.get_name() == name)
         {
           return value(reference(obj));
         }
     }
+*/
 
 
   frm.object_list.emplace_back(name);

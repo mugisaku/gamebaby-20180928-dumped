@@ -21,6 +21,7 @@ set(SOURCES
   tokens/token_cursor.cpp
   execution_context.cpp
   shared_string.cpp
+  process.cpp
 )
 
 

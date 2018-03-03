@@ -1,10 +1,10 @@
-#include"libgbsnd/object.hpp"
-#include"libgbsnd/execution.hpp"
-#include"libgbsnd/stmt.hpp"
+#include"libgbscr/object.hpp"
+#include"libgbscr/execution.hpp"
+#include"libgbscr/stmt.hpp"
 #include<new>
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace objects{
 
 
@@ -82,34 +82,6 @@ operator=(const property&  pr) noexcept
 
 value&
 value::
-operator=(square_wave&  sq) noexcept
-{
-  clear();
-
-  m_kind = kind::square_wave;
-
-  m_data.sq = &sq;
-
-  return *this;
-}
-
-
-value&
-value::
-operator=(noise&  no) noexcept
-{
-  clear();
-
-  m_kind = kind::noise;
-
-  m_data.no = &no;
-
-  return *this;
-}
-
-
-value&
-value::
 operator=(system  sys) noexcept
 {
   clear();
@@ -144,12 +116,6 @@ operator=(const value&  rhs) noexcept
       case(kind::property):
           m_data.pr = rhs.m_data.pr;
           break;
-      case(kind::square_wave):
-          m_data.sq = rhs.m_data.sq;
-          break;
-      case(kind::noise):
-          m_data.no = rhs.m_data.no;
-          break;
         }
     }
 
@@ -182,12 +148,6 @@ operator=(value&&  rhs) noexcept
       case(kind::property):
           m_data.pr = rhs.m_data.pr;
           break;
-      case(kind::square_wave):
-          m_data.sq = rhs.m_data.sq;
-          break;
-      case(kind::noise):
-          m_data.no = rhs.m_data.no;
-          break;
         }
     }
 
@@ -210,10 +170,6 @@ clear() noexcept
   case(kind::routine):
       break;
   case(kind::property):
-      break;
-  case(kind::square_wave):
-      break;
-  case(kind::noise):
       break;
     }
 
@@ -280,12 +236,6 @@ print() const noexcept
       break;
   case(kind::property):
       printf("property{ %d }",m_data.pr.get());
-      break;
-  case(kind::square_wave):
-      printf("square_wave");
-      break;
-  case(kind::noise):
-      printf("noise");
       break;
   case(kind::system):
       printf("system");

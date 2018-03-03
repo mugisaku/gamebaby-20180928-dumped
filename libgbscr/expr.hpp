@@ -2,22 +2,18 @@
 #define LIBGBSND_EXPR_HPP
 
 
-#include"libgbsnd/object.hpp"
+#include"libgbscr/object.hpp"
 #include"libgbstd/utility.hpp"
-#include"libgbsnd/short_string.hpp"
-#include"libgbsnd/list.hpp"
+#include"libgbscr/short_string.hpp"
+#include"libgbscr/list.hpp"
+#include"libgbscr/token.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 
 
 class execution_context;
 
-
-namespace scripts{
-class script_token_string;
-class script_token_cursor;
-}
 
 namespace exprs{
 
@@ -139,8 +135,8 @@ public:
 
 
 expr       make_expr(gbstd::string_view  sv) noexcept;
-expr       make_expr(     scripts::script_token_cursor&  cur) noexcept;
-expr_list  make_expr_list(scripts::script_token_cursor&  cur) noexcept;
+expr       make_expr(     token_cursor&  cur) noexcept;
+expr_list  make_expr_list(token_cursor&  cur) noexcept;
 
 
 class
@@ -182,7 +178,7 @@ operand
 
     uint64_t  i;
 
-    identifier  id;
+    shared_string  s;
 
     expr       e;
     expr_list  els;
@@ -235,14 +231,14 @@ public:
   bool  is_operation()         const noexcept{return m_kind == kind::operation;}
   bool  is_value()             const noexcept{return m_kind == kind::value;}
 
-  bool                get_boolean_literal()   const noexcept{return m_data.b;}
-  uint64_t            get_integer_literal()   const noexcept{return m_data.i;}
-  const identifier&   get_identifier()        const noexcept{return m_data.id;}
-  const expr&         get_expression()        const noexcept{return m_data.e;}
-  const expr_list&    get_expression_list()   const noexcept{return m_data.els;}
-  const paired_expr&  get_paired_expression() const noexcept{return m_data.pe;}
-  const operation&    get_operation()         const noexcept{return m_data.op;}
-  const value&        get_value()             const noexcept{return m_data.v;}
+  bool                   get_boolean_literal()   const noexcept{return m_data.b;}
+  uint64_t               get_integer_literal()   const noexcept{return m_data.i;}
+  const shared_string&   get_string()        const noexcept{return m_data.s;}
+  const expr&            get_expression()        const noexcept{return m_data.e;}
+  const expr_list&       get_expression_list()   const noexcept{return m_data.els;}
+  const paired_expr&     get_paired_expression() const noexcept{return m_data.pe;}
+  const operation&       get_operation()         const noexcept{return m_data.op;}
+  const value&           get_value()             const noexcept{return m_data.v;}
 
   value*  get_value_pointer() noexcept{return &m_data.v;}
 

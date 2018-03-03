@@ -1,10 +1,9 @@
-#include"libgbsnd/expr.hpp"
-#include"libgbsnd/script.hpp"
-#include"libgbsnd/execution.hpp"
+#include"libgbscr/expr.hpp"
+#include"libgbscr/execution.hpp"
 #include<new>
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace exprs{
 
 
@@ -93,7 +92,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
       else
         if(!lv.is_reference())
         {
-          printf(".%s\n",ro.get_identifier().view().data());
+          printf(".%s\n",ro.get_string().data());
 
           printf("左辺が参照ではない\n");
 
@@ -102,7 +101,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
 
       else
         {
-          lo = operand(value(lv.get_reference().get_property(ro.get_identifier())));
+          lo = operand(value(lv.get_reference().get_property(ro.get_string())));
         }
 
 

@@ -3,12 +3,12 @@
 
 
 #include"libgbstd/string.hpp"
-#include"libgbsnd/script.hpp"
-#include"libgbsnd/expr.hpp"
+#include"libgbscr/expr.hpp"
+#include"libgbscr/process.hpp"
 #include<cstdint>
 
 
-namespace gbsnd{
+namespace gbscr{
 
 
 namespace objects{
@@ -33,7 +33,7 @@ millisecond
 class
 execution_context
 {
-  script  m_script;
+  process  m_process;
 
   size_t  m_number_of_frames=0;
 
@@ -58,12 +58,12 @@ execution_context
 
 public:
   execution_context() noexcept{}
-  execution_context(const script&  scr) noexcept{reset(scr);}
+  execution_context(const process&  prc) noexcept{reset(prc);}
  ~execution_context(){clear();}
 
   void  clear() noexcept;
 
-  void  reset(const script&  scr) noexcept;
+  void  reset(const process&  prc) noexcept;
 
   void  prepare_call(const stmts::routine&  routine, const expr_list&  argument_list, value*  return_value=nullptr) noexcept;
 

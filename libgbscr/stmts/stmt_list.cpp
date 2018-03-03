@@ -1,9 +1,8 @@
-#include"libgbsnd/stmt.hpp"
-#include"libgbsnd/script.hpp"
+#include"libgbscr/stmt.hpp"
 #include"libgbstd/utility.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace stmts{
 
 
@@ -43,14 +42,14 @@ switch_data
 void
 build(const char*  label_base,
       const char*     break_label,
-      const char*  continue_label, types::switch_data&  swdat, context&  ctx, script_token_cursor&  cur,
+      const char*  continue_label, types::switch_data&  swdat, context&  ctx, token_cursor&  cur,
       buffer_type&  buf) noexcept;
 
 
 void
 build_for(const char*  label_base,
       const char*     break_label,
-      const char*  continue_label, types::switch_data&  swdat, context&  ctx, script_token_cursor&  cur,
+      const char*  continue_label, types::switch_data&  swdat, context&  ctx, token_cursor&  cur,
       buffer_type&  buf) noexcept
 {
   gbstd::tmpstr  co_label_base("FOR%03d",ctx.for_count++);
@@ -59,7 +58,7 @@ build_for(const char*  label_base,
   gbstd::tmpstr    conti_label("%s_CONTINUE",*co_label_base);
 
 
-  script_token_cursor  para_cur(cur[0].get_token_string());
+  token_cursor  para_cur(cur[0].get_token_string());
 
   expr  init_expr = make_expr(para_cur);
   expr  cond_expr = make_expr(para_cur);
@@ -80,7 +79,7 @@ build_for(const char*  label_base,
     }
 
 
-  script_token_cursor  blk_cur(cur[1].get_token_string());
+  token_cursor  blk_cur(cur[1].get_token_string());
 
   build(*co_label_base,*end_label,*conti_label,swdat,ctx,blk_cur,buf);
 
@@ -99,7 +98,7 @@ build_for(const char*  label_base,
 void
 build_while(const char*  label_base,
       const char*     break_label,
-      const char*  continue_label, types::switch_data&  swdat, context&  ctx, script_token_cursor&  cur,
+      const char*  continue_label, types::switch_data&  swdat, context&  ctx, token_cursor&  cur,
       buffer_type&  buf) noexcept
 {
   gbstd::tmpstr  co_label_base("WHILE%03d",ctx.while_count++);
@@ -110,13 +109,13 @@ build_while(const char*  label_base,
   buf.emplace_back(stmt_kind::label,*begin_label);
 
 
-  script_token_cursor  expr_cur(cur[0].get_token_string());
+  token_cursor  expr_cur(cur[0].get_token_string());
 
   buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur));
   buf.emplace_back(stmt_kind::jump_by_condition,*end_label);
 
 
-  script_token_cursor  blk_cur(cur[1].get_token_string());
+  token_cursor  blk_cur(cur[1].get_token_string());
 
   build(*co_label_base,*end_label,*begin_label,swdat,ctx,blk_cur,buf);
 
@@ -131,7 +130,7 @@ build_while(const char*  label_base,
 void
 build_if(const char*  label_base,
       const char*     break_label,
-      const char*  continue_label, types::switch_data&  swdat, context&  ctx, script_token_cursor&  cur,
+      const char*  continue_label, types::switch_data&  swdat, context&  ctx, token_cursor&  cur,
       buffer_type&  buf) noexcept
 {
   int  block_number = 0;
@@ -141,13 +140,13 @@ build_if(const char*  label_base,
   gbstd::tmpstr     next_label("%s_%03d",*co_label_base,block_number++);
 
 
-  script_token_cursor  expr_cur(cur[0].get_token_string());
+  token_cursor  expr_cur(cur[0].get_token_string());
 
   buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur));
   buf.emplace_back(stmt_kind::jump_by_condition,*next_label);
 
 
-  script_token_cursor  blk_cur(cur[1].get_token_string());
+  token_cursor  blk_cur(cur[1].get_token_string());
 
   build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf);
 
@@ -163,7 +162,7 @@ build_if(const char*  label_base,
 
         if(cur[0].is_token_string('{','}'))
         {
-          blk_cur = script_token_cursor(cur[0].get_token_string());
+          blk_cur = token_cursor(cur[0].get_token_string());
 
           build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf);
 
@@ -179,13 +178,13 @@ build_if(const char*  label_base,
         {
           next_label("%s_%03d",*co_label_base,block_number++);
 
-          expr_cur = script_token_cursor(cur[1].get_token_string());
+          expr_cur = token_cursor(cur[1].get_token_string());
 
           buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur));
           buf.emplace_back(stmt_kind::jump_by_condition,*next_label);
 
 
-          blk_cur = script_token_cursor(cur[2].get_token_string());
+          blk_cur = token_cursor(cur[2].get_token_string());
 
           build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf);
 
@@ -204,7 +203,7 @@ build_if(const char*  label_base,
 void
 build_switch(const char*  label_base,
       const char*     break_label,
-      const char*  continue_label, types::switch_data&  swdat, context&  ctx, script_token_cursor&  cur,
+      const char*  continue_label, types::switch_data&  swdat, context&  ctx, token_cursor&  cur,
       buffer_type&  buf) noexcept
 {
   types::switch_data  new_swdat;
@@ -218,8 +217,8 @@ build_switch(const char*  label_base,
   buf.emplace_back(stmt_kind::label,*begin_label);
 
 
-  script_token_cursor  expr_cur(cur[0].get_token_string());
-  script_token_cursor   blk_cur(cur[1].get_token_string());
+  token_cursor  expr_cur(cur[0].get_token_string());
+  token_cursor   blk_cur(cur[1].get_token_string());
 
 
   buffer_type  tmp_buf;
@@ -264,7 +263,7 @@ build_switch(const char*  label_base,
 void
 build(const char*  label_base,
       const char*     break_label,
-      const char*  continue_label, types::switch_data&  swdat, context&  ctx, script_token_cursor&  cur,
+      const char*  continue_label, types::switch_data&  swdat, context&  ctx, token_cursor&  cur,
       buffer_type&  buf) noexcept
 {
     while(cur)
@@ -273,7 +272,7 @@ build(const char*  label_base,
         {
           using  sv = gbstd::string_view;
 
-          sv  id(cur[0].get_identifier().view());
+          sv  id(cur[0].get_string().view());
 
             if(id == sv("return"))
             {
@@ -376,7 +375,7 @@ build(const char*  label_base,
                   gbstd::tmpstr  label("%s_CASE%03d",swdat.label_base,swdat.case_exprs.size());
 
 
-                  script_token_cursor  expr_cur(cur->get_token_string());
+                  token_cursor  expr_cur(cur->get_token_string());
 
                   auto  e = make_expr(expr_cur);
 
@@ -434,7 +433,7 @@ build(const char*  label_base,
                 }
 
 
-              buf.emplace_back(stmt_kind::jump,cur->get_identifier().view());
+              buf.emplace_back(stmt_kind::jump,cur->get_string().view());
 
               ++cur;
             }
@@ -452,7 +451,7 @@ build(const char*  label_base,
                 }
 
 
-              buf.emplace_back(stmt_kind::label,cur->get_identifier().view());
+              buf.emplace_back(stmt_kind::label,cur->get_string().view());
 
               ++cur;
             }
@@ -470,7 +469,7 @@ build(const char*  label_base,
                 }
 
 
-              buf.emplace_back(stmt_kind::jump,cur->get_identifier().view());
+              buf.emplace_back(stmt_kind::jump,cur->get_string().view());
 
               ++cur;
             }
@@ -520,11 +519,11 @@ build(const char*  label_base,
 
 
 stmt_list::
-stmt_list(const script_token_string&  toks) noexcept
+stmt_list(const token_string&  toks) noexcept
 {
   buffer_type  buf;
 
-  script_token_cursor  cur(toks);
+  token_cursor  cur(toks);
 
   context  ctx = {0};
 

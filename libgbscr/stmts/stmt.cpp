@@ -1,7 +1,7 @@
-#include"libgbsnd/stmt.hpp"
+#include"libgbscr/stmt.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace stmts{
 
 

@@ -7,7 +7,7 @@
 #include"libgbstd/utility.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 
 
 template<typename  T>

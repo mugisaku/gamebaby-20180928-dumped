@@ -1,8 +1,8 @@
-#include"libgbsnd/object.hpp"
+#include"libgbscr/object.hpp"
 #include<new>
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace objects{
 
 

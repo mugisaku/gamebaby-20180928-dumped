@@ -1,8 +1,8 @@
-#include"libgbsnd/expr.hpp"
-#include"libgbsnd/script.hpp"
+#include"libgbscr/expr.hpp"
+#include"libgbscr/stream.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace exprs{
 
 
@@ -188,7 +188,7 @@ result
 
 
 result
-read(script_token_cursor&  cur, maker&  mk) noexcept
+read(token_cursor&  cur, maker&  mk) noexcept
 {
   using  oe = operator_egg;
 
@@ -202,7 +202,7 @@ read(script_token_cursor&  cur, maker&  mk) noexcept
 
         if(tok.is_identifier())
         {
-          mk.push(operand(tok.get_identifier()));
+          mk.push(operand(tok.get_string()));
 
           ++cur;
         }
@@ -345,7 +345,7 @@ read(script_token_cursor&  cur, maker&  mk) noexcept
             if((toks.get_open()  == '(') &&
                (toks.get_close() == ')'))
             {
-              script_token_cursor  cocur(toks);
+              token_cursor  cocur(toks);
 
                 if(mk.get_last().is_operand())
                 {
@@ -369,7 +369,7 @@ read(script_token_cursor&  cur, maker&  mk) noexcept
             if((toks.get_open()  == '[') &&
                (toks.get_close() == ']'))
             {
-              script_token_cursor  cocur(toks);
+              token_cursor  cocur(toks);
 
                 if(mk.get_last().is_operand())
                 {
@@ -419,24 +419,24 @@ read(script_token_cursor&  cur, maker&  mk) noexcept
 expr
 make_expr(gbstd::string_view  sv) noexcept
 {
-  tok::stream_reader  r(sv);
+  stream  s(sv.data());
 
-  script_token_string  toks(r,0,0);
+  token_string  toks(s,0,0);
 
-  script_token_cursor  cur(toks);
+  token_cursor  cur(toks);
 
   return make_expr(cur);
 }
 
 
 expr
-make_expr(script_token_cursor&  cur) noexcept
+make_expr(token_cursor&  cur) noexcept
 {
   maker  mk;
 
     for(;;)
     {
-      auto  ctx = cur->get_stream_context();
+      auto  ptr = cur->get_pointer();
 
         switch(read(cur,mk))
         {
@@ -447,7 +447,7 @@ make_expr(script_token_cursor&  cur) noexcept
       case(result::got_colon):
           printf("処理できない\':\'\n");
 
-          ctx.print();
+//          ctx.print();
           goto QUIT;
           break;
       case(result::got_comma):
@@ -458,7 +458,7 @@ make_expr(script_token_cursor&  cur) noexcept
       case(result::got_error):
           printf("make_expr error\n");
 
-          ctx.print();
+//          ctx.print();
           goto QUIT;
           break;
         }
@@ -473,7 +473,7 @@ QUIT:
 
 
 expr_list
-make_expr_list(script_token_cursor&  cur) noexcept
+make_expr_list(token_cursor&  cur) noexcept
 {
   std::vector<expr>  buf;
 
@@ -483,7 +483,7 @@ make_expr_list(script_token_cursor&  cur) noexcept
 
     for(;;)
     {
-      auto  ctx = cur->get_stream_context();
+      auto  ptr = cur->get_pointer();
 
       mk.clear();
 
@@ -503,7 +503,7 @@ make_expr_list(script_token_cursor&  cur) noexcept
       case(result::got_colon):
           printf("処理できない\':\'\n");
 
-          ctx.print();
+//          ctx.print();
 
           ++cur;
 
@@ -512,7 +512,7 @@ make_expr_list(script_token_cursor&  cur) noexcept
       case(result::got_semicolon):
           printf("処理できない\';\'\n");
 
-          ctx.print();
+//          ctx.print();
 
           ++cur;
 
@@ -534,7 +534,7 @@ make_expr_list(script_token_cursor&  cur) noexcept
       case(result::got_error):
           printf("make_expr_list error\n");
 
-          ctx.print();
+//          ctx.print();
           goto QUIT;
           break;
         }

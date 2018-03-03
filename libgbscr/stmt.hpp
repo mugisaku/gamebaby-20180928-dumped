@@ -2,18 +2,10 @@
 #define LIBGBSND_STMT_HPP
 
 
-#include"libgbsnd/expr.hpp"
+#include"libgbscr/expr.hpp"
 
 
-namespace gbsnd{
-
-
-namespace scripts{
-class script_token_string;
-class script_token_cursor;
-}
-
-
+namespace gbscr{
 namespace stmts{
 
 
@@ -84,7 +76,7 @@ stmt_list: public list<stmt>
 public:
   using list::list;
 
-  stmt_list(const scripts::script_token_string&  toks) noexcept;
+  stmt_list(const token_string&  toks) noexcept;
 
 };
 
@@ -105,8 +97,8 @@ routine
 
 public:
   routine() noexcept{}
-  routine(const scripts::script_token_string&  parals_src,
-          const scripts::script_token_string&  blk_src) noexcept;
+  routine(const token_string&  parals_src,
+          const token_string&  blk_src) noexcept;
 
   const parameter_list&  get_parameter_list() const noexcept{return m_parameter_list;}
   const stmt_list&            get_stmt_list() const noexcept{return m_stmt_list;}

@@ -6,12 +6,12 @@
 #include<cstdio>
 #include<memory>
 #include"libgbstd/string.hpp"
-#include"libgbsnd/shared_string.hpp"
-#include"libgbsnd/device.hpp"
-#include"libgbsnd/list.hpp"
+#include"libgbscr/shared_string.hpp"
+#include"libgbscr/list.hpp"
+#include"libgbscr/token.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 
 
 class execution_context;
@@ -84,8 +84,6 @@ value
     reference,
     routine,
     property,
-    square_wave,
-    noise,
     system,
 
   } m_kind=kind::null;
@@ -95,8 +93,6 @@ value
     reference        r;
     const stmts::routine*  rt;
     property        pr;
-    square_wave*    sq;
-    noise*          no;
 
     data(){}
    ~data(){}
@@ -110,8 +106,6 @@ public:
   value(reference  r) noexcept{*this = r;}
   value(const stmts::routine&  rt) noexcept{*this = rt;}
   value(const property&  pr) noexcept{*this = pr;}
-  value(square_wave&  sq) noexcept{*this = sq;}
-  value(noise&  no) noexcept{*this = no;}
   value(system  sys) noexcept{*this = sys;}
   value(const value&   rhs) noexcept{*this = rhs;}
   value(      value&&  rhs) noexcept{*this = std::move(rhs);}
@@ -122,8 +116,6 @@ public:
   value&  operator=(reference  r) noexcept;
   value&  operator=(const stmts::routine&  rt) noexcept;
   value&  operator=(const property&  pr) noexcept;
-  value&  operator=(square_wave&  sq) noexcept;
-  value&  operator=(noise&  no) noexcept;
   value&  operator=(system  sys) noexcept;
   value&  operator=(const value&   rhs) noexcept;
   value&  operator=(      value&&  rhs) noexcept;
@@ -136,16 +128,12 @@ public:
   bool  is_integer()     const noexcept{return m_kind == kind::integer;}
   bool  is_routine()     const noexcept{return m_kind == kind::routine;}
   bool  is_property()    const noexcept{return m_kind == kind::property;}
-  bool  is_square_wave() const noexcept{return m_kind == kind::square_wave;}
-  bool  is_noise()       const noexcept{return m_kind == kind::noise;}
   bool  is_system()      const noexcept{return m_kind == kind::system;}
 
   int                get_integer()     const noexcept{return m_data.i;}
   reference          get_reference()   const noexcept{return m_data.r;}
   const stmts::routine&  get_routine()     const noexcept;
   const property&    get_property()    const noexcept{return m_data.pr;}
-  square_wave&       get_square_wave() const noexcept{return *m_data.sq;}
-  noise&             get_noise()       const noexcept{return *m_data.no;}
 
   int  get_integer_safely() const noexcept;
 

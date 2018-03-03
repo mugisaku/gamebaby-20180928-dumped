@@ -1,9 +1,9 @@
-#include"libgbsnd/expr.hpp"
-#include"libgbsnd/execution.hpp"
+#include"libgbscr/expr.hpp"
+#include"libgbscr/execution.hpp"
 #include<new>
 
 
-namespace gbsnd{
+namespace gbscr{
 namespace exprs{
 
 
@@ -41,13 +41,13 @@ operand&
 operand::
 operator=(const identifier&  id) noexcept
 {
-    if(id == gbstd::string_view("true"))
+    if(id->view() == gbstd::string_view("true"))
     {
       *this = true;
     }
 
   else
-    if(id == gbstd::string_view("false"))
+    if(id->view() == gbstd::string_view("false"))
     {
       *this = false;
     }
@@ -155,7 +155,7 @@ operator=(const operand&  rhs) noexcept
           m_data.i = rhs.m_data.i;
           break;
       case(kind::identifier):
-          new(&m_data) identifier(rhs.m_data.id);
+          new(&m_data) shared_string(rhs.m_data.s);
           break;
       case(kind::expression):
           new(&m_data) expr(rhs.m_data.e);
@@ -199,7 +199,7 @@ operator=(operand&&  rhs) noexcept
           m_data.i = rhs.m_data.i;
           break;
       case(kind::identifier):
-          new(&m_data) identifier(std::move(rhs.m_data.id));
+          new(&m_data) shared_string(std::move(rhs.m_data.s));
           break;
       case(kind::expression):
           new(&m_data) expr(std::move(rhs.m_data.e));
@@ -234,7 +234,7 @@ clear() noexcept
   case(kind::integer_literal):
       break;
   case(kind::identifier):
-      gbstd::destruct(m_data.id);
+      gbstd::destruct(m_data.s);
       break;
   case(kind::expression):
       gbstd::destruct(m_data.e);
@@ -271,7 +271,7 @@ evaluate(execution_context*  ctx) const noexcept
       return value(static_cast<int>(m_data.i));
       break;
   case(kind::identifier):
-      return ctx? ctx->get_value(m_data.id.view()):value();
+      return ctx? ctx->get_value(m_data.s.view()):value();
       break;
   case(kind::expression):
       return m_data.e.evaluate(ctx);
@@ -308,7 +308,7 @@ print() const noexcept
       printf("%lu",m_data.i);
       break;
   case(kind::identifier):
-      printf("%s",m_data.id.data());
+      printf("%s",m_data.s.data());
       break;
   case(kind::expression):
       m_data.e.print();
