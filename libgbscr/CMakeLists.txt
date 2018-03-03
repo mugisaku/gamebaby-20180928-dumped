@@ -1,12 +1,9 @@
 
 
 set(SOURCES
-  dtrees/string.cpp
-  dtrees/list.cpp
-  dtrees/value.cpp
-  stream.cpp
-  stream__skip.cpp
-  stream__read_number.cpp
+  streams/stream.cpp
+  streams/stream__skip.cpp
+  streams/stream__read_number.cpp
   exprs/expr_element.cpp
   exprs/expr.cpp
   exprs/make_expr.cpp
@@ -31,7 +28,7 @@ set(SOURCES
 
 include_directories(./)
 include_directories(../)
-add_library("gbsnd" ${SOURCES})
+add_library("gbscr" ${SOURCES})
 
 
 

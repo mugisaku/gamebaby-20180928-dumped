@@ -1,4 +1,4 @@
-#include"libgbscr/streams/stream.hpp"
+#include"libgbscr/stream.hpp"
 
 
 
@@ -14,7 +14,7 @@ read_binary_number() noexcept
 
   ++m_pointer;
 
-    while(!is_reached_end())
+    while(*this)
     {
       auto  c = *m_pointer;
 
@@ -52,8 +52,7 @@ read_octal_number() noexcept
 
   ++m_pointer;
 
-    while(!is_reached_end()   &&
-          (*m_pointer >= '0') &&
+    while((*m_pointer >= '0') &&
           (*m_pointer <= '7'))
     {
       i <<= 3;
@@ -72,8 +71,7 @@ read_decimal_number() noexcept
 {
   uint64_t  i = 0;
 
-    while(!is_reached_end() &&
-          (*m_pointer >= '0') &&
+    while((*m_pointer >= '0') &&
           (*m_pointer <= '9'))
     {
       i *= 10;
@@ -94,7 +92,7 @@ read_hexadecimal_number() noexcept
 
   ++m_pointer;
 
-    while(!is_reached_end())
+    while(*this)
     {
       auto  c = *m_pointer;
 
@@ -162,7 +160,8 @@ uint64_t
 stream::
 read_number() noexcept
 {
-  return (*m_pointer == '0')? read_number_that_begins_by_zero(): read_decimal_number();
+  return (*m_pointer == '0')? read_number_that_begins_by_zero()
+        :                     read_decimal_number();
 }
 
 

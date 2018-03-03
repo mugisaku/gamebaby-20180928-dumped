@@ -3,6 +3,7 @@
 
 
 #include<cstddef>
+#include"libgbstd/string_view.hpp"
 
 
 namespace gbscr{
@@ -36,7 +37,12 @@ public:
   const char*  data() const noexcept;
   size_t       size() const noexcept;
 
+  gbstd::string_view  view() const noexcept{return gbstd::string_view(data(),size());}
+
 };
+
+
+shared_string  make_string_from_file(const char*  filepath) noexcept;
 
 
 }

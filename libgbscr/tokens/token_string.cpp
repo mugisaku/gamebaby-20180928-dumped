@@ -1,4 +1,5 @@
 #include"libgbscr/token.hpp"
+#include"libgbscr/stream.hpp"
 #include<vector>
 
 
@@ -8,27 +9,8 @@ namespace tokens{
 
 
 
-namespace{
-bool
-try_push(stream&  r, gbstd::string_view  sv, std::vector<token>&  buf) noexcept
-{
-  operator_word  opw(sv);
-
-    if(r.advance_if_matched(sv))
-    {
-      buf.emplace_back(opw);
-
-      return true;
-    }
-
-
-  return false;
-}
-}
-
-
 token_string::
-token_string(stream&  r, char  open, char  close):
+token_string(stream&  s, char  open, char  close):
 m_open(open),
 m_close(close)
 {
@@ -36,133 +18,31 @@ m_close(close)
 
     for(;;)
     {
-      r.skip_spaces();
+      s.skip_spaces();
 
-        if(r.is_reached_end())
-        {
-            if(open)
-            {
-              printf("token_string error\n");
-            }
-
-
-          break;
-        }
-
-
-      auto  c = r.get_char();
-
-      const auto  p = r.get_pointer();
+      auto  c = s.get_char();
 
         if(c == close)
         {
-          r.advance();
+          s.advance();
 
           break;
         }
 
       else
-        if(c == ';')
         {
-          r.advance();
+          auto&  tok = s.read_token();
 
-          buffer.emplace_back(semicolon{});
+            if(tok)
+            {
+              buffer.emplace_back(tok);
+            }
+
+          else
+            {
+              break;
+            }
         }
-
-      else
-        if(c == '(')
-        {
-          r.advance();
-
-          buffer.emplace_back(token_string(r,'(',')'));
-        }
-
-      else
-        if(c == '{')
-        {
-          r.advance();
-
-          buffer.emplace_back(token_string(r,'{','}'));
-        }
-
-      else
-        if(c == '[')
-        {
-          r.advance();
-
-          buffer.emplace_back(token_string(r,'[',']'));
-        }
-
-      else
-        if((c == ')') ||
-           (c == '}') ||
-           (c == ']'))
-        {
-          printf("token_string error\n");
-
-          throw;
-        }
-
-      else if(try_push(r,gbstd::string_view("..."),buffer)){}
-      else if(try_push(r,gbstd::string_view("."),buffer)){}
-      else if(try_push(r,gbstd::string_view("++"),buffer)){}
-      else if(try_push(r,gbstd::string_view("+="),buffer)){}
-      else if(try_push(r,gbstd::string_view("+"),buffer)){}
-      else if(try_push(r,gbstd::string_view("--"),buffer)){}
-      else if(try_push(r,gbstd::string_view("->"),buffer)){}
-      else if(try_push(r,gbstd::string_view("-="),buffer)){}
-      else if(try_push(r,gbstd::string_view("-"),buffer)){}
-      else if(try_push(r,gbstd::string_view("*="),buffer)){}
-      else if(try_push(r,gbstd::string_view("*"),buffer)){}
-      else if(try_push(r,gbstd::string_view("/="),buffer)){}
-      else if(try_push(r,gbstd::string_view("/"),buffer)){}
-      else if(try_push(r,gbstd::string_view("%="),buffer)){}
-      else if(try_push(r,gbstd::string_view("%"),buffer)){}
-      else if(try_push(r,gbstd::string_view("<<="),buffer)){}
-      else if(try_push(r,gbstd::string_view("<<"),buffer)){}
-      else if(try_push(r,gbstd::string_view("<="),buffer)){}
-      else if(try_push(r,gbstd::string_view("<"),buffer)){}
-      else if(try_push(r,gbstd::string_view(">>="),buffer)){}
-      else if(try_push(r,gbstd::string_view(">>"),buffer)){}
-      else if(try_push(r,gbstd::string_view(">="),buffer)){}
-      else if(try_push(r,gbstd::string_view(">"),buffer)){}
-      else if(try_push(r,gbstd::string_view("||"),buffer)){}
-      else if(try_push(r,gbstd::string_view("|="),buffer)){}
-      else if(try_push(r,gbstd::string_view("|"),buffer)){}
-      else if(try_push(r,gbstd::string_view("&&"),buffer)){}
-      else if(try_push(r,gbstd::string_view("&="),buffer)){}
-      else if(try_push(r,gbstd::string_view("&"),buffer)){}
-      else if(try_push(r,gbstd::string_view("^="),buffer)){}
-      else if(try_push(r,gbstd::string_view("^"),buffer)){}
-      else if(try_push(r,gbstd::string_view("=="),buffer)){}
-      else if(try_push(r,gbstd::string_view("="),buffer)){}
-      else if(try_push(r,gbstd::string_view("!="),buffer)){}
-      else if(try_push(r,gbstd::string_view("!"),buffer)){}
-      else if(try_push(r,gbstd::string_view("::"),buffer)){}
-      else if(try_push(r,gbstd::string_view(":"),buffer)){}
-      else if(try_push(r,gbstd::string_view(","),buffer)){}
-      else if(try_push(r,gbstd::string_view("?"),buffer)){}
-      else
-        if(r.is_pointing_identifier())
-        {
-          buffer.emplace_back(identifier(r.read_identifier()));
-        }
-
-      else
-        if(r.is_pointing_number())
-        {
-          buffer.emplace_back(r.read_number());
-        }
-
-      else
-        {
-          printf("処理できない文字です %d\n",c);
-
-          break;
-        }
-
-
-      buffer.back().set_pointer(p);
     }
 
 

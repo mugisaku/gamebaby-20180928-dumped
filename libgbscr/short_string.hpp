@@ -6,7 +6,7 @@
 #include"libgbstd/string_view.hpp"
 
 
-namespace gbsnd{
+namespace gbscr{
 
 
 class

@@ -1,4 +1,4 @@
-#include"libgbscr/streams/stream.hpp"
+#include"libgbscr/stream.hpp"
 #include<cstring>
 
 
@@ -15,7 +15,7 @@ skip_linestyle_comment() noexcept
     {
       auto  c = *m_pointer;
 
-        if(is_reached_end())
+        if(!*this)
         {
           break;
         }
@@ -24,8 +24,6 @@ skip_linestyle_comment() noexcept
         if(c == '\n')
         {
           ++m_pointer;
-
-          newline();
 
           break;
         }
@@ -46,11 +44,11 @@ skip_blockstyle_comment()
     {
       auto  c = *m_pointer;
 
-        if(is_reached_end())
+        if(!*this)
         {
           printf("ブロック式コメントが閉じられていない\n");
 
-          throw get_context();
+          throw m_pointer;
         }
 
       else           
@@ -66,14 +64,6 @@ skip_blockstyle_comment()
             }
         }
 
-      else           
-        if(c == '\n')
-        {
-          ++m_pointer;
-
-          newline();
-        }
-
       else
         {
           ++m_pointer;
@@ -86,24 +76,17 @@ void
 stream::
 skip_spaces()
 {
-    while(!is_reached_end())
+    while(*this)
     {
       auto  c = *m_pointer;
 
         if((c ==  ' ') ||
            (c == '\t') ||
+           (c == '\n') ||
            (c == '\r') ||
            (c == '\v'))
         {
           ++m_pointer;
-        }
-
-      else           
-        if(c == '\n')
-        {
-          ++m_pointer;
-
-          newline();
         }
 
       else           

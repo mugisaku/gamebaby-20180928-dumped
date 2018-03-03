@@ -7,13 +7,20 @@
 #include<list>
 #include<memory>
 #include<initializer_list>
+#include"libgbstd/string.hpp"
+#include"libgbscr/shared_string.hpp"
+#include"libgbscr/short_string.hpp"
 
 
 namespace  gbscr{
-namespace tokens{
 
 
 class stream;
+
+
+namespace tokens{
+
+
 class  token;
 
 
@@ -102,22 +109,23 @@ token
 
 public:
   token() noexcept{}
-  token(uint64_t  i) noexcept{*this = i;}
-  token(const identifier&  id) noexcept{*this = id;}
-  token(operator_word  opw) noexcept{*this = opw;}
-  token(token_string&&  toks) noexcept{*this = std::move(toks);}
-  token(semicolon  semcol) noexcept{*this = semcol;}
   token(const token&   rhs) noexcept{*this = rhs;}
   token(      token&&  rhs) noexcept{*this = std::move(rhs);}
  ~token(){clear();}
 
-  token&  operator=(uint64_t  i) noexcept;
-  token&  operator=(const identifier&  id) noexcept;
-  token&  operator=(operator_word  opw) noexcept;
-  token&  operator=(token_string&&  toks) noexcept;
-  token&  operator=(semicolon  semcol) noexcept;
   token&  operator=(const token&   rhs) noexcept;
   token&  operator=(      token&&  rhs) noexcept;
+
+  operator bool() const noexcept{return m_kind != kind::null;}
+
+  void  unset_data() noexcept;
+
+  void  set_data(uint64_t  i) noexcept;
+  void  set_data(const shared_string&  s) noexcept;
+  void  set_data(const identifier&  id) noexcept;
+  void  set_data(operator_word  opw) noexcept;
+  void  set_data(token_string&&  toks) noexcept;
+  void  set_data(semicolon  semcol) noexcept;
 
   void  clear() noexcept;
 
@@ -138,7 +146,7 @@ public:
   bool  is_token_string(char  open, char  close)  const noexcept;
 
   uint64_t              get_integer()       const noexcept{return m_data.i;}
-  const sgared_string&  get_string()        const noexcept{return m_data.s;}
+  const shared_string&  get_string()        const noexcept{return m_data.s;}
   operator_word         get_operator_word() const noexcept{return m_data.opw;}
   const token_string&   get_token_string()  const noexcept{return m_data.toks;}
 
@@ -180,6 +188,8 @@ public:
 }
 
 
+using tokens::semicolon;
+using tokens::identifier;
 using tokens::token;
 using tokens::token_string;
 using tokens::token_cursor;

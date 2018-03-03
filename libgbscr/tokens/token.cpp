@@ -8,71 +8,73 @@ namespace tokens{
 
 
 
-token&
+void
 token::
-operator=(uint64_t  i) noexcept
+set_data(uint64_t  i) noexcept
 {
-  clear();
+  unset_data();
 
   m_kind = kind::integer_literal;
 
   m_data.i = i;
-
-  return *this;
 }
 
 
-token&
+void
 token::
-operator=(const identifier&  id) noexcept
+set_data(const shared_string&  s) noexcept
 {
-  clear();
+  unset_data();
+
+  m_kind = kind::quoted_string;
+
+  new(&m_data) shared_string(s);
+}
+
+
+void
+token::
+set_data(const identifier&  id) noexcept
+{
+  unset_data();
 
   m_kind = kind::identifier;
 
-  new(&m_data) identifier(id);
-
-  return *this;
+  new(&m_data) shared_string(*id);
 }
 
 
-token&
+void
 token::
-operator=(operator_word  opw) noexcept
+set_data(operator_word  opw) noexcept
 {
-  clear();
+  unset_data();
 
   m_kind = kind::operator_word;
 
   m_data.opw = opw;
-
-  return *this;
 }
 
 
-token&
+void
 token::
-operator=(token_string&&  toks) noexcept
+set_data(token_string&&  toks) noexcept
 {
-  clear();
+  unset_data();
 
   m_kind = kind::token_string;
 
   new(&m_data) token_string(std::move(toks));
-
-  return *this;
 }
 
 
-token&
+void
 token::
-operator=(semicolon  semcol) noexcept
+set_data(semicolon  semcol) noexcept
 {
-  clear();
+  unset_data();
 
   m_kind = kind::semicolon;
-
-  return *this;
 }
 
 
@@ -82,18 +84,19 @@ operator=(const token&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      clear();
+      unset_data();
 
       m_kind = rhs.m_kind;
-      m_stream_context = rhs.m_stream_context;
+      m_pointer = rhs.m_pointer;
 
         switch(m_kind)
         {
       case(kind::integer_literal):
           m_data.i = rhs.m_data.i;
           break;
+      case(kind::quoted_string):
       case(kind::identifier):
-          new(&m_data) identifier(rhs.m_data.id);
+          new(&m_data) shared_string(rhs.m_data.s);
           break;
       case(kind::operator_word):
           m_data.opw = rhs.m_data.opw;
@@ -115,18 +118,19 @@ operator=(token&&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      clear();
+      unset_data();
 
       std::swap(m_kind,rhs.m_kind);
-      std::swap(m_stream_context,rhs.m_stream_context);
+      std::swap(m_pointer,rhs.m_pointer);
 
         switch(m_kind)
         {
       case(kind::integer_literal):
           m_data.i = rhs.m_data.i;
           break;
+      case(kind::quoted_string):
       case(kind::identifier):
-          new(&m_data) identifier(std::move(rhs.m_data.id));
+          new(&m_data) shared_string(std::move(rhs.m_data.s));
           break;
       case(kind::operator_word):
           m_data.opw = rhs.m_data.opw;
@@ -145,14 +149,15 @@ operator=(token&&  rhs) noexcept
 
 void
 token::
-clear() noexcept
+unset_data() noexcept
 {
     switch(m_kind)
     {
   case(kind::integer_literal):
       break;
+  case(kind::quoted_string):
   case(kind::identifier):
-      gbstd::destruct(m_data.id);
+      gbstd::destruct(m_data.s);
       break;
   case(kind::operator_word):
       break;
@@ -166,6 +171,16 @@ clear() noexcept
 }
 
 
+void
+token::
+clear() noexcept
+{
+  unset_data();
+
+  m_pointer = nullptr;
+}
+
+
 
 
 bool
@@ -174,7 +189,7 @@ is_identifier(string_view_list  ls) const noexcept
 {
     if(is_identifier())
     {
-      auto  idsv = m_data.id.view();
+      auto  idsv = m_data.s.view();
 
         for(auto&  sv: ls)
         {
@@ -233,16 +248,23 @@ void
 token::
 print(FILE*  f, int  indent) const noexcept
 {
+  short_string  ss;
+
     switch(m_kind)
     {
   case(kind::integer_literal):
       fprintf(f,"%lu",m_data.i);
       break;
+  case(kind::quoted_string):
+      fprintf(f,"\"%s\"",m_data.s.data());
+      break;
   case(kind::identifier):
-      fprintf(f,"%s ",m_data.id.data());
+      fprintf(f,"%s ",m_data.s.data());
       break;
   case(kind::operator_word):
-      fprintf(f,"%s ",m_data.opw.data());
+      ss = m_data.opw;
+
+      fprintf(f,"%s ",ss.data());
       break;
   case(kind::token_string):
       m_data.toks.print(f,indent);

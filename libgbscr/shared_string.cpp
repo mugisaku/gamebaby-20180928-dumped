@@ -1,13 +1,15 @@
-#include"libgbsnd/shared_string.hpp"
+#include"libgbscr/shared_string.hpp"
 #include<cstdlib>
 #include<cstring>
+#include<string>
+#include<cstdio>
 
 
 namespace gbscr{
 
 
 namespace{
-const char  null;
+const char  null = 0;
 }
 
 
@@ -136,6 +138,43 @@ shared_string::
 size() const noexcept
 {
   return m_data? m_data->length:0;
+}
+
+
+
+
+shared_string
+make_string_from_file(const char*  filepath) noexcept
+{
+  shared_string  s;
+
+  auto  f = fopen(filepath,"rb");
+
+    if(f)
+    {
+      std::string  buf;
+
+        for(;;)
+        {
+          auto  c = fgetc(f);
+
+            if(feof(f) || ferror(f))
+            {
+              break;
+            }
+
+
+          buf += c;
+        }
+
+
+      fclose(f);
+
+      s.assign(buf.data(),buf.size());
+    }
+
+
+  return std::move(s);
 }
 
 

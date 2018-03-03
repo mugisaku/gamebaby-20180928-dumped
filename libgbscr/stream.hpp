@@ -5,7 +5,9 @@
 #include<cstddef>
 #include<cstdint>
 #include<string>
-#include"token.hpp"
+#include"libgbstd/string.hpp"
+#include"libgbscr/token.hpp"
+#include"libgbscr/shared_string.hpp"
 
 
 namespace gbscr{
@@ -15,9 +17,10 @@ class
 stream
 {
   const char*  m_pointer=nullptr;
-  const char*      m_end=nullptr;
 
   std::string  m_string_buffer;
+
+  token  m_token;
 
   uint64_t       read_binary_number() noexcept;
   uint64_t        read_octal_number() noexcept;
@@ -28,29 +31,32 @@ stream
   void  skip_linestyle_comment() noexcept;
   void  skip_blockstyle_comment();
 
-  token  read_identifier() noexcept;
-  token  read_quoted_string(char  close_char) noexcept;
+  identifier     read_identifier() noexcept;
+  shared_string  read_quoted_string(char  close_char) noexcept;
 
-  token  read_number() noexcept;
+  bool  read_operator(gbstd::string_view  sv) noexcept;
 
-  void  newline() noexcept;
+  uint64_t  read_number() noexcept;
 
 public:
   stream() noexcept{}
-  stream(const char*  s, size_t  l) noexcept: m_pointer(s), m_end(s+l){}
+  stream(const char*  s) noexcept: m_pointer(s){}
 
   const char*  get_pointer() const noexcept{return m_pointer;}
 
-  char  get_char() const noexcept{return is_reached_end()? 0:*m_pointer;}
+  const char&  operator*() const noexcept{return *m_pointer;}
 
-  void  advance() noexcept{++m_pointer;}
+  char  get_char() const noexcept{return *m_pointer;}
 
-  bool  is_pointing_identifier() const noexcept;
-  bool  is_pointing_number() const noexcept;
+  const token&  get_token() const noexcept{return m_token;}
 
-  bool  is_reached_end() const noexcept{return !*m_pointer || (m_pointer >= m_end);}
+  const token&  read_token();
+
+  operator bool() const noexcept{return *m_pointer;}
 
   void  skip_spaces();
+
+  void  advance() noexcept{++m_pointer;}
 
 };
 

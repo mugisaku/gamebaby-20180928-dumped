@@ -1,4 +1,4 @@
-#include"libgbscr/streams/stream.hpp"
+#include"libgbscr/stream.hpp"
 #include<cstring>
 #include<cstdio>
 
@@ -48,45 +48,29 @@ isidentn(char  c) noexcept
 
 
 
-bool
-stream::
-is_pointing_identifier() const noexcept
-{
-  return isident0(*m_pointer);
-}
-
-
-bool
-stream::
-is_pointing_number() const noexcept
-{
-  return isdigit(*m_pointer);
-}
-
-
-token
+identifier
 stream::
 read_identifier() noexcept
 {
   m_string_buffer.resize(0,0);
 
-    while(!is_reached_end() && isidentn(*m_pointer))
+    while(isidentn(*m_pointer))
     {
       m_string_buffer.push_back(*m_pointer++);
     }
 
 
-  return gbstd::string_view(m_string_buffer.data(),m_string_buffer.size());
+  return identifier(shared_string(m_string_buffer.data(),m_string_buffer.size()));
 }
 
 
-token
+shared_string
 stream::
 read_quoted_string(char  close_char) noexcept
 {
   m_string_buffer.resize(0,0);
 
-    while(!is_reached_end())
+    while(*this)
     {
       auto  c = *m_pointer++;
 
@@ -108,7 +92,155 @@ read_quoted_string(char  close_char) noexcept
     }
 
 
-  return gbstd::string_view(m_string_buffer.data(),m_string_buffer.size());
+  return shared_string(m_string_buffer.data(),m_string_buffer.size());
+}
+
+
+bool
+stream::
+read_operator(gbstd::string_view  sv) noexcept
+{
+    if(std::memcmp(m_pointer,sv.data(),sv.size()) == 0)
+    {
+      m_token.set_data(operator_word(sv));
+
+      m_pointer += sv.size();
+
+      return true;
+    }
+
+
+  return false;
+}
+
+
+const token&
+stream::
+read_token()
+{
+  m_token.unset_data();
+
+START:
+  m_token.set_pointer(m_pointer);
+
+    if(!*this)
+    {
+      return m_token;
+    }
+
+
+  auto  c = get_char();
+
+    if(c == ';')
+    {
+      advance();
+
+      m_token.set_data(semicolon{});
+    }
+
+  else
+    if(c == '(')
+    {
+      advance();
+
+      m_token.set_data(token_string(*this,'(',')'));
+    }
+
+  else
+    if(c == '{')
+    {
+      advance();
+
+      m_token.set_data(token_string(*this,'{','}'));
+    }
+
+  else
+    if(c == '[')
+    {
+      advance();
+
+      m_token.set_data(token_string(*this,'[',']'));
+    }
+
+  else
+    if((c == ')') ||
+       (c == '}') ||
+       (c == ']'))
+    {
+      printf("token_string error\n");
+
+      throw m_token.get_pointer();
+    }
+
+  else if(read_operator(gbstd::string_view("..."))){}
+  else if(read_operator(gbstd::string_view("."))){}
+  else if(read_operator(gbstd::string_view("++"))){}
+  else if(read_operator(gbstd::string_view("+="))){}
+  else if(read_operator(gbstd::string_view("+"))){}
+  else if(read_operator(gbstd::string_view("--"))){}
+  else if(read_operator(gbstd::string_view("->"))){}
+  else if(read_operator(gbstd::string_view("-="))){}
+  else if(read_operator(gbstd::string_view("-"))){}
+  else if(read_operator(gbstd::string_view("*="))){}
+  else if(read_operator(gbstd::string_view("*"))){}
+  else if(read_operator(gbstd::string_view("/="))){}
+  else if(read_operator(gbstd::string_view("/"))){}
+  else if(read_operator(gbstd::string_view("%="))){}
+  else if(read_operator(gbstd::string_view("%"))){}
+  else if(read_operator(gbstd::string_view("<<="))){}
+  else if(read_operator(gbstd::string_view("<<"))){}
+  else if(read_operator(gbstd::string_view("<="))){}
+  else if(read_operator(gbstd::string_view("<"))){}
+  else if(read_operator(gbstd::string_view(">>="))){}
+  else if(read_operator(gbstd::string_view(">>"))){}
+  else if(read_operator(gbstd::string_view(">="))){}
+  else if(read_operator(gbstd::string_view(">"))){}
+  else if(read_operator(gbstd::string_view("||"))){}
+  else if(read_operator(gbstd::string_view("|="))){}
+  else if(read_operator(gbstd::string_view("|"))){}
+  else if(read_operator(gbstd::string_view("&&"))){}
+  else if(read_operator(gbstd::string_view("&="))){}
+  else if(read_operator(gbstd::string_view("&"))){}
+  else if(read_operator(gbstd::string_view("^="))){}
+  else if(read_operator(gbstd::string_view("^"))){}
+  else if(read_operator(gbstd::string_view("=="))){}
+  else if(read_operator(gbstd::string_view("="))){}
+  else if(read_operator(gbstd::string_view("!="))){}
+  else if(read_operator(gbstd::string_view("!"))){}
+  else if(read_operator(gbstd::string_view("::"))){}
+  else if(read_operator(gbstd::string_view(":"))){}
+  else if(read_operator(gbstd::string_view(","))){}
+  else if(read_operator(gbstd::string_view("?"))){}
+  else
+    if(isident0(c))
+    {
+      m_token.set_data(read_identifier());
+    }
+
+  else
+    if(isdigit(c))
+    {
+      m_token.set_data(read_number());
+    }
+
+  else
+    if((c ==  ' ') ||
+       (c == '\t') ||
+       (c == '\r') ||
+       (c == '\n'))
+    {
+      skip_spaces();
+
+      goto START;
+    }
+
+  else
+    {
+      printf("処理できない文字です %d\n",c);
+    }
+
+
+  return m_token;
 }
 
 
@@ -137,7 +269,7 @@ print(const char*  start, const char*  cursor) noexcept
 
   printf("[stream %4d行]\n",line_number);
 
-  auto  p = line_start;
+  p = line_start;
 
     while(*p && (*p != '\n'))
     {
