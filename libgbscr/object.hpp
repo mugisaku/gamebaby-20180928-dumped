@@ -162,6 +162,8 @@ variable_table
      variable() noexcept;
     ~variable();
 
+    void  print() const noexcept;
+
   };
 
 

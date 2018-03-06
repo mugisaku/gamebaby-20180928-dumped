@@ -56,6 +56,7 @@ operator=(const reference&  rhs) noexcept
 
         if(m_data)
         {
+//printf("%3d\n",m_data->count+1);
           ++m_data->count;
         }
     }
@@ -81,6 +82,22 @@ operator=(reference&&  rhs) noexcept
 }
 
 
+reference::
+operator bool() const noexcept
+{
+  return m_data->pointer;
+}
+
+
+value&
+reference::
+operator()() const noexcept
+{
+  return *m_data->pointer;
+}
+
+
+
 
 void
 reference::
@@ -88,6 +105,7 @@ unrefer() noexcept
 {
     if(m_data)
     {
+//printf("%3d\n",m_data->count-1);
         if(!--m_data->count)
         {
           delete m_data;

@@ -8,7 +8,7 @@ namespace objects{
 
 
 variable_table::variable::
-variable() noexcept: reference(*this)
+variable() noexcept: reference(this->value)
 {
 }
 
@@ -16,12 +16,18 @@ variable() noexcept: reference(*this)
 variable_table::variable::
 ~variable()
 {
-  reference::unrefer();
-
-    if(reference::get_count())
+    if(reference::get_count() > 1)
     {
       reference::unset_pointer();
     }
+}
+
+
+void
+variable_table::variable::
+print() const noexcept
+{
+  printf("%d \n",get_count());
 }
 
 
