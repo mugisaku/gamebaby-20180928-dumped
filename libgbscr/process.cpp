@@ -17,7 +17,7 @@ private_data
 
   std::vector<std::unique_ptr<routine>>  routine_list;
 
-  std::list<object>  object_list;
+  objects::variable_table  variable_table;
 
 };
 
@@ -124,7 +124,7 @@ load_file(const char*  filepath) noexcept
                   
                   auto  rt = new routine(parals,block);
 
-                  m_data->object_list.emplace_back(value(*rt),var_name);
+                  m_data->variable_table.append(value(*rt),var_name);
 
                   cur += 2;
                 }
@@ -163,11 +163,15 @@ const routine*
 process::
 find_routine(gbstd::string_view  name) const noexcept
 {
-    for(auto&  obj: m_data->object_list)
+  auto  i = m_data->variable_table.find(name);
+
+    if(i >= 0)
     {
-        if((obj.get_name() == name) && obj.is_routine())
+      auto&  v = m_data->variable_table[i]();
+
+        if(v.is_routine())
         {
-          return &obj.get_routine();
+          return &v.get_routine();
         }
     }
 
@@ -182,17 +186,9 @@ print() const noexcept
 {
   printf("reference_count: %ld\n",m_data->reference_count);
 
-  printf("objects: %d{\n",m_data->object_list.size());
+  m_data->variable_table.print();
 
-    for(auto&  obj: m_data->object_list)
-    {
-      obj.print();
-
-      printf("\n");
-    }
-
-
-  printf("}\n\n");
+  printf("\n");
 }
 
 

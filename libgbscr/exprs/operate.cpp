@@ -101,7 +101,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
 
       else
         {
-          lo = operand(value(lv.get_reference().get_property(ro.get_string())));
+//          lo = operand(value(lv.get_reference().get_property(ro.get_string())));
         }
 
 
@@ -198,6 +198,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
        (opw == gbstd::string_view( "&=")) ||
        (opw == gbstd::string_view( "^=")))
     {
+/*
         if(lv.is_property())
         {
           auto&  p = lv.get_property();
@@ -217,6 +218,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
         }
 
       else
+*/
         if(lv.is_reference())
         {
           auto&  objv = static_cast<value&>(lv.get_reference()());

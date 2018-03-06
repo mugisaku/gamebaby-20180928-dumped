@@ -17,6 +17,9 @@ namespace gbscr{
 class execution_context;
 
 
+class argument_list;
+
+
 namespace stmts{
 class stmt;
 class stmt_list;
@@ -30,49 +33,52 @@ namespace objects{
 
 
 class object;
-class routine;
+class variable_table;
 class value;
-
-
-class
-property
-{
-  void*  m_pointer=nullptr;
-
-  int  (*m_callback)(void*  ptr, const int*  v);
-
-public:
-  constexpr property(void*  pointer, int  (*callback)(void*,const int*)) noexcept:
-  m_pointer(pointer),
-  m_callback(callback){}
-
-  template<typename  T>
-  constexpr property(T&  t, int  (*callback)(T*,const int*)) noexcept:
-  m_pointer(&t),
-  m_callback(reinterpret_cast<int  (*)(void*,const int*)>(callback)){}
-
-  int   get(      ) const noexcept;
-  void  set(int  v) const noexcept;
-
-};
 
 
 class
 reference
 {
-  object*  m_pointer=nullptr;
+protected:
+  struct private_data;
+
+  private_data*  m_data=nullptr;
+
+  void  unrefer() noexcept;
+
+  void  unset_pointer() noexcept;
+
+  size_t  get_count() const noexcept;
+
+  reference(value&  v) noexcept;
 
 public:
-  reference(object&  o) noexcept: m_pointer(&o){}
+  reference() noexcept;
+  reference(const reference&   rhs) noexcept{*this = rhs;}
+  reference(      reference&&  rhs) noexcept{*this = std::move(rhs);}
+ ~reference(){unrefer();}
 
-  object&  operator()() const noexcept{return *m_pointer;}
+  reference&  operator=(const reference&   rhs) noexcept;
+  reference&  operator=(      reference&&  rhs) noexcept;
 
-  property  get_property(const identifier&  id) const noexcept;
+  operator bool() const noexcept;
+
+  value&  operator()() const noexcept;
 
 };
 
 
 struct system{};
+
+
+class
+method_calling
+{
+  void*  m_object;
+  void*  m_method;
+
+};
 
 
 class
@@ -83,7 +89,7 @@ value
     integer,
     reference,
     routine,
-    property,
+    
     system,
 
   } m_kind=kind::null;
@@ -92,7 +98,6 @@ value
     int              i;
     reference        r;
     const stmts::routine*  rt;
-    property        pr;
 
     data(){}
    ~data(){}
@@ -105,7 +110,6 @@ public:
   value(int  i) noexcept{*this = i;}
   value(reference  r) noexcept{*this = r;}
   value(const stmts::routine&  rt) noexcept{*this = rt;}
-  value(const property&  pr) noexcept{*this = pr;}
   value(system  sys) noexcept{*this = sys;}
   value(const value&   rhs) noexcept{*this = rhs;}
   value(      value&&  rhs) noexcept{*this = std::move(rhs);}
@@ -115,7 +119,6 @@ public:
   value&  operator=(int  i) noexcept;
   value&  operator=(reference  r) noexcept;
   value&  operator=(const stmts::routine&  rt) noexcept;
-  value&  operator=(const property&  pr) noexcept;
   value&  operator=(system  sys) noexcept;
   value&  operator=(const value&   rhs) noexcept;
   value&  operator=(      value&&  rhs) noexcept;
@@ -127,13 +130,11 @@ public:
   bool  is_reference()   const noexcept{return m_kind == kind::reference;}
   bool  is_integer()     const noexcept{return m_kind == kind::integer;}
   bool  is_routine()     const noexcept{return m_kind == kind::routine;}
-  bool  is_property()    const noexcept{return m_kind == kind::property;}
   bool  is_system()      const noexcept{return m_kind == kind::system;}
 
   int                get_integer()     const noexcept{return m_data.i;}
   reference          get_reference()   const noexcept{return m_data.r;}
   const stmts::routine&  get_routine()     const noexcept;
-  const property&    get_property()    const noexcept{return m_data.pr;}
 
   int  get_integer_safely() const noexcept;
 
@@ -152,24 +153,69 @@ public:
 
 
 class
-object: public value
+variable_table
+{
+  struct variable: public reference{
+    objects::value  value;
+    gbstd::string    name;
+
+     variable() noexcept;
+    ~variable();
+
+  };
+
+
+  std::vector<variable*>  m_variables;
+
+public:
+  variable_table() noexcept{}
+ ~variable_table(){clear();}
+
+  reference  operator[](gbstd::string_view  name) const noexcept;
+  reference  operator[](int  i) const noexcept;
+
+  void  clear() noexcept;
+
+  reference  append(const value&  value, gbstd::string_view  name) noexcept;
+
+  int  find(gbstd::string_view  name) const noexcept;
+
+  void  print() const noexcept;
+
+};
+
+
+using method = value  (*)(void*  ptr, const argument_list&  argls);
+
+
+class
+class_info
 {
   gbstd::string  m_name;
 
+  size_t  m_size;
+
+  void  (*m_constructor)(void*  ptr, const argument_list&  ls)=nullptr;
+  void  (*m_destructor )(void*  ptr                          )=nullptr;
+
+  std::vector<method>  m_method_list;
+
 public:
-  object(value&&  v, gbstd::string_view  name) noexcept: value(std::move(v)), m_name(name){}
-  object(            gbstd::string_view  name) noexcept:                      m_name(name){}
 
-  void                   set_name(gbstd::string_view  name)       noexcept{m_name = name;}
-  const gbstd::string&   get_name(                        ) const noexcept{return m_name;}
 
-  void  print() const noexcept
-  {
-    printf("%s = ",m_name.data());
+};
 
-    value::print();
-  }
 
+class
+object
+{
+  class_info  m_info;
+
+  void*  m_data=nullptr;
+
+  bool  m_is_allocated_by_host;
+
+public:
 };
 
 
@@ -179,8 +225,10 @@ public:
 using objects::reference;
 using objects::value;
 using objects::value_list;
+using objects::variable_table;
+using objects::class_info;
 using objects::object;
-using objects::property;
+using objects::method;
 
 
 }

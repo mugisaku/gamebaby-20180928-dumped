@@ -42,7 +42,7 @@ frame
   const stmt*  current;
   const stmt*      end;
 
-  std::list<object>  object_list;
+  objects::variable_table  variable_table;
 
   int  saved_value;
 
@@ -180,7 +180,7 @@ call(const stmts::routine&  routine, const value_list&  argument_list, value*  r
 
     for(auto&  p: paras)
     {
-      frm.object_list.emplace_back(value(*arg_it++),p);
+      frm.variable_table.append(value(*arg_it++),p);
     }
 
 
@@ -269,12 +269,11 @@ get_value(gbstd::string_view  name) const noexcept
 {
   auto&  frm = *m_top_frame;
 
-    for(auto&  obj: frm.object_list)
+  auto  i = frm.variable_table.find(name);
+
+    if(i >= 0)
     {
-        if(obj.get_name() == name)
-        {
-          return value(reference(obj));
-        }
+      return value(frm.variable_table[i]);
     }
 
 
@@ -289,9 +288,7 @@ get_value(gbstd::string_view  name) const noexcept
 */
 
 
-  frm.object_list.emplace_back(name);
-
-  return value(reference(frm.object_list.back()));
+  return frm.variable_table.append(value(),name);
 }
 
 

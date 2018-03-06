@@ -68,20 +68,6 @@ operator=(const stmts::routine&  rt) noexcept
 
 value&
 value::
-operator=(const property&  pr) noexcept
-{
-  clear();
-
-  m_kind = kind::property;
-
-  m_data.pr = pr;
-
-  return *this;
-}
-
-
-value&
-value::
 operator=(system  sys) noexcept
 {
   clear();
@@ -113,9 +99,6 @@ operator=(const value&  rhs) noexcept
       case(kind::routine):
           m_data.rt = rhs.m_data.rt;
           break;
-      case(kind::property):
-          m_data.pr = rhs.m_data.pr;
-          break;
         }
     }
 
@@ -145,9 +128,6 @@ operator=(value&&  rhs) noexcept
       case(kind::routine):
           m_data.rt = rhs.m_data.rt;
           break;
-      case(kind::property):
-          m_data.pr = rhs.m_data.pr;
-          break;
         }
     }
 
@@ -168,8 +148,6 @@ clear() noexcept
   case(kind::reference):
       break;
   case(kind::routine):
-      break;
-  case(kind::property):
       break;
     }
 
@@ -201,9 +179,6 @@ get_integer_safely() const noexcept
   case(kind::routine):
       printf("ルーチンは、整数になれない\n");
       break;
-  case(kind::property):
-      return m_data.pr.get();
-      break;
     }
 
 
@@ -233,9 +208,6 @@ print() const noexcept
   case(kind::routine):
       printf("routine");
       m_data.rt->print();
-      break;
-  case(kind::property):
-      printf("property{ %d }",m_data.pr.get());
       break;
   case(kind::system):
       printf("system");
