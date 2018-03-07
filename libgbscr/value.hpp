@@ -1,5 +1,5 @@
-#ifndef LIBGBSND_OBJECT_HPP
-#define LIBGBSND_OBJECT_HPP
+#ifndef LIBGBSND_value_HPP
+#define LIBGBSND_value_HPP
 
 
 #include<cstdint>
@@ -14,9 +14,6 @@
 namespace gbscr{
 
 
-class execution_context;
-
-
 class argument_list;
 
 
@@ -27,7 +24,7 @@ class routine;
 }
 
 
-namespace objects{
+namespace values{
 
 
 
@@ -157,7 +154,7 @@ class
 variable_table
 {
   struct variable: public reference{
-    objects::value  value;
+    values::value  value;
     gbstd::string    name;
 
      variable() noexcept;
@@ -225,13 +222,13 @@ public:
 }
 
 
-using objects::reference;
-using objects::value;
-using objects::value_list;
-using objects::variable_table;
-using objects::class_info;
-using objects::object;
-using objects::method;
+using values::reference;
+using values::value;
+using values::value_list;
+using values::variable_table;
+using values::class_info;
+using values::object;
+using values::method;
 
 
 }

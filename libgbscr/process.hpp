@@ -6,7 +6,7 @@
 #include"libgbscr/short_string.hpp"
 #include"libgbscr/token.hpp"
 #include"libgbscr/list.hpp"
-#include"libgbscr/object.hpp"
+#include"libgbscr/value.hpp"
 #include"libgbscr/expr.hpp"
 
 
