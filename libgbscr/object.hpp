@@ -89,6 +89,7 @@ value
     integer,
     reference,
     routine,
+    object,
     
     system,
 

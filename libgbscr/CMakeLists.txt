@@ -19,7 +19,6 @@ set(SOURCES
   tokens/token.cpp
   tokens/token_string.cpp
   tokens/token_cursor.cpp
-  execution_context.cpp
   shared_string.cpp
   process.cpp
 )

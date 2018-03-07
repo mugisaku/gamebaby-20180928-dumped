@@ -136,7 +136,7 @@ size() const noexcept
 
 value
 expr::
-evaluate(execution_context*  ctx) const noexcept
+evaluate(process*  proc) const noexcept
 {
   operand_stack  stack;
 
@@ -145,11 +145,11 @@ evaluate(execution_context*  ctx) const noexcept
 
     while(it != it_end)
     {
-      operate_stack(stack,*it++,ctx);
+      operate_stack(stack,*it++,proc);
     }
 
 
-  return stack.top().evaluate(ctx);
+  return stack.top().evaluate(proc);
 }
 
 

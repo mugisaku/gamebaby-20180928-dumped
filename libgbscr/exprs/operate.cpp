@@ -1,5 +1,5 @@
 #include"libgbscr/expr.hpp"
-#include"libgbscr/execution.hpp"
+#include"libgbscr/process.hpp"
 #include<new>
 
 
@@ -10,9 +10,9 @@ namespace exprs{
 
 
 void
-operate_prefix_unary(operand&  o, operator_word  opw, execution_context*  ctx) noexcept
+operate_prefix_unary(operand&  o, operator_word  opw, process*  proc) noexcept
 {
-  auto  i = o.evaluate(ctx).get_integer_safely();
+  auto  i = o.evaluate(proc).get_integer_safely();
 
     if(opw == gbstd::string_view("!"))
     {
@@ -34,7 +34,7 @@ operate_prefix_unary(operand&  o, operator_word  opw, execution_context*  ctx) n
 
 
 void
-operate_postfix_unary(operand&  o, operator_word  opw, execution_context*  ctx) noexcept
+operate_postfix_unary(operand&  o, operator_word  opw, process*  proc) noexcept
 {
     if(opw == gbstd::string_view(""))
     {
@@ -43,9 +43,9 @@ operate_postfix_unary(operand&  o, operator_word  opw, execution_context*  ctx) 
 
 
 void
-operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context*  ctx) noexcept
+operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) noexcept
 {
-  auto  lv = lo.evaluate(ctx);
+  auto  lv = lo.evaluate(proc);
 
     if(opw == gbstd::string_view("||"))
     {
@@ -56,7 +56,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
 
       else
         {
-          lo = operand(value(ro.evaluate(ctx).get_integer_safely()));
+          lo = operand(value(ro.evaluate(proc).get_integer_safely()));
         }
 
 
@@ -68,7 +68,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
     {
         if(lv.get_integer_safely())
         {
-          lo = operand(value(ro.evaluate(ctx).get_integer_safely()));
+          lo = operand(value(ro.evaluate(proc).get_integer_safely()));
         }
 
       else
@@ -130,7 +130,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
 
           auto&  pe = ro.get_paired_expression();
 
-          auto  result = (cond? pe.get_left():pe.get_right()).evaluate(ctx);
+          auto  result = (cond? pe.get_left():pe.get_right()).evaluate(proc);
 
           lo = operand(std::move(result));
         }
@@ -168,7 +168,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
 
       lo = operand(value());
 
-      ctx->prepare_call(lv.get_routine(),ro.get_expression_list(),lo.get_value_pointer());
+      proc->prepare_call(lv.get_routine(),ro.get_expression_list(),lo.get_value_pointer());
 
       return;
     }
@@ -183,7 +183,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
 
 
 
-  auto  ri = ro.evaluate(ctx).get_integer_safely();
+  auto  ri = ro.evaluate(proc).get_integer_safely();
   auto  li =               lv.get_integer_safely();
 
     if((opw == gbstd::string_view(  "=")) ||
@@ -301,16 +301,16 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, execution_context
 
 
 void
-operate_conditional(operand&  o1, operand&  o2, operand&  o3, execution_context*  ctx) noexcept
+operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc) noexcept
 {
-  auto  cond = o1.evaluate(ctx).get_integer_safely();
+  auto  cond = o1.evaluate(proc).get_integer_safely();
 
-  o1 = operand((cond? o2:o3).evaluate(ctx));
+  o1 = operand((cond? o2:o3).evaluate(proc));
 }
 
 
 void
-operate_stack(operand_stack&  stack, const expr_element&  e, execution_context*  ctx) noexcept
+operate_stack(operand_stack&  stack, const expr_element&  e, process*  proc) noexcept
 {
     if(e.is_operand())
     {
@@ -328,7 +328,7 @@ operate_stack(operand_stack&  stack, const expr_element&  e, execution_context* 
         }
 
 
-      operate_prefix_unary(stack.top(),e.get_operator_word(),ctx);
+      operate_prefix_unary(stack.top(),e.get_operator_word(),proc);
     }
 
   else
@@ -342,7 +342,7 @@ operate_stack(operand_stack&  stack, const expr_element&  e, execution_context* 
         }
 
 
-      operate_postfix_unary(stack.top(),e.get_operator_word(),ctx);
+      operate_postfix_unary(stack.top(),e.get_operator_word(),proc);
     }
 
   else
@@ -359,7 +359,7 @@ operate_stack(operand_stack&  stack, const expr_element&  e, execution_context* 
       auto&  ro = stack.pop();
       auto&  lo = stack.top();
 
-      operate_binary(lo,ro,e.get_operator_word(),ctx);
+      operate_binary(lo,ro,e.get_operator_word(),proc);
     }
 }
 

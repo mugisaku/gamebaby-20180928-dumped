@@ -1,5 +1,4 @@
 #include"libgbscr/object.hpp"
-#include"libgbscr/execution.hpp"
 #include"libgbscr/stmt.hpp"
 #include<new>
 

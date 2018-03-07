@@ -1,5 +1,5 @@
 #include"libgbscr/expr.hpp"
-#include"libgbscr/execution.hpp"
+#include"libgbscr/process.hpp"
 #include<new>
 
 
@@ -260,7 +260,7 @@ clear() noexcept
 
 value
 operand::
-evaluate(execution_context*  ctx) const noexcept
+evaluate(process*  proc) const noexcept
 {
     switch(m_kind)
     {
@@ -271,19 +271,19 @@ evaluate(execution_context*  ctx) const noexcept
       return value(static_cast<int>(m_data.i));
       break;
   case(kind::identifier):
-      return ctx? ctx->get_value(m_data.s.view()):value();
+      return proc? proc->get_value(m_data.s.view()):value();
       break;
   case(kind::expression):
-      return m_data.e.evaluate(ctx);
+      return m_data.e.evaluate(proc);
       break;
   case(kind::expression_list):
-      return m_data.els.back().evaluate(ctx);
+      return m_data.els.back().evaluate(proc);
       break;
   case(kind::paired_expression):
       printf("paired_exprは単純評価できない\n");
       break;
   case(kind::operation):
-      return m_data.op.evaluate(ctx);
+      return m_data.op.evaluate(proc);
       break;
   case(kind::value):
       return m_data.v;

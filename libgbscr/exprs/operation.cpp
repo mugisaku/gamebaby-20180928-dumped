@@ -1,4 +1,5 @@
 #include"libgbscr/expr.hpp"
+#include"libgbscr/process.hpp"
 #include<new>
 
 
@@ -156,7 +157,7 @@ bool  operation::is_conditional() const noexcept{return m_data->kind == operatio
 
 value
 operation::
-evaluate(execution_context*  ctx) const noexcept
+evaluate(process*  proc) const noexcept
 {
   auto&  lo =  m_data->first_operand;
   auto&  ro = m_data->second_operand;
@@ -164,23 +165,23 @@ evaluate(execution_context*  ctx) const noexcept
     switch(m_data->kind)
     {
   case(operation_kind::prefix_unary):
-      operate_prefix_unary(lo,m_data->word,ctx);
+      operate_prefix_unary(lo,m_data->word,proc);
       break;
   case(operation_kind::postfix_unary):
-      operate_postfix_unary(lo,m_data->word,ctx);
+      operate_postfix_unary(lo,m_data->word,proc);
       break;
   case(operation_kind::binary):
-      operate_binary(lo,ro,m_data->word,ctx);
+      operate_binary(lo,ro,m_data->word,proc);
       break;
   case(operation_kind::conditional):
       operate_conditional(m_data->first_operand,
                           m_data->second_operand,
-                          m_data->third_operand,ctx);
+                          m_data->third_operand,proc);
       break;
     }
 
 
-  return lo.evaluate(ctx);
+  return lo.evaluate(proc);
 }
 
 
