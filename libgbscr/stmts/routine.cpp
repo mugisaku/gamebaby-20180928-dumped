@@ -1,4 +1,3 @@
-#include"libgbscr/object.hpp"
 #include"libgbscr/stmt.hpp"
 
 

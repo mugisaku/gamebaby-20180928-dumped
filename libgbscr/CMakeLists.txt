@@ -13,9 +13,9 @@ set(SOURCES
   stmts/stmt.cpp
   stmts/stmt_list.cpp
   stmts/routine.cpp
-  objects/reference.cpp
-  objects/value.cpp
-  objects/variable_table.cpp
+  values/reference.cpp
+  values/value.cpp
+  values/variable_table.cpp
   tokens/token.cpp
   tokens/token_string.cpp
   tokens/token_cursor.cpp

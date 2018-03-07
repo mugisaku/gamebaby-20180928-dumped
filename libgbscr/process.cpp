@@ -19,7 +19,7 @@ private_data
 
   std::vector<std::unique_ptr<routine>>  routine_list;
 
-  objects::variable_table  variable_table;
+  values::variable_table  variable_table;
 
 };
 
@@ -60,7 +60,7 @@ frame
   const stmt*  current;
   const stmt*      end;
 
-  objects::variable_table  variable_table;
+  values::variable_table  variable_table;
 
   int  saved_value;
 

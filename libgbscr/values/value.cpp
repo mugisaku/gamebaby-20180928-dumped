@@ -1,10 +1,10 @@
-#include"libgbscr/object.hpp"
+#include"libgbscr/value.hpp"
 #include"libgbscr/stmt.hpp"
 #include<new>
 
 
 namespace gbscr{
-namespace objects{
+namespace values{
 
 
 
