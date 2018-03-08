@@ -43,6 +43,8 @@ process
 
   void  unrefer() noexcept;
 
+  void  call(const stmts::routine&  routine         , const value_list&  argument_list, value*  return_value=nullptr) noexcept;
+
 public:
   process() noexcept;
   process(const process&   rhs) noexcept{*this = rhs;}
@@ -58,8 +60,11 @@ public:
 
   void  prepare_call(const stmts::routine&  routine, const expr_list&  argument_list, value*  return_value=nullptr) noexcept;
 
-  void  call(const stmts::routine&  routine         , const value_list&  argument_list, value*  return_value=nullptr) noexcept;
   void  call(gbstd::string_view  routine_name, const value_list&  argument_list, value*  return_value=nullptr) noexcept;
+
+  void  append_class_info(const class_info&  ci) noexcept;
+
+  void  append_object(gbstd::string_view  class_name, gbstd::string_view  name, void*  data) noexcept;
 
   size_t  get_number_of_frames() const noexcept{return m_number_of_frames;}
 
@@ -72,7 +77,8 @@ public:
   bool  is_sleeping()  const noexcept{return m_state == state::sleeping;}
   bool  is_exited()    const noexcept{return m_state == state::exited;}
 
-  void  run() noexcept;
+  void  step() noexcept;
+  void   run() noexcept;
 
   void  print() const noexcept;
 

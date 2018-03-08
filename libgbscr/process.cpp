@@ -19,7 +19,9 @@ private_data
 
   std::vector<std::unique_ptr<routine>>  routine_list;
 
-  values::variable_table  variable_table;
+  std::vector<std::unique_ptr<values::variable>>  variable_list;
+
+  std::vector<const class_info*>  class_info_list;
 
 };
 
@@ -60,7 +62,7 @@ frame
   const stmt*  current;
   const stmt*      end;
 
-  values::variable_table  variable_table;
+  std::vector<std::unique_ptr<values::variable>>  variable_list;
 
   int  saved_value;
 
@@ -95,6 +97,73 @@ frame
   }
 
 };
+
+
+
+
+process::
+process() noexcept:
+m_data(new private_data)
+{
+}
+
+
+
+
+process&
+process::
+operator=(const process&   rhs) noexcept
+{
+    if(this != &rhs)
+    {
+      unrefer();
+
+      m_data = rhs.m_data;
+
+        if(m_data)
+        {
+          ++m_data->reference_count;
+        }
+    }
+
+
+  return *this;
+}
+
+
+process&
+process::
+operator=(process&&  rhs) noexcept
+{
+    if(this != &rhs)
+    {
+      unrefer();
+
+      std::swap(m_data,rhs.m_data);
+    }
+
+
+  return *this;
+}
+
+
+
+
+void
+process::
+unrefer() noexcept
+{
+    if(m_data)
+    {
+        if(!--m_data->reference_count)
+        {
+          delete m_data;
+        }
+
+
+      m_data = nullptr;
+    }
+}
 
 
 
@@ -186,11 +255,33 @@ call(const stmts::routine&  routine, const value_list&  argument_list, value*  r
 
     for(auto&  p: paras)
     {
-      frm.variable_table.append(value(*arg_it++),p);
+      auto  var = new variable(*arg_it++,p.data());
+
+      frm.variable_list.emplace_back(var);
     }
 
 
   m_state = state::ready;
+}
+
+
+namespace{
+std::unique_ptr<variable>&
+find_variable(std::vector<std::unique_ptr<variable>>&  list, gbstd::string_view  name) noexcept
+{
+  static std::unique_ptr<variable>  null;
+
+    for(auto&  var: list)
+    {
+        if(var->get_name() == name)
+        {
+          return var;
+        }
+    }
+
+
+  return null;
+}
 }
 
 
@@ -200,9 +291,9 @@ call(gbstd::string_view  routine_name, const value_list&  argument_list, value* 
 {
   gbstd::string_copy  sc(routine_name);
 
-  auto  i = m_data->variable_table.find(routine_name);
+  auto&  varptr = find_variable(m_data->variable_list,routine_name);
 
-    if(i < 0)
+    if(!varptr || !varptr->get_value().is_routine())
     {
       printf("%sというルーチンが見つからない",sc.data());
 
@@ -212,19 +303,7 @@ call(gbstd::string_view  routine_name, const value_list&  argument_list, value* 
     }
 
 
-  auto&  v = m_data->variable_table[i]();
-
-    if(!v.is_routine())
-    {
-      printf("%sというルーチンが見つからない",sc.data());
-
-      m_state = state::not_ready;
-
-      return;
-    }
-
-
-  call(v.get_routine(),argument_list,return_value);
+  call(varptr->get_value().get_routine(),argument_list,return_value);
 }
 
 
@@ -286,11 +365,11 @@ get_value(gbstd::string_view  name) const noexcept
 {
   auto&  frm = *m_top_frame;
 
-  auto  i = frm.variable_table.find(name);
+  auto&  varptr = find_variable(m_data->variable_list,name);
 
-    if(i >= 0)
+    if(varptr)
     {
-      return value(frm.variable_table[i]);
+      return varptr->get_value();
     }
 
 
@@ -305,7 +384,7 @@ get_value(gbstd::string_view  name) const noexcept
 */
 
 
-  return frm.variable_table.append(value(),name);
+//  return frm.variable_table.append(value(),name);
 }
 
 
@@ -423,203 +502,147 @@ return_(value  v) noexcept
 
 void
 process::
-run() noexcept
+step() noexcept
 {
-    if(is_sleeping())
+  auto&  frame = *m_top_frame;
+
+    if(frame.calling)
     {
-      m_state = state::ready;
+      auto&  cal = *frame.calling;
+
+        if(cal.eval_it != cal.eval_it_end)
+        {
+          operate_stack(cal.operand_stack,*cal.eval_it++,this);
+        }
+
+      else
+        if(cal.expr_it != cal.expr_it_end)
+        {
+          auto&  e = *cal.expr_it++;
+
+          cal.eval_it     = e.begin();
+          cal.eval_it_end = e.end();
+        }
+
+      else
+        {
+          auto  previous = frame.calling->previous;
+
+          std::vector<value>  buf;
+
+            for(auto&  o: frame.calling->operand_stack)
+            {
+              buf.emplace_back(o.evaluate(this));
+            }
+
+
+          value_list  vals(buf.data(),buf.size());
+
+          call(*frame.calling->routine,vals,frame.calling->return_value);
+
+          delete frame.calling           ;
+                 frame.calling = previous;
+        }
     }
 
+  else
+    if(frame.eval_it)
+    {
+        if(frame.eval_it != frame.eval_it_end)
+        {
+          operate_stack(frame.operand_stack,*frame.eval_it++,this);
+        }
 
+      else
+        {
+          finish_stmt();
+
+          frame.eval_it = nullptr;
+
+            if(is_exited() || is_sleeping())
+            {
+              return;
+            }
+        }
+    }
+
+  else
+    if(frame.current < frame.end)
+    {
+      auto&  stmt = *frame.current;
+
+        if(stmt.is_return()                ||
+           stmt.is_sleep()                 ||
+           stmt.is_exit()                  ||
+           stmt.is_print()                 ||
+           stmt.is_evaluate_and_dump()     ||
+           stmt.is_evaluate_and_save()     ||
+           stmt.is_evaluate_and_zero()     ||
+           stmt.is_evaluate_and_not_zero() ||
+           stmt.is_evaluate_and_equal()    ||
+           stmt.is_evaluate_and_not_equal())
+        {
+          auto&  e = stmt.get_expr();
+
+          frame.eval_it     = e.begin();
+          frame.eval_it_end = e.end();
+
+          frame.operand_stack.reset();
+        }
+
+      else
+        if(stmt.is_jump())
+        {
+          frame.jump(stmt.get_label());
+
+          ++frame.current;
+        }
+
+      else
+        if(stmt.is_jump_by_condition())
+        {
+            if(frame.condition)
+            {
+              frame.jump(stmt.get_label());
+            }
+
+
+          ++frame.current;
+        }
+
+      else
+        {
+          ++frame.current;
+        }
+    }
+
+  else
+    {
+      return_(value());
+    }
+}
+
+
+void
+process::
+run() noexcept
+{
     if(!is_ready())
     {
       return;
     }
 
 
-  constexpr size_t  count_limit = 1000;
-
-  size_t  count = 0;
-
     while(m_number_of_frames)
     {
-/*
-        if(++count >= count_limit)
+        if(is_exited() || is_sleeping() || is_not_ready())
         {
-          printf("run error: カウンタ上限を越えた\n");
-
           break;
         }
-*/
-
-      auto&  frame = *m_top_frame;
-
-        if(frame.calling)
-        {
-          auto&  cal = *frame.calling;
-
-            if(cal.eval_it != cal.eval_it_end)
-            {
-              operate_stack(cal.operand_stack,*cal.eval_it++,this);
-            }
-
-          else
-            if(cal.expr_it != cal.expr_it_end)
-            {
-              auto&  e = *cal.expr_it++;
-
-              cal.eval_it     = e.begin();
-              cal.eval_it_end = e.end();
-            }
-
-          else
-            {
-              auto  previous = frame.calling->previous;
-
-              std::vector<value>  buf;
-
-                for(auto&  o: frame.calling->operand_stack)
-                {
-                  buf.emplace_back(o.evaluate(this));
-                }
 
 
-              value_list  vals(buf.data(),buf.size());
-
-              call(*frame.calling->routine,vals,frame.calling->return_value);
-
-              delete frame.calling           ;
-                     frame.calling = previous;
-            }
-        }
-
-      else
-        if(frame.eval_it)
-        {
-            if(frame.eval_it != frame.eval_it_end)
-            {
-              operate_stack(frame.operand_stack,*frame.eval_it++,this);
-            }
-
-          else
-            {
-              finish_stmt();
-
-              frame.eval_it = nullptr;
-
-                if(is_exited() || is_sleeping())
-                {
-                  return;
-                }
-            }
-        }
-
-      else
-        if(frame.current < frame.end)
-        {
-          auto&  stmt = *frame.current;
-
-            if(stmt.is_return()                ||
-               stmt.is_sleep()                 ||
-               stmt.is_exit()                  ||
-               stmt.is_print()                 ||
-               stmt.is_evaluate_and_dump()     ||
-               stmt.is_evaluate_and_save()     ||
-               stmt.is_evaluate_and_zero()     ||
-               stmt.is_evaluate_and_not_zero() ||
-               stmt.is_evaluate_and_equal()    ||
-               stmt.is_evaluate_and_not_equal())
-            {
-              auto&  e = stmt.get_expr();
-
-              frame.eval_it     = e.begin();
-              frame.eval_it_end = e.end();
-
-              frame.operand_stack.reset();
-            }
-
-          else
-            if(stmt.is_jump())
-            {
-              frame.jump(stmt.get_label());
-
-              ++frame.current;
-            }
-
-          else
-            if(stmt.is_jump_by_condition())
-            {
-                if(frame.condition)
-                {
-                  frame.jump(stmt.get_label());
-                }
-
-
-              ++frame.current;
-            }
-
-          else
-            {
-              ++frame.current;
-            }
-        }
-
-      else
-        {
-          return_(value());
-        }
+      step();
     }
-
-
-  m_state = state::exited;
-}
-
-
-
-
-process::
-process() noexcept:
-m_data(new private_data)
-{
-}
-
-
-
-
-process&
-process::
-operator=(const process&   rhs) noexcept
-{
-    if(this != &rhs)
-    {
-      unrefer();
-
-      m_data = rhs.m_data;
-
-        if(m_data)
-        {
-          ++m_data->reference_count;
-        }
-    }
-
-
-  return *this;
-}
-
-
-process&
-process::
-operator=(process&&  rhs) noexcept
-{
-    if(this != &rhs)
-    {
-      unrefer();
-
-      std::swap(m_data,rhs.m_data);
-    }
-
-
-  return *this;
 }
 
 
@@ -627,17 +650,26 @@ operator=(process&&  rhs) noexcept
 
 void
 process::
-unrefer() noexcept
+append_class_info(const class_info&  ci) noexcept
 {
-    if(m_data)
+  m_data->class_info_list.emplace_back(&ci);
+}
+
+
+void
+process::
+append_object(gbstd::string_view  class_name, gbstd::string_view  name, void*  data) noexcept
+{
+    for(auto  ci: m_data->class_info_list)
     {
-        if(!--m_data->reference_count)
+        if(ci->get_name() == class_name)
         {
-          delete m_data;
+          auto  var = new variable(value(object(*ci,data)),name);
+
+          m_data->variable_list.emplace_back(var);
+
+          break;
         }
-
-
-      m_data = nullptr;
     }
 }
 
@@ -679,7 +711,7 @@ load_file(const char*  filepath) noexcept
                   
                   auto  rt = new routine(parals,block);
 
-                  m_data->variable_table.append(value(*rt),var_name);
+                  m_data->variable_list.emplace_back(new variable(value(*rt),var_name));
 
                   cur += 2;
                 }
@@ -710,7 +742,11 @@ print() const noexcept
 {
   printf("reference_count: %ld\n",m_data->reference_count);
 
-  m_data->variable_table.print();
+    for(auto&  var: m_data->variable_list)
+    {
+      var->print();
+    }
+
 
   printf("\n");
 }
