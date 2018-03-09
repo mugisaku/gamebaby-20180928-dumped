@@ -28,7 +28,7 @@ namespace values{
 
 class object;
 class class_info;
-class variable_table;
+class variable;
 class value;
 class method;
 
@@ -36,31 +36,12 @@ class method;
 class
 reference
 {
-protected:
-  struct private_data;
-
-  private_data*  m_data=nullptr;
-
-  void  unrefer() noexcept;
-
-  void  unset_pointer() noexcept;
-
-  size_t  get_count() const noexcept;
-
-  reference(value&  v) noexcept;
+  variable&  m_variable;
 
 public:
-  reference() noexcept;
-  reference(const reference&   rhs) noexcept{*this = rhs;}
-  reference(      reference&&  rhs) noexcept{*this = std::move(rhs);}
- ~reference(){unrefer();}
+  reference(variable&  var) noexcept: m_variable(var){}
 
-  reference&  operator=(const reference&   rhs) noexcept;
-  reference&  operator=(      reference&&  rhs) noexcept;
-
-  operator bool() const noexcept;
-
-  value&  operator()() const noexcept;
+  variable&  operator()() const noexcept{return m_variable;}
 
 };
 
@@ -172,22 +153,30 @@ public:
 
 
 class
-variable: private reference
+variable
 {
   values::value  m_value;
 
   gbstd::string  m_name;
 
+  bool  m_carry_flag=false;
+
 public:
+  variable() noexcept{}
   variable(const value&  v, gbstd::string_view  name) noexcept;
   variable(const variable&   rhs) noexcept=delete;
   variable(      variable&&  rhs) noexcept=delete;
- ~variable();
 
   variable&  operator=(const variable&   rhs) noexcept=delete;
   variable&  operator=(      variable&&  rhs) noexcept=delete;
 
   value&  get_value() noexcept{return m_value;}
+
+  reference  get_reference() noexcept{return reference(*this);}
+
+  bool   test_carry_flag() const noexcept{return m_carry_flag;}
+  void    set_carry_flag()       noexcept;
+  void  unset_carry_flag()       noexcept{m_carry_flag = false;}
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
 

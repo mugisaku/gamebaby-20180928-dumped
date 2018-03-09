@@ -20,6 +20,8 @@ process
   struct private_data;
   struct        frame;
 
+  std::vector<std::unique_ptr<variable>>  m_carried_variables;
+
   private_data*  m_data=nullptr;
 
   frame*  m_top_frame=nullptr;
@@ -39,11 +41,11 @@ process
 
   void  finish_stmt() noexcept;
 
-  void  return_(value  v) noexcept;
+  void  return_(const value&  v) noexcept;
 
   void  unrefer() noexcept;
 
-  void  call(const stmts::routine&  routine         , const value_list&  argument_list, value*  return_value=nullptr) noexcept;
+  void  call(const stmts::routine&  routine, const value_list&  argument_list, value*  return_value=nullptr) noexcept;
 
 public:
   process() noexcept;

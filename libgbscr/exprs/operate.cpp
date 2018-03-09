@@ -152,7 +152,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
 
         if(lv.is_reference())
         {
-          lv = lv.get_reference()();
+          lv = lv.get_reference()().get_value();
         }
 
 
@@ -221,7 +221,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
 */
         if(lv.is_reference())
         {
-          auto&  objv = static_cast<value&>(lv.get_reference()());
+          auto&  objv = lv.get_reference()().get_value();
 
                if(opw == gbstd::string_view(  "=")){objv = value(   ri);}
           else if(opw == gbstd::string_view( "+=")){objv = value(li+ri);}

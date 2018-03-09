@@ -9,19 +9,21 @@ namespace values{
 
 variable::
 variable(const value&  v, gbstd::string_view  name) noexcept:
-reference(m_value),
 m_value(v),
 m_name(name)
 {
 }
 
 
+
+
+void
 variable::
-~variable()
+set_carry_flag() noexcept
 {
-    if(reference::get_count() > 1)
+    if(!m_carry_flag)
     {
-      reference::unset_pointer();
+      m_carry_flag = true;
     }
 }
 
@@ -30,7 +32,9 @@ void
 variable::
 print() const noexcept
 {
-  printf("%d \n",get_count());
+  printf("%s ",m_name.data());
+
+  m_value.print();
 }
 
 

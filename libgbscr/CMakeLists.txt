@@ -13,7 +13,6 @@ set(SOURCES
   stmts/stmt.cpp
   stmts/stmt_list.cpp
   stmts/routine.cpp
-  values/reference.cpp
   values/value.cpp
   values/class_info.cpp
   values/variable.cpp

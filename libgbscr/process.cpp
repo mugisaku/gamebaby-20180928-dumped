@@ -194,6 +194,8 @@ clear() noexcept
     }
 
 
+  m_data->variable_list.clear();
+
   m_top_frame = nullptr;
 
   m_number_of_frames = 0;
@@ -365,26 +367,27 @@ get_value(gbstd::string_view  name) const noexcept
 {
   auto&  frm = *m_top_frame;
 
+  auto&  frm_varptr = find_variable(frm.variable_list,name);
+
+    if(frm_varptr)
+    {
+      return value(frm_varptr->get_reference());
+    }
+
+
   auto&  varptr = find_variable(m_data->variable_list,name);
 
     if(varptr)
     {
-      return varptr->get_value();
+      return value(varptr->get_reference());
     }
 
 
-/*
-    for(auto&  obj: m_process.get_object_list())
-    {
-        if(obj.get_name() == name)
-        {
-          return value(reference(obj));
-        }
-    }
-*/
+  auto  new_var = new variable(value(),name);
 
+  frm.variable_list.emplace_back(new_var);
 
-//  return frm.variable_table.append(value(),name);
+  return value(new_var->get_reference());
 }
 
 
@@ -480,7 +483,7 @@ finish_stmt() noexcept
 
 void
 process::
-return_(value  v) noexcept
+return_(const value&  v) noexcept
 {
     if(m_top_frame)
     {
@@ -492,10 +495,35 @@ return_(value  v) noexcept
         }
 
 
+        if(v.is_reference())
+        {
+          auto&  var = v.get_reference()();
+
+          var.set_carry_flag();
+
+          auto&  dst = previous? previous->variable_list
+                               :   m_data->variable_list;
+
+            for(auto&  varptr: m_top_frame->variable_list)
+            {
+                if(varptr->test_carry_flag())
+                {
+                  dst.emplace_back(std::move(varptr));
+                }
+            }
+        }
+
+
       delete m_top_frame           ;
              m_top_frame = previous;
 
       --m_number_of_frames;
+    }
+
+
+    if(!m_top_frame)
+    {
+      m_state = state::exited;
     }
 }
 
@@ -745,6 +773,8 @@ print() const noexcept
     for(auto&  var: m_data->variable_list)
     {
       var->print();
+
+      printf("\n");
     }
 
 
