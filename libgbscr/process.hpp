@@ -61,12 +61,13 @@ public:
   void  clear() noexcept;
 
   void  prepare_call(const stmts::routine&  routine, const expr_list&  argument_list, value*  return_value=nullptr) noexcept;
+  void  prepare_call(const method_calling&       mc, const expr_list&  argument_list, value*  return_value=nullptr) noexcept;
 
   void  call(gbstd::string_view  routine_name, const value_list&  argument_list, value*  return_value=nullptr) noexcept;
 
   void  append_class_info(const class_info&  ci) noexcept;
 
-  void  append_object(gbstd::string_view  class_name, gbstd::string_view  name, void*  data) noexcept;
+  bool  append_object(gbstd::string_view  class_name, gbstd::string_view  name, void*  data) noexcept;
 
   size_t  get_number_of_frames() const noexcept{return m_number_of_frames;}
 

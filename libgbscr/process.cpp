@@ -33,6 +33,8 @@ calling_preparation
 
   const stmts::routine*  routine;
 
+  values::method_calling  method_calling;
+
   exprs::operand_stack  operand_stack;
 
   exprs::expr_list  expr_list;
@@ -361,6 +363,61 @@ prepare_call(const routine&  routine, const expr_list&  argument_list, value*  r
 }
 
 
+
+
+void
+process::
+prepare_call(const method_calling&  mc, const expr_list&  argument_list, value*  return_value) noexcept
+{
+    if(!m_top_frame)
+    {
+      printf("prepare_call error: フレームがない\n");
+
+      return;
+    }
+
+
+  auto&  frm = *m_top_frame;
+
+    if(argument_list.size())
+    {
+        if(!frm.calling)
+        {
+          frm.calling = new calling_preparation;
+
+          frm.calling->previous = nullptr;
+        }
+
+      else
+        {
+          auto  previous = frm.calling                          ;
+                           frm.calling = new calling_preparation;
+
+          frm.calling->previous = previous;
+        }
+
+
+      frm.calling->routine = nullptr;
+      frm.calling->method_calling = mc;
+
+      frm.calling->expr_list = argument_list;
+
+      frm.calling->expr_it     = frm.calling->expr_list.begin();
+      frm.calling->expr_it_end = frm.calling->expr_list.end();
+
+      frm.calling->eval_it     = nullptr;
+      frm.calling->eval_it_end = nullptr;
+
+      frm.calling->return_value = return_value;
+    }
+
+  else
+    {
+      *return_value = (**mc.method)(mc.data,{});
+    }
+}
+
+
 value
 process::
 get_value(gbstd::string_view  name) const noexcept
@@ -554,11 +611,11 @@ step() noexcept
 
       else
         {
-          auto  previous = frame.calling->previous;
+          auto  previous = cal.previous;
 
           std::vector<value>  buf;
 
-            for(auto&  o: frame.calling->operand_stack)
+            for(auto&  o: cal.operand_stack)
             {
               buf.emplace_back(o.evaluate(this));
             }
@@ -566,7 +623,18 @@ step() noexcept
 
           value_list  vals(buf.data(),buf.size());
 
-          call(*frame.calling->routine,vals,frame.calling->return_value);
+            if(cal.routine)
+            {
+              call(*cal.routine,vals,cal.return_value);
+            }
+
+          else
+            {
+              auto&  mc = cal.method_calling;
+
+              *cal.return_value = (**mc.method)(mc.data,vals);
+            }
+
 
           delete frame.calling           ;
                  frame.calling = previous;
@@ -684,7 +752,7 @@ append_class_info(const class_info&  ci) noexcept
 }
 
 
-void
+bool
 process::
 append_object(gbstd::string_view  class_name, gbstd::string_view  name, void*  data) noexcept
 {
@@ -696,9 +764,12 @@ append_object(gbstd::string_view  class_name, gbstd::string_view  name, void*  d
 
           m_data->variable_list.emplace_back(var);
 
-          break;
+          return true;
         }
     }
+
+
+  return false;
 }
 
 

@@ -134,6 +134,7 @@ public:
   bool  is_integer()        const noexcept{return m_kind == kind::integer;}
   bool  is_string()         const noexcept{return m_kind == kind::string;}
   bool  is_routine()        const noexcept{return m_kind == kind::routine;}
+  bool  is_object()         const noexcept{return m_kind == kind::object;}
   bool  is_method_calling() const noexcept{return m_kind == kind::method_calling;}
 
   int                    get_integer()        const noexcept{return m_data.i;}
@@ -192,9 +193,7 @@ public:
 };
 
 
-using argument_list = list<variable>;
-
-using callback = value  (*)(void*  ptr, const argument_list&  argls);
+using callback = value  (*)(void*  ptr, const value_list&  argls);
 
 
 class
@@ -210,6 +209,11 @@ public:
   m_name(name),
   m_callback(cb){}
 
+  template<typename  T>
+  constexpr method(gbstd::string_view  name, value  (*cb)(T*  data, const value_list&  argls)) noexcept:
+  m_name(name),
+  m_callback(reinterpret_cast<callback>(cb)){}
+
   constexpr const gbstd::string_view&  get_name() const noexcept{return m_name;}
 
   constexpr callback  operator*() const noexcept{return m_callback;}
@@ -222,12 +226,11 @@ class_info
 {
   gbstd::string  m_name;
 
-  const method*  m_begin;
-  const method*    m_end;
+  std::vector<method>  m_method_list;
 
 public:
-  class_info(gbstd::string_view  name, const method*  begin, size_t  n) noexcept:
-  m_name(name), m_begin(begin), m_end(begin+n){}
+  class_info(gbstd::string_view  name, std::initializer_list<method>  ls) noexcept:
+  m_name(name), m_method_list(ls){}
 
   class_info(const class_info&   rhs) noexcept=delete;
   class_info(      class_info&&  rhs) noexcept=delete;
@@ -248,11 +251,11 @@ public:
 using values::reference;
 using values::value;
 using values::value_list;
-using values::argument_list;
 using values::variable;
 using values::class_info;
 using values::object;
 using values::method;
+using values::method_calling;
 
 
 }

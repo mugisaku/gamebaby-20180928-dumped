@@ -103,9 +103,21 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
         {
           lv = lv.get_reference()().get_value();
 
-          ro.get_string();
+            if(!lv.is_object())
+            {
+              printf("左辺がオブジェクトではない\n");
 
-          lo = operand(value());
+              lv.print();
+            }
+
+          else
+            {
+              auto&  obj = lv.get_object();
+
+              auto&  s = ro.get_string();
+
+              lo = operand(value(obj[s.view()]));
+            }
         }
 
 
@@ -154,25 +166,34 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
         }
 
 
+      auto&  exls = ro.get_expression_list();
+
         if(lv.is_reference())
         {
           lv = lv.get_reference()().get_value();
         }
 
 
-        if(!lv.is_routine())
-        {
-          printf("左辺がroutineではない\n");
-
-          lv.print();
-
-          return;
-        }
-
-
       lo = operand(value());
 
-      proc->prepare_call(lv.get_routine(),ro.get_expression_list(),lo.get_value_pointer());
+        if(lv.is_routine())
+        {
+          proc->prepare_call(lv.get_routine(),exls,lo.get_value_pointer());
+        }
+
+      else
+        if(lv.is_method_calling())
+        {
+          proc->prepare_call(lv.get_method_calling(),exls,lo.get_value_pointer());
+        }
+
+      else
+        {
+          printf("左辺がroutineでも、メソッド呼び出しでもない\n");
+
+          lv.print();
+        }
+
 
       return;
     }

@@ -12,11 +12,11 @@ const method*
 class_info::
 find_method(gbstd::string_view  name) const noexcept
 {
-    for(auto  it = m_begin;  it != m_end;  ++it)
+    for(auto&  m: m_method_list)
     {
-        if(it->get_name() == name)
+        if(m.get_name() == name)
         {
-          return it;
+          return &m;
         }
     }
 
