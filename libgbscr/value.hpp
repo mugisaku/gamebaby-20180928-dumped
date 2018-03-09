@@ -80,6 +80,7 @@ value
   enum class kind{
     null,
     integer,
+    string,
     reference,
     routine,
     object,
@@ -89,7 +90,9 @@ value
 
   union data{
     int              i;
+    gbstd::string    s;
     reference        r;
+
     const stmts::routine*  rt;
     object                obj;
     method_calling         mc;
@@ -103,6 +106,7 @@ public:
   value() noexcept{}
   value(bool  b) noexcept{*this = b;}
   value(int  i) noexcept{*this = i;}
+  value(const gbstd::string&  s) noexcept{*this = s;}
   value(const reference&  r) noexcept{*this = r;}
   value(const stmts::routine&  rt) noexcept{*this = rt;}
   value(const method_calling&  mc) noexcept{*this = mc;}
@@ -113,6 +117,7 @@ public:
 
   value&  operator=(bool  b) noexcept;
   value&  operator=(int  i) noexcept;
+  value&  operator=(const gbstd::string&  s) noexcept;
   value&  operator=(const reference&  r) noexcept;
   value&  operator=(const stmts::routine&  rt) noexcept;
   value&  operator=(const method_calling&  mc) noexcept;
@@ -127,13 +132,15 @@ public:
   bool  is_null()           const noexcept{return m_kind == kind::null;}
   bool  is_reference()      const noexcept{return m_kind == kind::reference;}
   bool  is_integer()        const noexcept{return m_kind == kind::integer;}
+  bool  is_string()         const noexcept{return m_kind == kind::string;}
   bool  is_routine()        const noexcept{return m_kind == kind::routine;}
   bool  is_method_calling() const noexcept{return m_kind == kind::method_calling;}
 
-  int                    get_integer() const noexcept{return m_data.i;}
-  const reference&       get_reference() const noexcept{return m_data.r;}
-  const stmts::routine&  get_routine() const noexcept;
-  const object&          get_object() const noexcept{return m_data.obj;}
+  int                    get_integer()        const noexcept{return m_data.i;}
+  const gbstd::string&   get_string()         const noexcept{return m_data.s;}
+  const reference&       get_reference()      const noexcept{return m_data.r;}
+  const stmts::routine&  get_routine()        const noexcept;
+  const object&          get_object()         const noexcept{return m_data.obj;}
   const method_calling&  get_method_calling() const noexcept{return m_data.mc;}
 
   int  get_integer_safely() const noexcept;

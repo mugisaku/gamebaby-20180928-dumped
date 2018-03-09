@@ -101,7 +101,11 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
 
       else
         {
-//          lo = operand(value(lv.get_reference().get_property(ro.get_string())));
+          lv = lv.get_reference()().get_value();
+
+          ro.get_string();
+
+          lo = operand(value());
         }
 
 
@@ -198,27 +202,6 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
        (opw == gbstd::string_view( "&=")) ||
        (opw == gbstd::string_view( "^=")))
     {
-/*
-        if(lv.is_property())
-        {
-          auto&  p = lv.get_property();
-
-               if(opw == gbstd::string_view(  "=")){p.set(   ri);}
-          else if(opw == gbstd::string_view( "+=")){p.set(li+ri);}
-          else if(opw == gbstd::string_view( "-=")){p.set(li-ri);}
-          else if(opw == gbstd::string_view( "*=")){p.set(li*ri);}
-          else if(opw == gbstd::string_view( "/=")){p.set(li/ri);}
-          else if(opw == gbstd::string_view( "%=")){p.set(li%ri);}
-          else if(opw == gbstd::string_view("<<=")){p.set(li<<ri);}
-          else if(opw == gbstd::string_view(">>=")){p.set(li>>ri);}
-          else if(opw == gbstd::string_view( "|=")){p.set(li|ri);}
-          else if(opw == gbstd::string_view( "&=")){p.set(li&ri);}
-          else if(opw == gbstd::string_view( "^=")){p.set(li^ri);}
-          else {printf("プロパティーに対する不正な演算 %s\n",short_string(opw).data());}
-        }
-
-      else
-*/
         if(lv.is_reference())
         {
           auto&  objv = lv.get_reference()().get_value();

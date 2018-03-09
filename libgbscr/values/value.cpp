@@ -40,6 +40,20 @@ operator=(int  i) noexcept
 
 value&
 value::
+operator=(const gbstd::string&  s) noexcept
+{
+  clear();
+
+  m_kind = kind::string;
+
+  new(&m_data) gbstd::string(s);
+
+  return *this;
+}
+
+
+value&
+value::
 operator=(const reference&  r) noexcept
 {
   clear();
@@ -109,6 +123,9 @@ operator=(const value&  rhs) noexcept
       case(kind::integer):
           m_data.i = rhs.m_data.i;
           break;
+      case(kind::string):
+          new(&m_data) gbstd::string(rhs.m_data.s);
+          break;
       case(kind::reference):
           new(&m_data) reference(rhs.m_data.r);
           break;
@@ -144,6 +161,9 @@ operator=(value&&  rhs) noexcept
       case(kind::integer):
           m_data.i = rhs.m_data.i;
           break;
+      case(kind::string):
+          new(&m_data) gbstd::string(std::move(rhs.m_data.s));
+          break;
       case(kind::reference):
           new(&m_data) reference(std::move(rhs.m_data.r));
           break;
@@ -172,6 +192,9 @@ clear() noexcept
     switch(m_kind)
     {
   case(kind::integer):
+      break;
+  case(kind::string):
+      gbstd::destruct(m_data.s);
       break;
   case(kind::reference):
       gbstd::destruct(m_data.r);
@@ -205,6 +228,9 @@ get_integer_safely() const noexcept
   case(kind::integer):
       return m_data.i;
       break;
+  case(kind::string):
+//      return m_data.i;
+      break;
   case(kind::reference):
       return m_data.r().get_value().get_integer_safely();
       break;
@@ -234,6 +260,9 @@ print() const noexcept
       break;
   case(kind::integer):
       printf("%d",m_data.i);
+      break;
+  case(kind::string):
+      printf("\"%s\"",m_data.s);
       break;
   case(kind::reference):
       printf("reference ");
