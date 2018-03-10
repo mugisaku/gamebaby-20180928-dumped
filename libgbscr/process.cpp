@@ -21,8 +21,6 @@ private_data
 
   std::vector<std::unique_ptr<values::variable>>  variable_list;
 
-  std::vector<const class_info*>  class_info_list;
-
 };
 
 
@@ -413,7 +411,7 @@ prepare_call(const method_calling&  mc, const expr_list&  argument_list, value* 
 
   else
     {
-      *return_value = (**mc.method)(mc.data,{});
+//      *return_value = (**mc.method)(mc.data,{});
     }
 }
 
@@ -632,7 +630,7 @@ step() noexcept
             {
               auto&  mc = cal.method_calling;
 
-              *cal.return_value = (**mc.method)(mc.data,vals);
+//              *cal.return_value = (**mc.method)(mc.data,vals);
             }
 
 
@@ -744,32 +742,15 @@ run() noexcept
 
 
 
-void
-process::
-append_class_info(const class_info&  ci) noexcept
-{
-  m_data->class_info_list.emplace_back(&ci);
-}
-
-
 bool
 process::
-append_object(gbstd::string_view  class_name, gbstd::string_view  name, void*  data) noexcept
+append_object(object*  obj, gbstd::string_view  name) noexcept
 {
-    for(auto  ci: m_data->class_info_list)
-    {
-        if(ci->get_name() == class_name)
-        {
-          auto  var = new variable(value(object(*ci,data)),name);
+  auto  var = new variable(value(obj),name);
 
-          m_data->variable_list.emplace_back(var);
+  m_data->variable_list.emplace_back(var);
 
-          return true;
-        }
-    }
-
-
-  return false;
+  return true;
 }
 
 

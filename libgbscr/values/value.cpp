@@ -82,13 +82,13 @@ operator=(const stmts::routine&  rt) noexcept
 
 value&
 value::
-operator=(const object&  obj) noexcept
+operator=(object&  obj) noexcept
 {
   clear();
 
   m_kind = kind::object;
 
-  new(&m_data) object(obj);
+  m_data.obj = &obj;
 
   return *this;
 }
@@ -133,7 +133,7 @@ operator=(const value&  rhs) noexcept
           m_data.rt = rhs.m_data.rt;
           break;
       case(kind::object):
-          new(&m_data) object(rhs.m_data.obj);
+          m_data.obj = new object(*rhs.m_data.obj);
           break;
       case(kind::method_calling):
           m_data.mc = rhs.m_data.mc;
@@ -171,7 +171,7 @@ operator=(value&&  rhs) noexcept
           m_data.rt = rhs.m_data.rt;
           break;
       case(kind::object):
-          new(&m_data) object(std::move(rhs.m_data.obj));
+          m_data.obj = rhs.m_data.obj;
           break;
       case(kind::method_calling):
           m_data.mc = rhs.m_data.mc;
@@ -202,7 +202,7 @@ clear() noexcept
   case(kind::routine):
       break;
   case(kind::object):
-      gbstd::destruct(m_data.obj);
+      delete m_data.obj;
       break;
     }
 

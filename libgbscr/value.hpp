@@ -27,7 +27,6 @@ namespace values{
 
 
 class object;
-class class_info;
 class variable;
 class value;
 class method;
@@ -49,7 +48,7 @@ public:
 struct
 method_calling
 {
-  void*  data;
+  values::object*  object;
 
   const values::method*  method;
 
@@ -59,17 +58,21 @@ method_calling
 class
 object
 {
-  const class_info&  m_info;
-
-  void*  m_data;
+  std::vector<variable*>  m_variables;
 
 public:
-  object(const class_info&  info, void*  data) noexcept:
-  m_info(info), m_data(data){}
+  object(const object&   rhs) noexcept{*this = rhs;}
+  object(      object&&  rhs) noexcept{*this = std::move(rhs);}
+ ~object(){clear();}
 
-  const class_info&  get_class_info() const noexcept{return m_info;}
+  object&  operator=(const object&   rhs) noexcept;
+  object&  operator=(      object&&  rhs) noexcept;
 
-  method_calling  operator[](gbstd::string_view  name) const noexcept;
+  variable&  operator[](gbstd::string_view  name) noexcept;
+
+  void  clear() noexcept;
+
+  void  append(const value&  v, gbstd::string_view  name) noexcept;
 
 };
 
@@ -94,7 +97,7 @@ value
     reference        r;
 
     const stmts::routine*  rt;
-    object                obj;
+    object*               obj;
     method_calling         mc;
 
     data(){}
@@ -110,7 +113,7 @@ public:
   value(const reference&  r) noexcept{*this = r;}
   value(const stmts::routine&  rt) noexcept{*this = rt;}
   value(const method_calling&  mc) noexcept{*this = mc;}
-  value(const object&  obj) noexcept{*this = obj;}
+  value(object&  obj) noexcept{*this = obj;}
   value(const value&   rhs) noexcept{*this = rhs;}
   value(      value&&  rhs) noexcept{*this = std::move(rhs);}
  ~value(){clear();}
@@ -121,7 +124,7 @@ public:
   value&  operator=(const reference&  r) noexcept;
   value&  operator=(const stmts::routine&  rt) noexcept;
   value&  operator=(const method_calling&  mc) noexcept;
-  value&  operator=(const object&  obj) noexcept;
+  value&  operator=(object&  obj) noexcept;
   value&  operator=(const value&   rhs) noexcept;
   value&  operator=(      value&&  rhs) noexcept;
 
@@ -141,7 +144,7 @@ public:
   const gbstd::string&   get_string()         const noexcept{return m_data.s;}
   const reference&       get_reference()      const noexcept{return m_data.r;}
   const stmts::routine&  get_routine()        const noexcept;
-  const object&          get_object()         const noexcept{return m_data.obj;}
+  object&                get_object()         const noexcept{return *m_data.obj;}
   const method_calling&  get_method_calling() const noexcept{return m_data.mc;}
 
   int  get_integer_safely() const noexcept;
@@ -172,10 +175,10 @@ variable
 public:
   variable() noexcept{}
   variable(const value&  v, gbstd::string_view  name) noexcept;
-  variable(const variable&   rhs) noexcept=delete;
+  variable(const variable&   rhs) noexcept=default;
   variable(      variable&&  rhs) noexcept=delete;
 
-  variable&  operator=(const variable&   rhs) noexcept=delete;
+  variable&  operator=(const variable&   rhs) noexcept=default;
   variable&  operator=(      variable&&  rhs) noexcept=delete;
 
   value&  get_value() noexcept{return m_value;}
@@ -221,30 +224,6 @@ public:
 };
 
 
-class
-class_info
-{
-  gbstd::string  m_name;
-
-  std::vector<method>  m_method_list;
-
-public:
-  class_info(gbstd::string_view  name, std::initializer_list<method>  ls) noexcept:
-  m_name(name), m_method_list(ls){}
-
-  class_info(const class_info&   rhs) noexcept=delete;
-  class_info(      class_info&&  rhs) noexcept=delete;
-
-  class_info&  operator=(const class_info&   rhs) noexcept=delete;
-  class_info&  operator=(      class_info&&  rhs) noexcept=delete;
-
-  const gbstd::string&  get_name() const noexcept{return m_name;}
-
-  const method*  find_method(gbstd::string_view  name) const noexcept;
-
-};
-
-
 }
 
 
@@ -252,7 +231,6 @@ using values::reference;
 using values::value;
 using values::value_list;
 using values::variable;
-using values::class_info;
 using values::object;
 using values::method;
 using values::method_calling;

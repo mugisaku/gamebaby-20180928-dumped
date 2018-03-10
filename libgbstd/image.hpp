@@ -138,6 +138,21 @@ public:
 };
 
 
+class
+image_view
+{
+  pixel*  m_data;
+
+  int  m_x_offset;
+  int  m_y_offset;
+  int  m_width;
+  int  m_height;
+
+public:
+
+};
+
+
 }
 
 
