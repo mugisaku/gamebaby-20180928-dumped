@@ -92,8 +92,6 @@ load_png(binary_stream_reader&  r) noexcept
 
   auto  dst = m_pixels.begin();
 
-  fill();
-
     for(int  y = 0;  y < h;  ++y)
     {
       png_read_row(png,buffer,nullptr);

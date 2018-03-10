@@ -5,10 +5,10 @@ set(SOURCES
   riff_subchunk_view.cpp
   wave.cpp
   image.cpp
+  image_frame.cpp
   image__png.cpp
   image__draw.cpp
   image__transfer.cpp
-  image__print.cpp
   font.cpp
   playwork.cpp
   task.cpp

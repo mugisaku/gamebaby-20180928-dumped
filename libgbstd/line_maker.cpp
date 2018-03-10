@@ -7,20 +7,20 @@ namespace gbstd{
 
 
 line_maker::
-line_maker(line  ln) noexcept
+line_maker(int  x0, int  y0, int  x1, int  y1) noexcept
 {
   constexpr int  base = (1<<shift_amount)/2;
 
-  auto  const x_min = std::min(ln.a_point.x,ln.b_point.x);
-  auto  const x_max = std::max(ln.a_point.x,ln.b_point.x);
-  auto  const y_min = std::min(ln.a_point.y,ln.b_point.y);
-  auto  const y_max = std::max(ln.a_point.y,ln.b_point.y);
+  auto  x_min = std::min(x0,x1);
+  auto  x_max = std::max(x0,x1);
+  auto  y_min = std::min(y0,y1);
+  auto  y_max = std::max(y0,y1);
 
   int  x_distance = x_max-x_min;
   int  y_distance = y_max-y_min;
 
-  m_point.x = base+(ln.a_point.x<<shift_amount);
-  m_point.y = base+(ln.a_point.y<<shift_amount);
+  m_x = base+(x0<<shift_amount);
+  m_y = base+(y0<<shift_amount);
 
     if(!x_distance)
     {
@@ -66,28 +66,19 @@ line_maker(line  ln) noexcept
     }
 
 
-    if(ln.a_point.x > ln.b_point.x){m_x_add_amount *= -1;}
-    if(ln.a_point.y > ln.b_point.y){m_y_add_amount *= -1;}
+    if(x0 > x1){m_x_add_amount *= -1;}
+    if(y0 > y1){m_y_add_amount *= -1;}
 }
 
 
-
-
-point
-line_maker::
-get_point() const noexcept
-{
-  return point(m_point.x>>shift_amount,
-               m_point.y>>shift_amount);
-}
 
 
 void
 line_maker::
 step() noexcept
 {
-  m_point.x += m_x_add_amount;
-  m_point.y += m_y_add_amount;
+  m_x += m_x_add_amount;
+  m_y += m_y_add_amount;
 
   --m_distance;
 }

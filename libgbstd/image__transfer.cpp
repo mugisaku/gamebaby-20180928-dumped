@@ -10,37 +10,40 @@ namespace images{
 
 
 void
-image::
-transfer(image const&  src, rectangle  src_rect, point  dst_pt, int  z) noexcept
+transfer(const image_frame&  src, const image_frame&  dst) noexcept
 {
   bool  reverse_flag = false;
 
-    if(src_rect.w < 0)
+  int  src_x = src.get_x_offset();
+  int  src_y = src.get_y_offset();
+  int  src_w = src.get_width();
+  int  src_h = src.get_height();
+
+  int  dst_x = dst.get_x_offset();
+  int  dst_y = dst.get_y_offset();
+  int  dst_w = dst.get_width();
+  int  dst_h = dst.get_height();
+
+    if(src_w < 0)
     {
       reverse_flag = true;
 
-      src_rect.w = -src_rect.w;
+      src_w = -src_w;
     }
 
 
-  const int  dst_w = m_width ;
-  const int  dst_h = m_height;
+    if(src_w > dst_w){src_w = dst_w;}
+    if(src_h > dst_h){src_h = dst_h;}
 
-    if(!src_rect.w){src_rect.w =  src.get_width();}
-    if(!src_rect.h){src_rect.h = src.get_height();}
-
-    if(src_rect.w > dst_w){src_rect.w = dst_w;}
-    if(src_rect.h > dst_h){src_rect.h = dst_h;}
-
-    if(dst_pt.x < 0)
+    if(dst_x < 0)
     {
-      const int  diff = -dst_pt.x    ;
-                         dst_pt.x = 0;
+      const int  diff = -dst_x    ;
+                         dst_x = 0;
 
-        if(diff < src_rect.w)
+        if(diff < src_w)
         {
-          src_rect.x += diff;
-          src_rect.w -= diff;
+          src_x += diff;
+          src_w -= diff;
         }
 
       else
@@ -51,15 +54,15 @@ transfer(image const&  src, rectangle  src_rect, point  dst_pt, int  z) noexcept
 
 
 
-    if(dst_pt.y < 0)
+    if(dst_y < 0)
     {
-      const int  diff = -dst_pt.y    ;
-                         dst_pt.y = 0;
+      const int  diff = -dst_y    ;
+                         dst_y = 0;
 
-        if(diff < src_rect.h)
+        if(diff < src_h)
         {
-          src_rect.y += diff;
-          src_rect.h -= diff;
+          src_y += diff;
+          src_h -= diff;
         }
 
       else
@@ -69,13 +72,13 @@ transfer(image const&  src, rectangle  src_rect, point  dst_pt, int  z) noexcept
     }
 
 
-    if((dst_pt.x+src_rect.w) >= dst_w)
+    if((dst_x+src_w) >= dst_w)
     {
-      const int  diff = (dst_pt.x+src_rect.w)-dst_w;
+      const int  diff = (dst_x+src_w)-dst_w;
 
-        if(diff < src_rect.w)
+        if(diff < src_w)
         {
-          src_rect.w -= diff;
+          src_w -= diff;
         }
 
       else
@@ -85,13 +88,13 @@ transfer(image const&  src, rectangle  src_rect, point  dst_pt, int  z) noexcept
     }
 
 
-    if((dst_pt.y+src_rect.h) >= dst_h)
+    if((dst_y+src_h) >= dst_h)
     {
-      const int  diff = (dst_pt.y+src_rect.h)-dst_h;
+      const int  diff = (dst_y+src_h)-dst_h;
 
-        if(diff < src_rect.h)
+        if(diff < src_h)
         {
-          src_rect.h -= diff;
+          src_h -= diff;
         }
 
       else
@@ -101,31 +104,161 @@ transfer(image const&  src, rectangle  src_rect, point  dst_pt, int  z) noexcept
     }
 
 
-    for(int  yy = 0;  yy < src_rect.h;  yy += 1)
+  auto&  src_img = src.get_image();
+  auto&  dst_img = dst.get_image();
+
+    for(int  yy = 0;  yy < src_h;  yy += 1)
     {
         if(reverse_flag)
         {
-          int  x = src_rect.x+src_rect.w-1;
+          int  x = src_x+src_w-1;
 
-            for(int  xx = 0;  xx < src_rect.w;  xx += 1)
+            for(int  xx = 0;  xx < src_w;  xx += 1)
             {
-              auto  pix = src.get_const_pixel(x--,src_rect.y+yy);
+              auto  pix = src_img.get_const_pixel(x--,src_y+yy);
 
-              pix.z = z;
-
-              draw_dot(point(dst_pt.x+xx,dst_pt.y+yy),pix);
+              dst_img.draw_dot(pix,dst_x+xx,dst_y+yy);
             }
         }
 
       else
         {
-            for(int  xx = 0;  xx < src_rect.w;  xx += 1)
+            for(int  xx = 0;  xx < src_w;  xx += 1)
             {
-              auto  pix = src.get_const_pixel(src_rect.x+xx,src_rect.y+yy);
+              auto  pix = src_img.get_const_pixel(src_x+xx,src_y+yy);
+
+              dst_img.draw_dot(pix,dst_x+xx,dst_y+yy);
+            }
+        }
+    }
+}
+
+
+
+
+void
+transfer(const image_frame&  src, const image_frame&  dst, int  z) noexcept
+{
+  bool  reverse_flag = false;
+
+  int  src_x = src.get_x_offset();
+  int  src_y = src.get_y_offset();
+  int  src_w = src.get_width();
+  int  src_h = src.get_height();
+
+  int  dst_x = dst.get_x_offset();
+  int  dst_y = dst.get_y_offset();
+  int  dst_w = dst.get_width();
+  int  dst_h = dst.get_height();
+
+    if(src_w < 0)
+    {
+      reverse_flag = true;
+
+      src_w = -src_w;
+    }
+
+
+    if(src_w > dst_w){src_w = dst_w;}
+    if(src_h > dst_h){src_h = dst_h;}
+
+    if(dst_x < 0)
+    {
+      const int  diff = -dst_x    ;
+                         dst_x = 0;
+
+        if(diff < src_w)
+        {
+          src_x += diff;
+          src_w -= diff;
+        }
+
+      else
+        {
+          return;
+        }
+    }
+
+
+
+    if(dst_y < 0)
+    {
+      const int  diff = -dst_y    ;
+                         dst_y = 0;
+
+        if(diff < src_h)
+        {
+          src_y += diff;
+          src_h -= diff;
+        }
+
+      else
+        {
+          return;
+        }
+    }
+
+
+    if((dst_x+src_w) >= dst_w)
+    {
+      const int  diff = (dst_x+src_w)-dst_w;
+
+        if(diff < src_w)
+        {
+          src_w -= diff;
+        }
+
+      else
+        {
+          return;
+        }
+    }
+
+
+    if((dst_y+src_h) >= dst_h)
+    {
+      const int  diff = (dst_y+src_h)-dst_h;
+
+        if(diff < src_h)
+        {
+          src_h -= diff;
+        }
+
+      else
+        {
+          return;
+        }
+    }
+
+
+  auto&  src_img = src.get_image();
+  auto&  dst_img = dst.get_image();
+
+    for(int  yy = 0;  yy < src_h;  yy += 1)
+    {
+        if(reverse_flag)
+        {
+          int  x = src_x+src_w-1;
+
+            for(int  xx = 0;  xx < src_w;  xx += 1)
+            {
+              auto  pix = src_img.get_const_pixel(x--,src_y+yy);
 
               pix.z = z;
 
-              draw_dot(point(dst_pt.x+xx,dst_pt.y+yy),pix);
+              dst_img.draw_dot(pix,dst_x+xx,dst_y+yy);
+            }
+        }
+
+      else
+        {
+            for(int  xx = 0;  xx < src_w;  xx += 1)
+            {
+              auto  pix = src_img.get_const_pixel(src_x+xx,src_y+yy);
+
+              pix.z = z;
+
+              dst_img.draw_dot(pix,dst_x+xx,dst_y+yy);
             }
         }
     }

@@ -77,8 +77,20 @@ pixel
 };
 
 
-constexpr color_index
-default_coloring[] = {0,predefined::white,0,0};
+class
+text_style
+{
+  const font*  m_font;
+
+  color_index  m_colors[4]={0,predefined::white,0,0};
+
+public:
+  const font&  get_font() const noexcept{return *m_font;}
+
+  color_index  get_color_index(int  i) const noexcept{return m_colors[i];}
+
+};
+
 
 
 class
@@ -106,51 +118,97 @@ public:
 
   uint32_t  get_pixel_color(int  x, int  y, palette const&  pal) const noexcept;
 
-  void  fill(pixel  pix=pixel()) noexcept;
 
-  void  add(int  r, int  g, int  b) noexcept;
-  void  reverse_color() noexcept;
+  void  draw_dot(       color_index  i, int  x, int  y) noexcept;
+  void  draw_dot_safely(color_index  i, int  x, int  y) noexcept;
 
+  void  draw_dot(       pixel  pix, int  x, int  y) noexcept;
+  void  draw_dot_safely(pixel  pix, int  x, int  y) noexcept;
 
-  void  draw_dot(       point  pt, color_index  i) noexcept;
-  void  draw_dot_safely(point  pt, color_index  i) noexcept;
+  void  draw_vline(       pixel  pix, int  x, int  y, int  l) noexcept;
+  void  draw_vline_safely(pixel  pix, int  x, int  y, int  l) noexcept;
+  void  draw_hline(       pixel  pix, int  x, int  y, int  l, int  interval=0) noexcept;
+  void  draw_hline_safely(pixel  pix, int  x, int  y, int  l) noexcept;
 
-  void  draw_dot(       point  pt, pixel  pix) noexcept;
-  void  draw_dot_safely(point  pt, pixel  pix) noexcept;
+  void  draw_line(pixel  pix, int  x0, int  y0, int  x1, int  y1) noexcept;
 
-  void  draw_vline(       point  pt, int  l, pixel  pix) noexcept;
-  void  draw_vline_safely(point  pt, int  l, pixel  pix) noexcept;
-  void  draw_hline(       point  pt, int  l, pixel  pix, int  interval=0) noexcept;
-  void  draw_hline_safely(point  pt, int  l, pixel  pix) noexcept;
+  void  draw_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) noexcept;
+  void  draw_rectangle_safely(pixel  pix, int  x, int  y, int  w, int  h) noexcept;
+  void  fill_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) noexcept;
 
-  void  draw_line(line  ln, pixel  pix) noexcept;
-
-  void  draw_rectangle(       rectangle const&  rect, pixel  pix) noexcept;
-  void  draw_rectangle_safely(rectangle const&  rect, pixel  pix) noexcept;
-  void  fill_rectangle(       rectangle         rect, pixel  pix) noexcept;
-
-  void  print(char16_t   c, point  pt, const font&  fnt, ro_ptr<color_index>  coloring=default_coloring) noexcept;
-  void  print(gbstd::string_view     sv, point  pt, const font&  fnt, ro_ptr<color_index>  coloring=default_coloring) noexcept;
-  void  print(gbstd::u16string_view  sv, point  pt, const font&  fnt, ro_ptr<color_index>  coloring=default_coloring) noexcept;
-
-  void  transfer(image const&  src, rectangle  src_rect, point  dst_pt, int  z=0) noexcept;
+  void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) noexcept;
+  void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) noexcept;
+  void  draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) noexcept;
 
 };
 
 
 class
-image_view
+image_frame
 {
-  pixel*  m_data;
+  image*  m_image;
 
   int  m_x_offset;
   int  m_y_offset;
   int  m_width;
   int  m_height;
 
+  int  get_x(int  x) const noexcept{return m_x_offset+x;}
+  int  get_y(int  y) const noexcept{return m_y_offset+y;}
+
 public:
+  image_frame(image&  image) noexcept:
+  m_image(&image),
+  m_x_offset(0),
+  m_y_offset(0),
+  m_width(image.get_width()),
+  m_height(image.get_height()){}
+
+
+  image&  get_image() const noexcept{return *m_image;}
+
+  int  get_x_offset() const noexcept{return m_x_offset;}
+  int  get_y_offset() const noexcept{return m_y_offset;}
+  int   get_width() const noexcept{return m_width ;}
+  int  get_height() const noexcept{return m_height;}
+
+        pixel&        get_pixel(int  x, int  y)       noexcept{return m_image->get_pixel(get_x(x),get_y(y));}
+  const pixel&  get_const_pixel(int  x, int  y) const noexcept{return m_image->get_const_pixel(get_x(x),get_y(y));}
+
+  uint32_t  get_pixel_color(int  x, int  y, palette const&  pal) const noexcept{return m_image->get_pixel_color(get_x(x),get_y(y),pal);}
+
+  void  fill(pixel  pix=pixel()) noexcept;
+
+  void  add(int  r, int  g, int  b) noexcept;
+  void  reverse_color() noexcept;
+
+
+  void  draw_dot(       color_index  i, int  x, int  y) noexcept{m_image->draw_dot(       i,get_x(x),get_y(y));}
+  void  draw_dot_safely(color_index  i, int  x, int  y) noexcept{m_image->draw_dot_safely(i,get_x(x),get_y(y));}
+
+  void  draw_dot(       pixel  pix, int  x, int  y) noexcept{m_image->draw_dot(       pix,get_x(x),get_y(y));}
+  void  draw_dot_safely(pixel  pix, int  x, int  y) noexcept{m_image->draw_dot_safely(pix,get_x(x),get_y(y));}
+
+  void  draw_vline(       pixel  pix, int  x, int  y, int  l) noexcept{m_image->draw_vline(                 pix,get_x(x),get_y(y),l);}
+  void  draw_vline_safely(pixel  pix, int  x, int  y, int  l) noexcept{m_image->draw_vline_safely(          pix,get_x(x),get_y(y),l);}
+  void  draw_hline(       pixel  pix, int  x, int  y, int  l, int  interval=0) noexcept{m_image->draw_hline(pix,get_x(x),get_y(y),l,interval);}
+  void  draw_hline_safely(pixel  pix, int  x, int  y, int  l) noexcept{m_image->draw_hline_safely(          pix,get_x(x),get_y(y),l);}
+
+  void  draw_line(pixel  pix, int  x0, int  y0, int  x1, int  y1) noexcept{m_image->draw_line(pix,get_x(x0),get_y(y0),get_x(x1),get_y(y1));}
+
+  void  draw_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) noexcept{m_image->draw_rectangle(pix,get_x(x),get_y(y),w,h);}
+  void  draw_rectangle_safely(pixel  pix, int  x, int  y, int  w, int  h) noexcept{m_image->draw_rectangle(pix,get_x(x),get_y(y),w,h);}
+  void  fill_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) noexcept{m_image->draw_rectangle(pix,get_x(x),get_y(y),w,h);}
+
+  void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) noexcept{m_image->draw_character(c,style,get_x(x),get_y(y));}
+  void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) noexcept{m_image->draw_text(sv,style,get_x(x),get_y(y));}
+  void  draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) noexcept{m_image->draw_text(sv,style,get_x(x),get_y(y));}
 
 };
+
+
+void  transfer(const image_frame&  src, const image_frame&  dst        ) noexcept;
+void  transfer(const image_frame&  src, const image_frame&  dst, int  z) noexcept;
 
 
 }

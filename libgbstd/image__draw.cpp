@@ -1,5 +1,6 @@
 #include"libgbstd/image.hpp"
 #include"libgbstd/line_maker.hpp"
+#include"libgbstd/unicode.hpp"
 #include<cstring>
 
 
@@ -12,36 +13,36 @@ namespace images{
 
 void
 image::
-draw_dot(point  pt, color_index  i) noexcept
+draw_dot(color_index  i, int  x, int  y) noexcept
 {
     if(i)
     {
-      m_pixels[(m_width*pt.y)+pt.x].index = i;
+      m_pixels[(m_width*y)+x].index = i;
     }
 }
 
 
 void
 image::
-draw_dot_safely(point  pt, color_index  i) noexcept
+draw_dot_safely(color_index  i, int  x, int  y) noexcept
 {
-    if((pt.x >=        0) &&
-       (pt.x <   m_width) &&
-       (pt.y >=        0) &&
-       (pt.y <  m_height))
+    if((x >=        0) &&
+       (x <   m_width) &&
+       (y >=        0) &&
+       (y <  m_height))
     {
-      draw_dot(pt,i);
+      draw_dot(i,x,y);
     }
 }
 
 
 void
 image::
-draw_dot(point  pt, pixel  pix) noexcept
+draw_dot(pixel  pix, int  x, int  y) noexcept
 {
     if(pix.index)
     {
-      auto&  dst = m_pixels[(m_width*pt.y)+pt.x];
+      auto&  dst = m_pixels[(m_width*y)+x];
 
         if(dst.z <= pix.z)
         {
@@ -53,48 +54,48 @@ draw_dot(point  pt, pixel  pix) noexcept
 
 void
 image::
-draw_dot_safely(point  pt, pixel  pix) noexcept
+draw_dot_safely(pixel  pix, int  x, int  y) noexcept
 {
-    if((pt.x >=        0) &&
-       (pt.x <   m_width) &&
-       (pt.y >=        0) &&
-       (pt.y <  m_height))
+    if((x >=        0) &&
+       (x <   m_width) &&
+       (y >=        0) &&
+       (y <  m_height))
     {
-      draw_dot(pt,pix);
+      draw_dot(pix,x,y);
     }
 }
 
 
 void
 image::
-draw_vline(point  pt, int  l, pixel  pix) noexcept
+draw_vline(pixel  pix, int  x, int  y, int  l) noexcept
 {
     while(l--)
     {
-      draw_dot(pt,pix);
+      draw_dot(pix,x,y);
 
-      pt.y += 1;
+      y += 1;
     }
 }
 
 
 void
 image::
-draw_vline_safely(point  pt, int  l, pixel  pix) noexcept
+draw_vline_safely(pixel  pix, int  x, int  y, int  l) noexcept
 {
-    if((pt.x >=       0) &&
-       (pt.x <  m_width))
+    if((x >=       0) &&
+       (x <  m_width))
     {
-        if(pt.y < 0)
+        if(y < 0)
         {
-          l += pt.y    ;
-               pt.y = 0;
+          l += y    ;
+               y = 0;
         }
 
       else
-        if(pt.y+l >= m_height)
+        if(y+l >= m_height)
         {
-          l = m_height-pt.y;
+          l = m_height-y;
         }
 
 
@@ -102,9 +103,9 @@ draw_vline_safely(point  pt, int  l, pixel  pix) noexcept
         {
             while(l--)
             {
-              draw_dot(pt,pix);
+              draw_dot(pix,x,y);
 
-              pt.y += 1;
+              y += 1;
             }
         }
     }
@@ -113,7 +114,7 @@ draw_vline_safely(point  pt, int  l, pixel  pix) noexcept
 
 void
 image::
-draw_hline(point  pt, int  l, pixel  pix, int  interval) noexcept
+draw_hline(pixel  pix, int  x, int  y, int  l, int  interval) noexcept
 {
   int  n = interval;
 
@@ -126,34 +127,34 @@ draw_hline(point  pt, int  l, pixel  pix, int  interval) noexcept
 
       else
         {
-          draw_dot(pt,pix);
+          draw_dot(pix,x,y);
 
           n = interval;
         }
 
 
-      pt.x += 1;
+      x += 1;
     }
 }
 
 
 void
 image::
-draw_hline_safely(point  pt, int  l, pixel  pix) noexcept
+draw_hline_safely(pixel  pix, int  x, int  y, int  l) noexcept
 {
-    if((pt.y >=        0) &&
-       (pt.y <  m_height))
+    if((y >=        0) &&
+       (y <  m_height))
     {
-        if(pt.x < 0)
+        if(x < 0)
         {
-          l += pt.x    ;
-               pt.x = 0;
+          l += x    ;
+               x = 0;
         }
 
       else
-        if(pt.x+l >= m_width)
+        if(x+l >= m_width)
         {
-          l = m_width-pt.x;
+          l = m_width-x;
         }
 
 
@@ -161,9 +162,9 @@ draw_hline_safely(point  pt, int  l, pixel  pix) noexcept
         {
             while(l--)
             {
-              draw_dot(pt,pix);
+              draw_dot(pix,x,y);
 
-              pt.x += 1;
+              x += 1;
             }
         }
     }
@@ -172,56 +173,137 @@ draw_hline_safely(point  pt, int  l, pixel  pix) noexcept
 
 void
 image::
-draw_line(line  line, pixel  pix) noexcept
+draw_line(pixel  pix, int  x0, int  y0, int  x1, int  y1) noexcept
 {
-  line_maker  lnmk(line);
+  line_maker  lnmk(x0,y0,x1,y1);
 
-  draw_dot(lnmk.get_point(),pix);
-
-    while(lnmk.get_distance())
+    for(;;)
     {
+      draw_dot(pix,lnmk.get_x(),lnmk.get_y());
+
+        if(!lnmk.get_distance())
+        {
+          break;
+        }
+
+
       lnmk.step();
-
-      draw_dot(lnmk.get_point(),pix);
     }
 }
 
 
 void
 image::
-draw_rectangle(rectangle const&  rect, pixel  pix) noexcept
+draw_rectangle(pixel  pix, int  x, int  y, int  w, int  h) noexcept
 {
-  draw_hline(point(rect.x,rect.y         ),rect.w,pix);
-  draw_hline(point(rect.x,rect.y+rect.h-1),rect.w,pix);
+  draw_hline(pix,x,y    ,w);
+  draw_hline(pix,x,y+h-1,w);
 
-  draw_vline(point(rect.x         ,rect.y+1),rect.h-2,pix);
-  draw_vline(point(rect.x+rect.w-1,rect.y+1),rect.h-2,pix);
+  draw_vline(pix,x    ,y+1,h-2);
+  draw_vline(pix,x+w-1,y+1,h-2);
 }
 
 
 void
 image::
-draw_rectangle_safely(rectangle const&  rect, pixel  pix) noexcept
+draw_rectangle_safely(pixel  pix, int  x, int  y, int  w, int  h) noexcept
 {
-  draw_hline_safely(point(rect.x,rect.y         ),rect.w,pix);
-  draw_hline_safely(point(rect.x,rect.y+rect.h-1),rect.w,pix);
+  draw_hline_safely(pix,x,y    ,w);
+  draw_hline_safely(pix,x,y+h-1,w);
 
-  draw_vline_safely(point(rect.x         ,rect.y+1),rect.h-2,pix);
-  draw_vline_safely(point(rect.x+rect.w-1,rect.y+1),rect.h-2,pix);
+  draw_vline_safely(pix,x    ,y+1,h-2);
+  draw_vline_safely(pix,x+w-1,y+1,h-2);
 }
 
 
 void
 image::
-fill_rectangle(rectangle  rect, pixel  pix) noexcept
+fill_rectangle(pixel  pix, int  x, int  y, int  w, int  h) noexcept
 {
-    while(rect.h--)
+    while(h--)
     {
-      draw_hline(rect,rect.w,pix);
+      draw_hline(pix,x,y,w);
 
-      ++rect.y;
+      ++y;
     }
 }
+
+
+
+
+void
+image::
+draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
+{
+  auto&  font = style.get_font();
+
+  auto  p = font.get_glyph_data(c);
+
+    if(p)
+    {
+      int  w = font.get_width();
+      int  h = font.get_height();
+
+      int  bpp = font.get_bits_per_pixel();
+
+      int  const shift_amount = (bpp == 1)? 31:30;
+
+        for(int  yy = 0;  yy < h;  yy += 1)
+        {
+          auto   dst = &get_pixel(x,y+yy);
+          auto  code = *p++;
+
+            for(int  xx = 0;  xx < w;  xx += 1)
+            {
+              auto  src = style.get_color_index(code>>shift_amount);
+
+                if(src)
+                {
+                  dst->index = src;
+                }
+
+
+              ++dst;
+
+              code <<= (32-shift_amount);
+            }
+        }
+    }
+}
+
+
+
+
+void
+image::
+draw_text(gbstd::string_view  sv, const text_style&  style, int  x, int  y) noexcept
+{
+  utf8_decoder  dec(sv);
+
+    while(dec)
+    {
+      draw_character(static_cast<char16_t>(dec()),style,x,y);
+
+      x += style.get_font().get_width();
+    }
+}
+
+
+
+
+void
+image::
+draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) noexcept
+{
+    for(auto  c: sv)
+    {
+      draw_character(static_cast<char16_t>(c),style,x,y);
+
+      x += style.get_font().get_width();
+    }
+}
+
+
 
 
 }}
