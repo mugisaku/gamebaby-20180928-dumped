@@ -9,7 +9,6 @@ set(SOURCES
   image__png.cpp
   image__draw.cpp
   image__transfer.cpp
-  font.cpp
   playwork.cpp
   task.cpp
   group_task.cpp

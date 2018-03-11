@@ -231,23 +231,64 @@ fill_rectangle(pixel  pix, int  x, int  y, int  w, int  h) noexcept
 
 
 
+namespace{
+
+
+constexpr int  w =  8;
+constexpr int  h = 16;
+
+struct
+glyph_data
+{
+  uint16_t  unicode;
+
+  uint16_t  data[h];
+
+};
+
+
+static
+const glyph_data
+data_table[] =
+{
+#include"libgbstd/font_data.cpp"
+};
+
+
+static
+const uint16_t*
+table[0x10000] = {0};
+
+
+struct
+initializer
+{
+  initializer() noexcept;
+
+} init;
+
+
+initializer::
+initializer() noexcept
+{
+    for(auto&  gly: data_table)
+    {
+      table[gly.unicode] = gly.data;
+    }
+}
+
+
+}
+
+
 void
 image::
 draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
 {
-  auto&  font = style.get_font();
-
-  auto  p = font.get_glyph_data(c);
+  auto  p = table[c];
 
     if(p)
     {
-      int  w = font.get_width();
-      int  h = font.get_height();
-
-      int  bpp = font.get_bits_per_pixel();
-
-      int  const shift_amount = (bpp == 1)? 31:30;
-
         for(int  yy = 0;  yy < h;  yy += 1)
         {
           auto   dst = &get_pixel(x,y+yy);
@@ -255,17 +296,11 @@ draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
 
             for(int  xx = 0;  xx < w;  xx += 1)
             {
-              auto  src = style.get_color_index(code>>shift_amount);
-
-                if(src)
-                {
-                  dst->index = src;
-                }
-
+              dst->index = style.get_color_index(code>>14);
 
               ++dst;
 
-              code <<= (32-shift_amount);
+              code <<= 2;
             }
         }
     }
@@ -284,7 +319,7 @@ draw_text(gbstd::string_view  sv, const text_style&  style, int  x, int  y) noex
     {
       draw_character(static_cast<char16_t>(dec()),style,x,y);
 
-      x += style.get_font().get_width();
+      x += w;
     }
 }
 
@@ -299,7 +334,7 @@ draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) n
     {
       draw_character(static_cast<char16_t>(c),style,x,y);
 
-      x += style.get_font().get_width();
+      x += w;
     }
 }
 

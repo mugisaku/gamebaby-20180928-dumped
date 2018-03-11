@@ -5,8 +5,8 @@
 #include<cstdint>
 #include<vector>
 #include<string>
-#include"libgbstd/font.hpp"
 #include"libgbstd/figures.hpp"
+#include"libgbstd/binary_stream.hpp"
 #include"libgbstd/ro_ptr.hpp"
 
 
@@ -80,14 +80,11 @@ pixel
 class
 text_style
 {
-  const font*  m_font;
-
   color_index  m_colors[4]={0,predefined::white,0,0};
 
 public:
-  const font&  get_font() const noexcept{return *m_font;}
-
-  color_index  get_color_index(int  i) const noexcept{return m_colors[i];}
+  void         set_color_index(int  i, color_index  ci)       noexcept{       m_colors[i] = ci;}
+  color_index  get_color_index(int  i                 ) const noexcept{return m_colors[i]     ;}
 
 };
 
@@ -216,6 +213,7 @@ void  transfer(const image_frame&  src, const image_frame&  dst, int  z) noexcep
 
 using images::color_index;
 using images::palette;
+using images::text_style;
 using images::predefined;
 
 using images::image;
