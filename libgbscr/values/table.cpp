@@ -7,9 +7,9 @@ namespace values{
 
 
 
-object&
-object::
-operator=(const object&   rhs) noexcept
+table&
+table::
+operator=(const table&   rhs) noexcept
 {
     if(this != &rhs)
     {
@@ -26,9 +26,9 @@ operator=(const object&   rhs) noexcept
 }
 
 
-object&
-object::
-operator=(object&&  rhs) noexcept
+table&
+table::
+operator=(table&&  rhs) noexcept
 {
     if(this != &rhs)
     {
@@ -43,7 +43,7 @@ operator=(object&&  rhs) noexcept
 
 
 variable&
-object::
+table::
 operator[](gbstd::string_view  name) noexcept
 {
     for(auto  ptr: m_variables)
@@ -66,7 +66,7 @@ operator[](gbstd::string_view  name) noexcept
 
 
 void
-object::
+table::
 clear() noexcept
 {
     for(auto  ptr: m_variables)
@@ -80,7 +80,7 @@ clear() noexcept
 
 
 void
-object::
+table::
 append(const value&  v, gbstd::string_view  name) noexcept
 {
   m_variables.emplace_back(new variable(v,name));

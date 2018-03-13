@@ -26,7 +26,7 @@ namespace values{
 
 
 
-class object;
+class table;
 class variable;
 class value;
 class method;
@@ -46,33 +46,41 @@ public:
 
 
 struct
-method_calling
+calling
 {
-  values::object*  object;
+  values::table*  table;
 
-  const values::method*  method;
+  const stmts::routine*  routine;
 
 };
 
 
 class
-object
+table
 {
   std::vector<variable*>  m_variables;
 
 public:
-  object(const object&   rhs) noexcept{*this = rhs;}
-  object(      object&&  rhs) noexcept{*this = std::move(rhs);}
- ~object(){clear();}
+  table(const table&   rhs) noexcept{*this = rhs;}
+  table(      table&&  rhs) noexcept{*this = std::move(rhs);}
+ ~table(){clear();}
 
-  object&  operator=(const object&   rhs) noexcept;
-  object&  operator=(      object&&  rhs) noexcept;
+  table&  operator=(const table&   rhs) noexcept;
+  table&  operator=(      table&&  rhs) noexcept;
 
   variable&  operator[](gbstd::string_view  name) noexcept;
 
   void  clear() noexcept;
 
   void  append(const value&  v, gbstd::string_view  name) noexcept;
+
+};
+
+
+struct
+user_data
+{
+  void*  pointer;
 
 };
 
@@ -86,8 +94,10 @@ value
     string,
     reference,
     routine,
-    object,
-    method_calling,
+    table,
+    calling,
+    user_data,
+    host_function,
 
   } m_kind=kind::null;
 
@@ -97,8 +107,7 @@ value
     reference        r;
 
     const stmts::routine*  rt;
-    object*               obj;
-    method_calling         mc;
+    table*                tbl;
 
     data(){}
    ~data(){}
@@ -112,8 +121,7 @@ public:
   value(const gbstd::string&  s) noexcept{*this = s;}
   value(const reference&  r) noexcept{*this = r;}
   value(const stmts::routine&  rt) noexcept{*this = rt;}
-  value(const method_calling&  mc) noexcept{*this = mc;}
-  value(object&  obj) noexcept{*this = obj;}
+  value(table&  tbl) noexcept{*this = tbl;}
   value(const value&   rhs) noexcept{*this = rhs;}
   value(      value&&  rhs) noexcept{*this = std::move(rhs);}
  ~value(){clear();}
@@ -123,8 +131,7 @@ public:
   value&  operator=(const gbstd::string&  s) noexcept;
   value&  operator=(const reference&  r) noexcept;
   value&  operator=(const stmts::routine&  rt) noexcept;
-  value&  operator=(const method_calling&  mc) noexcept;
-  value&  operator=(object&  obj) noexcept;
+  value&  operator=(table&  tbl) noexcept;
   value&  operator=(const value&   rhs) noexcept;
   value&  operator=(      value&&  rhs) noexcept;
 
@@ -137,15 +144,13 @@ public:
   bool  is_integer()        const noexcept{return m_kind == kind::integer;}
   bool  is_string()         const noexcept{return m_kind == kind::string;}
   bool  is_routine()        const noexcept{return m_kind == kind::routine;}
-  bool  is_object()         const noexcept{return m_kind == kind::object;}
-  bool  is_method_calling() const noexcept{return m_kind == kind::method_calling;}
+  bool  is_table()         const noexcept{return m_kind == kind::table;}
 
   int                    get_integer()        const noexcept{return m_data.i;}
   const gbstd::string&   get_string()         const noexcept{return m_data.s;}
   const reference&       get_reference()      const noexcept{return m_data.r;}
   const stmts::routine&  get_routine()        const noexcept;
-  object&                get_object()         const noexcept{return *m_data.obj;}
-  const method_calling&  get_method_calling() const noexcept{return m_data.mc;}
+  table&                   get_table()        const noexcept{return *m_data.tbl;}
 
   int  get_integer_safely() const noexcept;
 
@@ -196,34 +201,6 @@ public:
 };
 
 
-using callback = value  (*)(void*  ptr, const value_list&  argls);
-
-
-class
-method
-{
-  gbstd::string_view  m_name;
-
-  callback  m_callback=nullptr;
-
-public:
-  constexpr method() noexcept{}
-  constexpr method(gbstd::string_view  name, callback  cb) noexcept:
-  m_name(name),
-  m_callback(cb){}
-
-  template<typename  T>
-  constexpr method(gbstd::string_view  name, value  (*cb)(T*  data, const value_list&  argls)) noexcept:
-  m_name(name),
-  m_callback(reinterpret_cast<callback>(cb)){}
-
-  constexpr const gbstd::string_view&  get_name() const noexcept{return m_name;}
-
-  constexpr callback  operator*() const noexcept{return m_callback;}
-
-};
-
-
 }
 
 
@@ -231,9 +208,8 @@ using values::reference;
 using values::value;
 using values::value_list;
 using values::variable;
-using values::object;
-using values::method;
-using values::method_calling;
+using values::table;
+using values::calling;
 
 
 }

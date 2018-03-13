@@ -82,27 +82,13 @@ operator=(const stmts::routine&  rt) noexcept
 
 value&
 value::
-operator=(object&  obj) noexcept
+operator=(table&  tbl) noexcept
 {
   clear();
 
-  m_kind = kind::object;
+  m_kind = kind::table;
 
-  m_data.obj = &obj;
-
-  return *this;
-}
-
-
-value&
-value::
-operator=(const method_calling&  mc) noexcept
-{
-  clear();
-
-  m_kind = kind::method_calling;
-
-  m_data.mc = mc;
+  m_data.tbl = &tbl;
 
   return *this;
 }
@@ -132,11 +118,8 @@ operator=(const value&  rhs) noexcept
       case(kind::routine):
           m_data.rt = rhs.m_data.rt;
           break;
-      case(kind::object):
-          m_data.obj = new object(*rhs.m_data.obj);
-          break;
-      case(kind::method_calling):
-          m_data.mc = rhs.m_data.mc;
+      case(kind::table):
+          m_data.tbl = new table(*rhs.m_data.tbl);
           break;
         }
     }
@@ -170,11 +153,8 @@ operator=(value&&  rhs) noexcept
       case(kind::routine):
           m_data.rt = rhs.m_data.rt;
           break;
-      case(kind::object):
-          m_data.obj = rhs.m_data.obj;
-          break;
-      case(kind::method_calling):
-          m_data.mc = rhs.m_data.mc;
+      case(kind::table):
+          m_data.tbl = rhs.m_data.tbl;
           break;
         }
     }
@@ -201,8 +181,8 @@ clear() noexcept
       break;
   case(kind::routine):
       break;
-  case(kind::object):
-      delete m_data.obj;
+  case(kind::table):
+      delete m_data.tbl;
       break;
     }
 
@@ -237,9 +217,6 @@ get_integer_safely() const noexcept
   case(kind::routine):
       printf("ルーチンは、整数になれない\n");
       break;
-  case(kind::method_calling):
-      printf("メソッド呼び出しは、整数になれない\n");
-      break;
     }
 
 
@@ -273,11 +250,8 @@ print() const noexcept
       printf("routine");
       m_data.rt->print();
       break;
-  case(kind::method_calling):
-      printf("method calling");
-      break;
-  case(kind::object):
-      printf("object");
+  case(kind::table):
+      printf("table");
       break;
   default:
       printf("unknown value kind\n");

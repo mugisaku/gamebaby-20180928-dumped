@@ -11,6 +11,24 @@ namespace images{
 
 void
 image_frame::
+set_offset(int  x, int  y) noexcept
+{
+  m_x_offset = x;
+  m_y_offset = y;
+}
+
+
+void
+image_frame::
+add_offset(int  x, int  y) noexcept
+{
+  m_x_offset += x;
+  m_y_offset += y;
+}
+
+
+void
+image_frame::
 fill(pixel  pix) noexcept
 {
     for(int  y = 0;  y < m_height;  ++y){

@@ -103,6 +103,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
         {
           lv = lv.get_reference()().get_value();
 
+/*
             if(!lv.is_object())
             {
               printf("左辺がオブジェクトではない\n");
@@ -118,6 +119,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
 
               lo = operand(value(obj[s.view()]));
             }
+*/
         }
 
 
@@ -180,12 +182,13 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
         {
           proc->prepare_call(lv.get_routine(),exls,lo.get_value_pointer());
         }
-
+/*
       else
         if(lv.is_method_calling())
         {
           proc->prepare_call(lv.get_method_calling(),exls,lo.get_value_pointer());
         }
+*/
 
       else
         {

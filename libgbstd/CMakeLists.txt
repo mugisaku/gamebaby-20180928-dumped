@@ -4,18 +4,19 @@ set(SOURCES
   riff_chunk.cpp
   riff_subchunk_view.cpp
   wave.cpp
-  image.cpp
-  image_frame.cpp
-  image__png.cpp
-  image__draw.cpp
-  image__transfer.cpp
+  images/image.cpp
+  images/image_frame.cpp
+  images/image__png.cpp
+  images/image__draw.cpp
+  images/image__transfer.cpp
   playwork.cpp
   task.cpp
   group_task.cpp
-  text.cpp
-  text_buffer.cpp
-  text_roll.cpp
-  text_roll_iterator.cpp
+  texts/text.cpp
+  texts/text_buffer.cpp
+  texts/text_roll.cpp
+  texts/text_roll_iterator.cpp
+  widget.cpp
   unicode.cpp
   environment.cpp
   random_number.cpp
@@ -26,9 +27,9 @@ set(SOURCES
   menu_base.cpp
   roll_menu.cpp
   column_menu.cpp
-  binary_stream.cpp
-  binary_stream_reader.cpp
-  binary_stream_writer.cpp
+  binary_streams/binary_stream.cpp
+  binary_streams/binary_stream_reader.cpp
+  binary_streams/binary_stream_writer.cpp
 )
 
 

@@ -31,8 +31,6 @@ calling_preparation
 
   const stmts::routine*  routine;
 
-  values::method_calling  method_calling;
-
   exprs::operand_stack  operand_stack;
 
   exprs::expr_list  expr_list;
@@ -363,6 +361,7 @@ prepare_call(const routine&  routine, const expr_list&  argument_list, value*  r
 
 
 
+/*
 void
 process::
 prepare_call(const method_calling&  mc, const expr_list&  argument_list, value*  return_value) noexcept
@@ -414,6 +413,7 @@ prepare_call(const method_calling&  mc, const expr_list&  argument_list, value* 
 //      *return_value = (**mc.method)(mc.data,{});
     }
 }
+*/
 
 
 value
@@ -628,7 +628,7 @@ step() noexcept
 
           else
             {
-              auto&  mc = cal.method_calling;
+//              auto&  mc = cal.method_calling;
 
 //              *cal.return_value = (**mc.method)(mc.data,vals);
             }
@@ -744,9 +744,9 @@ run() noexcept
 
 bool
 process::
-append_object(object*  obj, gbstd::string_view  name) noexcept
+append_variable(const value&  value, gbstd::string_view  name) noexcept
 {
-  auto  var = new variable(value(obj),name);
+  auto  var = new variable(value,name);
 
   m_data->variable_list.emplace_back(var);
 

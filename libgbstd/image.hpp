@@ -169,6 +169,12 @@ public:
   int   get_width() const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
 
+  void  set_offset(int  x, int  y) noexcept;
+  void  add_offset(int  x, int  y) noexcept;
+
+  void  set_width( int  n) noexcept{m_width  = n;}
+  void  set_height(int  n) noexcept{m_height = n;}
+
         pixel&        get_pixel(int  x, int  y)       noexcept{return m_image->get_pixel(get_x(x),get_y(y));}
   const pixel&  get_const_pixel(int  x, int  y) const noexcept{return m_image->get_const_pixel(get_x(x),get_y(y));}
 
@@ -217,6 +223,7 @@ using images::text_style;
 using images::predefined;
 
 using images::image;
+using images::image_frame;
 using images::pixel;
 
 
