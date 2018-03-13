@@ -61,6 +61,7 @@ table
   std::vector<variable*>  m_variables;
 
 public:
+  table() noexcept{}
   table(const table&   rhs) noexcept{*this = rhs;}
   table(      table&&  rhs) noexcept{*this = std::move(rhs);}
  ~table(){clear();}
@@ -70,9 +71,17 @@ public:
 
   variable&  operator[](gbstd::string_view  name) noexcept;
 
+  variable*  find(gbstd::string_view  name) const noexcept;
+
   void  clear() noexcept;
 
-  void  append(const value&  v, gbstd::string_view  name) noexcept;
+  void  carry(table&  dst) noexcept;
+
+  void  set_carry_flag() noexcept;
+
+  variable&  append(const value&  v, gbstd::string_view  name) noexcept;
+
+  void  print() const noexcept;
 
 };
 
@@ -171,6 +180,8 @@ public:
 class
 variable
 {
+  table*  m_table=nullptr;
+
   values::value  m_value;
 
   gbstd::string  m_name;
@@ -179,7 +190,7 @@ variable
 
 public:
   variable() noexcept{}
-  variable(const value&  v, gbstd::string_view  name) noexcept;
+  variable(table&  table, const value&  v, gbstd::string_view  name) noexcept;
   variable(const variable&   rhs) noexcept=default;
   variable(      variable&&  rhs) noexcept=delete;
 

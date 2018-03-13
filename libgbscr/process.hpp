@@ -10,23 +10,30 @@
 #include"libgbscr/expr.hpp"
 
 
-namespace     gbscr{
+namespace gbscr{
+
+
+namespace stmts{
+class routine;
+}
+
+
 namespace processes{
 
 
 class
 process
 {
-  struct private_data;
-  struct        frame;
-
-  std::vector<std::unique_ptr<variable>>  m_carried_variables;
-
-  private_data*  m_data=nullptr;
+  struct frame;
 
   frame*  m_top_frame=nullptr;
 
   size_t  m_number_of_frames=0;
+
+
+  std::vector<std::unique_ptr<stmts::routine>>  m_routine_list;
+
+  table  m_global_table;
 
   uint32_t  m_sleeping_time=0;
 
@@ -43,18 +50,16 @@ process
 
   void  return_(const value&  v) noexcept;
 
-  void  unrefer() noexcept;
-
   void  call(const stmts::routine&  routine, const value_list&  argument_list, value*  return_value=nullptr) noexcept;
 
 public:
   process() noexcept;
-  process(const process&   rhs) noexcept{*this = rhs;}
-  process(      process&&  rhs) noexcept{*this = std::move(rhs);}
- ~process(){unrefer();}
+  process(const process&   rhs) noexcept=delete;
+  process(      process&&  rhs) noexcept=delete;
+ ~process();
 
-  process&  operator=(const process&   rhs) noexcept;
-  process&  operator=(      process&&  rhs) noexcept;
+  process&  operator=(const process&   rhs) noexcept=delete;
+  process&  operator=(      process&&  rhs) noexcept=delete;
 
   void  load_file(const char*  filepath) noexcept;
 

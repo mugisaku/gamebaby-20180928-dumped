@@ -12,19 +12,6 @@ namespace processes{
 
 
 struct
-process::
-private_data
-{
-  size_t  reference_count=1;
-
-  std::vector<std::unique_ptr<routine>>  routine_list;
-
-  std::vector<std::unique_ptr<values::variable>>  variable_list;
-
-};
-
-
-struct
 calling_preparation
 {
   calling_preparation*  previous;
@@ -60,7 +47,7 @@ frame
   const stmt*  current;
   const stmt*      end;
 
-  std::vector<std::unique_ptr<values::variable>>  variable_list;
+  values::table  table;
 
   int  saved_value;
 
@@ -100,67 +87,15 @@ frame
 
 
 process::
-process() noexcept:
-m_data(new private_data)
+process() noexcept
 {
 }
 
 
-
-
-process&
 process::
-operator=(const process&   rhs) noexcept
+~process()
 {
-    if(this != &rhs)
-    {
-      unrefer();
-
-      m_data = rhs.m_data;
-
-        if(m_data)
-        {
-          ++m_data->reference_count;
-        }
-    }
-
-
-  return *this;
-}
-
-
-process&
-process::
-operator=(process&&  rhs) noexcept
-{
-    if(this != &rhs)
-    {
-      unrefer();
-
-      std::swap(m_data,rhs.m_data);
-    }
-
-
-  return *this;
-}
-
-
-
-
-void
-process::
-unrefer() noexcept
-{
-    if(m_data)
-    {
-        if(!--m_data->reference_count)
-        {
-          delete m_data;
-        }
-
-
-      m_data = nullptr;
-    }
+  clear();
 }
 
 
@@ -192,7 +127,7 @@ clear() noexcept
     }
 
 
-  m_data->variable_list.clear();
+  m_global_table.clear();
 
   m_top_frame = nullptr;
 
@@ -255,33 +190,11 @@ call(const stmts::routine&  routine, const value_list&  argument_list, value*  r
 
     for(auto&  p: paras)
     {
-      auto  var = new variable(*arg_it++,p.data());
-
-      frm.variable_list.emplace_back(var);
+      frm.table.append(*arg_it++,p.data());
     }
 
 
   m_state = state::ready;
-}
-
-
-namespace{
-std::unique_ptr<variable>&
-find_variable(std::vector<std::unique_ptr<variable>>&  list, gbstd::string_view  name) noexcept
-{
-  static std::unique_ptr<variable>  null;
-
-    for(auto&  var: list)
-    {
-        if(var->get_name() == name)
-        {
-          return var;
-        }
-    }
-
-
-  return null;
-}
 }
 
 
@@ -291,7 +204,7 @@ call(gbstd::string_view  routine_name, const value_list&  argument_list, value* 
 {
   gbstd::string_copy  sc(routine_name);
 
-  auto&  varptr = find_variable(m_data->variable_list,routine_name);
+  auto  varptr = m_global_table.find(routine_name);
 
     if(!varptr || !varptr->get_value().is_routine())
     {
@@ -422,7 +335,7 @@ get_value(gbstd::string_view  name) const noexcept
 {
   auto&  frm = *m_top_frame;
 
-  auto&  frm_varptr = find_variable(frm.variable_list,name);
+  auto  frm_varptr = frm.table.find(name);
 
     if(frm_varptr)
     {
@@ -430,7 +343,7 @@ get_value(gbstd::string_view  name) const noexcept
     }
 
 
-  auto&  varptr = find_variable(m_data->variable_list,name);
+  auto  varptr = m_global_table.find(name);
 
     if(varptr)
     {
@@ -438,11 +351,7 @@ get_value(gbstd::string_view  name) const noexcept
     }
 
 
-  auto  new_var = new variable(value(),name);
-
-  frm.variable_list.emplace_back(new_var);
-
-  return value(new_var->get_reference());
+  return value(frm.table.append(value(),name).get_reference());
 }
 
 
@@ -552,20 +461,7 @@ return_(const value&  v) noexcept
 
         if(v.is_reference())
         {
-          auto&  var = v.get_reference()();
-
-          var.set_carry_flag();
-
-          auto&  dst = previous? previous->variable_list
-                               :   m_data->variable_list;
-
-            for(auto&  varptr: m_top_frame->variable_list)
-            {
-                if(varptr->test_carry_flag())
-                {
-                  dst.emplace_back(std::move(varptr));
-                }
-            }
+//
         }
 
 
@@ -746,9 +642,7 @@ bool
 process::
 append_variable(const value&  value, gbstd::string_view  name) noexcept
 {
-  auto  var = new variable(value,name);
-
-  m_data->variable_list.emplace_back(var);
+  m_global_table.append(value,name);
 
   return true;
 }
@@ -791,7 +685,7 @@ load_file(const char*  filepath) noexcept
                   
                   auto  rt = new routine(parals,block);
 
-                  m_data->variable_list.emplace_back(new variable(value(*rt),var_name));
+                  m_global_table.append(value(*rt),var_name);
 
                   cur += 2;
                 }
@@ -820,15 +714,7 @@ void
 process::
 print() const noexcept
 {
-  printf("reference_count: %ld\n",m_data->reference_count);
-
-    for(auto&  var: m_data->variable_list)
-    {
-      var->print();
-
-      printf("\n");
-    }
-
+  m_global_table.print();
 
   printf("\n");
 }
