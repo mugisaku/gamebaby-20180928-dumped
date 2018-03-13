@@ -20,7 +20,10 @@ set(SOURCES
   tokens/token_string.cpp
   tokens/token_cursor.cpp
   shared_string.cpp
-  process.cpp
+  processes/process.cpp
+  processes/process__call.cpp
+  processes/process__step.cpp
+  processes/process__load_file.cpp
 )
 
 
