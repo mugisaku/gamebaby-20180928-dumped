@@ -40,13 +40,13 @@ operator=(int  i) noexcept
 
 value&
 value::
-operator=(const gbstd::string&  s) noexcept
+operator=(const shared_string&  s) noexcept
 {
   clear();
 
   m_kind = kind::string;
 
-  new(&m_data) gbstd::string(s);
+  new(&m_data) shared_string(s);
 
   return *this;
 }
@@ -110,7 +110,7 @@ operator=(const value&  rhs) noexcept
           m_data.i = rhs.m_data.i;
           break;
       case(kind::string):
-          new(&m_data) gbstd::string(rhs.m_data.s);
+          new(&m_data) shared_string(rhs.m_data.s);
           break;
       case(kind::reference):
           new(&m_data) reference(rhs.m_data.r);
@@ -145,7 +145,7 @@ operator=(value&&  rhs) noexcept
           m_data.i = rhs.m_data.i;
           break;
       case(kind::string):
-          new(&m_data) gbstd::string(std::move(rhs.m_data.s));
+          new(&m_data) shared_string(std::move(rhs.m_data.s));
           break;
       case(kind::reference):
           new(&m_data) reference(std::move(rhs.m_data.r));
@@ -230,6 +230,7 @@ void
 value::
 print() const noexcept
 {
+  
     switch(m_kind)
     {
   case(kind::null):
@@ -239,7 +240,9 @@ print() const noexcept
       printf("%d",m_data.i);
       break;
   case(kind::string):
-      printf("\"%s\"",m_data.s);
+      printf("\"");
+      m_data.s.print();
+      printf("\"");
       break;
   case(kind::reference):
       printf("reference ");

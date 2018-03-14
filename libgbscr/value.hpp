@@ -119,7 +119,7 @@ value
 
   union data{
     int              i;
-    gbstd::string    s;
+    shared_string    s;
     reference        r;
 
     const stmts::routine*  rt;
@@ -134,7 +134,7 @@ public:
   value() noexcept{}
   value(bool  b) noexcept{*this = b;}
   value(int  i) noexcept{*this = i;}
-  value(const gbstd::string&  s) noexcept{*this = s;}
+  value(const shared_string&  s) noexcept{*this = s;}
   value(const reference&  r) noexcept{*this = r;}
   value(const stmts::routine&  rt) noexcept{*this = rt;}
   value(table&  tbl) noexcept{*this = tbl;}
@@ -144,7 +144,7 @@ public:
 
   value&  operator=(bool  b) noexcept;
   value&  operator=(int  i) noexcept;
-  value&  operator=(const gbstd::string&  s) noexcept;
+  value&  operator=(const shared_string&  s) noexcept;
   value&  operator=(const reference&  r) noexcept;
   value&  operator=(const stmts::routine&  rt) noexcept;
   value&  operator=(table&  tbl) noexcept;
@@ -163,7 +163,7 @@ public:
   bool  is_table()         const noexcept{return m_kind == kind::table;}
 
   int                    get_integer()        const noexcept{return m_data.i;}
-  const gbstd::string&   get_string()         const noexcept{return m_data.s;}
+  const shared_string&   get_string()         const noexcept{return m_data.s;}
   const reference&       get_reference()      const noexcept{return m_data.r;}
   const stmts::routine&  get_routine()        const noexcept;
   table&                   get_table()        const noexcept{return *m_data.tbl;}

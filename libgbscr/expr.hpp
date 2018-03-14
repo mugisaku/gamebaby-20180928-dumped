@@ -4,6 +4,7 @@
 
 #include"libgbscr/value.hpp"
 #include"libgbstd/utility.hpp"
+#include"libgbscr/shared_string.hpp"
 #include"libgbscr/short_string.hpp"
 #include"libgbscr/list.hpp"
 #include"libgbscr/token.hpp"
@@ -29,6 +30,12 @@ class expr;
 class operand_stack;
 
 
+
+
+struct
+operation_error
+{
+};
 
 
 struct
@@ -167,6 +174,7 @@ operand
     null,
     boolean_literal,
     integer_literal,
+    string_literal,
     identifier,
     expression,
     expression_list,
@@ -203,7 +211,8 @@ public:
   operand() noexcept{}
   operand(bool  b) noexcept{*this = b;}
   operand(uint64_t  i) noexcept{*this = i;}
-  operand(const identifier&  id) noexcept{*this = std::move(id);}
+  operand(const shared_string&  s) noexcept{*this = s;}
+  operand(const identifier&  id) noexcept{*this = id;}
   operand(const expr&  e) noexcept{*this = e;}
   operand(expr_list&&  els) noexcept{*this = std::move(els);}
   operand(paired_expr&&  pe) noexcept{*this = std::move(pe);}
@@ -215,6 +224,7 @@ public:
 
   operand&  operator=(bool  b) noexcept;
   operand&  operator=(uint64_t  i) noexcept;
+  operand&  operator=(const shared_string&  s) noexcept;
   operand&  operator=(const identifier&  id) noexcept;
   operand&  operator=(const expr&  e) noexcept;
   operand&  operator=(expr_list&&  els) noexcept;
@@ -229,6 +239,7 @@ public:
 
   bool  is_boolean_literal()   const noexcept{return m_kind == kind::boolean_literal;}
   bool  is_integer_literal()   const noexcept{return m_kind == kind::integer_literal;}
+  bool  is_string_literal()    const noexcept{return m_kind == kind::string_literal;}
   bool  is_identifier()        const noexcept{return m_kind == kind::identifier;}
   bool  is_expression()        const noexcept{return m_kind == kind::expression;}
   bool  is_expression_list()   const noexcept{return m_kind == kind::expression_list;}
@@ -236,9 +247,9 @@ public:
   bool  is_operation()         const noexcept{return m_kind == kind::operation;}
   bool  is_value()             const noexcept{return m_kind == kind::value;}
 
-  bool                   get_boolean_literal()   const noexcept{return m_data.b;}
-  uint64_t               get_integer_literal()   const noexcept{return m_data.i;}
-  const shared_string&   get_string()        const noexcept{return m_data.s;}
+  bool                   get_booleanl()          const noexcept{return m_data.b;}
+  uint64_t               get_integer()           const noexcept{return m_data.i;}
+  const shared_string&   get_string()            const noexcept{return m_data.s;}
   const expr&            get_expression()        const noexcept{return m_data.e;}
   const expr_list&       get_expression_list()   const noexcept{return m_data.els;}
   const paired_expr&     get_paired_expression() const noexcept{return m_data.pe;}

@@ -98,6 +98,10 @@ public:
   }
 
 
+        char&  operator[](int  i)       noexcept{return m_data[i];}
+  const char&  operator[](int  i) const noexcept{return m_data[i];}
+
+
   bool  operator==(const basic_string&  rhs) const noexcept
   {
     return (m_length == rhs.m_length) && (std::memcmp(m_data,rhs.m_data,m_length) == 0);

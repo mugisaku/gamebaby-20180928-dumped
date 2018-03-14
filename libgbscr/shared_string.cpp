@@ -19,9 +19,7 @@ private_data
 {
   size_t  reference_count;
 
-  size_t  length;
-
-  char  data[0];
+  gbstd::string  string;
 
 };
 
@@ -36,11 +34,12 @@ unrefer() noexcept
     {
         if(!--m_data->reference_count)
         {
-          free(m_data);
+          delete m_data;
         }
 
 
       m_data = nullptr;
+      m_length = 0;
     }
 }
 
@@ -49,20 +48,27 @@ unrefer() noexcept
 
 shared_string&
 shared_string::
-assign(const char*  s, size_t  l) noexcept
+assign(gbstd::string&&  s) noexcept
 {
-  unrefer();
+    if(m_data)
+    {
+        if(m_data->reference_count > 1)
+        {
+          unrefer();
+        }
+    }
 
-  m_data = static_cast<private_data*>(malloc(sizeof(private_data)+l+1));
+  else
+    {
+      m_data = new private_data;
 
-  m_data->reference_count = 1;
+      m_data->reference_count = 1;
+    }
 
-  m_data->length = l;
 
-  std::memcpy(m_data->data,s,l);
+  m_data->string.assign(std::move(s));
 
-  m_data->data[l] = 0;
-
+  m_length = s.size();
 
   return *this;
 }
@@ -76,7 +82,8 @@ operator=(const shared_string&  rhs) noexcept
     {
       unrefer();
 
-      m_data = rhs.m_data;
+      m_data   = rhs.m_data;
+      m_length = rhs.m_length;
 
         if(m_data)
         {
@@ -98,6 +105,7 @@ operator=(shared_string&&  rhs) noexcept
       unrefer();
 
       std::swap(m_data,rhs.m_data);
+      std::swap(m_length,rhs.m_length);
     }
 
 
@@ -107,19 +115,11 @@ operator=(shared_string&&  rhs) noexcept
 
 
 
-bool
-shared_string::
-operator==(const shared_string&  rhs) const noexcept
-{
-  return (size() != rhs.size())? false:(std::strncmp(data(),rhs.data(),size()) == 0);
-}
-
-
 const char&
 shared_string::
 operator[](int  i) const noexcept
 {
-  return (i < m_data->length)? m_data->data[i]:null;
+  return (i < m_length)? m_data->string[i]:null;
 }
 
 
@@ -129,15 +129,38 @@ const char*
 shared_string::
 data() const noexcept
 {
-  return m_data? m_data->data:&null;
+  return m_data? m_data->string.data():&null;
 }
 
 
-size_t
+
+
+void
 shared_string::
-size() const noexcept
+append(gbstd::string_view  sv) noexcept
 {
-  return m_data? m_data->length:0;
+    if(m_data && (m_data->string.size() == m_length))
+    {
+      m_data->string.append(sv);
+
+      m_length += sv.size();
+    }
+
+  else
+    {
+      assign(sv);
+    }
+}
+
+
+void
+shared_string::
+print() const noexcept
+{
+    for(auto  c: *this)
+    {
+      printf("%c",c);
+    }
 }
 
 
@@ -152,7 +175,7 @@ make_string_from_file(const char*  filepath) noexcept
 
     if(f)
     {
-      std::string  buf;
+      gbstd::string  buf;
 
         for(;;)
         {
@@ -170,7 +193,7 @@ make_string_from_file(const char*  filepath) noexcept
 
       fclose(f);
 
-      s.assign(buf.data(),buf.size());
+      s.assign(std::move(buf));
     }
 
 

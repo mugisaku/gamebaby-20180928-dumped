@@ -60,7 +60,9 @@ read_identifier() noexcept
     }
 
 
-  return identifier(shared_string(m_string_buffer.data(),m_string_buffer.size()));
+  gbstd::string_view  sv(m_string_buffer.data(),m_string_buffer.size());
+
+  return identifier(shared_string(sv));
 }
 
 
@@ -92,7 +94,9 @@ read_quoted_string(char  close_char) noexcept
     }
 
 
-  return shared_string(m_string_buffer.data(),m_string_buffer.size());
+  gbstd::string_view  sv(m_string_buffer.data(),m_string_buffer.size());
+
+  return shared_string(sv);
 }
 
 

@@ -39,6 +39,21 @@ operator=(uint64_t  i) noexcept
 
 operand&
 operand::
+operator=(const shared_string&  s) noexcept
+{
+  clear();
+
+  m_kind = kind::string_literal;
+
+  new(&m_data) shared_string(s);
+
+
+  return *this;
+}
+
+
+operand&
+operand::
 operator=(const identifier&  id) noexcept
 {
     if(id->view() == gbstd::string_view("true"))
@@ -154,6 +169,7 @@ operator=(const operand&  rhs) noexcept
       case(kind::integer_literal):
           m_data.i = rhs.m_data.i;
           break;
+      case(kind::string_literal):
       case(kind::identifier):
           new(&m_data) shared_string(rhs.m_data.s);
           break;
@@ -198,6 +214,7 @@ operator=(operand&&  rhs) noexcept
       case(kind::integer_literal):
           m_data.i = rhs.m_data.i;
           break;
+      case(kind::string_literal):
       case(kind::identifier):
           new(&m_data) shared_string(std::move(rhs.m_data.s));
           break;
@@ -233,6 +250,7 @@ clear() noexcept
     {
   case(kind::integer_literal):
       break;
+  case(kind::string_literal):
   case(kind::identifier):
       gbstd::destruct(m_data.s);
       break;
@@ -269,6 +287,9 @@ evaluate(process*  proc) const noexcept
       break;
   case(kind::integer_literal):
       return value(static_cast<int>(m_data.i));
+      break;
+      case(kind::string_literal):
+      return value(m_data.s);
       break;
   case(kind::identifier):
       return proc? proc->get_value(m_data.s.view()):value();
@@ -307,8 +328,13 @@ print() const noexcept
   case(kind::integer_literal):
       printf("%lu",m_data.i);
       break;
+  case(kind::string_literal):
+      printf("\"");
+      m_data.s.print();
+      printf("\"");
+      break;
   case(kind::identifier):
-      printf("%s",m_data.s.data());
+      m_data.s.print();
       break;
   case(kind::expression):
       m_data.e.print();
