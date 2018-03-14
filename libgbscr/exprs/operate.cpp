@@ -9,301 +9,132 @@ namespace exprs{
 
 
 
+namespace assignments{
+void   st(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  add(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  sub(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  mul(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  div(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  rem(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  and_(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  or_( operand&  lo, operand&  ro, process*  proc) noexcept;
+void  xor_(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  shl( operand&  lo, operand&  ro, process*  proc) noexcept;
+void  shr( operand&  lo, operand&  ro, process*  proc) noexcept;
+}
+namespace arithmetics{
+void  neg(operand&  o, process*  proc) noexcept;
+void  add(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  sub(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  mul(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  div(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  rem(operand&  lo, operand&  ro, process*  proc) noexcept;
+}
+namespace comparisons{
+void  eq(  operand&  lo, operand&  ro, process*  proc) noexcept;
+void  neq( operand&  lo, operand&  ro, process*  proc) noexcept;
+void  lt(  operand&  lo, operand&  ro, process*  proc) noexcept;
+void  lteq(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  gt(  operand&  lo, operand&  ro, process*  proc) noexcept;
+void  gteq(operand&  lo, operand&  ro, process*  proc) noexcept;
+}
+namespace bitwises{
+void  not_(operand&  o, process*  proc) noexcept;
+void  and_(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  or_( operand&  lo, operand&  ro, process*  proc) noexcept;
+void  xor_(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  not_(operand&  lo, operand&  ro, process*  proc) noexcept;
+void  shl( operand&  lo, operand&  ro, process*  proc) noexcept;
+void  shr( operand&  lo, operand&  ro, process*  proc) noexcept;
+}
+namespace logicals{
+void  not_(operand&  o, process*  proc) noexcept;
+void  or_( operand&  lo, operand&  ro, process*  proc) noexcept;
+void  and_(operand&  lo, operand&  ro, process*  proc) noexcept;
+}
+
+
 void
 operate_prefix_unary(operand&  o, operator_word  opw, process*  proc) noexcept
 {
-  auto  i = o.evaluate(proc).get_integer_safely();
+  void  (*fn)(operand&  o, process*  proc) noexcept=nullptr;
 
-    if(opw == gbstd::string_view("!"))
+       if(opw == gbstd::string_view("!")){fn = logicals::not_;}
+  else if(opw == gbstd::string_view("~")){fn = bitwises::not_;}
+  else if(opw == gbstd::string_view("-")){fn = arithmetics::neg;}
+
+    if(!fn)
     {
-      o = operand(value(!i));
+      printf("prefix unary operation error\n");
+	
+      return;
     }
 
-  else
-    if(opw == gbstd::string_view("~"))
-    {
-      o = operand(value(~i));
-    }
 
-  else
-    if(opw == gbstd::string_view("-"))
-    {
-      o = operand(value(-i));
-    }
+  fn(o,proc);
 }
 
 
 void
 operate_postfix_unary(operand&  o, operator_word  opw, process*  proc) noexcept
 {
-    if(opw == gbstd::string_view(""))
-    {
-    }
+    if(opw == gbstd::string_view("")){}
 }
 
 
 void
 operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) noexcept
 {
-  auto  lv = lo.evaluate(proc);
+  void  (*fn)(operand&  lo, operand&  ro, process*  proc) noexcept=nullptr;
 
-    if(opw == gbstd::string_view("||"))
-    {
-        if(lv.get_integer_safely())
-        {
-          lo = operand(value(true));
-        }
-
-      else
-        {
-          lo = operand(value(ro.evaluate(proc).get_integer_safely()));
-        }
-
-
-      return;
-    }
-
-  else
-    if(opw == gbstd::string_view("&&"))
-    {
-        if(lv.get_integer_safely())
-        {
-          lo = operand(value(ro.evaluate(proc).get_integer_safely()));
-        }
-
-      else
-        {
-          lo = operand(value(false));
-        }
-
-
-      return;
-    }
-
-
-
-    if(opw == gbstd::string_view("."))
-    {
-        if(!ro.is_identifier())
-        {
-          printf("右辺が識別子ではない\n");
-        }
-
-      else
-        if(!lv.is_reference())
-        {
-          printf(".%s\n",ro.get_string().data());
-
-          printf("左辺が参照ではない\n");
-
-          lv.print();
-        }
-
-      else
-        {
-          lv = lv.get_reference()().get_value();
-
+       if(opw == gbstd::string_view( "||")){fn = logicals::or_;}
+  else if(opw == gbstd::string_view( "&&")){fn = logicals::and_;}
+  else if(opw == gbstd::string_view(  "=")){fn = assignments::st;}
+  else if(opw == gbstd::string_view( "+=")){fn = assignments::add;}
+  else if(opw == gbstd::string_view( "-=")){fn = assignments::sub;}
+  else if(opw == gbstd::string_view( "*=")){fn = assignments::mul;}
+  else if(opw == gbstd::string_view( "/=")){fn = assignments::div;}
+  else if(opw == gbstd::string_view( "%=")){fn = assignments::rem;}
+  else if(opw == gbstd::string_view("<<=")){fn = assignments::shl;}
+  else if(opw == gbstd::string_view(">>=")){fn = assignments::shr;}
+  else if(opw == gbstd::string_view( "|=")){fn = assignments::or_;}
+  else if(opw == gbstd::string_view( "&=")){fn = assignments::and_;}
+  else if(opw == gbstd::string_view( "^=")){fn = assignments::xor_;}
+  else if(opw == gbstd::string_view(  "+")){fn = arithmetics::add;}
+  else if(opw == gbstd::string_view(  "-")){fn = arithmetics::sub;}
+  else if(opw == gbstd::string_view(  "*")){fn = arithmetics::mul;}
+  else if(opw == gbstd::string_view(  "/")){fn = arithmetics::div;}
+  else if(opw == gbstd::string_view(  "%")){fn = arithmetics::rem;}
+  else if(opw == gbstd::string_view( "<<")){fn = bitwises::shl;}
+  else if(opw == gbstd::string_view( ">>")){fn = bitwises::shr;}
+  else if(opw == gbstd::string_view(  "|")){fn = bitwises::or_;}
+  else if(opw == gbstd::string_view(  "&")){fn = bitwises::and_;}
+  else if(opw == gbstd::string_view(  "^")){fn = bitwises::xor_;}
+  else if(opw == gbstd::string_view( "==")){fn = comparisons::eq;}
+  else if(opw == gbstd::string_view( "!=")){fn = comparisons::neq;}
+  else if(opw == gbstd::string_view(  "<")){fn = comparisons::lt;}
+  else if(opw == gbstd::string_view( "<=")){fn = comparisons::lteq;}
+  else if(opw == gbstd::string_view(  ">")){fn = comparisons::gt;}
+  else if(opw == gbstd::string_view( ">=")){fn = comparisons::gteq;}
 /*
-            if(!lv.is_object())
-            {
-              printf("左辺がオブジェクトではない\n");
-
-              lv.print();
-            }
-
-          else
-            {
-              auto&  obj = lv.get_object();
-
-              auto&  s = ro.get_string();
-
-              lo = operand(value(obj[s.view()]));
-            }
-*/
-        }
-
-
-      return;
-    }
-
-  else
-    if(opw == gbstd::string_view("->"))
-    {
-      printf("->演算は未実装\n");
-
-      return;
-    }
-
-  else
-    if(opw == gbstd::string_view("?"))
-    {
-        if(!ro.is_paired_expression())
-        {
-          printf("右辺がpaired_expressionではない\n");
-        }
-
-      else
-        {
-          auto  cond = lv.get_integer_safely();
-
-          auto&  pe = ro.get_paired_expression();
-
-          auto  result = (cond? pe.get_left():pe.get_right()).evaluate(proc);
-
-          lo = operand(std::move(result));
-        }
-
-
-      return;
-    }
-
-  else
-    if(opw == gbstd::string_view("()"))
-    {
-        if(!ro.is_expression_list())
-        {
-          printf("右辺がexpression_listではない\n");
-
-          return;
-        }
-
-
-      auto&  exls = ro.get_expression_list();
-
-        if(lv.is_reference())
-        {
-          lv = lv.get_reference()().get_value();
-        }
-
-
-      lo = operand(value());
-
-        if(lv.is_routine())
-        {
-          proc->prepare_call(lv.get_routine(),exls,lo.get_value_pointer());
-        }
-/*
-      else
-        if(lv.is_method_calling())
-        {
-          proc->prepare_call(lv.get_method_calling(),exls,lo.get_value_pointer());
-        }
+  else if(opw == gbstd::string_view(  ".")){fn = s::;}
+  else if(opw == gbstd::string_view( "->")){fn = s::;}
+  else if(opw == gbstd::string_view(  "?")){fn = s::;}
+  else if(opw == gbstd::string_view( "()")){fn = s::;}
+  else if(opw == gbstd::string_view( "[]")){fn = s::;}
+  else if(opw == gbstd::string_view( "::")){fn = s::;}
+  else if(opw == gbstd::string_view(  ",")){fn = s::;}
 */
 
-      else
-        {
-          printf("左辺がroutineでも、メソッド呼び出しでもない\n");
-
-          lv.print();
-        }
-
-
-      return;
-    }
-
-  else
-    if(opw == gbstd::string_view("[]"))
+    if(!fn)
     {
-      printf("[]演算は未実装\n");
+      printf("binary operation error\n");
 
       return;
     }
 
 
-
-  auto  ri = ro.evaluate(proc).get_integer_safely();
-  auto  li =               lv.get_integer_safely();
-
-    if((opw == gbstd::string_view(  "=")) ||
-       (opw == gbstd::string_view( "+=")) ||
-       (opw == gbstd::string_view( "-=")) ||
-       (opw == gbstd::string_view( "*=")) ||
-       (opw == gbstd::string_view( "/=")) ||
-       (opw == gbstd::string_view( "%=")) ||
-       (opw == gbstd::string_view("<<=")) ||
-       (opw == gbstd::string_view(">>=")) ||
-       (opw == gbstd::string_view( "|=")) ||
-       (opw == gbstd::string_view( "&=")) ||
-       (opw == gbstd::string_view( "^=")))
-    {
-        if(lv.is_reference())
-        {
-          auto&  objv = lv.get_reference()().get_value();
-
-               if(opw == gbstd::string_view(  "=")){objv = value(   ri);}
-          else if(opw == gbstd::string_view( "+=")){objv = value(li+ri);}
-          else if(opw == gbstd::string_view( "-=")){objv = value(li-ri);}
-          else if(opw == gbstd::string_view( "*=")){objv = value(li*ri);}
-          else if(opw == gbstd::string_view( "/=")){objv = value(li/ri);}
-          else if(opw == gbstd::string_view( "%=")){objv = value(li%ri);}
-          else if(opw == gbstd::string_view("<<=")){objv = value(li<<ri);}
-          else if(opw == gbstd::string_view(">>=")){objv = value(li>>ri);}
-          else if(opw == gbstd::string_view( "|=")){objv = value(li|ri);}
-          else if(opw == gbstd::string_view( "&=")){objv = value(li&ri);}
-          else if(opw == gbstd::string_view( "^=")){objv = value(li^ri);}
-          else {printf("参照に対する不正な演算\n");}
-        }
-
-
-      return;
-    }
-
-
-
-
-       if(opw == gbstd::string_view("+")){lo = operand(value(li+ri));}
-  else if(opw == gbstd::string_view("-")){lo = operand(value(li-ri));}
-  else if(opw == gbstd::string_view("*")){lo = operand(value(li*ri));}
-  else
-    if(opw == gbstd::string_view("/"))
-    {
-        if(!ri)
-        {
-          printf("div error: ゼロ除算\n");
-        }
-
-      else
-        {
-          lo = operand(value(li/ri));
-        }
-    }
-
-  else
-    if(opw == gbstd::string_view("%"))
-    {
-        if(!ri)
-        {
-          printf("rem error: ゼロ除算\n");
-        }
-
-      else
-        {
-          lo = operand(value(li%ri));
-        }
-    }
-
-  else if(opw == gbstd::string_view("<<")){lo = operand(value(li<<ri));}
-  else if(opw == gbstd::string_view(">>")){lo = operand(value(li>>ri));}
-  else if(opw == gbstd::string_view("|")) {lo = operand(value(li|ri));}
-  else if(opw == gbstd::string_view("&")) {lo = operand(value(li&ri));}
-  else if(opw == gbstd::string_view("^")) {lo = operand(value(li^ri));}
-  else if(opw == gbstd::string_view("==")){lo = operand(value(li == ri));}
-  else if(opw == gbstd::string_view("!=")){lo = operand(value(li != ri));}
-  else if(opw == gbstd::string_view("<")) {lo = operand(value(li <  ri));}
-  else if(opw == gbstd::string_view("<=")){lo = operand(value(li <= ri));}
-  else if(opw == gbstd::string_view(">")) {lo = operand(value(li >  ri));}
-  else if(opw == gbstd::string_view(">=")){lo = operand(value(li >= ri));}
-  else
-    if(opw == gbstd::string_view("::"))
-    {
-      printf("::演算は未実装\n");
-    }
-
-  else
-    if(opw == gbstd::string_view(","))
-    {
-      lo = ro;
-    }
+  fn(lo,ro,proc);
 }
 
 

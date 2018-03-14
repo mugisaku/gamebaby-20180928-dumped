@@ -70,7 +70,7 @@ get_value(gbstd::string_view  name) const noexcept
 
     if(frm_varptr)
     {
-      return value(frm_varptr->get_reference());
+      return value(frm_varptr);
     }
 
 
@@ -78,11 +78,11 @@ get_value(gbstd::string_view  name) const noexcept
 
     if(varptr)
     {
-      return value(varptr->get_reference());
+      return value(varptr);
     }
 
 
-  return value(frm.table.append(value(),name).get_reference());
+  return value(frm.table.append(value(),name));
 }
 
 
@@ -165,7 +165,9 @@ return_(const value&  v) noexcept
 
         if(v.is_reference())
         {
-//
+          v.get_reference()->set_carry_flag();
+
+          m_top_frame->table.carry(previous? previous->table:m_global_table);
         }
 
 

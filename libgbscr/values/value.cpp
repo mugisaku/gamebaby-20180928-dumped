@@ -212,7 +212,7 @@ get_integer_safely() const noexcept
 //      return m_data.i;
       break;
   case(kind::reference):
-      return m_data.r().get_value().get_integer_safely();
+      return m_data.r->get_value().get_integer_safely();
       break;
   case(kind::routine):
       printf("ルーチンは、整数になれない\n");
@@ -244,7 +244,7 @@ print() const noexcept
   case(kind::reference):
       printf("reference ");
 
-      m_data.r().print();
+      m_data.r->print();
       break;
   case(kind::routine):
       printf("routine");

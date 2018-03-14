@@ -26,7 +26,7 @@ set_carry_flag() noexcept
     {
       m_carry_flag = true;
 
-      auto&  v = m_value.is_reference()? m_value.get_reference()().get_value()
+      auto&  v = m_value.is_reference()? m_value.get_reference()->get_value()
                                        : m_value;
 
         if(v.is_table())
@@ -34,6 +34,18 @@ set_carry_flag() noexcept
           v.get_table().set_carry_flag();
         }
     }
+}
+
+
+void
+variable::
+unset_carry_flag() noexcept
+{
+  m_table = nullptr;
+
+  m_carry_flag = false;
+
+  m_name = "";
 }
 
 

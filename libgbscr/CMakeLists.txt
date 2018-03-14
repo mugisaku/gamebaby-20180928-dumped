@@ -8,6 +8,11 @@ set(SOURCES
   exprs/expr.cpp
   exprs/make_expr.cpp
   exprs/operate.cpp
+  exprs/operate__assignments.cpp
+  exprs/operate__arithmetics.cpp
+  exprs/operate__comparisons.cpp
+  exprs/operate__bitwises.cpp
+  exprs/operate__logicals.cpp
   exprs/operation.cpp
   exprs/operand.cpp
   stmts/stmt.cpp

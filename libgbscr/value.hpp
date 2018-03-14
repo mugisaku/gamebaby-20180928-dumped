@@ -35,12 +35,19 @@ class method;
 class
 reference
 {
-  variable&  m_variable;
+  variable*  m_pointer;
 
 public:
-  reference(variable&  var) noexcept: m_variable(var){}
+  constexpr reference(variable*  var) noexcept: m_pointer( var){}
+  constexpr reference(variable&  var) noexcept: m_pointer(&var){}
 
-  variable&  operator()() const noexcept{return m_variable;}
+  constexpr bool  operator==(const reference&  rhs) const noexcept{return m_pointer == rhs.m_pointer;}
+  constexpr bool  operator!=(const reference&  rhs) const noexcept{return m_pointer != rhs.m_pointer;}
+
+  constexpr  operator bool() const noexcept{return m_pointer;}
+
+  constexpr variable*  operator->() const noexcept{return  m_pointer;}
+  constexpr variable&  operator *() const noexcept{return *m_pointer;}
 
 };
 
@@ -69,9 +76,9 @@ public:
   table&  operator=(const table&   rhs) noexcept;
   table&  operator=(      table&&  rhs) noexcept;
 
-  variable&  operator[](gbstd::string_view  name) noexcept;
+  reference  operator[](gbstd::string_view  name) noexcept;
 
-  variable*  find(gbstd::string_view  name) const noexcept;
+  reference  find(gbstd::string_view  name) const noexcept;
 
   void  clear() noexcept;
 
@@ -79,7 +86,7 @@ public:
 
   void  set_carry_flag() noexcept;
 
-  variable&  append(const value&  v, gbstd::string_view  name) noexcept;
+  reference  append(const value&  v, gbstd::string_view  name) noexcept;
 
   void  print() const noexcept;
 
@@ -203,7 +210,7 @@ public:
 
   bool   test_carry_flag() const noexcept{return m_carry_flag;}
   void    set_carry_flag()       noexcept;
-  void  unset_carry_flag()       noexcept{m_carry_flag = false;}
+  void  unset_carry_flag()       noexcept;
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
 

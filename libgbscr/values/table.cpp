@@ -42,7 +42,7 @@ operator=(table&&  rhs) noexcept
 }
 
 
-variable&
+reference
 table::
 operator[](gbstd::string_view  name) noexcept
 {
@@ -50,7 +50,7 @@ operator[](gbstd::string_view  name) noexcept
     {
         if(ptr->get_name() == name)
         {
-          return *ptr;
+          return reference(*ptr);
         }
     }
 
@@ -59,13 +59,13 @@ operator[](gbstd::string_view  name) noexcept
 
   m_variables.emplace_back(var);
 
-  return *var;
+  return reference(*var);
 }
 
 
 
 
-variable*
+reference
 table::
 find(gbstd::string_view  name) const noexcept
 {
@@ -73,12 +73,12 @@ find(gbstd::string_view  name) const noexcept
     {
         if(ptr->get_name() == name)
         {
-          return ptr;
+          return reference(ptr);
         }
     }
 
 
-  return nullptr;
+  return reference(nullptr);
 }
 
 
@@ -100,17 +100,15 @@ void
 table::
 carry(table&  dst) noexcept
 {
-  std::vector<variable*>  new_buf;
-
     for(auto  ptr: m_variables)
     {
-      auto&  buf = ptr->test_carry_flag()? dst.m_variables:new_buf;
+        if(ptr->test_carry_flag())
+        {
+          ptr->unset_carry_flag();
 
-      buf.emplace_back(ptr);
+          dst.m_variables.emplace_back(ptr);
+        }
     }
-
-
-  m_variables = std::move(new_buf);
 }
 
 
@@ -125,7 +123,7 @@ set_carry_flag() noexcept
 }
 
 
-variable&
+reference
 table::
 append(const value&  v, gbstd::string_view  name) noexcept
 {
@@ -133,7 +131,7 @@ append(const value&  v, gbstd::string_view  name) noexcept
 
   m_variables.emplace_back(var);
 
-  return *var;
+  return reference(*var);
 }
 
 
