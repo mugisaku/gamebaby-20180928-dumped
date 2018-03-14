@@ -37,7 +37,7 @@ basic_string
 
 public:
   basic_string() noexcept{}
-  basic_string(const T*  s) noexcept{assign(s);}
+  explicit basic_string(const T*  s) noexcept{assign(s);}
   basic_string(const T*  s, size_t  l) noexcept{assign(s,l);}
   basic_string(basic_string_view<T>  sv) noexcept{assign(sv);}
   basic_string(const basic_string&   rhs) noexcept{*this = rhs;}
@@ -46,34 +46,22 @@ public:
 
   basic_string&  operator=(basic_string_view<T>  sv) noexcept
   {
-    assign(sv);
-
-    return *this;
+    return assign(sv);
   }
 
   basic_string&  operator=(const char*  s) noexcept
   {
-    assign(s);
-
-    return *this;
+    return assign(s);
   }
 
   basic_string&  operator=(const basic_string&   rhs) noexcept
   {
-    assign(rhs.data(),rhs.size());
-
-    return *this;
+    return assign(rhs.data(),rhs.size());
   }
 
   basic_string&  operator=(basic_string&&  rhs) noexcept
   {
-    clear();
-
-    std::swap(m_data    ,rhs.m_data  );
-    std::swap(m_length  ,rhs.m_length);
-    std::swap(m_capacity,rhs.m_capacity);
-
-    return *this;
+    return assign(std::move(rhs));
   }
 
   basic_string&  operator+=(T  c) noexcept
@@ -135,12 +123,13 @@ public:
     m_capacity = 0;
   }
 
-  void  assign(const T*  s) noexcept
+
+  basic_string&  assign(const T*  s) noexcept
   {
-    assign(s,std::strlen(s));
+    return assign(s,std::strlen(s));
   }
 
-  void  assign(const T*  s, size_t  l) noexcept
+  basic_string&  assign(const T*  s, size_t  l) noexcept
   {
     clear();
 
@@ -151,11 +140,29 @@ public:
     std::memcpy(m_data,s,l);
 
     m_data[l] = 0;
+
+    return *this;
   }
 
-  void  assign(basic_string_view<T>  sv) noexcept
+  basic_string&  assign(const basic_string&  rhs) noexcept
   {
-    assign(sv.data(),sv.size());
+    return assign(rhs.data(),rhs.size());
+  }
+
+  basic_string&  assign(basic_string&&  rhs) noexcept
+  {
+    clear();
+
+    std::swap(m_data    ,rhs.m_data  );
+    std::swap(m_length  ,rhs.m_length);
+    std::swap(m_capacity,rhs.m_capacity);
+
+    return *this;
+  }
+
+  basic_string&  assign(basic_string_view<T>  sv) noexcept
+  {
+    return assign(sv.data(),sv.size());
   }
 
 
@@ -204,6 +211,8 @@ public:
 
   size_t  size() const noexcept{return m_length;}
   size_t  capacity() const noexcept{return m_capacity;}
+
+  basic_string_view<T>  view() const noexcept{return basic_string_view<T>(data(),size());}
 
   const char*  data() const noexcept{return m_data;}
 

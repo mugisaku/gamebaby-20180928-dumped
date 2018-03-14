@@ -11,9 +11,6 @@
 namespace gbstd{
 
 
-template<typename  T> class  basic_string;
-
-
 template<typename  T>
 class
 basic_string_view
@@ -42,15 +39,6 @@ public:
   constexpr basic_string_view() noexcept{}
   constexpr basic_string_view(const T*  s) noexcept{assign(s);}
   constexpr basic_string_view(const T*  s, size_t  l) noexcept{assign(s,l);}
-  basic_string_view(const basic_string<T>&  s) noexcept{assign(s);}
-
-
-  basic_string_view&  operator=(const basic_string<T>&  s) const noexcept
-  {
-    assign(s);
-
-    return *this;
-  }
 
 
   constexpr bool  operator==(const basic_string_view&  rhs) const noexcept
@@ -74,12 +62,6 @@ public:
   {
     m_pointer= s;
     m_length = l;
-  }
-
-  void  assign(const basic_string<T>&  s) noexcept
-  {
-    m_pointer= s.data();
-    m_length = s.size();
   }
 
   constexpr size_t  size() const noexcept{return m_length;}

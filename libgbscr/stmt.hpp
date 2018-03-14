@@ -39,7 +39,7 @@ stmt
 
   expr  m_expr;
 
-  gbstd::string  m_label;
+  gbstd::string_view  m_label;
 
 public:
   stmt() noexcept{}
@@ -62,8 +62,9 @@ public:
   bool  is_jump()                   const noexcept{return m_kind == stmt_kind::jump;}
   bool  is_jump_by_condition()      const noexcept{return m_kind == stmt_kind::jump_by_condition;}
 
-  const expr&     get_expr()  const noexcept{return m_expr;}
-  const gbstd::string&  get_label() const noexcept{return m_label;}
+  const expr&  get_expr()  const noexcept{return m_expr;}
+
+  gbstd::string_view  get_label() const noexcept{return m_label;}
 
   void  print() const noexcept;
 

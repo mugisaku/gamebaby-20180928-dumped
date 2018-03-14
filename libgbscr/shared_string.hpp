@@ -32,6 +32,12 @@ public:
   shared_string&  operator=(const shared_string&   rhs) noexcept;
   shared_string&  operator=(      shared_string&&  rhs) noexcept;
 
+  shared_string&  operator=(gbstd::string_view  sv) noexcept{return assign(sv);}
+
+  shared_string&  operator+=(const shared_string&  rhs) noexcept{return append(rhs.view());}
+  shared_string&  operator+=(char  c) noexcept{return append(c);}
+  shared_string&  operator+=(gbstd::string_view  sv) noexcept{return append(sv);}
+
   const char&  operator[](int  i) const noexcept;
 
   bool  operator==(const shared_string&  rhs) const noexcept{return view() == rhs.view();}
@@ -43,8 +49,8 @@ public:
   const char*  data() const noexcept;
   size_t       size() const noexcept{return m_length;}
 
-  void  append(char  c) noexcept{append(gbstd::string_view(&c,1));}
-  void  append(gbstd::string_view  sv) noexcept;
+  shared_string&  append(char  c) noexcept{return append(gbstd::string_view(&c,1));}
+  shared_string&  append(gbstd::string_view  sv) noexcept;
 
   gbstd::string_view  view() const noexcept{return gbstd::string_view(data(),size());}
 

@@ -34,6 +34,7 @@ unrefer() noexcept
     {
         if(!--m_data->reference_count)
         {
+//printf("%p is deleted.\n",m_data);
           delete m_data;
         }
 
@@ -55,6 +56,10 @@ assign(gbstd::string&&  s) noexcept
         if(m_data->reference_count > 1)
         {
           unrefer();
+
+          m_data = new private_data;
+
+          m_data->reference_count = 1;
         }
     }
 
@@ -68,7 +73,7 @@ assign(gbstd::string&&  s) noexcept
 
   m_data->string.assign(std::move(s));
 
-  m_length = s.size();
+  m_length = m_data->string.size();
 
   return *this;
 }
@@ -135,21 +140,36 @@ data() const noexcept
 
 
 
-void
+shared_string&
 shared_string::
 append(gbstd::string_view  sv) noexcept
 {
-    if(m_data && (m_data->string.size() == m_length))
+    if(m_data)
     {
-      m_data->string.append(sv);
+        if(m_data->string.size() == m_length)
+        {
+          m_data->string.append(sv);
 
-      m_length += sv.size();
+          m_length += sv.size();
+        }
+
+      else
+        {
+          gbstd::string_view  base_sv(m_data->string.data(),m_length);
+
+          assign(base_sv);
+
+          append(sv);
+        }
     }
 
   else
     {
       assign(sv);
     }
+
+
+  return *this;
 }
 
 
@@ -157,9 +177,19 @@ void
 shared_string::
 print() const noexcept
 {
-    for(auto  c: *this)
+    if(m_data)
     {
-      printf("%c",c);
+      printf("%p(%4d) ",m_data,m_data->reference_count);
+
+        for(auto  c: *this)
+        {
+          printf("%c",c);
+        }
+    }
+
+  else
+    {
+      printf("0x00000000(   0) ");
     }
 }
 
