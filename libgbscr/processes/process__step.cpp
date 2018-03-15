@@ -111,7 +111,7 @@ step() noexcept
       else
         if(stmt.is_jump())
         {
-          frame.jump(stmt.get_label());
+          frame.jump(stmt.get_label().view());
 
           ++frame.current;
         }
@@ -121,7 +121,7 @@ step() noexcept
         {
             if(frame.condition)
             {
-              frame.jump(stmt.get_label());
+              frame.jump(stmt.get_label().view());
             }
 
 

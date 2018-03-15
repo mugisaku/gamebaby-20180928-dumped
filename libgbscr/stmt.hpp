@@ -39,7 +39,7 @@ stmt
 
   expr  m_expr;
 
-  gbstd::string_view  m_label;
+  gbstd::string  m_label;
 
 public:
   stmt() noexcept{}
@@ -64,7 +64,7 @@ public:
 
   const expr&  get_expr()  const noexcept{return m_expr;}
 
-  gbstd::string_view  get_label() const noexcept{return m_label;}
+  const gbstd::string&  get_label() const noexcept{return m_label;}
 
   void  print() const noexcept;
 

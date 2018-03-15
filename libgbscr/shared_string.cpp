@@ -34,7 +34,7 @@ unrefer() noexcept
     {
         if(!--m_data->reference_count)
         {
-//printf("%p is deleted.\n",m_data);
+printf("%p is deleted.\n",m_data);
           delete m_data;
         }
 
@@ -191,43 +191,6 @@ print() const noexcept
     {
       printf("0x00000000(   0) ");
     }
-}
-
-
-
-
-shared_string
-make_string_from_file(const char*  filepath) noexcept
-{
-  shared_string  s;
-
-  auto  f = fopen(filepath,"rb");
-
-    if(f)
-    {
-      gbstd::string  buf;
-
-        for(;;)
-        {
-          auto  c = fgetc(f);
-
-            if(feof(f) || ferror(f))
-            {
-              break;
-            }
-
-
-          buf += c;
-        }
-
-
-      fclose(f);
-
-      s.assign(std::move(buf));
-    }
-
-
-  return std::move(s);
 }
 
 

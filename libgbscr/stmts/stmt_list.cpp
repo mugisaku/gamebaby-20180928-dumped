@@ -61,8 +61,22 @@ build_for(const char*  label_base,
   token_cursor  para_cur(cur[0].get_token_string());
 
   expr  init_expr = make_expr(para_cur);
+
+    if(para_cur->is_semicolon())
+    {
+      ++para_cur;
+    }
+
+
   expr  cond_expr = make_expr(para_cur);
-  expr   mod_expr = make_expr(para_cur);
+
+    if(para_cur->is_semicolon())
+    {
+      ++para_cur;
+    }
+
+
+  expr  mod_expr = make_expr(para_cur);
 
     if(init_expr)
     {

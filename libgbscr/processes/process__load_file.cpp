@@ -7,17 +7,60 @@ namespace processes{
 
 
 
+std::unique_ptr<process::entry>
+process::
+create_entry(const char*  filepath) noexcept
+{
+  auto  f = fopen(filepath,"rb");
+
+    if(f)
+    {
+      auto  ent = new entry;
+
+      ent->file_path.assign(filepath);
+
+        for(;;)
+        {
+          auto  c = fgetc(f);
+
+            if(feof(f) || ferror(f))
+            {
+              break;
+            }
+
+
+          ent->file_content += c;
+        }
+
+
+      fclose(f);
+
+
+      stream  s(ent->file_content.data());
+
+      ent->tokens = token_string(s,0,0);
+
+      return std::unique_ptr<entry>(ent);
+    }
+
+
+  return nullptr;
+}
+
+
 void
 process::
 load_file(const char*  filepath) noexcept
 {
-  auto  ss = make_string_from_file(filepath);
+  auto  ent = create_entry(filepath);
 
-  stream  s(ss.data());
+    if(!ent)
+    {
+      return;
+    }
 
-  token_string  toks(s,0,0);
 
-  token_cursor  cur(toks);
+  token_cursor  cur(ent->tokens);
 
     while(cur)
     {
@@ -62,6 +105,9 @@ load_file(const char*  filepath) noexcept
           break;
         }
     }
+
+
+  m_entry_list.emplace_back(std::move(ent));
 }
 
 

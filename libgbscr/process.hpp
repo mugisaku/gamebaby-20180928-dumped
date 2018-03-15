@@ -31,6 +31,16 @@ process
   size_t  m_number_of_frames=0;
 
 
+  struct entry{
+    gbstd::string  file_path;
+    gbstd::string  file_content;
+
+    token_string   tokens;
+
+  };
+
+
+  std::vector<std::unique_ptr<entry>>           m_entry_list;
   std::vector<std::unique_ptr<stmts::routine>>  m_routine_list;
 
   table  m_global_table;
@@ -45,6 +55,8 @@ process
 
   } m_state=state::not_ready;
 
+
+  static std::unique_ptr<entry>  create_entry(const char*  filepath) noexcept;
 
   void  finish_stmt() noexcept;
 
@@ -71,6 +83,8 @@ public:
   void  call(gbstd::string_view  routine_name, const value_list&  argument_list, value*  return_value=nullptr) noexcept;
 
   bool  append_variable(const value&  value, gbstd::string_view  name) noexcept;
+
+  const table&  get_global_table() const noexcept{return m_global_table;}
 
   size_t  get_number_of_frames() const noexcept{return m_number_of_frames;}
 
