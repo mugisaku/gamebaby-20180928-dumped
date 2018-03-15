@@ -230,7 +230,6 @@ void
 value::
 print() const noexcept
 {
-  
     switch(m_kind)
     {
   case(kind::null):
@@ -240,7 +239,7 @@ print() const noexcept
       printf("%d",m_data.i);
       break;
   case(kind::string):
-      printf("\"");
+      printf("shared string\"");
       m_data.s.print();
       printf("\"");
       break;

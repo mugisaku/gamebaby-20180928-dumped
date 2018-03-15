@@ -202,6 +202,14 @@ read(token_cursor&  cur, maker&  mk) noexcept
 
         if(tok.is_identifier())
         {
+          mk.push(operand(identifier{tok.get_string()}));
+
+          ++cur;
+        }
+
+      else
+        if(tok.is_string_literal())
+        {
           mk.push(operand(tok.get_string()));
 
           ++cur;

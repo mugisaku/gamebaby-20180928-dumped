@@ -136,7 +136,7 @@ size() const noexcept
 
 value
 expr::
-evaluate(process*  proc) const noexcept
+evaluate(process*  proc) const
 {
   operand_stack  stack;
 

@@ -84,7 +84,7 @@ token
   enum class kind{
     null,
     identifier,
-    quoted_string,
+    string_literal,
     integer_literal,
     operator_word,
     token_string,
@@ -136,7 +136,7 @@ public:
   bool  is_integer_literal()  const noexcept{return m_kind == kind::integer_literal;}
   bool  is_identifier()       const noexcept{return m_kind == kind::identifier;}
   bool  is_operator_word()    const noexcept{return m_kind == kind::operator_word;}
-  bool  is_quoted_string()    const noexcept{return m_kind == kind::quoted_string;}
+  bool  is_string_literal()   const noexcept{return m_kind == kind::string_literal;}
   bool  is_token_string()     const noexcept{return m_kind == kind::token_string;}
   bool  is_semicolon()        const noexcept{return m_kind == kind::semicolon;}
 

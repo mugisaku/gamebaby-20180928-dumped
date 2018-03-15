@@ -26,7 +26,7 @@ set_data(const shared_string&  s) noexcept
 {
   unset_data();
 
-  m_kind = kind::quoted_string;
+  m_kind = kind::string_literal;
 
   new(&m_data) shared_string(s);
 }
@@ -94,7 +94,7 @@ operator=(const token&  rhs) noexcept
       case(kind::integer_literal):
           m_data.i = rhs.m_data.i;
           break;
-      case(kind::quoted_string):
+      case(kind::string_literal):
       case(kind::identifier):
           new(&m_data) shared_string(rhs.m_data.s);
           break;
@@ -128,7 +128,7 @@ operator=(token&&  rhs) noexcept
       case(kind::integer_literal):
           m_data.i = rhs.m_data.i;
           break;
-      case(kind::quoted_string):
+      case(kind::string_literal):
       case(kind::identifier):
           new(&m_data) shared_string(std::move(rhs.m_data.s));
           break;
@@ -155,7 +155,7 @@ unset_data() noexcept
     {
   case(kind::integer_literal):
       break;
-  case(kind::quoted_string):
+  case(kind::string_literal):
   case(kind::identifier):
       gbstd::destruct(m_data.s);
       break;
@@ -255,7 +255,7 @@ print(FILE*  f, int  indent) const noexcept
   case(kind::integer_literal):
       fprintf(f,"%lu",m_data.i);
       break;
-  case(kind::quoted_string):
+  case(kind::string_literal):
       fprintf(f,"\"%s\"",m_data.s.data());
       break;
   case(kind::identifier):

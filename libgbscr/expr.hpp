@@ -39,6 +39,18 @@ operation_error
 
 
 struct
+division_by_zero: public operation_error
+{
+};
+
+
+struct
+assignment_error: public operation_error
+{
+};
+
+
+struct
 prefix_unary_operator
 {
   operator_word  word;
@@ -88,18 +100,18 @@ public:
   bool  is_binary() const noexcept;
   bool  is_conditional() const noexcept;
 
-  value  evaluate(process*  proc) const noexcept;
+  value  evaluate(process*  proc) const;
 
   void  print() const noexcept;
 
 };
 
 
-void  operate_prefix_unary( operand&  o, operator_word  opw, process*  proc) noexcept;
-void  operate_postfix_unary(operand&  o, operator_word  opw, process*  proc) noexcept;
-void  operate_binary(       operand&  lo, operand&  ro, operator_word  opw, process*  proc) noexcept;
-void  operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc) noexcept;
-void  operate_stack(operand_stack&  stack, const expr_element&  e, process*  proc) noexcept;
+void  operate_prefix_unary( operand&  o, operator_word  opw, process*  proc);
+void  operate_postfix_unary(operand&  o, operator_word  opw, process*  proc);
+void  operate_binary(       operand&  lo, operand&  ro, operator_word  opw, process*  proc);
+void  operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc);
+void  operate_stack(operand_stack&  stack, const expr_element&  e, process*  proc);
 
 
 class
@@ -128,7 +140,7 @@ public:
 
   size_t  size() const noexcept;
 
-  value  evaluate(process*  proc) const noexcept;
+  value  evaluate(process*  proc) const;
 
   expr_element*  begin() const noexcept;
   expr_element*    end() const noexcept;
@@ -258,7 +270,7 @@ public:
 
   value*  get_value_pointer() noexcept{return &m_data.v;}
 
-  value  evaluate(process*  proc) const noexcept;
+  value  evaluate(process*  proc) const;
 
   void  print() const noexcept;
 

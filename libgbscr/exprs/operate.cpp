@@ -1,6 +1,4 @@
-#include"libgbscr/expr.hpp"
-#include"libgbscr/process.hpp"
-#include<new>
+#include"libgbscr/exprs/operate.hpp"
 
 
 namespace gbscr{
@@ -9,55 +7,10 @@ namespace exprs{
 
 
 
-namespace assignments{
-void   st(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  add(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  sub(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  mul(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  div(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  rem(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  and_(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  or_( operand&  lo, operand&  ro, process*  proc) noexcept;
-void  xor_(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  shl( operand&  lo, operand&  ro, process*  proc) noexcept;
-void  shr( operand&  lo, operand&  ro, process*  proc) noexcept;
-}
-namespace arithmetics{
-void  neg(operand&  o, process*  proc) noexcept;
-void  add(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  sub(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  mul(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  div(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  rem(operand&  lo, operand&  ro, process*  proc) noexcept;
-}
-namespace comparisons{
-void  eq(  operand&  lo, operand&  ro, process*  proc) noexcept;
-void  neq( operand&  lo, operand&  ro, process*  proc) noexcept;
-void  lt(  operand&  lo, operand&  ro, process*  proc) noexcept;
-void  lteq(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  gt(  operand&  lo, operand&  ro, process*  proc) noexcept;
-void  gteq(operand&  lo, operand&  ro, process*  proc) noexcept;
-}
-namespace bitwises{
-void  not_(operand&  o, process*  proc) noexcept;
-void  and_(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  or_( operand&  lo, operand&  ro, process*  proc) noexcept;
-void  xor_(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  not_(operand&  lo, operand&  ro, process*  proc) noexcept;
-void  shl( operand&  lo, operand&  ro, process*  proc) noexcept;
-void  shr( operand&  lo, operand&  ro, process*  proc) noexcept;
-}
-namespace logicals{
-void  not_(operand&  o, process*  proc) noexcept;
-void  or_( operand&  lo, operand&  ro, process*  proc) noexcept;
-void  and_(operand&  lo, operand&  ro, process*  proc) noexcept;
-}
-
-
 void
-operate_prefix_unary(operand&  o, operator_word  opw, process*  proc) noexcept
+operate_prefix_unary(operand&  o, operator_word  opw, process*  proc)
 {
-  void  (*fn)(operand&  o, process*  proc) noexcept=nullptr;
+  void  (*fn)(operand&  o, process*  proc)=nullptr;
 
        if(opw == gbstd::string_view("!")){fn = logicals::not_;}
   else if(opw == gbstd::string_view("~")){fn = bitwises::not_;}
@@ -76,16 +29,16 @@ operate_prefix_unary(operand&  o, operator_word  opw, process*  proc) noexcept
 
 
 void
-operate_postfix_unary(operand&  o, operator_word  opw, process*  proc) noexcept
+operate_postfix_unary(operand&  o, operator_word  opw, process*  proc)
 {
     if(opw == gbstd::string_view("")){}
 }
 
 
 void
-operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) noexcept
+operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc)
 {
-  void  (*fn)(operand&  lo, operand&  ro, process*  proc) noexcept=nullptr;
+  void  (*fn)(operand&  lo, operand&  ro, process*  proc)=nullptr;
 
        if(opw == gbstd::string_view( "||")){fn = logicals::or_;}
   else if(opw == gbstd::string_view( "&&")){fn = logicals::and_;}
@@ -139,7 +92,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc) n
 
 
 void
-operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc) noexcept
+operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc)
 {
   auto  cond = o1.evaluate(proc).get_integer_safely();
 
@@ -148,7 +101,7 @@ operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc) no
 
 
 void
-operate_stack(operand_stack&  stack, const expr_element&  e, process*  proc) noexcept
+operate_stack(operand_stack&  stack, const expr_element&  e, process*  proc)
 {
     if(e.is_operand())
     {

@@ -19,6 +19,7 @@ set(SOURCES
   stmts/stmt_list.cpp
   stmts/routine.cpp
   values/value.cpp
+  values/value__convert_to.cpp
   values/variable.cpp
   values/table.cpp
   tokens/token.cpp

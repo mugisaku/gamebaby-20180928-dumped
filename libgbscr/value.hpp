@@ -101,6 +101,12 @@ user_data
 };
 
 
+struct
+value_conversion_error
+{
+};
+
+
 class
 value
 {
@@ -168,6 +174,11 @@ public:
   const stmts::routine&  get_routine()        const noexcept;
   table&                   get_table()        const noexcept{return *m_data.tbl;}
 
+  int                    convert_to_integer()   const;
+  shared_string          convert_to_string()    const;
+  const stmts::routine&  convert_to_routine()   const;
+  table&                 convert_to_table()     const;
+
   int  get_integer_safely() const noexcept;
 
   void  print() const noexcept;
@@ -224,6 +235,7 @@ public:
 
 using values::reference;
 using values::value;
+using values::value_conversion_error;
 using values::value_list;
 using values::variable;
 using values::table;

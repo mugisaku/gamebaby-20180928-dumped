@@ -108,7 +108,15 @@ carry(table&  dst) noexcept
 
           dst.m_variables.emplace_back(ptr);
         }
+
+      else
+        {
+          delete ptr;
+        }
     }
+
+
+  m_variables.clear();
 }
 
 

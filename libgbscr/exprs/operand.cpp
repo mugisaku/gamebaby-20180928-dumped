@@ -278,7 +278,7 @@ clear() noexcept
 
 value
 operand::
-evaluate(process*  proc) const noexcept
+evaluate(process*  proc) const
 {
     switch(m_kind)
     {
