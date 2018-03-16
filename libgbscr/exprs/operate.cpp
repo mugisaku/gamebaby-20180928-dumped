@@ -69,14 +69,41 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc)
   else if(opw == gbstd::string_view( "<=")){fn = comparisons::lteq;}
   else if(opw == gbstd::string_view(  ">")){fn = comparisons::gt;}
   else if(opw == gbstd::string_view( ">=")){fn = comparisons::gteq;}
+  else if(opw == gbstd::string_view(  ".")){fn = accesses::member_access;}
+  else if(opw == gbstd::string_view( "()")){fn = accesses::call;}
+  else if(opw == gbstd::string_view( "[]")){fn = accesses::subscript;}
+  else
+    if(opw == gbstd::string_view("?"))
+    {
+        if(!ro.is_paired_expression())
+        {
+          printf("binary operation error\n");
+
+          return;
+        }
+
+
+      auto&  pe = ro.get_paired_expression();
+
+      operand  lo_(pe.get_left() );
+      operand  ro_(pe.get_right());
+
+      operate_conditional(lo,lo_,ro_,proc);
+
+      return;
+    }
+
+  else
+    if(opw == gbstd::string_view(","))
+    {
+           lo.evaluate(proc);
+      lo = ro.evaluate(proc);
+
+      return;
+    }
 /*
-  else if(opw == gbstd::string_view(  ".")){fn = s::;}
   else if(opw == gbstd::string_view( "->")){fn = s::;}
-  else if(opw == gbstd::string_view(  "?")){fn = s::;}
-  else if(opw == gbstd::string_view( "()")){fn = s::;}
-  else if(opw == gbstd::string_view( "[]")){fn = s::;}
   else if(opw == gbstd::string_view( "::")){fn = s::;}
-  else if(opw == gbstd::string_view(  ",")){fn = s::;}
 */
 
     if(!fn)
@@ -94,7 +121,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc)
 void
 operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc)
 {
-  auto  cond = o1.evaluate(proc).get_integer_safely();
+  auto  cond = o1.evaluate(proc).convert_to_integer();
 
   o1 = operand((cond? o2:o3).evaluate(proc));
 }

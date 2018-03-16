@@ -9,13 +9,7 @@ namespace bitwises{
 void
 not_(operand&  o, process*  proc)
 {
-  auto  v = o.evaluate(proc);
-
-    if(v.is_reference())
-    {
-      v = v.get_reference()->get_value();
-    }
-
+  auto  v = to_value(o,proc);
 
   o = value(~v.convert_to_integer());
 }
@@ -24,20 +18,8 @@ not_(operand&  o, process*  proc)
 void
 and_(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
 
   lo = value(lv.convert_to_integer()&rv.convert_to_integer());
@@ -47,20 +29,8 @@ and_(operand&  lo, operand&  ro, process*  proc)
 void
 or_(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
 
   lo = value(lv.convert_to_integer()|rv.convert_to_integer());
@@ -70,20 +40,8 @@ or_(operand&  lo, operand&  ro, process*  proc)
 void
 xor_(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
 
   lo = value(lv.convert_to_integer()^rv.convert_to_integer());
@@ -93,20 +51,8 @@ xor_(operand&  lo, operand&  ro, process*  proc)
 void
 shl(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
 
   lo = value(lv.convert_to_integer()<<rv.convert_to_integer());
@@ -116,20 +62,8 @@ shl(operand&  lo, operand&  ro, process*  proc)
 void
 shr(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
 
   lo = value(lv.convert_to_integer()>>rv.convert_to_integer());

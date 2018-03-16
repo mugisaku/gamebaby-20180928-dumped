@@ -8,216 +8,155 @@ namespace exprs{
 namespace assignments{
 
 
+
+
 void
 st(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
+  auto  lvref = to_reference(lo,proc);
+  auto  rv    = to_value(    ro,proc);
 
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
-
-  lv.get_reference()->get_value() = rv;
+  lvref->get_value() = rv;
 }
 
 
 void
 add(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   arithmetics::add(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 sub(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   arithmetics::sub(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 mul(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   arithmetics::mul(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 div(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   arithmetics::div(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 rem(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   arithmetics::rem(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 and_(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   bitwises::and_(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 or_( operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   bitwises::or_(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 xor_(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   bitwises::xor_(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 shl( operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   bitwises::shl(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 
 void
 shr( operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(!lv.is_reference())
-    {
-      throw assignment_error{};
-    }
+  auto  lvref = to_reference(lo,proc);
 
 
   bitwises::shr(lo,ro,proc);
 
-  lv.get_reference()->get_value() = lo.get_value();
+  lvref->get_value() = lo.get_value();
 
-  lo = value(lv);
+  lo = value(lvref);
 }
 
 

@@ -9,21 +9,8 @@ namespace comparisons{
 void
 eq(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
   lo = value(lv.convert_to_integer() == rv.convert_to_integer());
 }
@@ -32,21 +19,8 @@ eq(operand&  lo, operand&  ro, process*  proc)
 void
 neq(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
   lo = value(lv.convert_to_integer() != rv.convert_to_integer());
 }
@@ -55,21 +29,8 @@ neq(operand&  lo, operand&  ro, process*  proc)
 void
 lt(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
   lo = value(lv.convert_to_integer() < rv.convert_to_integer());
 }
@@ -78,21 +39,8 @@ lt(operand&  lo, operand&  ro, process*  proc)
 void
 lteq(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
   lo = value(lv.convert_to_integer() <= rv.convert_to_integer());
 }
@@ -101,21 +49,8 @@ lteq(operand&  lo, operand&  ro, process*  proc)
 void
 gt(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
   lo = value(lv.convert_to_integer() > rv.convert_to_integer());
 }
@@ -124,21 +59,8 @@ gt(operand&  lo, operand&  ro, process*  proc)
 void
 gteq(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
   lo = value(lv.convert_to_integer() >= rv.convert_to_integer());
 }

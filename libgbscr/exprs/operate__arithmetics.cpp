@@ -11,13 +11,7 @@ namespace arithmetics{
 void
 neg(operand&  o, process*  proc)
 {
-  auto  v = o.evaluate(proc);
-
-    if(v.is_reference())
-    {
-      v = v.get_reference()->get_value();
-    }
-
+  auto  v = to_value(o,proc);
 
   o = value(-v.convert_to_integer());
 }
@@ -26,21 +20,8 @@ neg(operand&  o, process*  proc)
 void
 add(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
   lo = value(lv.convert_to_integer()+rv.convert_to_integer());
 }
@@ -49,20 +30,8 @@ add(operand&  lo, operand&  ro, process*  proc)
 void
 sub(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
 
   lo = value(lv.convert_to_integer()-rv.convert_to_integer());
@@ -72,21 +41,8 @@ sub(operand&  lo, operand&  ro, process*  proc)
 void
 mul(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
   lo = value(lv.convert_to_integer()*rv.convert_to_integer());
 }
@@ -95,20 +51,8 @@ mul(operand&  lo, operand&  ro, process*  proc)
 void
 div(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
 
   int  ri = rv.convert_to_integer();
@@ -126,20 +70,8 @@ div(operand&  lo, operand&  ro, process*  proc)
 void
 rem(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
-
-    if(lv.is_reference())
-    {
-      lv = lv.get_reference()->get_value();
-    }
-
-
-  auto  rv = ro.evaluate(proc);
-
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
+  auto  lv = to_value(lo,proc);
+  auto  rv = to_value(ro,proc);
 
 
   int  ri = rv.convert_to_integer();

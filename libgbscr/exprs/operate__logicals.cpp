@@ -11,13 +11,7 @@ namespace logicals{
 void
 not_(operand&  o, process*  proc)
 {
-  auto  v = o.evaluate(proc);
-
-    if(v.is_reference())
-    {
-      v = v.get_reference()->get_value();
-    }
-
+  auto  v = to_value(o,proc);
 
   o = value(!v.convert_to_integer());
 }
@@ -26,46 +20,34 @@ not_(operand&  o, process*  proc)
 void
 or_( operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
+  auto  lv = to_value(lo,proc);
 
-    if(lv.is_reference())
+    if(lv.convert_to_integer())
     {
-      lv = lv.get_reference()->get_value();
+      lo = value(true);
     }
 
 
-  auto  rv = ro.evaluate(proc);
+  auto  rv = to_value(ro,proc);
 
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
-
-  lo = value(lv.convert_to_integer()*rv.convert_to_integer());
+  lo = value(rv.convert_to_integer());
 }
 
 
 void
 and_(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = lo.evaluate(proc);
+  auto  lv = to_value(lo,proc);
 
-    if(lv.is_reference())
+    if(!lv.convert_to_integer())
     {
-      lv = lv.get_reference()->get_value();
+      lo = value(false);
     }
 
 
-  auto  rv = ro.evaluate(proc);
+  auto  rv = to_value(ro,proc);
 
-    if(rv.is_reference())
-    {
-      rv = rv.get_reference()->get_value();
-    }
-
-
-  lo = value(lv.convert_to_integer()*rv.convert_to_integer());
+  lo = value(rv.convert_to_integer());
 }
 
 

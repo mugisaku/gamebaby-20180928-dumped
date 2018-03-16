@@ -34,7 +34,7 @@ unrefer() noexcept
     {
         if(!--m_data->reference_count)
         {
-printf("%p is deleted.\n",m_data);
+//printf("%p is deleted.\n",m_data);
           delete m_data;
         }
 
@@ -177,14 +177,20 @@ void
 shared_string::
 print() const noexcept
 {
+    for(auto  c: *this)
+    {
+      printf("%c",c);
+    }
+}
+
+
+void
+shared_string::
+print_detail() const noexcept
+{
     if(m_data)
     {
-      printf("%p(%4d) ",m_data,m_data->reference_count);
-
-        for(auto  c: *this)
-        {
-          printf("%c",c);
-        }
+      printf("%p(%4d)[%4d]",m_data,m_data->reference_count,m_length);
     }
 
   else

@@ -56,6 +56,8 @@ operand&
 operand::
 operator=(const identifier&  id) noexcept
 {
+  clear();
+
     if(id->view() == gbstd::string_view("true"))
     {
       *this = true;
@@ -69,11 +71,9 @@ operator=(const identifier&  id) noexcept
 
   else
     {
-      clear();
-
       m_kind = kind::identifier;
 
-      new(&m_data) identifier(id);
+      new(&m_data) shared_string(*id);
     }
 
 

@@ -13,6 +13,7 @@ set(SOURCES
   exprs/operate__comparisons.cpp
   exprs/operate__bitwises.cpp
   exprs/operate__logicals.cpp
+  exprs/operate__accesses.cpp
   exprs/operation.cpp
   exprs/operand.cpp
   stmts/stmt.cpp

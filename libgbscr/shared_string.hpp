@@ -59,6 +59,7 @@ public:
   const char*    end() const noexcept{return data()+m_length;}
 
   void  print() const noexcept;
+  void  print_detail() const noexcept;
 
 };
 
