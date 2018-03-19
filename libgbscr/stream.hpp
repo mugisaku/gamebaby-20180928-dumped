@@ -5,9 +5,7 @@
 #include<cstddef>
 #include<cstdint>
 #include<string>
-#include"libgbstd/string.hpp"
 #include"libgbscr/token.hpp"
-#include"libgbscr/shared_string.hpp"
 
 
 namespace gbscr{
@@ -18,25 +16,22 @@ stream
 {
   const char*  m_pointer=nullptr;
 
-  std::string  m_string_buffer;
-
   token  m_token;
 
-  uint64_t       read_binary_number() noexcept;
-  uint64_t        read_octal_number() noexcept;
-  uint64_t      read_decimal_number() noexcept;
-  uint64_t  read_hexadecimal_number() noexcept;
-  uint64_t  read_number_that_begins_by_zero() noexcept;
+  void       read_binary_number() noexcept;
+  void        read_octal_number() noexcept;
+  void      read_decimal_number() noexcept;
+  void  read_hexadecimal_number() noexcept;
+  void  read_number_that_begins_by_zero() noexcept;
+
+  void  read_number() noexcept;
 
   void  skip_linestyle_comment() noexcept;
   void  skip_blockstyle_comment();
 
-  identifier     read_identifier() noexcept;
-  shared_string  read_quoted_string(char  close_char) noexcept;
+  void  read_quoted_string(char  close_char) noexcept;
 
-  bool  read_operator(gbstd::string_view  sv) noexcept;
-
-  uint64_t  read_number() noexcept;
+  bool  read_punct(gbstd::string_view  sv) noexcept;
 
 public:
   stream() noexcept{}
@@ -48,9 +43,7 @@ public:
 
   char  get_char() const noexcept{return *m_pointer;}
 
-  const token&  get_token() const noexcept{return m_token;}
-
-  const token&  read_token();
+  token  read_token();
 
   operator bool() const noexcept{return *m_pointer;}
 

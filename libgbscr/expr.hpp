@@ -158,9 +158,20 @@ public:
 };
 
 
-expr       make_expr(gbstd::string_view  sv) noexcept;
-expr       make_expr(     token_cursor&  cur) noexcept;
-expr_list  make_expr_list(token_cursor&  cur) noexcept;
+expr       make_expr(gbstd::string_view  sv, values::table&  tbl) noexcept;
+expr       make_expr(     cursor&  cur, values::table&  tbl) noexcept;
+expr_list  make_expr_list(cursor&  cur, values::table&  tbl) noexcept;
+
+
+struct
+identifier
+{
+  shared_string  s;
+
+  const shared_string*  operator->() const noexcept{return &s;}
+  const shared_string&  operator *() const noexcept{return  s;}
+
+};
 
 
 class
@@ -352,6 +363,9 @@ public:
 };
 
 
+bool  read_operand(cursor&  cur, operand&  o, values::table&  tbl);
+
+
 }
 
 
@@ -360,6 +374,7 @@ using exprs::expr;
 using exprs::expr_list;
 using exprs::paired_expr;
 using exprs::operation;
+using exprs::read_operand;
 using exprs::operand;
 using exprs::operand_stack;
 using exprs::make_expr;

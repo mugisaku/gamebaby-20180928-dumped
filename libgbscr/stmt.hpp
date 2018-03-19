@@ -77,7 +77,7 @@ stmt_list: public list<stmt>
 public:
   using list::list;
 
-  stmt_list(const token_string&  toks) noexcept;
+  stmt_list(const block&  toktbl, table&  tbl) noexcept;
 
 };
 
@@ -98,8 +98,7 @@ routine
 
 public:
   routine() noexcept{}
-  routine(const token_string&  parals_src,
-          const token_string&  blk_src) noexcept;
+  routine(const block&  parals_src, const block&  impl_src, table&  tbl) noexcept;
 
   const parameter_list&  get_parameter_list() const noexcept{return m_parameter_list;}
   const stmt_list&            get_stmt_list() const noexcept{return m_stmt_list;}

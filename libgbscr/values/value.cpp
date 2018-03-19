@@ -68,7 +68,7 @@ operator=(const reference&  r) noexcept
 
 value&
 value::
-operator=(const stmts::routine&  rt) noexcept
+operator=(stmts::routine&  rt) noexcept
 {
   clear();
 
@@ -116,7 +116,7 @@ operator=(const value&  rhs) noexcept
           new(&m_data) reference(rhs.m_data.r);
           break;
       case(kind::routine):
-          m_data.rt = rhs.m_data.rt;
+          m_data.rt = new routine(*rhs.m_data.rt);
           break;
       case(kind::table):
           m_data.tbl = new table(*rhs.m_data.tbl);
@@ -180,6 +180,7 @@ clear() noexcept
       gbstd::destruct(m_data.r);
       break;
   case(kind::routine):
+      delete m_data.rt;
       break;
   case(kind::table):
       delete m_data.tbl;
@@ -196,31 +197,6 @@ value::
 get_routine() const noexcept
 {
   return *m_data.rt;
-}
-
-
-int
-value::
-get_integer_safely() const noexcept
-{
-    switch(m_kind)
-    {
-  case(kind::integer):
-      return m_data.i;
-      break;
-  case(kind::string):
-//      return m_data.i;
-      break;
-  case(kind::reference):
-      return m_data.r->get_value().get_integer_safely();
-      break;
-  case(kind::routine):
-      printf("ルーチンは、整数になれない\n");
-      break;
-    }
-
-
-  return 0;
 }
 
 

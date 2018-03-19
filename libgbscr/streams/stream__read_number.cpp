@@ -6,28 +6,22 @@
 namespace gbscr{
 
 
-uint64_t
+void
 stream::
 read_binary_number() noexcept
 {
-  uint64_t  i = 0;
+  gbstd::string  s;
 
   ++m_pointer;
 
-    while(*this)
+    for(;;)
     {
       auto  c = *m_pointer;
 
         if((c == '0') ||
            (c == '1'))
         {
-          i <<= 1;
-
-            if(*m_pointer == '1')
-            {
-              i |= 1;
-            }
-
+          s.append(c);
 
           ++m_pointer;
         }
@@ -39,95 +33,27 @@ read_binary_number() noexcept
     }
 
 
-  return i;
+  m_token.set_data(token_kind::binary_integer,std::move(s));
 }
 
 
 
-uint64_t
+void
 stream::
 read_octal_number() noexcept
 {
-  uint64_t  i = 0;
+  gbstd::string  s;
 
   ++m_pointer;
 
-    while((*m_pointer >= '0') &&
-          (*m_pointer <= '7'))
-    {
-      i <<= 3;
-
-      i |= (*m_pointer++)-'0';
-    }
-
-
-  return i;
-}
-
-
-uint64_t
-stream::
-read_decimal_number() noexcept
-{
-  uint64_t  i = 0;
-
-    while((*m_pointer >= '0') &&
-          (*m_pointer <= '9'))
-    {
-      i *= 10;
-
-      i += (*m_pointer++)-'0';
-    }
-
-
-  return i;
-}
-
-
-uint64_t
-stream::
-read_hexadecimal_number() noexcept
-{
-  uint64_t  i = 0;
-
-  ++m_pointer;
-
-    while(*this)
+    for(;;)
     {
       auto  c = *m_pointer;
 
         if((c >= '0') &&
-           (c <= '9'))
+           (c <= '7'))
         {
-          i <<= 4;
-
-          i |= (c-'0');
-
-          ++m_pointer;
-        }
-
-      else
-        if(((c >= 'a') && (c <= 'f')) ||
-           ((c >= 'A') && (c <= 'F')))
-        {
-          i <<= 4;
-
-            switch(c)
-            {
-          case('a'):
-          case('A'): i |= 10;break;
-          case('b'):
-          case('B'): i |= 11;break;
-          case('c'):
-          case('C'): i |= 12;break;
-          case('d'):
-          case('D'): i |= 13;break;
-          case('e'):
-          case('E'): i |= 14;break;
-          case('f'):
-          case('F'): i |= 15;break;
-            }
-
+          s.append(c);
 
           ++m_pointer;
         }
@@ -139,29 +65,93 @@ read_hexadecimal_number() noexcept
     }
 
 
-  return i;
+  m_token.set_data(token_kind::octal_integer,std::move(s));
 }
 
 
-uint64_t
+void
+stream::
+read_decimal_number() noexcept
+{
+  gbstd::string  s;
+
+    for(;;)
+    {
+      auto  c = *m_pointer;
+
+        if((*m_pointer >= '0') &&
+           (*m_pointer <= '9'))
+        {
+          s.append(c);
+
+          ++m_pointer;
+        }
+
+      else
+        {
+          break;
+        }
+    }
+
+
+  m_token.set_data(token_kind::decimal_integer,std::move(s));
+}
+
+
+void
+stream::
+read_hexadecimal_number() noexcept
+{
+  gbstd::string  s;
+
+  ++m_pointer;
+
+    for(;;)
+    {
+      auto  c = *m_pointer;
+
+        if(((c >= '0') && (c <= '9')) ||
+           ((c >= 'a') && (c <= 'f')) ||
+           ((c >= 'A') && (c <= 'F')))
+        {
+          s.append(c);
+
+          ++m_pointer;
+        }
+
+      else
+        {
+          break;
+        }
+    }
+
+
+  m_token.set_data(token_kind::hexadecimal_integer,std::move(s));
+}
+
+
+void
 stream::
 read_number_that_begins_by_zero() noexcept
 {
   auto  c = *++m_pointer;
 
-  return ((c == 'b') || (c == 'B'))? read_binary_number()
-        :((c == 'o') || (c == 'O'))? read_octal_number()
-        :((c == 'x') || (c == 'X'))? read_hexadecimal_number()
-        : 0;
+       if((c == 'b') || (c == 'B')){    read_binary_number();}
+  else if((c == 'o') || (c == 'O')){      read_octal_number();}
+  else if((c == 'x') || (c == 'X')){read_hexadecimal_number();}
+  else
+    {
+      m_token.set_data(token_kind::decimal_integer,gbstd::string("0"));
+    }
 }
 
 
-uint64_t
+void
 stream::
 read_number() noexcept
 {
-  return (*m_pointer == '0')? read_number_that_begins_by_zero()
-        :                     read_decimal_number();
+    if(*m_pointer == '0'){read_number_that_begins_by_zero();}
+  else                   {            read_decimal_number();}
 }
 
 

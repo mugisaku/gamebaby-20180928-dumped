@@ -5,6 +5,7 @@
 #include<cstdint>
 #include<cstdio>
 #include<memory>
+#include<vector>
 #include"libgbstd/string.hpp"
 #include"libgbscr/shared_string.hpp"
 #include"libgbscr/list.hpp"
@@ -65,10 +66,14 @@ calling
 class
 table
 {
+  table*  m_parent=nullptr;
+  table*  m_global=nullptr;
+
   std::vector<variable*>  m_variables;
 
 public:
   table() noexcept{}
+  table(const block&  blk, table&  tbl){assign(blk,tbl);}
   table(const table&   rhs) noexcept{*this = rhs;}
   table(      table&&  rhs) noexcept{*this = std::move(rhs);}
  ~table(){clear();}
@@ -84,7 +89,12 @@ public:
 
   void  carry(table&  dst) noexcept;
 
+  void    set_parent(table*  parent)       noexcept{       m_parent = parent;}
+  table*  get_parent(              ) const noexcept{return m_parent         ;}
+
   void  set_carry_flag() noexcept;
+
+  table&  assign(const block&  blk, table&  tbl);
 
   reference  append(const value&  v, gbstd::string_view  name) noexcept;
 
@@ -128,8 +138,8 @@ value
     shared_string    s;
     reference        r;
 
-    const stmts::routine*  rt;
-    table*                tbl;
+    stmts::routine*  rt;
+    table*          tbl;
 
     data(){}
    ~data(){}
@@ -142,7 +152,7 @@ public:
   value(int  i) noexcept{*this = i;}
   value(const shared_string&  s) noexcept{*this = s;}
   value(const reference&  r) noexcept{*this = r;}
-  value(const stmts::routine&  rt) noexcept{*this = rt;}
+  value(stmts::routine&  rt) noexcept{*this = rt;}
   value(table&  tbl) noexcept{*this = tbl;}
   value(const value&   rhs) noexcept{*this = rhs;}
   value(      value&&  rhs) noexcept{*this = std::move(rhs);}
@@ -152,7 +162,7 @@ public:
   value&  operator=(int  i) noexcept;
   value&  operator=(const shared_string&  s) noexcept;
   value&  operator=(const reference&  r) noexcept;
-  value&  operator=(const stmts::routine&  rt) noexcept;
+  value&  operator=(stmts::routine&  rt) noexcept;
   value&  operator=(table&  tbl) noexcept;
   value&  operator=(const value&   rhs) noexcept;
   value&  operator=(      value&&  rhs) noexcept;
@@ -179,8 +189,6 @@ public:
   const stmts::routine&  convert_to_routine()   const;
   table&                 convert_to_table()     const;
 
-  int  get_integer_safely() const noexcept;
-
   void  print() const noexcept;
 
 };
@@ -206,16 +214,22 @@ variable
 
   bool  m_carry_flag=false;
 
-public:
   variable() noexcept{}
-  variable(table&  table, const value&  v, gbstd::string_view  name) noexcept;
+
+public:
   variable(const variable&   rhs) noexcept=default;
   variable(      variable&&  rhs) noexcept=delete;
 
   variable&  operator=(const variable&   rhs) noexcept=default;
   variable&  operator=(      variable&&  rhs) noexcept=delete;
 
-  value&  get_value() noexcept{return m_value;}
+  static variable*  create_instance() noexcept{return new variable;}
+
+  void    set_table(table*  t)       noexcept{       m_table = t;}
+  table*  get_table(         ) const noexcept{return m_table    ;}
+
+  void          set_value(const value&  v)       noexcept{       m_value = v;}
+  const value&  get_value(               ) const noexcept{return m_value    ;}
 
   reference  get_reference() noexcept{return reference(*this);}
 
@@ -223,11 +237,15 @@ public:
   void    set_carry_flag()       noexcept;
   void  unset_carry_flag()       noexcept;
 
-  const gbstd::string&  get_name() const noexcept{return m_name;}
+  void                  set_name(gbstd::string_view  name)       noexcept{       m_name = name;}
+  const gbstd::string&  get_name(                        ) const noexcept{return m_name       ;}
 
   void  print() const noexcept;
 
 };
+
+
+bool  read_variable(cursor&  cur, variable*&  var, table&  tbl);
 
 
 }

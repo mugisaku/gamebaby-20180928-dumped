@@ -23,6 +23,7 @@ public:
          ((sv.size() >= 3)? (sv[2]<< 8):0)){}
 
   constexpr bool  operator==(const operator_word&  rhs) const noexcept{return m_data == rhs.m_data;}
+  constexpr bool  operator!=(const operator_word&  rhs) const noexcept{return m_data != rhs.m_data;}
 
   constexpr uint32_t  data() const noexcept{return m_data;}
 

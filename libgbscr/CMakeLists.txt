@@ -7,6 +7,7 @@ set(SOURCES
   exprs/expr_element.cpp
   exprs/expr.cpp
   exprs/make_expr.cpp
+  exprs/read_operand.cpp
   exprs/operate.cpp
   exprs/operate__assignments.cpp
   exprs/operate__arithmetics.cpp
@@ -24,8 +25,8 @@ set(SOURCES
   values/variable.cpp
   values/table.cpp
   tokens/token.cpp
-  tokens/token_string.cpp
-  tokens/token_cursor.cpp
+  tokens/block.cpp
+  tokens/cursor.cpp
   shared_string.cpp
   processes/process.cpp
   processes/process__call.cpp

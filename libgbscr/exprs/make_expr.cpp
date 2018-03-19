@@ -1,5 +1,6 @@
 #include"libgbscr/expr.hpp"
 #include"libgbscr/stream.hpp"
+#include"libgbscr/stmt.hpp"
 
 
 namespace gbscr{
@@ -188,7 +189,7 @@ result
 
 
 result
-read(token_cursor&  cur, maker&  mk) noexcept
+read(cursor&  cur, maker&  mk, table&  tbl) noexcept
 {
   using  oe = operator_egg;
 
@@ -200,33 +201,17 @@ read(token_cursor&  cur, maker&  mk) noexcept
     {
       auto&  tok = *cur;
 
-        if(tok.is_identifier())
-        {
-          mk.push(operand(identifier{tok.get_string()}));
+      operand  o;
 
-          ++cur;
+        if(read_operand(cur,o,tbl))
+        {
+          mk.push(std::move(o));
         }
 
       else
-        if(tok.is_string_literal())
+        if(tok.is_punctuations())
         {
-          mk.push(operand(tok.get_string()));
-
-          ++cur;
-        }
-
-      else
-        if(tok.is_integer_literal())
-        {
-          mk.push(operand(tok.get_integer()));
-
-          ++cur;
-        }
-
-      else
-        if(tok.is_operator_word())
-        {
-          auto  opw = tok.get_operator_word();
+          operator_word  opw(tok.get_string().view());
 
             if(opw == operator_word("++"))
             {
@@ -305,7 +290,7 @@ read(token_cursor&  cur, maker&  mk) noexcept
 
               maker  comk;
 
-                if(read(cur,comk) != result::got_colon)
+                if(read(cur,comk,tbl) != result::got_colon)
                 {
                   printf("\'?\'に対応する\':\'が見つからない\n");
 
@@ -319,7 +304,7 @@ read(token_cursor&  cur, maker&  mk) noexcept
 
               comk.clear();
 
-                if(read(cur,comk) == result::got_error)
+                if(read(cur,comk,tbl) == result::got_error)
                 {
                   printf("paired_expr作成エラー\n");
 
@@ -335,6 +320,12 @@ read(token_cursor&  cur, maker&  mk) noexcept
             }
 
           else
+            if(opw == operator_word(";"))
+            {
+              return result::got_semicolon;
+            }
+
+          else
             {
               printf("不明な演算子\n");
 
@@ -346,44 +337,42 @@ read(token_cursor&  cur, maker&  mk) noexcept
         }
 
       else
-        if(tok.is_token_string())
+        if(tok.is_block())
         {
-          auto&  toks = tok.get_token_string();
+          auto&  blk = tok.get_block();
 
-            if((toks.get_open()  == '(') &&
-               (toks.get_close() == ')'))
+            if(blk.test('(',')'))
             {
-              token_cursor  cocur(toks);
+              cursor  cocur(blk);
 
                 if(mk.get_last().is_operand())
                 {
                   mk.push(oe(binop{operator_word("()")},1));
 
 
-                  auto  els = make_expr_list(cocur);
+                  auto  els = make_expr_list(cocur,tbl);
 
                   mk.push(operand(std::move(els)));
                 }
 
               else
                 {
-                  auto  e = make_expr(cocur);
+                  auto  e = make_expr(cocur,tbl);
 
                   mk.push(operand(std::move(e)));
                 }
             }
 
           else
-            if((toks.get_open()  == '[') &&
-               (toks.get_close() == ']'))
+            if(blk.test('[',']'))
             {
-              token_cursor  cocur(toks);
+              cursor  cocur(blk);
 
                 if(mk.get_last().is_operand())
                 {
                   mk.push(oe(binop{operator_word("[]")},1));
 
-                  mk.push(operand(make_expr(cocur)));
+                  mk.push(operand(make_expr(cocur,tbl)));
                 }
 
               else
@@ -398,19 +387,13 @@ read(token_cursor&  cur, maker&  mk) noexcept
             {
               printf("不明な字句列\n");
 
-              toks.print(stdout,0);
+//              toks.print(stdout,0);
 
               return result::got_error;
             }
 
 
           ++cur;
-        }
-
-      else
-        if(tok.is_semicolon())
-        {
-          return result::got_semicolon;
         }
     }
 
@@ -425,20 +408,34 @@ read(token_cursor&  cur, maker&  mk) noexcept
 
 
 expr
-make_expr(gbstd::string_view  sv) noexcept
+make_expr(gbstd::string_view  sv, table&  tbl) noexcept
 {
   stream  s(sv.data());
 
-  token_string  toks(s,0,0);
+  std::vector<token>  toks;
 
-  token_cursor  cur(toks);
+    for(;;)
+    {
+      auto  tok = s.read_token();
 
-  return make_expr(cur);
+        if(!s)
+        {
+          break;
+        }
+
+
+      toks.emplace_back(std::move(tok));
+    }
+
+
+  cursor  cur(toks.data(),toks.data()+toks.size());
+
+  return make_expr(cur,tbl);
 }
 
 
 expr
-make_expr(token_cursor&  cur) noexcept
+make_expr(cursor&  cur, table&  tbl) noexcept
 {
   maker  mk;
 
@@ -446,7 +443,7 @@ make_expr(token_cursor&  cur) noexcept
     {
       auto  ptr = cur->get_pointer();
 
-        switch(read(cur,mk))
+        switch(read(cur,mk,tbl))
         {
       case(result::got_end):
       case(result::got_semicolon):
@@ -481,7 +478,7 @@ QUIT:
 
 
 expr_list
-make_expr_list(token_cursor&  cur) noexcept
+make_expr_list(cursor&  cur, table&  tbl) noexcept
 {
   std::vector<expr>  buf;
 
@@ -495,7 +492,7 @@ make_expr_list(token_cursor&  cur) noexcept
 
       mk.clear();
 
-        switch(read(cur,mk))
+        switch(read(cur,mk,tbl))
         {
       case(result::got_end):
           e = mk.output();

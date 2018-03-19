@@ -6,12 +6,12 @@ namespace tokens{
 
 
 const token
-token_cursor::
+cursor::
 null;
 
 
 const token&
-token_cursor::
+cursor::
 operator*() const noexcept
 {
   return (*this)? *m_current:null;
@@ -19,7 +19,7 @@ operator*() const noexcept
 
 
 const token*
-token_cursor::
+cursor::
 operator->() const noexcept
 {
   return (*this)? m_current:&null;
@@ -27,7 +27,7 @@ operator->() const noexcept
 
 
 const token&
-token_cursor::
+cursor::
 operator[](int  i) const noexcept
 {
   return ((m_current+i) < m_end)? m_current[i]:null;
@@ -35,8 +35,8 @@ operator[](int  i) const noexcept
 
 
 
-token_cursor&
-token_cursor::
+cursor&
+cursor::
 operator+=(int  n) noexcept
 {
   m_current += n;
@@ -45,8 +45,8 @@ operator+=(int  n) noexcept
 }
 
 
-token_cursor&
-token_cursor::
+cursor&
+cursor::
 operator++() noexcept
 {
   ++m_current;
@@ -55,8 +55,8 @@ operator++() noexcept
 }
 
 
-token_cursor
-token_cursor::
+cursor
+cursor::
 operator++(int  n) noexcept
 {
   auto  cur(*this);
@@ -65,6 +65,8 @@ operator++(int  n) noexcept
 
   return cur;
 }
+
+
 
 
 }}

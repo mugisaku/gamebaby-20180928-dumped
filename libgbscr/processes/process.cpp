@@ -107,7 +107,7 @@ finish_stmt() noexcept
   else
     if(stmt.is_sleep())
     {
-      m_sleeping_time = (stack.size()? stack.top().evaluate(this).get_integer_safely():0);
+      m_sleeping_time = (stack.size()? stack.top().evaluate(this).convert_to_integer():0);
 
       m_state = state::sleeping;
     }
@@ -140,7 +140,7 @@ finish_stmt() noexcept
   else
     if(stack.size())
     {
-      auto  i = stack.top().evaluate(this).get_integer_safely();
+      auto  i = stack.top().evaluate(this).convert_to_integer();
 
            if(stmt.is_evaluate_and_dump()     ){}
       else if(stmt.is_evaluate_and_save()     ){frame.saved_value =  i;}

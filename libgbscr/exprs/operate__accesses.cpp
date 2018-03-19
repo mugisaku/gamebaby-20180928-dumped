@@ -11,10 +11,29 @@ namespace accesses{
 void
 call(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = to_reference(lo,proc);
-  auto  rv =     to_value(ro,proc);
+  auto  lv = to_reference(lo,proc)->get_value();
 
-//  lo = value(lv.convert_to_integer()*rv.convert_to_integer());
+    if(!lv.is_routine())
+    {
+      printf("call error: 関数ではない\n");
+
+      throw operation_error{};
+    }
+
+
+    if(!ro.is_expression_list())
+    {
+      printf("call error: 引数リストではない\n");
+
+      throw operation_error{};
+    }
+
+
+  auto&  r = lv.get_routine();
+
+  lo = value();
+
+  proc->prepare_call(r,ro.get_expression_list(),lo.get_value_pointer());
 }
 
 
@@ -29,7 +48,7 @@ member_access(operand&  lo, operand&  ro, process*  proc)
     }
 
 
-  auto  lv = to_value(lo,proc);
+  auto  lv = to_reference(lo,proc)->get_value();
 
     if(!lv.is_table())
     {
@@ -46,10 +65,16 @@ member_access(operand&  lo, operand&  ro, process*  proc)
 void
 subscript(operand&  lo, operand&  ro, process*  proc)
 {
-  auto  lv = to_reference(lo,proc);
+  auto  lv = to_reference(lo,proc)->get_value();
   auto  rv =     to_value(ro,proc);
 
-//  lo = value(lv.convert_to_integer()*rv.convert_to_integer());
+    if(!rv.is_integer() ||
+       !rv.is_string())
+    {
+      printf("subscript error: keyがない\n");
+
+      throw operation_error{};
+    }
 }
 
 

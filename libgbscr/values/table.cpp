@@ -55,11 +55,53 @@ operator[](gbstd::string_view  name) noexcept
     }
 
 
-  auto  var = new variable(*this,value(),name);
+  auto  var = variable::create_instance();
+
+  var->set_table(this);
+  var->set_name(name);
 
   m_variables.emplace_back(var);
 
   return reference(*var);
+}
+
+
+
+
+table&
+table::
+assign(const block&  blk, table&  tbl)
+{
+  clear();
+
+  variable*  var_ptr;
+
+  cursor  cur(blk);
+
+    if(read_variable(cur,var_ptr,*this))
+    {
+      m_variables.emplace_back(var_ptr);
+
+        while(cur)
+        {
+            if(cur->is_punctuations(","))
+            {
+              ++cur;
+            }
+
+
+            if(!read_variable(cur,var_ptr,*this))
+            {
+              break;
+            }
+
+
+          m_variables.emplace_back(var_ptr);
+        }
+    }
+
+
+  return *this;
 }
 
 
@@ -135,7 +177,11 @@ reference
 table::
 append(const value&  v, gbstd::string_view  name) noexcept
 {
-  auto  var = new variable(*this,v,name);
+  auto  var = variable::create_instance();
+
+  var->set_table(this);
+  var->set_value(v);
+  var->set_name(name);
 
   m_variables.emplace_back(var);
 

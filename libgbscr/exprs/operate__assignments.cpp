@@ -16,7 +16,7 @@ st(operand&  lo, operand&  ro, process*  proc)
   auto  lvref = to_reference(lo,proc);
   auto  rv    = to_value(    ro,proc);
 
-  lvref->get_value() = rv;
+  lvref->set_value(rv);
 }
 
 
@@ -28,7 +28,7 @@ add(operand&  lo, operand&  ro, process*  proc)
 
   arithmetics::add(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -42,7 +42,7 @@ sub(operand&  lo, operand&  ro, process*  proc)
 
   arithmetics::sub(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -56,7 +56,7 @@ mul(operand&  lo, operand&  ro, process*  proc)
 
   arithmetics::mul(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -70,7 +70,7 @@ div(operand&  lo, operand&  ro, process*  proc)
 
   arithmetics::div(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -84,7 +84,7 @@ rem(operand&  lo, operand&  ro, process*  proc)
 
   arithmetics::rem(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -98,7 +98,7 @@ and_(operand&  lo, operand&  ro, process*  proc)
 
   bitwises::and_(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -112,7 +112,7 @@ or_( operand&  lo, operand&  ro, process*  proc)
 
   bitwises::or_(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -126,7 +126,7 @@ xor_(operand&  lo, operand&  ro, process*  proc)
 
   bitwises::xor_(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -140,7 +140,7 @@ shl( operand&  lo, operand&  ro, process*  proc)
 
   bitwises::shl(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }
@@ -154,7 +154,7 @@ shr( operand&  lo, operand&  ro, process*  proc)
 
   bitwises::shr(lo,ro,proc);
 
-  lvref->get_value() = lo.get_value();
+  lvref->set_value(lo.get_value());
 
   lo = value(lvref);
 }

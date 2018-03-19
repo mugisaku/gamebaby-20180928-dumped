@@ -43,36 +43,22 @@ isidentn(char  c) noexcept
 {
   return isalnum(c) || (c == '_');
 }
+
+
 }
 
 
 
 
-identifier
-stream::
-read_identifier() noexcept
-{
-  m_string_buffer.resize(0,0);
-
-    while(isidentn(*m_pointer))
-    {
-      m_string_buffer.push_back(*m_pointer++);
-    }
-
-
-  gbstd::string_view  sv(m_string_buffer.data(),m_string_buffer.size());
-
-  return identifier(shared_string(sv));
-}
-
-
-shared_string
+void
 stream::
 read_quoted_string(char  close_char) noexcept
 {
-  m_string_buffer.resize(0,0);
+  gbstd::string  s;
 
-    while(*this)
+  ++m_pointer;
+
+    for(;;)
     {
       auto  c = *m_pointer++;
 
@@ -89,26 +75,24 @@ read_quoted_string(char  close_char) noexcept
 
       else
         {
-          m_string_buffer.push_back(c);
+          s.append(c);
         }
     }
 
 
-  gbstd::string_view  sv(m_string_buffer.data(),m_string_buffer.size());
-
-  return shared_string(sv);
+  m_token.set_data(token_kind::string,std::move(s));
 }
 
 
 bool
 stream::
-read_operator(gbstd::string_view  sv) noexcept
+read_punct(gbstd::string_view  sv) noexcept
 {
     if(std::memcmp(m_pointer,sv.data(),sv.size()) == 0)
     {
-      m_token.set_data(operator_word(sv));
-
       m_pointer += sv.size();
+
+      m_token.set_data(token_kind::punctuations,gbstd::string(sv));
 
       return true;
     }
@@ -118,115 +102,115 @@ read_operator(gbstd::string_view  sv) noexcept
 }
 
 
-const token&
+token
 stream::
 read_token()
 {
-  m_token.unset_data();
+  m_token = token();
 
 START:
   m_token.set_pointer(m_pointer);
 
     if(!*this)
     {
-      return m_token;
+      return token();
     }
 
 
   auto  c = get_char();
 
-    if(c == ';')
-    {
-      advance();
-
-      m_token.set_data(semicolon{});
-    }
-
-  else
-    if(c == '(')
-    {
-      advance();
-
-      m_token.set_data(token_string(*this,'(',')'));
-    }
-
-  else
-    if(c == '{')
-    {
-      advance();
-
-      m_token.set_data(token_string(*this,'{','}'));
-    }
-
-  else
-    if(c == '[')
-    {
-      advance();
-
-      m_token.set_data(token_string(*this,'[',']'));
-    }
-
-  else
-    if((c == ')') ||
-       (c == '}') ||
-       (c == ']'))
-    {
-      printf("token_string error\n");
-
-      throw m_token.get_pointer();
-    }
-
-  else if(read_operator(gbstd::string_view("..."))){}
-  else if(read_operator(gbstd::string_view("."))){}
-  else if(read_operator(gbstd::string_view("++"))){}
-  else if(read_operator(gbstd::string_view("+="))){}
-  else if(read_operator(gbstd::string_view("+"))){}
-  else if(read_operator(gbstd::string_view("--"))){}
-  else if(read_operator(gbstd::string_view("->"))){}
-  else if(read_operator(gbstd::string_view("-="))){}
-  else if(read_operator(gbstd::string_view("-"))){}
-  else if(read_operator(gbstd::string_view("*="))){}
-  else if(read_operator(gbstd::string_view("*"))){}
-  else if(read_operator(gbstd::string_view("/="))){}
-  else if(read_operator(gbstd::string_view("/"))){}
-  else if(read_operator(gbstd::string_view("%="))){}
-  else if(read_operator(gbstd::string_view("%"))){}
-  else if(read_operator(gbstd::string_view("<<="))){}
-  else if(read_operator(gbstd::string_view("<<"))){}
-  else if(read_operator(gbstd::string_view("<="))){}
-  else if(read_operator(gbstd::string_view("<"))){}
-  else if(read_operator(gbstd::string_view(">>="))){}
-  else if(read_operator(gbstd::string_view(">>"))){}
-  else if(read_operator(gbstd::string_view(">="))){}
-  else if(read_operator(gbstd::string_view(">"))){}
-  else if(read_operator(gbstd::string_view("||"))){}
-  else if(read_operator(gbstd::string_view("|="))){}
-  else if(read_operator(gbstd::string_view("|"))){}
-  else if(read_operator(gbstd::string_view("&&"))){}
-  else if(read_operator(gbstd::string_view("&="))){}
-  else if(read_operator(gbstd::string_view("&"))){}
-  else if(read_operator(gbstd::string_view("^="))){}
-  else if(read_operator(gbstd::string_view("^"))){}
-  else if(read_operator(gbstd::string_view("=="))){}
-  else if(read_operator(gbstd::string_view("="))){}
-  else if(read_operator(gbstd::string_view("!="))){}
-  else if(read_operator(gbstd::string_view("!"))){}
-  else if(read_operator(gbstd::string_view("::"))){}
-  else if(read_operator(gbstd::string_view(":"))){}
-  else if(read_operator(gbstd::string_view(","))){}
-  else if(read_operator(gbstd::string_view("?"))){}
-  else
     if(isident0(c))
     {
-      m_token.set_data(read_identifier());
+      gbstd::string  s;
+
+        while(isidentn(*m_pointer))
+        {
+          s.append(*m_pointer++);
+        }
+
+
+      m_token.set_data(token_kind::identifier,std::move(s));
     }
 
   else
     if(isdigit(c))
     {
-      m_token.set_data(read_number());
+      read_number();
     }
 
+  else
+    if((c == '\'') ||
+       (c == '\"'))
+    {
+      read_quoted_string(c);
+    }
+
+  else
+    if(c == '(')
+    {
+      ++m_pointer;
+
+      m_token.set_data(*new block(*this,'(',')'));
+    }
+
+  else
+    if(c == '{')
+    {
+      ++m_pointer;
+
+      m_token.set_data(*new block(*this,'{','}'));
+    }
+
+  else
+    if(c == '[')
+    {
+      ++m_pointer;
+
+      m_token.set_data(*new block(*this,'[',']'));
+    }
+
+  else if(read_punct("...")){}
+  else if(read_punct("<<=")){}
+  else if(read_punct("<<")){}
+  else if(read_punct("<=")){}
+  else if(read_punct("<")){}
+  else if(read_punct(">>=")){}
+  else if(read_punct(">>")){}
+  else if(read_punct(">=")){}
+  else if(read_punct(">")){}
+  else if(read_punct("++")){}
+  else if(read_punct("+=")){}
+  else if(read_punct("+")){}
+  else if(read_punct("--")){}
+  else if(read_punct("-=")){}
+  else if(read_punct("->")){}
+  else if(read_punct("-")){}
+  else if(read_punct("*=")){}
+  else if(read_punct("*")){}
+  else if(read_punct("/=")){}
+  else if(read_punct("/")){}
+  else if(read_punct("%=")){}
+  else if(read_punct("%")){}
+  else if(read_punct("&&")){}
+  else if(read_punct("&=")){}
+  else if(read_punct("&")){}
+  else if(read_punct("||")){}
+  else if(read_punct("|=")){}
+  else if(read_punct("|")){}
+  else if(read_punct("^=")){}
+  else if(read_punct("^")){}
+  else if(read_punct("::")){}
+  else if(read_punct(":")){}
+  else if(read_punct("==")){}
+  else if(read_punct("=")){}
+  else if(read_punct("!=")){}
+  else if(read_punct("!")){}
+  else if(read_punct("?")){}
+  else if(read_punct(",")){}
+  else if(read_punct(".")){}
+  else if(read_punct(";")){}
+  else if(read_punct("")){}
+  else if(read_punct("~")){}
   else
     if((c ==  ' ') ||
        (c == '\t') ||
@@ -244,7 +228,7 @@ START:
     }
 
 
-  return m_token;
+  return std::move(m_token);
 }
 
 

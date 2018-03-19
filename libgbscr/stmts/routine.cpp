@@ -8,7 +8,7 @@ namespace stmts{
 
 
 routine::
-routine(const token_string&  parals_src, const token_string&  blk_src) noexcept
+routine(const block&  parals_src, const block&  impl_src, table&  tbl) noexcept
 {
   std::vector<gbstd::string>  buf;
 
@@ -23,7 +23,7 @@ routine(const token_string&  parals_src, const token_string&  blk_src) noexcept
 
            ++it;
 
-             if(it->is_operator_word())
+             if(it->is_punctuations(","))
              {
                ++it;
              }
@@ -40,7 +40,7 @@ routine(const token_string&  parals_src, const token_string&  blk_src) noexcept
 
   m_parameter_list = parameter_list(buf.data(),buf.size());
 
-  m_stmt_list = stmt_list(blk_src);
+  m_stmt_list = stmt_list(impl_src,tbl);
 }
 
 

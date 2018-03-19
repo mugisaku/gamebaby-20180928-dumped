@@ -35,7 +35,7 @@ process
     gbstd::string  file_path;
     gbstd::string  file_content;
 
-    token_string   tokens;
+    tokens::block  block;
 
   };
 
