@@ -7,7 +7,7 @@ namespace bitwises{
 
 
 void
-not_(operand&  o, process*  proc)
+not_(operand&  o, process&  proc)
 {
   auto  v = to_value(o,proc);
 
@@ -16,7 +16,7 @@ not_(operand&  o, process*  proc)
 
 
 void
-and_(operand&  lo, operand&  ro, process*  proc)
+and_(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -27,7 +27,7 @@ and_(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-or_(operand&  lo, operand&  ro, process*  proc)
+or_(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -38,7 +38,7 @@ or_(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-xor_(operand&  lo, operand&  ro, process*  proc)
+xor_(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -49,7 +49,7 @@ xor_(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-shl(operand&  lo, operand&  ro, process*  proc)
+shl(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -60,7 +60,7 @@ shl(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-shr(operand&  lo, operand&  ro, process*  proc)
+shr(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);

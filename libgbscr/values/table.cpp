@@ -1,8 +1,26 @@
 #include"libgbscr/value.hpp"
+#include"libgbscr/process.hpp"
 
 
 namespace gbscr{
 namespace values{
+
+
+
+
+table::
+~table()
+{
+    if(m_link->count)
+    {
+      m_link->target = nullptr;
+    }
+
+  else
+    {
+      delete m_link;
+    }
+}
 
 
 
@@ -70,7 +88,7 @@ operator[](gbstd::string_view  name) noexcept
 
 table&
 table::
-assign(const block&  blk, table&  tbl)
+assign(const block&  blk, processes::process&  proc)
 {
   clear();
 
@@ -78,7 +96,7 @@ assign(const block&  blk, table&  tbl)
 
   cursor  cur(blk);
 
-    if(read_variable(cur,var_ptr,*this))
+    if(read_variable(cur,var_ptr,proc))
     {
       m_variables.emplace_back(var_ptr);
 
@@ -90,7 +108,7 @@ assign(const block&  blk, table&  tbl)
             }
 
 
-            if(!read_variable(cur,var_ptr,*this))
+            if(!read_variable(cur,var_ptr,proc))
             {
               break;
             }

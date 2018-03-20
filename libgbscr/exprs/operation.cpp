@@ -157,7 +157,7 @@ bool  operation::is_conditional() const noexcept{return m_data->kind == operatio
 
 value
 operation::
-evaluate(process*  proc) const
+evaluate(process&  proc) const
 {
   auto&  lo =  m_data->first_operand;
   auto&  ro = m_data->second_operand;

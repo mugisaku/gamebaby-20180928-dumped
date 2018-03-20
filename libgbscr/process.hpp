@@ -40,7 +40,7 @@ process
   };
 
 
-  std::vector<std::unique_ptr<entry>>           m_entry_list;
+  std::vector<std::unique_ptr<entry>>             m_entry_list;
   std::vector<std::unique_ptr<stmts::routine>>  m_routine_list;
 
   table  m_global_table;

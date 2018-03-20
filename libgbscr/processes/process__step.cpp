@@ -19,7 +19,7 @@ step() noexcept
 
         if(cal.eval_it != cal.eval_it_end)
         {
-          operate_stack(cal.operand_stack,*cal.eval_it++,this);
+          operate_stack(cal.operand_stack,*cal.eval_it++,*this);
         }
 
       else
@@ -39,7 +39,7 @@ step() noexcept
 
             for(auto&  o: cal.operand_stack)
             {
-              buf.emplace_back(o.evaluate(this));
+              buf.emplace_back(o.evaluate(*this));
             }
 
 
@@ -68,7 +68,7 @@ step() noexcept
     {
         if(frame.eval_it != frame.eval_it_end)
         {
-          operate_stack(frame.operand_stack,*frame.eval_it++,this);
+          operate_stack(frame.operand_stack,*frame.eval_it++,*this);
         }
 
       else

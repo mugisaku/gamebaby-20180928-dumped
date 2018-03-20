@@ -22,6 +22,11 @@ class routine;
 }
 
 
+namespace processes{
+class process;
+}
+
+
 namespace values{
 
 
@@ -63,20 +68,58 @@ calling
 };
 
 
+struct
+table_link
+{
+  table*  target;
+
+  size_t  count;
+
+  table_link(table&  t) noexcept: target(&t), count(0){}
+
+};
+
+
+class
+table_observer
+{
+  friend class  table;
+
+  table_link*  m_link=nullptr;
+
+  void  unrefer() noexcept;
+
+  table_observer(table_link*  link) noexcept: m_link(link){++m_link->count;}
+
+public:
+  table_observer(const table_observer&   rhs) noexcept{*this = rhs;}
+  table_observer(      table_observer&&  rhs) noexcept{*this = std::move(rhs);}
+ ~table_observer(){unrefer();}
+
+  table_observer&  operator=(const table_observer&   rhs) noexcept;
+  table_observer&  operator=(      table_observer&&  rhs) noexcept;
+
+  operator bool() const noexcept{return m_link->target;}
+
+  table*  operator->() const noexcept{return m_link->target;}
+  table&  operator*() const noexcept{return *m_link->target;}
+
+};
+
+
 class
 table
 {
-  table*  m_parent=nullptr;
-  table*  m_global=nullptr;
-
   std::vector<variable*>  m_variables;
 
+  table_link*  m_link=nullptr;
+
 public:
-  table() noexcept{}
-  table(const block&  blk, table&  tbl){assign(blk,tbl);}
+  table() noexcept: m_link(new table_link(*this)){}
+  table(const block&  blk, processes::process&  proc): m_link(new table_link(*this)){assign(blk,proc);}
   table(const table&   rhs) noexcept{*this = rhs;}
   table(      table&&  rhs) noexcept{*this = std::move(rhs);}
- ~table(){clear();}
+ ~table();
 
   table&  operator=(const table&   rhs) noexcept;
   table&  operator=(      table&&  rhs) noexcept;
@@ -87,14 +130,13 @@ public:
 
   void  clear() noexcept;
 
-  void  carry(table&  dst) noexcept;
+  table_observer  get_observer() const noexcept{return table_observer(m_link);}
 
-  void    set_parent(table*  parent)       noexcept{       m_parent = parent;}
-  table*  get_parent(              ) const noexcept{return m_parent         ;}
+  void  carry(table&  dst) noexcept;
 
   void  set_carry_flag() noexcept;
 
-  table&  assign(const block&  blk, table&  tbl);
+  table&  assign(const block&  blk, processes::process&  proc);
 
   reference  append(const value&  v, gbstd::string_view  name) noexcept;
 
@@ -123,6 +165,7 @@ value
   enum class kind{
     null,
     integer,
+    constant_string,
     string,
     reference,
     routine,
@@ -138,8 +181,10 @@ value
     shared_string    s;
     reference        r;
 
-    stmts::routine*  rt;
-    table*          tbl;
+    const gbstd::string*   cs;
+    const stmts::routine*  rt;
+
+    table_observer  obs;
 
     data(){}
    ~data(){}
@@ -150,20 +195,24 @@ public:
   value() noexcept{}
   value(bool  b) noexcept{*this = b;}
   value(int  i) noexcept{*this = i;}
+  value(const gbstd::string&  s) noexcept{*this = s;}
   value(const shared_string&  s) noexcept{*this = s;}
   value(const reference&  r) noexcept{*this = r;}
-  value(stmts::routine&  rt) noexcept{*this = rt;}
-  value(table&  tbl) noexcept{*this = tbl;}
+  value(const stmts::routine&  rt) noexcept{*this = rt;}
+  value(const table&  tbl) noexcept{*this = tbl;}
+  value(const table_observer&  obs) noexcept{*this = obs;}
   value(const value&   rhs) noexcept{*this = rhs;}
   value(      value&&  rhs) noexcept{*this = std::move(rhs);}
- ~value(){clear();}
+ ~value(){clear();}	
 
   value&  operator=(bool  b) noexcept;
   value&  operator=(int  i) noexcept;
+  value&  operator=(const gbstd::string&  s) noexcept;
   value&  operator=(const shared_string&  s) noexcept;
   value&  operator=(const reference&  r) noexcept;
-  value&  operator=(stmts::routine&  rt) noexcept;
-  value&  operator=(table&  tbl) noexcept;
+  value&  operator=(const stmts::routine&  rt) noexcept;
+  value&  operator=(const table&  tbl) noexcept;
+  value&  operator=(const table_observer&  obs) noexcept;
   value&  operator=(const value&   rhs) noexcept;
   value&  operator=(      value&&  rhs) noexcept;
 
@@ -174,20 +223,21 @@ public:
   bool  is_null()           const noexcept{return m_kind == kind::null;}
   bool  is_reference()      const noexcept{return m_kind == kind::reference;}
   bool  is_integer()        const noexcept{return m_kind == kind::integer;}
+  bool  is_consatant_string() const noexcept{return m_kind == kind::constant_string;}
   bool  is_string()         const noexcept{return m_kind == kind::string;}
   bool  is_routine()        const noexcept{return m_kind == kind::routine;}
   bool  is_table()         const noexcept{return m_kind == kind::table;}
 
   int                    get_integer()        const noexcept{return m_data.i;}
+  const gbstd::string&   get_constant_string() const noexcept{return *m_data.cs;}
   const shared_string&   get_string()         const noexcept{return m_data.s;}
   const reference&       get_reference()      const noexcept{return m_data.r;}
-  const stmts::routine&  get_routine()        const noexcept;
-  table&                   get_table()        const noexcept{return *m_data.tbl;}
+  const stmts::routine&  get_routine()        const noexcept{return *m_data.rt;}
+  const table_observer&  get_table_observer() const noexcept{return m_data.obs;}
 
   int                    convert_to_integer()   const;
   shared_string          convert_to_string()    const;
   const stmts::routine&  convert_to_routine()   const;
-  table&                 convert_to_table()     const;
 
   void  print() const noexcept;
 
@@ -212,7 +262,8 @@ variable
 
   gbstd::string  m_name;
 
-  bool  m_carry_flag=false;
+  bool  m_immutable_flag=false;
+  bool      m_carry_flag=false;
 
   variable() noexcept{}
 
@@ -245,7 +296,7 @@ public:
 };
 
 
-bool  read_variable(cursor&  cur, variable*&  var, table&  tbl);
+bool  read_variable(cursor&  cur, variable*&  var, processes::process&  proc);
 
 
 }

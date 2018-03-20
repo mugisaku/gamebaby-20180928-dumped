@@ -100,18 +100,18 @@ public:
   bool  is_binary() const noexcept;
   bool  is_conditional() const noexcept;
 
-  value  evaluate(process*  proc) const;
+  value  evaluate(process&  proc) const;
 
   void  print() const noexcept;
 
 };
 
 
-void  operate_prefix_unary( operand&  o, operator_word  opw, process*  proc);
-void  operate_postfix_unary(operand&  o, operator_word  opw, process*  proc);
-void  operate_binary(       operand&  lo, operand&  ro, operator_word  opw, process*  proc);
-void  operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc);
-void  operate_stack(operand_stack&  stack, const expr_element&  e, process*  proc);
+void  operate_prefix_unary( operand&  o, operator_word  opw, process&  proc);
+void  operate_postfix_unary(operand&  o, operator_word  opw, process&  proc);
+void  operate_binary(       operand&  lo, operand&  ro, operator_word  opw, process&  proc);
+void  operate_conditional(operand&  o1, operand&  o2, operand&  o3, process&  proc);
+void  operate_stack(operand_stack&  stack, const expr_element&  e, process&  proc);
 
 
 class
@@ -140,7 +140,7 @@ public:
 
   size_t  size() const noexcept;
 
-  value  evaluate(process*  proc) const;
+  value  evaluate(process&  proc) const;
 
   expr_element*  begin() const noexcept;
   expr_element*    end() const noexcept;
@@ -158,9 +158,9 @@ public:
 };
 
 
-expr       make_expr(gbstd::string_view  sv, values::table&  tbl) noexcept;
-expr       make_expr(     cursor&  cur, values::table&  tbl) noexcept;
-expr_list  make_expr_list(cursor&  cur, values::table&  tbl) noexcept;
+expr       make_expr(gbstd::string_view  sv, process&  proc) noexcept;
+expr       make_expr(     cursor&  cur, process&  proc) noexcept;
+expr_list  make_expr_list(cursor&  cur, process&  proc) noexcept;
 
 
 struct
@@ -281,7 +281,7 @@ public:
 
   value*  get_value_pointer() noexcept{return &m_data.v;}
 
-  value  evaluate(process*  proc) const;
+  value  evaluate(process&  proc) const;
 
   void  print() const noexcept;
 
@@ -363,7 +363,7 @@ public:
 };
 
 
-bool  read_operand(cursor&  cur, operand&  o, values::table&  tbl);
+bool  read_operand(cursor&  cur, operand&  o, process&  proc);
 
 
 }

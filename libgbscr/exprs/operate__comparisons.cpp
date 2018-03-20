@@ -7,7 +7,7 @@ namespace comparisons{
 
 
 void
-eq(operand&  lo, operand&  ro, process*  proc)
+eq(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -17,7 +17,7 @@ eq(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-neq(operand&  lo, operand&  ro, process*  proc)
+neq(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -27,7 +27,7 @@ neq(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-lt(operand&  lo, operand&  ro, process*  proc)
+lt(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -37,7 +37,7 @@ lt(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-lteq(operand&  lo, operand&  ro, process*  proc)
+lteq(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -47,7 +47,7 @@ lteq(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-gt(operand&  lo, operand&  ro, process*  proc)
+gt(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -57,7 +57,7 @@ gt(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-gteq(operand&  lo, operand&  ro, process*  proc)
+gteq(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);

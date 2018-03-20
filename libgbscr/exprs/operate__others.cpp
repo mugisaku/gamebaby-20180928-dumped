@@ -9,13 +9,13 @@ namespace others{
 
 
 void
-seq_eval( operand&  lo, operand&  ro, process*  proc)
+seq_eval( operand&  lo, operand&  ro, process&  proc)
 {
 }
 
 
 void
-cond_eval( operand&  lo, operand&  ro, process*  proc)
+cond_eval( operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
 

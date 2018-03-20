@@ -43,14 +43,14 @@ void
 build(const char*  label_base,
       const char*     break_label,
       const char*  continue_label, types::switch_data&  swdat, context&  ctx, cursor&  cur,
-      buffer_type&  buf, table&  tbl) noexcept;
+      buffer_type&  buf, process&  proc) noexcept;
 
 
 void
 build_for(const char*  label_base,
       const char*     break_label,
       const char*  continue_label, types::switch_data&  swdat, context&  ctx, cursor&  cur,
-      buffer_type&  buf, table&  tbl) noexcept
+      buffer_type&  buf, process&  proc) noexcept
 {
   gbstd::tmpstr  co_label_base("FOR%03d",ctx.for_count++);
   gbstd::tmpstr    begin_label("%s_BEGIN"   ,*co_label_base);
@@ -60,7 +60,7 @@ build_for(const char*  label_base,
 
   cursor  para_cur(cur[0].get_block());
 
-  expr  init_expr = make_expr(para_cur,tbl);
+  expr  init_expr = make_expr(para_cur,proc);
 
     if(para_cur->is_punctuations(";"))
     {
@@ -68,7 +68,7 @@ build_for(const char*  label_base,
     }
 
 
-  expr  cond_expr = make_expr(para_cur,tbl);
+  expr  cond_expr = make_expr(para_cur,proc);
 
     if(para_cur->is_punctuations(";"))
     {
@@ -76,7 +76,7 @@ build_for(const char*  label_base,
     }
 
 
-  expr  mod_expr = make_expr(para_cur,tbl);
+  expr  mod_expr = make_expr(para_cur,proc);
 
     if(init_expr)
     {
@@ -95,7 +95,7 @@ build_for(const char*  label_base,
 
   cursor  blk_cur(cur[1].get_block());
 
-  build(*co_label_base,*end_label,*conti_label,swdat,ctx,blk_cur,buf,tbl);
+  build(*co_label_base,*end_label,*conti_label,swdat,ctx,blk_cur,buf,proc);
 
 
   buf.emplace_back(stmt_kind::label,*conti_label);
@@ -113,7 +113,7 @@ void
 build_while(const char*  label_base,
       const char*     break_label,
       const char*  continue_label, types::switch_data&  swdat, context&  ctx, cursor&  cur,
-      buffer_type&  buf, table&  tbl) noexcept
+      buffer_type&  buf, process&  proc) noexcept
 {
   gbstd::tmpstr  co_label_base("WHILE%03d",ctx.while_count++);
   gbstd::tmpstr    begin_label("%s_BEGIN" ,*co_label_base);
@@ -125,13 +125,13 @@ build_while(const char*  label_base,
 
   cursor  expr_cur(cur[0].get_block());
 
-  buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur,tbl));
+  buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur,proc));
   buf.emplace_back(stmt_kind::jump_by_condition,*end_label);
 
 
   cursor  blk_cur(cur[1].get_block());
 
-  build(*co_label_base,*end_label,*begin_label,swdat,ctx,blk_cur,buf,tbl);
+  build(*co_label_base,*end_label,*begin_label,swdat,ctx,blk_cur,buf,proc);
 
 
   buf.emplace_back(stmt_kind::jump ,*begin_label);
@@ -145,7 +145,7 @@ void
 build_if(const char*  label_base,
       const char*     break_label,
       const char*  continue_label, types::switch_data&  swdat, context&  ctx, cursor&  cur,
-      buffer_type&  buf, table&  tbl) noexcept
+      buffer_type&  buf, process&  proc) noexcept
 {
   int  block_number = 0;
 
@@ -156,13 +156,13 @@ build_if(const char*  label_base,
 
   cursor  expr_cur(cur[0].get_block());
 
-  buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur,tbl));
+  buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur,proc));
   buf.emplace_back(stmt_kind::jump_by_condition,*next_label);
 
 
   cursor  blk_cur(cur[1].get_block());
 
-  build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf,tbl);
+  build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf,proc);
 
 
   buf.emplace_back(stmt_kind::jump , *end_label);
@@ -178,7 +178,7 @@ build_if(const char*  label_base,
         {
           blk_cur = cursor(cur[0].get_block());
 
-          build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf,tbl);
+          build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf,proc);
 
           cur += 1;
 
@@ -194,13 +194,13 @@ build_if(const char*  label_base,
 
           expr_cur = cursor(cur[1].get_block());
 
-          buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur,tbl));
+          buf.emplace_back(stmt_kind::evaluate_and_zero,make_expr(expr_cur,proc));
           buf.emplace_back(stmt_kind::jump_by_condition,*next_label);
 
 
           blk_cur = cursor(cur[2].get_block());
 
-          build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf,tbl);
+          build(*co_label_base,break_label,continue_label,swdat,ctx,blk_cur,buf,proc);
 
           buf.emplace_back(stmt_kind::jump , *end_label);
           buf.emplace_back(stmt_kind::label,*next_label);
@@ -218,7 +218,7 @@ void
 build_switch(const char*  label_base,
       const char*     break_label,
       const char*  continue_label, types::switch_data&  swdat, context&  ctx, cursor&  cur,
-      buffer_type&  buf, table&  tbl) noexcept
+      buffer_type&  buf, process&  proc) noexcept
 {
   types::switch_data  new_swdat;
 
@@ -237,10 +237,10 @@ build_switch(const char*  label_base,
 
   buffer_type  tmp_buf;
 
-  build(*co_label_base,*end_label,*begin_label,new_swdat,ctx,blk_cur,tmp_buf,tbl);
+  build(*co_label_base,*end_label,*begin_label,new_swdat,ctx,blk_cur,tmp_buf,proc);
 
 
-  buf.emplace_back(stmt_kind::evaluate_and_save,make_expr(expr_cur,tbl));
+  buf.emplace_back(stmt_kind::evaluate_and_save,make_expr(expr_cur,proc));
 
     for(int  i = 0;  i < new_swdat.case_exprs.size();  ++i)
     {
@@ -278,7 +278,7 @@ void
 build(const char*  label_base,
       const char*     break_label,
       const char*  continue_label, types::switch_data&  swdat, context&  ctx, cursor&  cur,
-      buffer_type&  buf, table&  tbl) noexcept
+      buffer_type&  buf, process&  proc) noexcept
 {
     while(cur)
     {
@@ -292,7 +292,7 @@ build(const char*  label_base,
             {
               ++cur;
 
-              buf.emplace_back(stmt_kind::return_,make_expr(cur,tbl));
+              buf.emplace_back(stmt_kind::return_,make_expr(cur,proc));
             }
 
           else
@@ -300,7 +300,7 @@ build(const char*  label_base,
             {
               ++cur;
 
-              buf.emplace_back(stmt_kind::sleep,make_expr(cur,tbl));
+              buf.emplace_back(stmt_kind::sleep,make_expr(cur,proc));
             }
 
           else
@@ -308,7 +308,7 @@ build(const char*  label_base,
             {
               ++cur;
 
-              buf.emplace_back(stmt_kind::print,make_expr(cur,tbl));
+              buf.emplace_back(stmt_kind::print,make_expr(cur,proc));
             }
 
           else
@@ -319,7 +319,7 @@ build(const char*  label_base,
                 if(cur[0].is_block('(',')') &&
                    cur[1].is_block('{','}'))
                 {
-                  build_while(label_base,break_label,continue_label,swdat,ctx,cur,buf,tbl);
+                  build_while(label_base,break_label,continue_label,swdat,ctx,cur,buf,proc);
                 }
 
               else
@@ -336,7 +336,7 @@ build(const char*  label_base,
                 if(cur[0].is_block('(',')') &&
                    cur[1].is_block('{','}'))
                 {
-                  build_if(label_base,break_label,continue_label,swdat,ctx,cur,buf,tbl);
+                  build_if(label_base,break_label,continue_label,swdat,ctx,cur,buf,proc);
                 }
 
               else
@@ -353,7 +353,7 @@ build(const char*  label_base,
                 if(cur[0].is_block('(',')') &&
                    cur[1].is_block('{','}'))
                 {
-                  build_for(label_base,break_label,continue_label,swdat,ctx,cur,buf,tbl);
+                  build_for(label_base,break_label,continue_label,swdat,ctx,cur,buf,proc);
                 }
 
               else
@@ -370,7 +370,7 @@ build(const char*  label_base,
                 if(cur[0].is_block('(',')') &&
                    cur[1].is_block('{','}'))
                 {
-                  build_switch(label_base,break_label,continue_label,swdat,ctx,cur,buf,tbl);
+                  build_switch(label_base,break_label,continue_label,swdat,ctx,cur,buf,proc);
                 }
 
               else
@@ -391,7 +391,7 @@ build(const char*  label_base,
 
                   cursor  expr_cur(cur->get_block());
 
-                  auto  e = make_expr(expr_cur,tbl);
+                  auto  e = make_expr(expr_cur,proc);
 
                     if(!e)
                     {
@@ -506,7 +506,7 @@ build(const char*  label_base,
 
           else
             {
-              auto  e = make_expr(cur,tbl);
+              auto  e = make_expr(cur,proc);
 
                 if(e)
                 {
@@ -533,17 +533,17 @@ build(const char*  label_base,
 
 
 stmt_list::
-stmt_list(const block&  toktbl, table&  tbl) noexcept
+stmt_list(const block&  tokproc, process&  proc) noexcept
 {
   buffer_type  buf;
 
-  cursor  cur(toktbl);
+  cursor  cur(tokproc);
 
   context  ctx = {0};
 
   types::switch_data  swdat;
 
-  build("","","",swdat,ctx,cur,buf,tbl);
+  build("","","",swdat,ctx,cur,buf,proc);
 
 
   assign(buf.data(),buf.size());

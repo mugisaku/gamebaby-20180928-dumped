@@ -189,7 +189,7 @@ result
 
 
 result
-read(cursor&  cur, maker&  mk, table&  tbl) noexcept
+read(cursor&  cur, maker&  mk, process&  proc) noexcept
 {
   using  oe = operator_egg;
 
@@ -203,7 +203,7 @@ read(cursor&  cur, maker&  mk, table&  tbl) noexcept
 
       operand  o;
 
-        if(read_operand(cur,o,tbl))
+        if(read_operand(cur,o,proc))
         {
           mk.push(std::move(o));
         }
@@ -290,7 +290,7 @@ read(cursor&  cur, maker&  mk, table&  tbl) noexcept
 
               maker  comk;
 
-                if(read(cur,comk,tbl) != result::got_colon)
+                if(read(cur,comk,proc) != result::got_colon)
                 {
                   printf("\'?\'に対応する\':\'が見つからない\n");
 
@@ -304,7 +304,7 @@ read(cursor&  cur, maker&  mk, table&  tbl) noexcept
 
               comk.clear();
 
-                if(read(cur,comk,tbl) == result::got_error)
+                if(read(cur,comk,proc) == result::got_error)
                 {
                   printf("paired_expr作成エラー\n");
 
@@ -350,14 +350,14 @@ read(cursor&  cur, maker&  mk, table&  tbl) noexcept
                   mk.push(oe(binop{operator_word("()")},1));
 
 
-                  auto  els = make_expr_list(cocur,tbl);
+                  auto  els = make_expr_list(cocur,proc);
 
                   mk.push(operand(std::move(els)));
                 }
 
               else
                 {
-                  auto  e = make_expr(cocur,tbl);
+                  auto  e = make_expr(cocur,proc);
 
                   mk.push(operand(std::move(e)));
                 }
@@ -372,7 +372,7 @@ read(cursor&  cur, maker&  mk, table&  tbl) noexcept
                 {
                   mk.push(oe(binop{operator_word("[]")},1));
 
-                  mk.push(operand(make_expr(cocur,tbl)));
+                  mk.push(operand(make_expr(cocur,proc)));
                 }
 
               else
@@ -408,34 +408,20 @@ read(cursor&  cur, maker&  mk, table&  tbl) noexcept
 
 
 expr
-make_expr(gbstd::string_view  sv, table&  tbl) noexcept
+make_expr(gbstd::string_view  sv, process&  proc) noexcept
 {
   stream  s(sv.data());
 
-  std::vector<token>  toks;
+  block  blk(s);
 
-    for(;;)
-    {
-      auto  tok = s.read_token();
+  cursor  cur(blk);
 
-        if(!s)
-        {
-          break;
-        }
-
-
-      toks.emplace_back(std::move(tok));
-    }
-
-
-  cursor  cur(toks.data(),toks.data()+toks.size());
-
-  return make_expr(cur,tbl);
+  return make_expr(cur,proc);
 }
 
 
 expr
-make_expr(cursor&  cur, table&  tbl) noexcept
+make_expr(cursor&  cur, process&  proc) noexcept
 {
   maker  mk;
 
@@ -443,7 +429,7 @@ make_expr(cursor&  cur, table&  tbl) noexcept
     {
       auto  ptr = cur->get_pointer();
 
-        switch(read(cur,mk,tbl))
+        switch(read(cur,mk,proc))
         {
       case(result::got_end):
       case(result::got_semicolon):
@@ -478,7 +464,7 @@ QUIT:
 
 
 expr_list
-make_expr_list(cursor&  cur, table&  tbl) noexcept
+make_expr_list(cursor&  cur, process&  proc) noexcept
 {
   std::vector<expr>  buf;
 
@@ -492,7 +478,7 @@ make_expr_list(cursor&  cur, table&  tbl) noexcept
 
       mk.clear();
 
-        switch(read(cur,mk,tbl))
+        switch(read(cur,mk,proc))
         {
       case(result::got_end):
           e = mk.output();

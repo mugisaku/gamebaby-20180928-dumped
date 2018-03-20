@@ -11,7 +11,7 @@ namespace exprs{
 
 
 bool
-read_operand(cursor&  cur, operand&  o, table&  tbl)
+read_operand(cursor&  cur, operand&  o, process&  proc)
 {
     if(cur->is_binary_integer())
     {
@@ -128,7 +128,7 @@ read_operand(cursor&  cur, operand&  o, table&  tbl)
               auto&   block = cur[2].get_block();
 
 
-              o = value(*new routine(parals,block,tbl));
+              o = value(*new routine(parals,block,proc));
 
               cur += 3;
             }
@@ -144,7 +144,7 @@ read_operand(cursor&  cur, operand&  o, table&  tbl)
         {
             if(cur[1].is_block('{','}'))
             {
-              o = value(*new table(cur[1].get_block(),tbl));
+              o = value(*new table(cur[1].get_block(),proc));
 
               cur += 2;
             }

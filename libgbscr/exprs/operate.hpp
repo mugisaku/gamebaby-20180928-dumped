@@ -14,7 +14,7 @@ namespace exprs{
 
 inline
 reference
-to_reference(operand&  o, process*  proc)
+to_reference(operand&  o, process&  proc)
 {
   auto  v = o.evaluate(proc);
 
@@ -30,7 +30,7 @@ to_reference(operand&  o, process*  proc)
 
 inline
 value
-to_value(const operand&  o, process*  proc)
+to_value(const operand&  o, process&  proc)
 {
   auto  v = o.evaluate(proc);
 
@@ -45,51 +45,51 @@ to_value(const operand&  o, process*  proc)
 
 
 namespace assignments{
-void   st(operand&  lo, operand&  ro, process*  proc);
-void  add(operand&  lo, operand&  ro, process*  proc);
-void  sub(operand&  lo, operand&  ro, process*  proc);
-void  mul(operand&  lo, operand&  ro, process*  proc);
-void  div(operand&  lo, operand&  ro, process*  proc);
-void  rem(operand&  lo, operand&  ro, process*  proc);
-void  and_(operand&  lo, operand&  ro, process*  proc);
-void  or_( operand&  lo, operand&  ro, process*  proc);
-void  xor_(operand&  lo, operand&  ro, process*  proc);
-void  shl( operand&  lo, operand&  ro, process*  proc);
-void  shr( operand&  lo, operand&  ro, process*  proc);
+void   st(operand&  lo, operand&  ro, process&  proc);
+void  add(operand&  lo, operand&  ro, process&  proc);
+void  sub(operand&  lo, operand&  ro, process&  proc);
+void  mul(operand&  lo, operand&  ro, process&  proc);
+void  div(operand&  lo, operand&  ro, process&  proc);
+void  rem(operand&  lo, operand&  ro, process&  proc);
+void  and_(operand&  lo, operand&  ro, process&  proc);
+void  or_( operand&  lo, operand&  ro, process&  proc);
+void  xor_(operand&  lo, operand&  ro, process&  proc);
+void  shl( operand&  lo, operand&  ro, process&  proc);
+void  shr( operand&  lo, operand&  ro, process&  proc);
 }
 namespace arithmetics{
-void  neg(operand&  o, process*  proc);
-void  add(operand&  lo, operand&  ro, process*  proc);
-void  sub(operand&  lo, operand&  ro, process*  proc);
-void  mul(operand&  lo, operand&  ro, process*  proc);
-void  div(operand&  lo, operand&  ro, process*  proc);
-void  rem(operand&  lo, operand&  ro, process*  proc);
+void  neg(operand&  o, process&  proc);
+void  add(operand&  lo, operand&  ro, process&  proc);
+void  sub(operand&  lo, operand&  ro, process&  proc);
+void  mul(operand&  lo, operand&  ro, process&  proc);
+void  div(operand&  lo, operand&  ro, process&  proc);
+void  rem(operand&  lo, operand&  ro, process&  proc);
 }
 namespace comparisons{
-void  eq(  operand&  lo, operand&  ro, process*  proc);
-void  neq( operand&  lo, operand&  ro, process*  proc);
-void  lt(  operand&  lo, operand&  ro, process*  proc);
-void  lteq(operand&  lo, operand&  ro, process*  proc);
-void  gt(  operand&  lo, operand&  ro, process*  proc);
-void  gteq(operand&  lo, operand&  ro, process*  proc);
+void  eq(  operand&  lo, operand&  ro, process&  proc);
+void  neq( operand&  lo, operand&  ro, process&  proc);
+void  lt(  operand&  lo, operand&  ro, process&  proc);
+void  lteq(operand&  lo, operand&  ro, process&  proc);
+void  gt(  operand&  lo, operand&  ro, process&  proc);
+void  gteq(operand&  lo, operand&  ro, process&  proc);
 }
 namespace bitwises{
-void  not_(operand&  o, process*  proc);
-void  and_(operand&  lo, operand&  ro, process*  proc);
-void  or_( operand&  lo, operand&  ro, process*  proc);
-void  xor_(operand&  lo, operand&  ro, process*  proc);
-void  shl( operand&  lo, operand&  ro, process*  proc);
-void  shr( operand&  lo, operand&  ro, process*  proc);
+void  not_(operand&  o, process&  proc);
+void  and_(operand&  lo, operand&  ro, process&  proc);
+void  or_( operand&  lo, operand&  ro, process&  proc);
+void  xor_(operand&  lo, operand&  ro, process&  proc);
+void  shl( operand&  lo, operand&  ro, process&  proc);
+void  shr( operand&  lo, operand&  ro, process&  proc);
 }
 namespace logicals{
-void  not_(operand&  o, process*  proc);
-void  or_( operand&  lo, operand&  ro, process*  proc);
-void  and_(operand&  lo, operand&  ro, process*  proc);
+void  not_(operand&  o, process&  proc);
+void  or_( operand&  lo, operand&  ro, process&  proc);
+void  and_(operand&  lo, operand&  ro, process&  proc);
 }
 namespace accesses{
-void           call(operand&  lo, operand&  ro, process*  proc);
-void  member_access(operand&  lo, operand&  ro, process*  proc);
-void      subscript(operand&  lo, operand&  ro, process*  proc);
+void           call(operand&  lo, operand&  ro, process&  proc);
+void  member_access(operand&  lo, operand&  ro, process&  proc);
+void      subscript(operand&  lo, operand&  ro, process&  proc);
 }
 
 

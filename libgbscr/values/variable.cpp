@@ -21,7 +21,12 @@ set_carry_flag() noexcept
 
         if(v.is_table())
         {
-          v.get_table().set_carry_flag();
+          auto&  obs = v.get_table_observer();
+
+            if(obs)
+            {
+              obs->set_carry_flag();
+            }
         }
     }
 }
@@ -52,7 +57,7 @@ print() const noexcept
 
 
 bool
-read_variable(cursor&  cur, variable*&  var, table&  tbl)
+read_variable(cursor&  cur, variable*&  var, process&  proc)
 {
     if(!cur->is_identifier() &&
        !cur->is_string())
@@ -77,11 +82,11 @@ read_variable(cursor&  cur, variable*&  var, table&  tbl)
 
   operand  o;
 
-    if(read_operand(cur,o,tbl))
+    if(read_operand(cur,o,proc))
     {
       var = variable::create_instance();
 
-      var->set_table(&tbl);
+//      var->set_table(&tbl);
 //      var->set_value(o.evaluate());
       var->set_name(name);
 

@@ -21,6 +21,9 @@ convert_to_integer() const
   case(kind::integer):
       return get_integer();
       break;
+  case(kind::constant_string):
+      return std::strtol(m_data.cs->data(),nullptr,0);
+      break;
   case(kind::string):
       return std::strtol(m_data.s.data(),nullptr,0);
       break;
@@ -58,6 +61,9 @@ convert_to_string() const
 
       return shared_string(buf,n);
       break;
+  case(kind::constant_string):
+      return shared_string(m_data.cs->data(),m_data.cs->size());
+      break;
   case(kind::string):
       return m_data.s;
       break;
@@ -93,33 +99,6 @@ convert_to_routine() const
       break;
   case(kind::routine):
       return *m_data.rt;
-      break;
-  case(kind::table):
-      break;
-  default:;
-    }
-
-
-  throw value_conversion_error{};
-}
-
-
-table&
-value::
-convert_to_table() const
-{
-    switch(m_kind)
-    {
-  case(kind::null):
-      break;
-  case(kind::integer):
-      break;
-  case(kind::string):
-      break;
-  case(kind::reference):
-      return m_data.r->get_value().convert_to_table();
-      break;
-  case(kind::routine):
       break;
   case(kind::table):
       break;

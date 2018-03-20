@@ -40,6 +40,20 @@ operator=(int  i) noexcept
 
 value&
 value::
+operator=(const gbstd::string&  s) noexcept
+{
+  clear();
+
+  m_kind = kind::constant_string;
+
+  m_data.cs = &s;
+
+  return *this;
+}
+
+
+value&
+value::
 operator=(const shared_string&  s) noexcept
 {
   clear();
@@ -68,7 +82,7 @@ operator=(const reference&  r) noexcept
 
 value&
 value::
-operator=(stmts::routine&  rt) noexcept
+operator=(const stmts::routine&  rt) noexcept
 {
   clear();
 
@@ -82,13 +96,27 @@ operator=(stmts::routine&  rt) noexcept
 
 value&
 value::
-operator=(table&  tbl) noexcept
+operator=(const table&  tbl) noexcept
 {
   clear();
 
   m_kind = kind::table;
 
-  m_data.tbl = &tbl;
+  new(&m_data) table_observer(tbl.get_observer());
+
+  return *this;
+}
+
+
+value&
+value::
+operator=(const table_observer&  obs) noexcept
+{
+  clear();
+
+  m_kind = kind::table;
+
+  new(&m_data) table_observer(obs);
 
   return *this;
 }
@@ -109,6 +137,9 @@ operator=(const value&  rhs) noexcept
       case(kind::integer):
           m_data.i = rhs.m_data.i;
           break;
+      case(kind::constant_string):
+          m_data.cs = rhs.m_data.cs;
+          break;
       case(kind::string):
           new(&m_data) shared_string(rhs.m_data.s);
           break;
@@ -116,10 +147,10 @@ operator=(const value&  rhs) noexcept
           new(&m_data) reference(rhs.m_data.r);
           break;
       case(kind::routine):
-          m_data.rt = new routine(*rhs.m_data.rt);
+          m_data.rt = rhs.m_data.rt;
           break;
       case(kind::table):
-          m_data.tbl = new table(*rhs.m_data.tbl);
+          new(&m_data) table_observer(rhs.m_data.obs);
           break;
         }
     }
@@ -144,6 +175,9 @@ operator=(value&&  rhs) noexcept
       case(kind::integer):
           m_data.i = rhs.m_data.i;
           break;
+      case(kind::constant_string):
+          m_data.cs = rhs.m_data.cs;
+          break;
       case(kind::string):
           new(&m_data) shared_string(std::move(rhs.m_data.s));
           break;
@@ -154,7 +188,7 @@ operator=(value&&  rhs) noexcept
           m_data.rt = rhs.m_data.rt;
           break;
       case(kind::table):
-          m_data.tbl = rhs.m_data.tbl;
+          new(&m_data) table_observer(std::move(rhs.m_data.obs));
           break;
         }
     }
@@ -162,6 +196,7 @@ operator=(value&&  rhs) noexcept
 
   return *this;
 }
+
 
 
 
@@ -180,23 +215,14 @@ clear() noexcept
       gbstd::destruct(m_data.r);
       break;
   case(kind::routine):
-      delete m_data.rt;
       break;
   case(kind::table):
-      delete m_data.tbl;
+      gbstd::destruct(m_data.obs);
       break;
     }
 
 
   m_kind = kind::null;
-}
-
-
-const stmts::routine&
-value::
-get_routine() const noexcept
-{
-  return *m_data.rt;
 }
 
 
@@ -213,6 +239,9 @@ print() const noexcept
       break;
   case(kind::integer):
       printf("%d",m_data.i);
+      break;
+  case(kind::constant_string):
+      printf("constant string\"%s\"",m_data.cs->data());
       break;
   case(kind::string):
       printf("shared string\"");

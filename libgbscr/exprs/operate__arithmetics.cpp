@@ -9,7 +9,7 @@ namespace arithmetics{
 
 
 void
-neg(operand&  o, process*  proc)
+neg(operand&  o, process&  proc)
 {
   auto  v = to_value(o,proc);
 
@@ -18,7 +18,7 @@ neg(operand&  o, process*  proc)
 
 
 void
-add(operand&  lo, operand&  ro, process*  proc)
+add(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -28,7 +28,7 @@ add(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-sub(operand&  lo, operand&  ro, process*  proc)
+sub(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -39,7 +39,7 @@ sub(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-mul(operand&  lo, operand&  ro, process*  proc)
+mul(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -49,7 +49,7 @@ mul(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-div(operand&  lo, operand&  ro, process*  proc)
+div(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
@@ -68,7 +68,7 @@ div(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-rem(operand&  lo, operand&  ro, process*  proc)
+rem(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);

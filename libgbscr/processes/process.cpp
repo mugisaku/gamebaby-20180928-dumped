@@ -101,13 +101,13 @@ finish_stmt() noexcept
 
     if(stmt.is_return())
     {
-      return_(stack.size()? stack.top().evaluate(this):value());
+      return_(stack.size()? stack.top().evaluate(*this):value());
     }
 
   else
     if(stmt.is_sleep())
     {
-      m_sleeping_time = (stack.size()? stack.top().evaluate(this).convert_to_integer():0);
+      m_sleeping_time = (stack.size()? stack.top().evaluate(*this).convert_to_integer():0);
 
       m_state = state::sleeping;
     }
@@ -117,7 +117,7 @@ finish_stmt() noexcept
     {
         if(frame.return_value)
         {
-          *frame.return_value = stack.size()? stack.top().evaluate(this):value();
+          *frame.return_value = stack.size()? stack.top().evaluate(*this):value();
         }
 
 
@@ -131,7 +131,7 @@ finish_stmt() noexcept
         {
           printf("PRINT: ");
 
-          stack.top().evaluate(this).print();
+          stack.top().evaluate(*this).print();
 
           printf("\n");
         }
@@ -140,7 +140,7 @@ finish_stmt() noexcept
   else
     if(stack.size())
     {
-      auto  i = stack.top().evaluate(this).convert_to_integer();
+      auto  i = stack.top().evaluate(*this).convert_to_integer();
 
            if(stmt.is_evaluate_and_dump()     ){}
       else if(stmt.is_evaluate_and_save()     ){frame.saved_value =  i;}

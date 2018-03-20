@@ -9,7 +9,7 @@ namespace logicals{
 
 
 void
-not_(operand&  o, process*  proc)
+not_(operand&  o, process&  proc)
 {
   auto  v = to_value(o,proc);
 
@@ -18,7 +18,7 @@ not_(operand&  o, process*  proc)
 
 
 void
-or_( operand&  lo, operand&  ro, process*  proc)
+or_( operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
 
@@ -35,7 +35,7 @@ or_( operand&  lo, operand&  ro, process*  proc)
 
 
 void
-and_(operand&  lo, operand&  ro, process*  proc)
+and_(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
 

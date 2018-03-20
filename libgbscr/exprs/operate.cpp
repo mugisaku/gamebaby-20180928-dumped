@@ -8,9 +8,9 @@ namespace exprs{
 
 
 void
-operate_prefix_unary(operand&  o, operator_word  opw, process*  proc)
+operate_prefix_unary(operand&  o, operator_word  opw, process&  proc)
 {
-  void  (*fn)(operand&  o, process*  proc)=nullptr;
+  void  (*fn)(operand&  o, process&  proc)=nullptr;
 
        if(opw == gbstd::string_view("!")){fn = logicals::not_;}
   else if(opw == gbstd::string_view("~")){fn = bitwises::not_;}
@@ -29,16 +29,16 @@ operate_prefix_unary(operand&  o, operator_word  opw, process*  proc)
 
 
 void
-operate_postfix_unary(operand&  o, operator_word  opw, process*  proc)
+operate_postfix_unary(operand&  o, operator_word  opw, process&  proc)
 {
     if(opw == gbstd::string_view("")){}
 }
 
 
 void
-operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc)
+operate_binary(operand&  lo, operand&  ro, operator_word  opw, process&  proc)
 {
-  void  (*fn)(operand&  lo, operand&  ro, process*  proc)=nullptr;
+  void  (*fn)(operand&  lo, operand&  ro, process&  proc)=nullptr;
 
        if(opw == gbstd::string_view( "||")){fn = logicals::or_;}
   else if(opw == gbstd::string_view( "&&")){fn = logicals::and_;}
@@ -119,7 +119,7 @@ operate_binary(operand&  lo, operand&  ro, operator_word  opw, process*  proc)
 
 
 void
-operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc)
+operate_conditional(operand&  o1, operand&  o2, operand&  o3, process&  proc)
 {
   auto  cond = o1.evaluate(proc).convert_to_integer();
 
@@ -128,7 +128,7 @@ operate_conditional(operand&  o1, operand&  o2, operand&  o3, process*  proc)
 
 
 void
-operate_stack(operand_stack&  stack, const expr_element&  e, process*  proc)
+operate_stack(operand_stack&  stack, const expr_element&  e, process&  proc)
 {
     if(e.is_operand())
     {

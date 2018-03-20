@@ -9,7 +9,7 @@ namespace accesses{
 
 
 void
-call(operand&  lo, operand&  ro, process*  proc)
+call(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_reference(lo,proc)->get_value();
 
@@ -33,12 +33,12 @@ call(operand&  lo, operand&  ro, process*  proc)
 
   lo = value();
 
-  proc->prepare_call(r,ro.get_expression_list(),lo.get_value_pointer());
+  proc.prepare_call(r,ro.get_expression_list(),lo.get_value_pointer());
 }
 
 
 void
-member_access(operand&  lo, operand&  ro, process*  proc)
+member_access(operand&  lo, operand&  ro, process&  proc)
 {
     if(!ro.is_identifier())
     {
@@ -58,12 +58,22 @@ member_access(operand&  lo, operand&  ro, process*  proc)
     }
 
 
-  lo = value(lv.get_table()[ro.get_string().view()]);
+  auto&  obs = lv.get_table_observer();
+
+    if(!obs)
+    {
+      lo = value();
+    }
+
+  else
+    {
+      lo = value((*obs)[ro.get_string().view()]);
+    }
 }
 
 
 void
-subscript(operand&  lo, operand&  ro, process*  proc)
+subscript(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_reference(lo,proc)->get_value();
   auto  rv =     to_value(ro,proc);

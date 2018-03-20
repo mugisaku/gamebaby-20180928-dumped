@@ -11,7 +11,7 @@ namespace assignments{
 
 
 void
-st(operand&  lo, operand&  ro, process*  proc)
+st(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
   auto  rv    = to_value(    ro,proc);
@@ -21,7 +21,7 @@ st(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-add(operand&  lo, operand&  ro, process*  proc)
+add(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -35,7 +35,7 @@ add(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-sub(operand&  lo, operand&  ro, process*  proc)
+sub(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -49,7 +49,7 @@ sub(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-mul(operand&  lo, operand&  ro, process*  proc)
+mul(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -63,7 +63,7 @@ mul(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-div(operand&  lo, operand&  ro, process*  proc)
+div(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -77,7 +77,7 @@ div(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-rem(operand&  lo, operand&  ro, process*  proc)
+rem(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -91,7 +91,7 @@ rem(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-and_(operand&  lo, operand&  ro, process*  proc)
+and_(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -105,7 +105,7 @@ and_(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-or_( operand&  lo, operand&  ro, process*  proc)
+or_( operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -119,7 +119,7 @@ or_( operand&  lo, operand&  ro, process*  proc)
 
 
 void
-xor_(operand&  lo, operand&  ro, process*  proc)
+xor_(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -133,7 +133,7 @@ xor_(operand&  lo, operand&  ro, process*  proc)
 
 
 void
-shl( operand&  lo, operand&  ro, process*  proc)
+shl( operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 
@@ -147,7 +147,7 @@ shl( operand&  lo, operand&  ro, process*  proc)
 
 
 void
-shr( operand&  lo, operand&  ro, process*  proc)
+shr( operand&  lo, operand&  ro, process&  proc)
 {
   auto  lvref = to_reference(lo,proc);
 

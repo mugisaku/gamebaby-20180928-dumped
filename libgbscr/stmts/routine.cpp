@@ -8,7 +8,7 @@ namespace stmts{
 
 
 routine::
-routine(const block&  parals_src, const block&  impl_src, table&  tbl) noexcept
+routine(const block&  parals_src, const block&  impl_src, process&  proc) noexcept
 {
   std::vector<gbstd::string>  buf;
 
@@ -40,7 +40,7 @@ routine(const block&  parals_src, const block&  impl_src, table&  tbl) noexcept
 
   m_parameter_list = parameter_list(buf.data(),buf.size());
 
-  m_stmt_list = stmt_list(impl_src,tbl);
+  m_stmt_list = stmt_list(impl_src,proc);
 }
 
 

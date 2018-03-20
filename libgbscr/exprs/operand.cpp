@@ -284,7 +284,7 @@ clear() noexcept
 
 value
 operand::
-evaluate(process*  proc) const
+evaluate(process&  proc) const
 {
     switch(m_kind)
     {
@@ -298,7 +298,7 @@ evaluate(process*  proc) const
       return value(m_data.s);
       break;
   case(kind::identifier):
-      return proc? proc->get_value(m_data.s.view()):value();
+      return proc.get_value(m_data.s.view());
       break;
   case(kind::expression):
       return m_data.e.evaluate(proc);
