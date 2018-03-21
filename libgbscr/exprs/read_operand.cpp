@@ -144,7 +144,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
         {
             if(cur[1].is_block('{','}'))
             {
-//              o = proc.append_routine(cur[1].get_block(),proc));
+              o = table(cur[1].get_block(),proc);
 
               cur += 2;
             }

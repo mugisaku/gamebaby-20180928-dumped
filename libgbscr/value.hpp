@@ -99,6 +99,8 @@ public:
 
   void  print() const noexcept;
 
+  static table  clone(const table&  src) noexcept;
+
 };
 
 
@@ -210,25 +212,25 @@ public:
 class
 variable
 {
-  const table*  m_table=nullptr;
+  table  m_table;
 
   values::value  m_value;
 
   gbstd::string  m_name;
 
-  variable() noexcept{}
+  variable(const value&  val, gbstd::string_view  name) noexcept:
+  m_value(val),
+  m_name(name){}
 
 public:
-  variable(const variable&   rhs) noexcept=default;
+  variable(const variable&   rhs) noexcept=delete;
   variable(      variable&&  rhs) noexcept=delete;
 
-  variable&  operator=(const variable&   rhs) noexcept=default;
+  variable&  operator=(const variable&   rhs) noexcept=delete;
   variable&  operator=(      variable&&  rhs) noexcept=delete;
 
-  static variable*  create_instance() noexcept{return new variable;}
-
-  void          set_table(const table*  t)       noexcept{       m_table = t;}
-  const table*  get_table(               ) const noexcept{return m_table    ;}
+  void          set_table(const table&  tbl)       noexcept{       m_table = tbl;}
+  const table&  get_table(                 ) const noexcept{return m_table      ;}
 
   void          set_value(const value&  v)       noexcept{       m_value = v;}
   const value&  get_value(               ) const noexcept{return m_value    ;}
@@ -239,6 +241,9 @@ public:
   const gbstd::string&  get_name(                        ) const noexcept{return m_name       ;}
 
   void  print() const noexcept;
+
+  static variable*  create_instance(const value&  val, gbstd::string_view  name) noexcept{return new variable(val,name);}
+  static variable*    copy_instance(const variable&  src) noexcept{return new variable(src.m_value,src.m_name);}
 
 };
 

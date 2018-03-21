@@ -136,7 +136,7 @@ operator=(const value&  rhs) noexcept
           m_data.rt = rhs.m_data.rt;
           break;
       case(kind::table):
-          new(&m_data) table(rhs.m_data.tbl);
+          new(&m_data) table(table::clone(rhs.m_data.tbl));
           break;
         }
     }

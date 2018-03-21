@@ -48,11 +48,7 @@ read_variable(cursor&  cur, variable*&  var, process&  proc)
 
     if(read_operand(cur,o,proc))
     {
-      var = variable::create_instance();
-
-//      var->set_table(&tbl);
-//      var->set_value(o.evaluate());
-      var->set_name(name);
+      var = variable::create_instance(o.evaluate(proc),name);
 
       return true;
     }

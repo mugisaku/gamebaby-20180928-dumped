@@ -14,7 +14,7 @@ private_data
 {
   size_t  count;
 
-  std::vector<variable*>  variables;
+  std::vector<std::unique_ptr<variable>>  variables;
 
 };
 
@@ -81,7 +81,7 @@ reference
 table::
 operator[](gbstd::string_view  name) const noexcept
 {
-    for(auto  ptr: m_data->variables)
+    for(auto&  ptr: m_data->variables)
     {
         if(ptr->get_name() == name)
         {
@@ -90,10 +90,9 @@ operator[](gbstd::string_view  name) const noexcept
     }
 
 
-  auto  var = variable::create_instance();
+  auto  var = variable::create_instance(value(),name);
 
-  var->set_table(this);
-  var->set_name(name);
+  var->set_table(*this);
 
   m_data->variables.emplace_back(var);
 
@@ -119,6 +118,8 @@ assign(const block&  blk, processes::process&  proc)
 
     if(read_variable(cur,var_ptr,proc))
     {
+      var_ptr->set_table(*this);
+
       m_data->variables.emplace_back(var_ptr);
 
         while(cur)
@@ -135,6 +136,8 @@ assign(const block&  blk, processes::process&  proc)
             }
 
 
+          var_ptr->set_table(*this);
+
           m_data->variables.emplace_back(var_ptr);
         }
     }
@@ -144,17 +147,15 @@ assign(const block&  blk, processes::process&  proc)
 }
 
 
-
-
 reference
 table::
 find(gbstd::string_view  name) const noexcept
 {
-    for(auto  ptr: m_data->variables)
+    for(auto&  ptr: m_data->variables)
     {
         if(ptr->get_name() == name)
         {
-          return reference(ptr);
+          return reference(*ptr);
         }
     }
 
@@ -167,12 +168,6 @@ void
 table::
 clear() const noexcept
 {
-    for(auto  ptr: m_data->variables)
-    {
-      delete ptr;
-    }
-
-
   m_data->variables.clear();
 }
 
@@ -181,11 +176,9 @@ reference
 table::
 append(const value&  v, gbstd::string_view  name) const noexcept
 {
-  auto  var = variable::create_instance();
+  auto  var = variable::create_instance(v,name);
 
-  var->set_table(this);
-  var->set_value(v);
-  var->set_name(name);
+  var->set_table(*this);
 
   m_data->variables.emplace_back(var);
 
@@ -197,7 +190,7 @@ void
 table::
 print() const noexcept
 {
-    for(auto  var: m_data->variables)
+    for(auto&  var: m_data->variables)
     {
       var->print();
 
@@ -205,6 +198,34 @@ print() const noexcept
     }
 
 }
+
+
+table
+table::
+clone(const table&  src) noexcept
+{
+  table  new_table;
+
+  new_table.m_data = new private_data;
+
+  new_table.m_data->count = 1;
+
+    if(src.m_data)
+    {
+        for(auto&  var: src.m_data->variables)
+        {
+          auto  new_var = variable::copy_instance(*var);
+
+          new_var->set_table(new_table);
+
+          new_table.m_data->variables.emplace_back(new_var);
+        }
+    }
+
+
+  return std::move(new_table);
+}
+
 
 
 
