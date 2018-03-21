@@ -58,17 +58,7 @@ member_access(operand&  lo, operand&  ro, process&  proc)
     }
 
 
-  auto&  obs = lv.get_table_observer();
-
-    if(!obs)
-    {
-      lo = value();
-    }
-
-  else
-    {
-      lo = value((*obs)[ro.get_string().view()]);
-    }
+  lo = value(lv.get_table()[ro.get_string().view()]);
 }
 
 

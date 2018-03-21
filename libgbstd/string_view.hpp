@@ -11,6 +11,10 @@
 namespace gbstd{
 
 
+template<typename  T> class  basic_string;
+
+
+
 template<typename  T>
 class
 basic_string_view
@@ -37,6 +41,7 @@ basic_string_view
 
 public:
   constexpr basic_string_view() noexcept{}
+            basic_string_view(const basic_string<T>&  s) noexcept{assign(s);}
   constexpr basic_string_view(const T*  s) noexcept{assign(s);}
   constexpr basic_string_view(const T*  s, size_t  l) noexcept{assign(s,l);}
 
@@ -53,15 +58,22 @@ public:
   }
 
 
-  constexpr void  assign(const T*  s) noexcept
+  basic_string_view&  assign(const basic_string<T>&  s) noexcept
   {
-    assign(s,strlen(s));
+    return assign(s.data(),s.size());
   }
 
-  constexpr void  assign(const T*  s, size_t  l) noexcept
+  constexpr basic_string_view&  assign(const T*  s) noexcept
+  {
+    return assign(s,strlen(s));
+  }
+
+  constexpr basic_string_view&  assign(const T*  s, size_t  l) noexcept
   {
     m_pointer= s;
     m_length = l;
+
+    return *this;
   }
 
   constexpr size_t  size() const noexcept{return m_length;}

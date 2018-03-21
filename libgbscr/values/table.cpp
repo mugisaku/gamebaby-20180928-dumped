@@ -8,17 +8,32 @@ namespace values{
 
 
 
+struct
 table::
-~table()
+private_data
 {
-    if(m_link->count)
-    {
-      m_link->target = nullptr;
-    }
+  size_t  count;
 
-  else
+  std::vector<variable*>  variables;
+
+};
+
+
+
+
+void
+table::
+unrefer() noexcept
+{
+    if(m_data)
     {
-      delete m_link;
+        if(!--m_data->count)
+        {
+          delete m_data;
+        }
+
+
+      m_data = nullptr;
     }
 }
 
@@ -31,11 +46,13 @@ operator=(const table&   rhs) noexcept
 {
     if(this != &rhs)
     {
-      clear();
+      unrefer();
 
-        for(auto  ptr: rhs.m_variables)
+      m_data = rhs.m_data;
+
+        if(m_data)
         {
-          m_variables.emplace_back(new variable(*ptr));
+          ++m_data->count;
         }
     }
 
@@ -50,9 +67,9 @@ operator=(table&&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      clear();
+      unrefer();
 
-      std::swap(m_variables,rhs.m_variables);
+      std::swap(m_data,rhs.m_data);
     }
 
 
@@ -62,9 +79,9 @@ operator=(table&&  rhs) noexcept
 
 reference
 table::
-operator[](gbstd::string_view  name) noexcept
+operator[](gbstd::string_view  name) const noexcept
 {
-    for(auto  ptr: m_variables)
+    for(auto  ptr: m_data->variables)
     {
         if(ptr->get_name() == name)
         {
@@ -78,7 +95,7 @@ operator[](gbstd::string_view  name) noexcept
   var->set_table(this);
   var->set_name(name);
 
-  m_variables.emplace_back(var);
+  m_data->variables.emplace_back(var);
 
   return reference(*var);
 }
@@ -90,7 +107,11 @@ table&
 table::
 assign(const block&  blk, processes::process&  proc)
 {
-  clear();
+  unrefer();
+
+  m_data = new private_data;
+
+  m_data->count = 1;
 
   variable*  var_ptr;
 
@@ -98,7 +119,7 @@ assign(const block&  blk, processes::process&  proc)
 
     if(read_variable(cur,var_ptr,proc))
     {
-      m_variables.emplace_back(var_ptr);
+      m_data->variables.emplace_back(var_ptr);
 
         while(cur)
         {
@@ -114,7 +135,7 @@ assign(const block&  blk, processes::process&  proc)
             }
 
 
-          m_variables.emplace_back(var_ptr);
+          m_data->variables.emplace_back(var_ptr);
         }
     }
 
@@ -129,7 +150,7 @@ reference
 table::
 find(gbstd::string_view  name) const noexcept
 {
-    for(auto  ptr: m_variables)
+    for(auto  ptr: m_data->variables)
     {
         if(ptr->get_name() == name)
         {
@@ -144,56 +165,21 @@ find(gbstd::string_view  name) const noexcept
 
 void
 table::
-clear() noexcept
+clear() const noexcept
 {
-    for(auto  ptr: m_variables)
+    for(auto  ptr: m_data->variables)
     {
       delete ptr;
     }
 
 
-  m_variables.clear();
-}
-
-
-void
-table::
-carry(table&  dst) noexcept
-{
-    for(auto  ptr: m_variables)
-    {
-        if(ptr->test_carry_flag())
-        {
-          ptr->unset_carry_flag();
-
-          dst.m_variables.emplace_back(ptr);
-        }
-
-      else
-        {
-          delete ptr;
-        }
-    }
-
-
-  m_variables.clear();
-}
-
-
-void
-table::
-set_carry_flag() noexcept
-{
-    for(auto  ptr: m_variables)
-    {
-      ptr->set_carry_flag();
-    }
+  m_data->variables.clear();
 }
 
 
 reference
 table::
-append(const value&  v, gbstd::string_view  name) noexcept
+append(const value&  v, gbstd::string_view  name) const noexcept
 {
   auto  var = variable::create_instance();
 
@@ -201,7 +187,7 @@ append(const value&  v, gbstd::string_view  name) noexcept
   var->set_value(v);
   var->set_name(name);
 
-  m_variables.emplace_back(var);
+  m_data->variables.emplace_back(var);
 
   return reference(*var);
 }
@@ -211,7 +197,7 @@ void
 table::
 print() const noexcept
 {
-    for(auto  var: m_variables)
+    for(auto  var: m_data->variables)
     {
       var->print();
 

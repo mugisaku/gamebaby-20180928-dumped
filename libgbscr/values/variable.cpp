@@ -10,42 +10,6 @@ namespace values{
 
 void
 variable::
-set_carry_flag() noexcept
-{
-    if(!m_carry_flag)
-    {
-      m_carry_flag = true;
-
-      auto&  v = m_value.is_reference()? m_value.get_reference()->get_value()
-                                       : m_value;
-
-        if(v.is_table())
-        {
-          auto&  obs = v.get_table_observer();
-
-            if(obs)
-            {
-              obs->set_carry_flag();
-            }
-        }
-    }
-}
-
-
-void
-variable::
-unset_carry_flag() noexcept
-{
-  m_table = nullptr;
-
-  m_carry_flag = false;
-
-  m_name = "";
-}
-
-
-void
-variable::
 print() const noexcept
 {
   printf("%s:",m_name.data());

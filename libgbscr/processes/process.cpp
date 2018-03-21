@@ -166,14 +166,6 @@ return_(const value&  v) noexcept
         }
 
 
-        if(v.is_reference())
-        {
-          v.get_reference()->set_carry_flag();
-
-          m_top_frame->table.carry(previous? previous->table:m_global_table);
-        }
-
-
       delete m_top_frame           ;
              m_top_frame = previous;
 
@@ -223,6 +215,28 @@ append_variable(const value&  value, gbstd::string_view  name) noexcept
 }
 
 
+value
+process::
+append_string(gbstd::string_view  sv) noexcept
+{
+  auto  s = new gbstd::string(sv);
+
+  m_string_list.emplace_back(s);
+
+  return value(*s);
+}
+
+
+value
+process::
+append_routine(const block&  parals_blk, const block&  impl_blk) noexcept
+{
+  auto  rt = new routine(parals_blk,impl_blk,*this);
+
+  m_routine_list.emplace_back(rt);
+
+  return value(*rt);
+}
 
 
 void

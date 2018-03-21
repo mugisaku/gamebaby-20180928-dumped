@@ -107,7 +107,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
   else
     if(cur->is_string())
     {
-//      o = operand(cur++->get_string());
+      o = proc.append_string(cur++->get_string());
     }
 
   else
@@ -124,11 +124,11 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
             if(cur[1].is_block('(',')') &&
                cur[2].is_block('{','}'))
             {
-              auto&  parals = cur[1].get_block();
-              auto&   block = cur[2].get_block();
+              auto&  parals_blk = cur[1].get_block();
+              auto&    impl_blk = cur[2].get_block();
 
 
-              o = value(*new routine(parals,block,proc));
+              o = proc.append_routine(parals_blk,impl_blk);
 
               cur += 3;
             }
@@ -144,7 +144,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
         {
             if(cur[1].is_block('{','}'))
             {
-              o = value(*new table(cur[1].get_block(),proc));
+//              o = proc.append_routine(cur[1].get_block(),proc));
 
               cur += 2;
             }

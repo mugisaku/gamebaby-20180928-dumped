@@ -24,7 +24,6 @@ set(SOURCES
   values/value__convert_to.cpp
   values/variable.cpp
   values/table.cpp
-  values/table_observer.cpp
   tokens/token.cpp
   tokens/block.cpp
   tokens/cursor.cpp

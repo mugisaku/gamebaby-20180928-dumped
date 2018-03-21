@@ -102,21 +102,7 @@ operator=(const table&  tbl) noexcept
 
   m_kind = kind::table;
 
-  new(&m_data) table_observer(tbl.get_observer());
-
-  return *this;
-}
-
-
-value&
-value::
-operator=(const table_observer&  obs) noexcept
-{
-  clear();
-
-  m_kind = kind::table;
-
-  new(&m_data) table_observer(obs);
+  new(&m_data) table(tbl);
 
   return *this;
 }
@@ -150,7 +136,7 @@ operator=(const value&  rhs) noexcept
           m_data.rt = rhs.m_data.rt;
           break;
       case(kind::table):
-          new(&m_data) table_observer(rhs.m_data.obs);
+          new(&m_data) table(rhs.m_data.tbl);
           break;
         }
     }
@@ -188,7 +174,7 @@ operator=(value&&  rhs) noexcept
           m_data.rt = rhs.m_data.rt;
           break;
       case(kind::table):
-          new(&m_data) table_observer(std::move(rhs.m_data.obs));
+          new(&m_data) table(std::move(rhs.m_data.tbl));
           break;
         }
     }
@@ -217,7 +203,7 @@ clear() noexcept
   case(kind::routine):
       break;
   case(kind::table):
-      gbstd::destruct(m_data.obs);
+      gbstd::destruct(m_data.tbl);
       break;
     }
 

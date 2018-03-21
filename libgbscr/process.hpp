@@ -42,6 +42,7 @@ process
 
   std::vector<std::unique_ptr<entry>>             m_entry_list;
   std::vector<std::unique_ptr<stmts::routine>>  m_routine_list;
+  std::vector<std::unique_ptr<gbstd::string>>    m_string_list;
 
   table  m_global_table;
 
@@ -83,6 +84,9 @@ public:
   void  call(gbstd::string_view  routine_name, const value_list&  argument_list, value*  return_value=nullptr) noexcept;
 
   bool  append_variable(const value&  value, gbstd::string_view  name) noexcept;
+
+  value  append_string(gbstd::string_view  sv) noexcept;
+  value  append_routine(const block&  parals_blk, const block&  impl_blk) noexcept;
 
   const table&  get_global_table() const noexcept{return m_global_table;}
 

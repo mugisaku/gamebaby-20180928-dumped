@@ -37,7 +37,6 @@ basic_string
 
 public:
   basic_string() noexcept{}
-  explicit basic_string(const T*  s) noexcept{assign(s);}
   basic_string(const T*  s, size_t  l) noexcept{assign(s,l);}
   basic_string(basic_string_view<T>  sv) noexcept{assign(sv);}
   basic_string(const basic_string&   rhs) noexcept{*this = rhs;}
@@ -47,11 +46,6 @@ public:
   basic_string&  operator=(basic_string_view<T>  sv) noexcept
   {
     return assign(sv);
-  }
-
-  basic_string&  operator=(const char*  s) noexcept
-  {
-    return assign(s);
   }
 
   basic_string&  operator=(const basic_string&   rhs) noexcept
@@ -67,13 +61,6 @@ public:
   basic_string&  operator+=(T  c) noexcept
   {
     append(c);
-
-    return *this;
-  }
-
-  basic_string&  operator+=(const T*  s) noexcept
-  {
-    append(s);
 
     return *this;
   }
@@ -123,11 +110,6 @@ public:
     m_capacity = 0;
   }
 
-
-  basic_string&  assign(const T*  s) noexcept
-  {
-    return assign(s,std::strlen(s));
-  }
 
   basic_string&  assign(const T*  s, size_t  l) noexcept
   {
@@ -183,14 +165,6 @@ public:
     *p   = 0;
 
     ++m_length;
-  }
-
-  void  append(const T*  s) noexcept
-  {
-      while(*s)
-      {
-        append(*s++);
-      }
   }
 
   void  append(const T*  s, size_t  l) noexcept
