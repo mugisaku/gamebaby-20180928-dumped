@@ -11,7 +11,7 @@ namespace accesses{
 void
 call(operand&  lo, operand&  ro, process&  proc)
 {
-  auto  lv = to_reference(lo,proc)->get_value();
+  auto  lv = to_reference(lo,proc)->get_operand().evaluate(proc);
 
     if(!lv.is_routine())
     {
@@ -48,7 +48,7 @@ member_access(operand&  lo, operand&  ro, process&  proc)
     }
 
 
-  auto  lv = to_reference(lo,proc)->get_value();
+  auto  lv = to_reference(lo,proc)->get_operand().evaluate(proc);
 
     if(!lv.is_table())
     {
@@ -65,7 +65,7 @@ member_access(operand&  lo, operand&  ro, process&  proc)
 void
 subscript(operand&  lo, operand&  ro, process&  proc)
 {
-  auto  lv = to_reference(lo,proc)->get_value();
+  auto  lv = to_reference(lo,proc)->get_operand().evaluate(proc);
   auto  rv =     to_value(ro,proc);
 
     if(!rv.is_integer() ||

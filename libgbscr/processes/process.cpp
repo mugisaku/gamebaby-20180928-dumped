@@ -49,7 +49,7 @@ clear() noexcept
 
 
   m_entry_list.clear();
-  m_routine_list.clear();
+  m_constant_list.clear();
 
   m_global_table.clear();
 
@@ -212,30 +212,6 @@ append_variable(const value&  value, gbstd::string_view  name) noexcept
   m_global_table.append(value,name);
 
   return true;
-}
-
-
-value
-process::
-append_string(gbstd::string_view  sv) noexcept
-{
-  auto  s = new gbstd::string(sv);
-
-  m_string_list.emplace_back(s);
-
-  return value(*s);
-}
-
-
-value
-process::
-append_routine(const block&  parals_blk, const block&  impl_blk) noexcept
-{
-  auto  rt = new routine(parals_blk,impl_blk,*this);
-
-  m_routine_list.emplace_back(rt);
-
-  return value(*rt);
 }
 
 

@@ -18,6 +18,11 @@ class process;
 }
 
 
+namespace stmts{
+class routine;
+}
+
+
 using processes::process;
 
 
@@ -163,13 +168,15 @@ expr       make_expr(     cursor&  cur, process&  proc) noexcept;
 expr_list  make_expr_list(cursor&  cur, process&  proc) noexcept;
 
 
-struct
+class
 identifier
 {
-  shared_string  s;
+  gbstd::string  m_string;
 
-  const shared_string*  operator->() const noexcept{return &s;}
-  const shared_string&  operator *() const noexcept{return  s;}
+public:
+  identifier(gbstd::string_view  sv) noexcept: m_string(sv){}
+
+  const gbstd::string&  get_string() const noexcept{return m_string;}
 
 };
 
@@ -198,6 +205,8 @@ operand
     boolean_literal,
     integer_literal,
     string_literal,
+    table_literal,
+    routine_literal,
     identifier,
     expression,
     expression_list,
@@ -214,7 +223,11 @@ operand
 
     uint64_t  i;
 
-    shared_string  s;
+    identifier  id;
+
+    const gbstd::string*   sp;
+    const table*           tp;
+    const stmts::routine*  rp;
 
     expr       e;
     expr_list  els;
@@ -234,8 +247,10 @@ public:
   operand() noexcept{}
   operand(bool  b) noexcept{*this = b;}
   operand(uint64_t  i) noexcept{*this = i;}
-  operand(const shared_string&  s) noexcept{*this = s;}
-  operand(const identifier&  id) noexcept{*this = id;}
+  operand(const gbstd::string&  s) noexcept{*this = s;}
+  operand(const stmts::routine&  r) noexcept{*this = r;}
+  operand(const table&  t) noexcept{*this = t;}
+  operand(identifier&&  id) noexcept{*this = std::move(id);}
   operand(const expr&  e) noexcept{*this = e;}
   operand(expr_list&&  els) noexcept{*this = std::move(els);}
   operand(paired_expr&&  pe) noexcept{*this = std::move(pe);}
@@ -247,8 +262,10 @@ public:
 
   operand&  operator=(bool  b) noexcept;
   operand&  operator=(uint64_t  i) noexcept;
-  operand&  operator=(const shared_string&  s) noexcept;
-  operand&  operator=(const identifier&  id) noexcept;
+  operand&  operator=(const gbstd::string&  s) noexcept;
+  operand&  operator=(const stmts::routine&  r) noexcept;
+  operand&  operator=(const table&  t) noexcept;
+  operand&  operator=(identifier&&  id) noexcept;
   operand&  operator=(const expr&  e) noexcept;
   operand&  operator=(expr_list&&  els) noexcept;
   operand&  operator=(paired_expr&&  pe) noexcept;
@@ -263,6 +280,8 @@ public:
   bool  is_boolean_literal()   const noexcept{return m_kind == kind::boolean_literal;}
   bool  is_integer_literal()   const noexcept{return m_kind == kind::integer_literal;}
   bool  is_string_literal()    const noexcept{return m_kind == kind::string_literal;}
+  bool  is_routine_literal()   const noexcept{return m_kind == kind::routine_literal;}
+  bool  is_table_literal()     const noexcept{return m_kind == kind::table_literal;}
   bool  is_identifier()        const noexcept{return m_kind == kind::identifier;}
   bool  is_expression()        const noexcept{return m_kind == kind::expression;}
   bool  is_expression_list()   const noexcept{return m_kind == kind::expression_list;}
@@ -272,7 +291,10 @@ public:
 
   bool                   get_booleanl()          const noexcept{return m_data.b;}
   uint64_t               get_integer()           const noexcept{return m_data.i;}
-  const shared_string&   get_string()            const noexcept{return m_data.s;}
+  const identifier&      get_identifier()        const noexcept{return m_data.id;}
+  const gbstd::string&   get_string()            const noexcept{return *m_data.sp;}
+  const stmts::routine&  get_routine()           const noexcept{return *m_data.rp;}
+  const table&           get_table()             const noexcept{return *m_data.tp;}
   const expr&            get_expression()        const noexcept{return m_data.e;}
   const expr_list&       get_expression_list()   const noexcept{return m_data.els;}
   const paired_expr&     get_paired_expression() const noexcept{return m_data.pe;}
@@ -366,6 +388,52 @@ public:
 bool  read_operand(cursor&  cur, operand&  o, process&  proc);
 
 
+class
+variable
+{
+  table  m_table;
+
+  operand  m_operand;
+
+  gbstd::string  m_name;
+
+  variable(const operand&  o, gbstd::string_view  name) noexcept:
+  m_operand(o),
+  m_name(name){}
+
+  variable(operand&&  o, gbstd::string_view  name) noexcept:
+  m_operand(std::move(o)),
+  m_name(name){}
+
+public:
+  variable(const variable&   rhs) noexcept=delete;
+  variable(      variable&&  rhs) noexcept=delete;
+
+  variable&  operator=(const variable&   rhs) noexcept=delete;
+  variable&  operator=(      variable&&  rhs) noexcept=delete;
+
+  void          set_table(const table&  tbl)       noexcept{       m_table = tbl;}
+  const table&  get_table(                 ) const noexcept{return m_table      ;}
+
+  void            set_operand(const operand&  o)       noexcept{       m_operand = o;}
+  const operand&  get_operand(                 ) const noexcept{return m_operand    ;}
+
+  reference  get_reference() noexcept{return reference(*this);}
+
+  void                  set_name(gbstd::string_view  name)       noexcept{       m_name = name;}
+  const gbstd::string&  get_name(                        ) const noexcept{return m_name       ;}
+
+  void  print() const noexcept;
+
+  static variable*  create_instance(operand&&  o, gbstd::string_view  name) noexcept{return new variable(std::move(o),name);}
+  static variable*    copy_instance(const variable&  src) noexcept{return new variable(src.m_operand,src.m_name);}
+
+};
+
+
+bool  read_variable(cursor&  cur, variable*&  var, processes::process&  proc);
+
+
 }
 
 
@@ -384,6 +452,7 @@ using exprs::operate_postfix_unary;
 using exprs::operate_binary;
 using exprs::operate_conditional;
 using exprs::operate_stack;
+using exprs::variable;
 
 
 }

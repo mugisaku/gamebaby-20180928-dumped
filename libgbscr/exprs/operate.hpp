@@ -36,7 +36,7 @@ to_value(const operand&  o, process&  proc)
 
     while(v.is_reference())
     {
-      v = v.get_reference()->get_value();
+      v = v.get_reference()->get_operand().evaluate(proc);
     }
 
 

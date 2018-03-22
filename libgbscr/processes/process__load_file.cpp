@@ -60,12 +60,9 @@ load_file(const char*  filepath) noexcept
     }
 
 
-//ent->token_table.print();
+  m_global_table.load(ent->block,*this);
 
-  m_global_table.assign(ent->block,*this);
-  m_global_table.print();
-
-//  m_entry_list.emplace_back(std::move(ent));
+  m_entry_list.emplace_back(std::move(ent));
 }
 
 

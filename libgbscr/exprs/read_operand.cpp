@@ -107,7 +107,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
   else
     if(cur->is_string())
     {
-      o = proc.append_string(cur++->get_string());
+      o = cur++->get_string();
     }
 
   else
@@ -127,8 +127,11 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
               auto&  parals_blk = cur[1].get_block();
               auto&    impl_blk = cur[2].get_block();
 
+              auto  c = new constant(routine(parals_blk,impl_blk,proc));
 
-              o = proc.append_routine(parals_blk,impl_blk);
+              proc.append_constant(c);
+
+              o = c->get_routine();
 
               cur += 3;
             }
@@ -157,7 +160,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
 
       else
         {
-          o = identifier{shared_string(s.view())};
+          o = identifier(s.view());
 
           cur += 1;
         }

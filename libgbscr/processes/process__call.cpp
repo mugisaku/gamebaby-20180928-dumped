@@ -76,7 +76,17 @@ call(gbstd::string_view  routine_name, const value_list&  argument_list, value* 
 
   auto  varptr = m_global_table.find(routine_name);
 
-    if(!varptr || !varptr->get_value().is_routine())
+  const routine*  r = nullptr;
+
+    if(varptr)
+    {
+      auto  v = varptr->get_operand().evaluate(*this);
+
+      r = v.is_routine()? &v.get_routine():nullptr;
+    }
+
+
+    if(!r)
     {
       printf("%sというルーチンが見つからない",sc.data());
 
@@ -86,7 +96,7 @@ call(gbstd::string_view  routine_name, const value_list&  argument_list, value* 
     }
 
 
-  call(varptr->get_value().get_routine(),argument_list,return_value);
+  call(*r,argument_list,return_value);
 }
 
 

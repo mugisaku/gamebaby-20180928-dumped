@@ -8,17 +8,51 @@
 #include"libgbscr/list.hpp"
 #include"libgbscr/value.hpp"
 #include"libgbscr/expr.hpp"
+#include"libgbscr/stmt.hpp"
 
 
 namespace gbscr{
-
-
-namespace stmts{
-class routine;
-}
-
-
 namespace processes{
+
+
+
+
+class
+constant
+{
+  enum class kind{
+    null,
+    string,
+    routine,
+    table,
+  } m_kind=kind::null;
+
+
+  union data{
+    gbstd::string  s;
+    routine        r;
+    table          t;
+
+    data(){}
+   ~data(){}
+
+  } m_data;
+
+public:
+  constant(gbstd::string&&  s) noexcept: m_kind(kind::string){new(&m_data) gbstd::string(std::move(s));}
+  constant(routine&&  r) noexcept: m_kind(kind::routine){new(&m_data) routine(std::move(r));}
+  constant(const table&  t) noexcept: m_kind(kind::table){new(&m_data) table(t);}
+ ~constant(){}
+
+  bool  is_string()  const noexcept{return m_kind == kind::string;}
+  bool  is_routine() const noexcept{return m_kind == kind::routine;}
+  bool  is_table()   const noexcept{return m_kind == kind::table;}
+
+  const gbstd::string&  get_string()  const noexcept{return m_data.s;}
+  const routine&        get_routine() const noexcept{return m_data.r;}
+  const table&          get_table()   const noexcept{return m_data.t;}
+
+};
 
 
 class
@@ -40,9 +74,8 @@ process
   };
 
 
-  std::vector<std::unique_ptr<entry>>             m_entry_list;
-  std::vector<std::unique_ptr<stmts::routine>>  m_routine_list;
-  std::vector<std::unique_ptr<gbstd::string>>    m_string_list;
+  std::vector<std::unique_ptr<entry>>        m_entry_list;
+  std::vector<std::unique_ptr<constant>>  m_constant_list;
 
   table  m_global_table;
 
@@ -85,8 +118,7 @@ public:
 
   bool  append_variable(const value&  value, gbstd::string_view  name) noexcept;
 
-  value  append_string(gbstd::string_view  sv) noexcept;
-  value  append_routine(const block&  parals_blk, const block&  impl_blk) noexcept;
+  void  append_constant(constant*  c) noexcept{m_constant_list.emplace_back(c);}
 
   const table&  get_global_table() const noexcept{return m_global_table;}
 
@@ -112,6 +144,7 @@ public:
 }
 
 
+using processes::constant;
 using processes::process;
 
 

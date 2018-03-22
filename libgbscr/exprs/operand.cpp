@@ -39,13 +39,13 @@ operator=(uint64_t  i) noexcept
 
 operand&
 operand::
-operator=(const shared_string&  s) noexcept
+operator=(const gbstd::string&  s) noexcept
 {
   clear();
 
   m_kind = kind::string_literal;
 
-  new(&m_data) shared_string(s);
+  m_data.sp = &s;
 
 
   return *this;
@@ -54,21 +54,53 @@ operator=(const shared_string&  s) noexcept
 
 operand&
 operand::
-operator=(const identifier&  id) noexcept
+operator=(const stmts::routine&  r) noexcept
 {
-    if(id->view() == gbstd::string_view("null"))
+  clear();
+
+  m_kind = kind::routine_literal;
+
+  m_data.rp = &r;
+
+
+  return *this;
+}
+
+
+operand&
+operand::
+operator=(const table&  t) noexcept
+{
+  clear();
+
+  m_kind = kind::table_literal;
+
+  m_data.tp = &t;
+
+
+  return *this;
+}
+
+
+operand&
+operand::
+operator=(identifier&&  id) noexcept
+{
+  gbstd::string_view  sv(id.get_string());
+
+    if(sv == gbstd::string_view("null"))
     {
       *this = value();
     }
 
   else
-    if(id->view() == gbstd::string_view("true"))
+    if(sv == gbstd::string_view("true"))
     {
       *this = true;
     }
 
   else
-    if(id->view() == gbstd::string_view("false"))
+    if(sv == gbstd::string_view("false"))
     {
       *this = false;
     }
@@ -79,7 +111,7 @@ operator=(const identifier&  id) noexcept
 
       m_kind = kind::identifier;
 
-      new(&m_data) shared_string(*id);
+      new(&m_data) identifier(std::move(id));
     }
 
 
@@ -176,8 +208,16 @@ operator=(const operand&  rhs) noexcept
           m_data.i = rhs.m_data.i;
           break;
       case(kind::string_literal):
+          m_data.sp = rhs.m_data.sp;
+          break;
+      case(kind::routine_literal):
+          m_data.rp = rhs.m_data.rp;
+          break;
+      case(kind::table_literal):
+          m_data.tp = rhs.m_data.tp;
+          break;
       case(kind::identifier):
-          new(&m_data) shared_string(rhs.m_data.s);
+          new(&m_data) identifier(rhs.m_data.id);
           break;
       case(kind::expression):
           new(&m_data) expr(rhs.m_data.e);
@@ -221,8 +261,16 @@ operator=(operand&&  rhs) noexcept
           m_data.i = rhs.m_data.i;
           break;
       case(kind::string_literal):
+          m_data.sp = rhs.m_data.sp;
+          break;
+      case(kind::routine_literal):
+          m_data.rp = rhs.m_data.rp;
+          break;
+      case(kind::table_literal):
+          m_data.tp = rhs.m_data.tp;
+          break;
       case(kind::identifier):
-          new(&m_data) shared_string(std::move(rhs.m_data.s));
+          new(&m_data) identifier(std::move(rhs.m_data.id));
           break;
       case(kind::expression):
           new(&m_data) expr(std::move(rhs.m_data.e));
@@ -257,8 +305,9 @@ clear() noexcept
   case(kind::integer_literal):
       break;
   case(kind::string_literal):
+      break;
   case(kind::identifier):
-      gbstd::destruct(m_data.s);
+      gbstd::destruct(m_data.id);
       break;
   case(kind::expression):
       gbstd::destruct(m_data.e);
@@ -294,11 +343,17 @@ evaluate(process&  proc) const
   case(kind::integer_literal):
       return value(static_cast<int>(m_data.i));
       break;
-      case(kind::string_literal):
-      return value(m_data.s);
+  case(kind::string_literal):
+      return value(*m_data.sp);
+      break;
+  case(kind::routine_literal):
+      return value(*m_data.rp);
+      break;
+  case(kind::table_literal):
+      return value(*m_data.tp);
       break;
   case(kind::identifier):
-      return proc.get_value(m_data.s.view());
+      return proc.get_value(m_data.id.get_string());
       break;
   case(kind::expression):
       return m_data.e.evaluate(proc);
@@ -335,12 +390,16 @@ print() const noexcept
       printf("%lu",m_data.i);
       break;
   case(kind::string_literal):
-      printf("\"");
-      m_data.s.print();
-      printf("\"");
+      printf("\"%s\"",m_data.sp->data());
+      break;
+  case(kind::routine_literal):
+      m_data.rp->print();
+      break;
+  case(kind::table_literal):
+      m_data.tp->print();
       break;
   case(kind::identifier):
-      m_data.s.print();
+      printf("%s",m_data.id.get_string().data());
       break;
   case(kind::expression):
       m_data.e.print();

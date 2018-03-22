@@ -1,9 +1,8 @@
-#include"libgbscr/value.hpp"
 #include"libgbscr/expr.hpp"
 
 
 namespace gbscr{
-namespace values{
+namespace exprs{
 
 
 
@@ -14,7 +13,7 @@ print() const noexcept
 {
   printf("%s:",m_name.data());
 
-  m_value.print();
+  m_operand.print();
 }
 
 

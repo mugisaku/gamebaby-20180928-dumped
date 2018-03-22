@@ -1,4 +1,5 @@
 #include"libgbscr/value.hpp"
+#include"libgbscr/expr.hpp"
 #include"libgbscr/process.hpp"
 
 
@@ -104,7 +105,7 @@ operator[](gbstd::string_view  name) const noexcept
 
 table&
 table::
-assign(const block&  blk, processes::process&  proc)
+load(const block&  blk, processes::process&  proc)
 {
   unrefer();
 

@@ -28,7 +28,7 @@ convert_to_integer() const
       return std::strtol(m_data.s.data(),nullptr,0);
       break;
   case(kind::reference):
-      return m_data.r->get_value().convert_to_integer();
+      return m_data.r->get_operand().get_value().convert_to_integer();
       break;
   case(kind::routine):
       return 1;
@@ -68,7 +68,7 @@ convert_to_string() const
       return m_data.s;
       break;
   case(kind::reference):
-      return m_data.r->get_value().convert_to_string();
+      return m_data.r->get_operand().get_value().convert_to_string();
       break;
   case(kind::routine):
       break;
@@ -95,7 +95,7 @@ convert_to_routine() const
   case(kind::string):
       break;
   case(kind::reference):
-      return m_data.r->get_value().convert_to_routine();
+      return m_data.r->get_operand().get_value().convert_to_routine();
       break;
   case(kind::routine):
       return *m_data.rt;

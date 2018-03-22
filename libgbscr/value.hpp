@@ -22,6 +22,12 @@ class routine;
 }
 
 
+namespace exprs{
+class operand;
+class variable;
+}
+
+
 namespace processes{
 class process;
 }
@@ -33,7 +39,6 @@ namespace values{
 
 
 class table;
-class variable;
 class value;
 class method;
 
@@ -41,19 +46,19 @@ class method;
 class
 reference
 {
-  variable*  m_pointer;
+  exprs::variable*  m_pointer;
 
 public:
-  constexpr reference(variable*  var) noexcept: m_pointer( var){}
-  constexpr reference(variable&  var) noexcept: m_pointer(&var){}
+  constexpr reference(exprs::variable*  var) noexcept: m_pointer( var){}
+  constexpr reference(exprs::variable&  var) noexcept: m_pointer(&var){}
 
   constexpr bool  operator==(const reference&  rhs) const noexcept{return m_pointer == rhs.m_pointer;}
   constexpr bool  operator!=(const reference&  rhs) const noexcept{return m_pointer != rhs.m_pointer;}
 
   constexpr  operator bool() const noexcept{return m_pointer;}
 
-  constexpr variable*  operator->() const noexcept{return  m_pointer;}
-  constexpr variable&  operator *() const noexcept{return *m_pointer;}
+  constexpr exprs::variable*  operator->() const noexcept{return  m_pointer;}
+  constexpr exprs::variable&  operator *() const noexcept{return *m_pointer;}
 
 };
 
@@ -79,7 +84,7 @@ table
 
 public:
   table() noexcept{}
-  table(const block&  blk, processes::process&  proc){assign(blk,proc);}
+  table(const block&  blk, processes::process&  proc){load(blk,proc);}
   table(const table&   rhs) noexcept{*this = rhs;}
   table(      table&&  rhs) noexcept{*this = std::move(rhs);}
  ~table(){unrefer();}
@@ -93,7 +98,7 @@ public:
 
   void  clear() const noexcept;
 
-  table&  assign(const block&  blk, processes::process&  proc);
+  table&  load(const block&  blk, processes::process&  proc);
 
   reference  append(const value&  v, gbstd::string_view  name) const noexcept;
 
@@ -125,6 +130,7 @@ value
     null,
     integer,
     constant_string,
+    constant_table,
     string,
     reference,
     routine,
@@ -142,6 +148,7 @@ value
     reference        r;
 
     const gbstd::string*   cs;
+    const table*           ct;
     const stmts::routine*  rt;
 
     data(){}
@@ -209,46 +216,6 @@ public:
 };
 
 
-class
-variable
-{
-  table  m_table;
-
-  values::value  m_value;
-
-  gbstd::string  m_name;
-
-  variable(const value&  val, gbstd::string_view  name) noexcept:
-  m_value(val),
-  m_name(name){}
-
-public:
-  variable(const variable&   rhs) noexcept=delete;
-  variable(      variable&&  rhs) noexcept=delete;
-
-  variable&  operator=(const variable&   rhs) noexcept=delete;
-  variable&  operator=(      variable&&  rhs) noexcept=delete;
-
-  void          set_table(const table&  tbl)       noexcept{       m_table = tbl;}
-  const table&  get_table(                 ) const noexcept{return m_table      ;}
-
-  void          set_value(const value&  v)       noexcept{       m_value = v;}
-  const value&  get_value(               ) const noexcept{return m_value    ;}
-
-  reference  get_reference() noexcept{return reference(*this);}
-
-  void                  set_name(gbstd::string_view  name)       noexcept{       m_name = name;}
-  const gbstd::string&  get_name(                        ) const noexcept{return m_name       ;}
-
-  void  print() const noexcept;
-
-  static variable*  create_instance(const value&  val, gbstd::string_view  name) noexcept{return new variable(val,name);}
-  static variable*    copy_instance(const variable&  src) noexcept{return new variable(src.m_value,src.m_name);}
-
-};
-
-
-bool  read_variable(cursor&  cur, variable*&  var, processes::process&  proc);
 
 
 }
@@ -258,7 +225,6 @@ using values::reference;
 using values::value;
 using values::value_conversion_error;
 using values::value_list;
-using values::variable;
 using values::table;
 using values::calling;
 
