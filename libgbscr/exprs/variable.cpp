@@ -47,7 +47,7 @@ read_variable(cursor&  cur, variable*&  var, process&  proc)
 
     if(read_operand(cur,o,proc))
     {
-      var = variable::create_instance(o.evaluate(proc),name);
+      var = variable::create_instance(std::move(o),name);
 
       return true;
     }

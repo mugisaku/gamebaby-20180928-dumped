@@ -41,6 +41,16 @@ unrefer() noexcept
 
 
 
+table::
+table() noexcept:
+m_data(new private_data)
+{
+  m_data->count = 1;
+}
+
+
+
+
 table&
 table::
 operator=(const table&   rhs) noexcept
@@ -91,7 +101,7 @@ operator[](gbstd::string_view  name) const noexcept
     }
 
 
-  auto  var = variable::create_instance(value(),name);
+  auto  var = variable::create_instance(operand(),name);
 
   var->set_table(*this);
 

@@ -11,79 +11,6 @@ namespace exprs{
 
 operand&
 operand::
-operator=(bool  b) noexcept
-{
-  clear();
-
-  m_kind = kind::boolean_literal;
-
-  m_data.b = b;
-
-  return *this;
-}
-
-
-operand&
-operand::
-operator=(uint64_t  i) noexcept
-{
-  clear();
-
-  m_kind = kind::integer_literal;
-
-  m_data.i = i;
-
-  return *this;
-}
-
-
-operand&
-operand::
-operator=(const gbstd::string&  s) noexcept
-{
-  clear();
-
-  m_kind = kind::string_literal;
-
-  m_data.sp = &s;
-
-
-  return *this;
-}
-
-
-operand&
-operand::
-operator=(const stmts::routine&  r) noexcept
-{
-  clear();
-
-  m_kind = kind::routine_literal;
-
-  m_data.rp = &r;
-
-
-  return *this;
-}
-
-
-operand&
-operand::
-operator=(const table&  t) noexcept
-{
-  clear();
-
-  m_kind = kind::table_literal;
-
-  m_data.tp = &t;
-
-
-  return *this;
-}
-
-
-operand&
-operand::
 operator=(identifier&&  id) noexcept
 {
   gbstd::string_view  sv(id.get_string());
@@ -201,21 +128,6 @@ operator=(const operand&  rhs) noexcept
 
         switch(m_kind)
         {
-      case(kind::boolean_literal):
-          m_data.b = rhs.m_data.b;
-          break;
-      case(kind::integer_literal):
-          m_data.i = rhs.m_data.i;
-          break;
-      case(kind::string_literal):
-          m_data.sp = rhs.m_data.sp;
-          break;
-      case(kind::routine_literal):
-          m_data.rp = rhs.m_data.rp;
-          break;
-      case(kind::table_literal):
-          m_data.tp = rhs.m_data.tp;
-          break;
       case(kind::identifier):
           new(&m_data) identifier(rhs.m_data.id);
           break;
@@ -254,21 +166,6 @@ operator=(operand&&  rhs) noexcept
 
         switch(m_kind)
         {
-      case(kind::boolean_literal):
-          m_data.b = rhs.m_data.b;
-          break;
-      case(kind::integer_literal):
-          m_data.i = rhs.m_data.i;
-          break;
-      case(kind::string_literal):
-          m_data.sp = rhs.m_data.sp;
-          break;
-      case(kind::routine_literal):
-          m_data.rp = rhs.m_data.rp;
-          break;
-      case(kind::table_literal):
-          m_data.tp = rhs.m_data.tp;
-          break;
       case(kind::identifier):
           new(&m_data) identifier(std::move(rhs.m_data.id));
           break;
@@ -302,10 +199,6 @@ clear() noexcept
 {
     switch(m_kind)
     {
-  case(kind::integer_literal):
-      break;
-  case(kind::string_literal):
-      break;
   case(kind::identifier):
       gbstd::destruct(m_data.id);
       break;
@@ -327,7 +220,9 @@ clear() noexcept
     }
 
 
-  m_kind = kind::null;
+  new(&m_data) value();
+
+  m_kind = kind::value;
 }
 
 
@@ -337,21 +232,6 @@ evaluate(process&  proc) const
 {
     switch(m_kind)
     {
-  case(kind::boolean_literal):
-      return value(m_data.b);
-      break;
-  case(kind::integer_literal):
-      return value(static_cast<int>(m_data.i));
-      break;
-  case(kind::string_literal):
-      return value(*m_data.sp);
-      break;
-  case(kind::routine_literal):
-      return value(*m_data.rp);
-      break;
-  case(kind::table_literal):
-      return value(*m_data.tp);
-      break;
   case(kind::identifier):
       return proc.get_value(m_data.id.get_string());
       break;
@@ -383,21 +263,6 @@ print() const noexcept
 {
     switch(m_kind)
     {
-  case(kind::boolean_literal):
-      printf("%s",m_data.b? "true":"false");
-      break;
-  case(kind::integer_literal):
-      printf("%lu",m_data.i);
-      break;
-  case(kind::string_literal):
-      printf("\"%s\"",m_data.sp->data());
-      break;
-  case(kind::routine_literal):
-      m_data.rp->print();
-      break;
-  case(kind::table_literal):
-      m_data.tp->print();
-      break;
   case(kind::identifier):
       printf("%s",m_data.id.get_string().data());
       break;

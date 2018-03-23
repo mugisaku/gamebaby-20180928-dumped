@@ -10,33 +10,87 @@ namespace values{
 
 
 
+bool
+value::
+convert_to_boolean() const
+{
+    if(is_boolean())
+    {
+      return get_boolean();
+    }
+
+  else
+    if(is_integer())
+    {
+      return get_integer();
+    }
+
+  else
+    if(is_string())
+    {
+      return std::strtol(get_string().data(),nullptr,0);
+    }
+
+  else
+    if(is_reference())
+    {
+      return get_reference()->get_operand().get_value().convert_to_boolean();
+    }
+
+  else
+    if(is_routine())
+    {
+      return 1;
+    }
+
+  else
+    if(is_table())
+    {
+      return 1;
+    }
+
+
+  throw value_conversion_error{};
+}
+
+
 int
 value::
 convert_to_integer() const
 {
-    switch(m_kind)
+    if(is_boolean())
     {
-  case(kind::null):
-      break;
-  case(kind::integer):
+      return get_boolean()? 1:0;
+    }
+
+  else
+    if(is_integer())
+    {
       return get_integer();
-      break;
-  case(kind::constant_string):
-      return std::strtol(m_data.cs->data(),nullptr,0);
-      break;
-  case(kind::string):
-      return std::strtol(m_data.s.data(),nullptr,0);
-      break;
-  case(kind::reference):
-      return m_data.r->get_operand().get_value().convert_to_integer();
-      break;
-  case(kind::routine):
+    }
+
+  else
+    if(is_string())
+    {
+      return std::strtol(get_string().data(),nullptr,0);
+    }
+
+  else
+    if(is_reference())
+    {
+      return get_reference()->get_operand().get_value().convert_to_integer();
+    }
+
+  else
+    if(is_routine())
+    {
       return 1;
-      break;
-  case(kind::table):
+    }
+
+  else
+    if(is_table())
+    {
       return 1;
-      break;
-  default:;
     }
 
 
@@ -52,29 +106,38 @@ convert_to_string() const
 
   int  n;
 
-    switch(m_kind)
+    if(is_boolean())
     {
-  case(kind::null):
-      break;
-  case(kind::integer):
-      n = snprintf(buf,sizeof(buf),"%d",m_data.i);
+    }
+
+  else
+    if(is_integer())
+    {
+      n = snprintf(buf,sizeof(buf),"%d",get_integer());
 
       return shared_string(buf,n);
-      break;
-  case(kind::constant_string):
-      return shared_string(m_data.cs->data(),m_data.cs->size());
-      break;
-  case(kind::string):
-      return m_data.s;
-      break;
-  case(kind::reference):
-      return m_data.r->get_operand().get_value().convert_to_string();
-      break;
-  case(kind::routine):
-      break;
-  case(kind::table):
-      break;
-  default:;
+    }
+
+  else
+    if(is_string())
+    {
+      return shared_string(get_string());
+    }
+
+  else
+    if(is_reference())
+    {
+      return get_reference()->get_operand().get_value().convert_to_string();
+    }
+
+  else
+    if(is_routine())
+    {
+    }
+
+  else
+    if(is_table())
+    {
     }
 
 
@@ -86,23 +149,35 @@ const stmts::routine&
 value::
 convert_to_routine() const
 {
-    switch(m_kind)
+    if(is_boolean())
     {
-  case(kind::null):
-      break;
-  case(kind::integer):
-      break;
-  case(kind::string):
-      break;
-  case(kind::reference):
-      return m_data.r->get_operand().get_value().convert_to_routine();
-      break;
-  case(kind::routine):
-      return *m_data.rt;
-      break;
-  case(kind::table):
-      break;
-  default:;
+    }
+
+  else
+    if(is_integer())
+    {
+    }
+
+  else
+    if(is_string())
+    {
+    }
+
+  else
+    if(is_reference())
+    {
+      return get_reference()->get_operand().get_value().convert_to_routine();
+    }
+
+  else
+    if(is_routine())
+    {
+      return get_routine();
+    }
+
+  else
+    if(is_table())
+    {
     }
 
 

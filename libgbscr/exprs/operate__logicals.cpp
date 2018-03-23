@@ -13,7 +13,7 @@ not_(operand&  o, process&  proc)
 {
   auto  v = to_value(o,proc);
 
-  o = value(!v.convert_to_integer());
+  o = value(!v.convert_to_boolean());
 }
 
 
@@ -22,7 +22,7 @@ or_( operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
 
-    if(lv.convert_to_integer())
+    if(lv.convert_to_boolean())
     {
       lo = value(true);
     }
@@ -30,7 +30,7 @@ or_( operand&  lo, operand&  ro, process&  proc)
 
   auto  rv = to_value(ro,proc);
 
-  lo = value(rv.convert_to_integer());
+  lo = value(rv.convert_to_boolean());
 }
 
 
@@ -39,7 +39,7 @@ and_(operand&  lo, operand&  ro, process&  proc)
 {
   auto  lv = to_value(lo,proc);
 
-    if(!lv.convert_to_integer())
+    if(!lv.convert_to_boolean())
     {
       lo = value(false);
     }
@@ -47,7 +47,7 @@ and_(operand&  lo, operand&  ro, process&  proc)
 
   auto  rv = to_value(ro,proc);
 
-  lo = value(rv.convert_to_integer());
+  lo = value(rv.convert_to_boolean());
 }
 
 

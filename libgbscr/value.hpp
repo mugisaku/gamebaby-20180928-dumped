@@ -83,7 +83,7 @@ table
   void  unrefer() noexcept;
 
 public:
-  table() noexcept{}
+  table() noexcept;
   table(const block&  blk, processes::process&  proc){load(blk,proc);}
   table(const table&   rhs) noexcept{*this = rhs;}
   table(      table&&  rhs) noexcept{*this = std::move(rhs);}
@@ -126,78 +126,55 @@ value_conversion_error
 class
 value
 {
-  enum class kind{
-    null,
-    integer,
-    constant_string,
-    constant_table,
-    string,
-    reference,
-    routine,
-    table,
-    calling,
-    user_data,
-    host_function,
+  struct private_data;
 
-  } m_kind=kind::null;
+  private_data*  m_data=nullptr;
 
-  union data{
-    int              i;
-    shared_string    s;
-    table          tbl;
-    reference        r;
+  static private_data*  pop() noexcept;
+  static void           push(private_data*  data) noexcept;
 
-    const gbstd::string*   cs;
-    const table*           ct;
-    const stmts::routine*  rt;
-
-    data(){}
-   ~data(){}
-
-  } m_data;
+  void  unrefer() noexcept;
+  void  unrefer_if_not_unique() noexcept;
 
 public:
-  value() noexcept{}
+  value() noexcept;
   value(bool  b) noexcept{*this = b;}
   value(int  i) noexcept{*this = i;}
-  value(const gbstd::string&  s) noexcept{*this = s;}
-  value(const shared_string&  s) noexcept{*this = s;}
+  value(gbstd::string&&  s) noexcept{*this = std::move(s);}
   value(const reference&  r) noexcept{*this = r;}
-  value(const stmts::routine&  rt) noexcept{*this = rt;}
-  value(const table&  tbl) noexcept{*this = tbl;}
+  value(stmts::routine&&  rt) noexcept{*this = std::move(rt);}
+  value(table&&  tbl) noexcept{*this = std::move(tbl);}
   value(const value&   rhs) noexcept{*this = rhs;}
   value(      value&&  rhs) noexcept{*this = std::move(rhs);}
- ~value(){clear();}	
+ ~value(){unrefer();}	
 
   value&  operator=(bool  b) noexcept;
   value&  operator=(int  i) noexcept;
-  value&  operator=(const gbstd::string&  s) noexcept;
-  value&  operator=(const shared_string&  s) noexcept;
+  value&  operator=(gbstd::string&&  s) noexcept;
   value&  operator=(const reference&  r) noexcept;
-  value&  operator=(const stmts::routine&  rt) noexcept;
-  value&  operator=(const table&  tbl) noexcept;
+  value&  operator=(stmts::routine&&  rt) noexcept;
+  value&  operator=(table&&  tbl) noexcept;
   value&  operator=(const value&   rhs) noexcept;
   value&  operator=(      value&&  rhs) noexcept;
 
-  operator bool() const noexcept{return m_kind != kind::null;}
+  operator bool() const noexcept;
 
-  void  clear() noexcept;
+  bool  is_null()      const noexcept;
+  bool  is_boolean()   const noexcept;
+  bool  is_reference() const noexcept;
+  bool  is_integer()   const noexcept;
+  bool  is_string()    const noexcept;
+  bool  is_routine()   const noexcept;
+  bool  is_table()     const noexcept;
 
-  bool  is_null()           const noexcept{return m_kind == kind::null;}
-  bool  is_reference()      const noexcept{return m_kind == kind::reference;}
-  bool  is_integer()        const noexcept{return m_kind == kind::integer;}
-  bool  is_consatant_string() const noexcept{return m_kind == kind::constant_string;}
-  bool  is_string()         const noexcept{return m_kind == kind::string;}
-  bool  is_routine()        const noexcept{return m_kind == kind::routine;}
-  bool  is_table()         const noexcept{return m_kind == kind::table;}
+  bool                   get_boolean()   const noexcept;
+  int                    get_integer()   const noexcept;
+  const gbstd::string&   get_string()    const noexcept;
+  const reference&       get_reference() const noexcept;
+  const stmts::routine&  get_routine()   const noexcept;
+  const table&           get_table()     const noexcept;
 
-  int                    get_integer()        const noexcept{return m_data.i;}
-  const gbstd::string&   get_constant_string() const noexcept{return *m_data.cs;}
-  const shared_string&   get_string()         const noexcept{return m_data.s;}
-  const reference&       get_reference()      const noexcept{return m_data.r;}
-  const stmts::routine&  get_routine()        const noexcept{return *m_data.rt;}
-  const table&           get_table()          const noexcept{return m_data.tbl;}
-
+  bool                   convert_to_boolean()   const;
   int                    convert_to_integer()   const;
   shared_string          convert_to_string()    const;
   const stmts::routine&  convert_to_routine()   const;

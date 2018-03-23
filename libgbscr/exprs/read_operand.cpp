@@ -26,7 +26,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
         }
 
 
-      o = operand(i);
+      o = value(static_cast<int>(i));
     }
 
   else
@@ -43,7 +43,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
         }
 
 
-      o = operand(i);
+      o = value(static_cast<int>(i));
     }
 
   else
@@ -60,7 +60,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
         }
 
 
-      o = operand(i);
+      o = value(static_cast<int>(i));
     }
 
   else
@@ -101,13 +101,13 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
         }
 
 
-      o = operand(i);
+      o = value(static_cast<int>(i));
     }
 
   else
     if(cur->is_string())
     {
-      o = cur++->get_string();
+      o = value(gbstd::string(cur++->get_string()));
     }
 
   else
@@ -127,11 +127,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
               auto&  parals_blk = cur[1].get_block();
               auto&    impl_blk = cur[2].get_block();
 
-              auto  c = new constant(routine(parals_blk,impl_blk,proc));
-
-              proc.append_constant(c);
-
-              o = c->get_routine();
+              o = value(routine(parals_blk,impl_blk,proc));
 
               cur += 3;
             }
@@ -147,7 +143,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
         {
             if(cur[1].is_block('{','}'))
             {
-              o = table(cur[1].get_block(),proc);
+              o = value(table(cur[1].get_block(),proc));
 
               cur += 2;
             }

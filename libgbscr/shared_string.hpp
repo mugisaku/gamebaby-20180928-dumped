@@ -22,7 +22,7 @@ shared_string
   void  unrefer() noexcept;
 
 public:
-  shared_string() noexcept{}
+  shared_string() noexcept;
   shared_string(const char*  s, size_t  l) noexcept{assign(gbstd::string_view(s,l));}
   shared_string(gbstd::string_view  sv) noexcept{assign(gbstd::string(sv));}
   shared_string(gbstd::string&&  s) noexcept{assign(std::move(s));}

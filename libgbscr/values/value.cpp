@@ -10,15 +10,107 @@ namespace values{
 
 
 
+class
+value::
+private_data
+{
+public:
+  size_t  m_count=1;
+
+  enum class kind{
+    null,
+    boolean,
+    integer,
+    string,
+    reference,
+    routine,
+    table,
+
+  } m_kind=kind::null;
+
+
+  union data{
+    bool             b;
+    int              i;
+    table          tbl;
+    reference      ref;
+
+    gbstd::string   s;
+    stmts::routine  r;
+
+    data(){}
+   ~data(){}
+
+  } m_data;
+
+
+  void  clear() noexcept
+  {
+      switch(m_kind)
+      {
+    case(kind::string):
+        gbstd::destruct(m_data.s);
+        break;
+    case(kind::reference):
+        gbstd::destruct(m_data.ref);
+        break;
+    case(kind::routine):
+        gbstd::destruct(m_data.r);
+        break;
+    case(kind::table):
+        gbstd::destruct(m_data.tbl);
+        break;
+      }
+
+
+    m_kind = kind::null;
+  }
+
+};
+
+
+value::private_data*
+value::
+pop() noexcept
+{
+  auto  ptr =  new private_data;
+
+  ptr->m_count = 1;
+
+  return ptr;
+}
+
+
+void
+value::
+push(private_data*  data) noexcept
+{
+  data->clear();
+
+  delete data;
+}
+
+
+
+
+value::
+value() noexcept:
+m_data(pop())
+{
+}
+
+
+
+
 value&
 value::
 operator=(bool  b) noexcept
 {
-  clear();
+  unrefer_if_not_unique();
 
-  m_kind = kind::integer;
+  m_data->m_kind = private_data::kind::boolean;
 
-  m_data.i = b? 1:0;
+  m_data->m_data.b = b;
 
   return *this;
 }
@@ -28,25 +120,11 @@ value&
 value::
 operator=(int  i) noexcept
 {
-  clear();
+  unrefer_if_not_unique();
 
-  m_kind = kind::integer;
+  m_data->m_kind = private_data::kind::integer;
 
-  m_data.i = i;
-
-  return *this;
-}
-
-
-value&
-value::
-operator=(const gbstd::string&  s) noexcept
-{
-  clear();
-
-  m_kind = kind::constant_string;
-
-  m_data.cs = &s;
+  m_data->m_data.i = i;
 
   return *this;
 }
@@ -54,13 +132,13 @@ operator=(const gbstd::string&  s) noexcept
 
 value&
 value::
-operator=(const shared_string&  s) noexcept
+operator=(gbstd::string&&  s) noexcept
 {
-  clear();
+  unrefer_if_not_unique();
 
-  m_kind = kind::string;
+  m_data->m_kind = private_data::kind::string;
 
-  new(&m_data) shared_string(s);
+  new(&m_data->m_data) gbstd::string(std::move(s));
 
   return *this;
 }
@@ -70,25 +148,11 @@ value&
 value::
 operator=(const reference&  r) noexcept
 {
-  clear();
+  unrefer_if_not_unique();
 
-  m_kind = kind::reference;
+  m_data->m_kind = private_data::kind::reference;
 
-  new(&m_data) reference(r);
-
-  return *this;
-}
-
-
-value&
-value::
-operator=(const stmts::routine&  rt) noexcept
-{
-  clear();
-
-  m_kind = kind::routine;
-
-  m_data.rt = &rt;
+  new(&m_data->m_data) reference(r);
 
   return *this;
 }
@@ -96,13 +160,27 @@ operator=(const stmts::routine&  rt) noexcept
 
 value&
 value::
-operator=(const table&  tbl) noexcept
+operator=(stmts::routine&&  rt) noexcept
 {
-  clear();
+  unrefer_if_not_unique();
 
-  m_kind = kind::table;
+  m_data->m_kind = private_data::kind::routine;
 
-  new(&m_data) table(tbl);
+  new(&m_data->m_data) stmts::routine(std::move(rt));
+
+  return *this;
+}
+
+
+value&
+value::
+operator=(table&&  tbl) noexcept
+{
+  unrefer_if_not_unique();
+
+  m_data->m_kind = private_data::kind::table;
+
+  new(&m_data->m_data) table(std::move(tbl));
 
   return *this;
 }
@@ -114,30 +192,13 @@ operator=(const value&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      clear();
+      unrefer();
 
-      m_kind = rhs.m_kind;
+      m_data = rhs.m_data;
 
-        switch(m_kind)
+        if(m_data)
         {
-      case(kind::integer):
-          m_data.i = rhs.m_data.i;
-          break;
-      case(kind::constant_string):
-          m_data.cs = rhs.m_data.cs;
-          break;
-      case(kind::string):
-          new(&m_data) shared_string(rhs.m_data.s);
-          break;
-      case(kind::reference):
-          new(&m_data) reference(rhs.m_data.r);
-          break;
-      case(kind::routine):
-          m_data.rt = rhs.m_data.rt;
-          break;
-      case(kind::table):
-          new(&m_data) table(table::clone(rhs.m_data.tbl));
-          break;
+          ++m_data->m_count;
         }
     }
 
@@ -152,31 +213,9 @@ operator=(value&&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      clear();
+      unrefer();
 
-      std::swap(m_kind,rhs.m_kind);
-
-        switch(m_kind)
-        {
-      case(kind::integer):
-          m_data.i = rhs.m_data.i;
-          break;
-      case(kind::constant_string):
-          m_data.cs = rhs.m_data.cs;
-          break;
-      case(kind::string):
-          new(&m_data) shared_string(std::move(rhs.m_data.s));
-          break;
-      case(kind::reference):
-          new(&m_data) reference(std::move(rhs.m_data.r));
-          break;
-      case(kind::routine):
-          m_data.rt = rhs.m_data.rt;
-          break;
-      case(kind::table):
-          new(&m_data) table(std::move(rhs.m_data.tbl));
-          break;
-        }
+      std::swap(m_data,rhs.m_data);
     }
 
 
@@ -184,31 +223,10 @@ operator=(value&&  rhs) noexcept
 }
 
 
-
-
-void
 value::
-clear() noexcept
+operator bool() const noexcept
 {
-    switch(m_kind)
-    {
-  case(kind::integer):
-      break;
-  case(kind::string):
-      gbstd::destruct(m_data.s);
-      break;
-  case(kind::reference):
-      gbstd::destruct(m_data.r);
-      break;
-  case(kind::routine):
-      break;
-  case(kind::table):
-      gbstd::destruct(m_data.tbl);
-      break;
-    }
-
-
-  m_kind = kind::null;
+  return m_data->m_kind != private_data::kind::null;
 }
 
 
@@ -216,35 +234,94 @@ clear() noexcept
 
 void
 value::
+unrefer() noexcept
+{
+    if(m_data)
+    {
+        if(!--m_data->m_count)
+        {
+          push(m_data);
+        }
+
+
+      m_data = nullptr;
+    }
+}
+
+
+void
+value::
+unrefer_if_not_unique() noexcept
+{
+    if(m_data)
+    {
+        if(m_data->m_count == 1)
+        {
+          m_data->clear();
+        }
+
+      else
+        {
+          --m_data->m_count;
+
+          m_data = pop();
+        }
+    }
+
+  else
+    {
+      m_data = pop();
+    }
+}
+
+
+
+bool  value::is_null()      const noexcept{return m_data->m_kind == private_data::kind::null;}
+bool  value::is_boolean()   const noexcept{return m_data->m_kind == private_data::kind::boolean;}
+bool  value::is_reference() const noexcept{return m_data->m_kind == private_data::kind::reference;}
+bool  value::is_integer()   const noexcept{return m_data->m_kind == private_data::kind::integer;}
+bool  value::is_string()    const noexcept{return m_data->m_kind == private_data::kind::string;}
+bool  value::is_routine()   const noexcept{return m_data->m_kind == private_data::kind::routine;}
+bool  value::is_table()     const noexcept{return m_data->m_kind == private_data::kind::table;}
+
+bool                   value::get_boolean()   const noexcept{return m_data->m_data.b;}
+int                    value::get_integer()   const noexcept{return m_data->m_data.i;}
+const gbstd::string&   value::get_string()    const noexcept{return m_data->m_data.s;}
+const reference&       value::get_reference() const noexcept{return m_data->m_data.ref;}
+const stmts::routine&  value::get_routine()   const noexcept{return m_data->m_data.r;}
+const table&           value::get_table()     const noexcept{return m_data->m_data.tbl;}
+
+
+void
+value::
 print() const noexcept
 {
-    switch(m_kind)
+    switch(m_data->m_kind)
     {
-  case(kind::null):
+  case(private_data::kind::null):
       printf("null");
       break;
-  case(kind::integer):
-      printf("%d",m_data.i);
+  case(private_data::kind::boolean):
+      printf("%s",m_data->m_data.b? "true":"false");
       break;
-  case(kind::constant_string):
-      printf("constant string\"%s\"",m_data.cs->data());
+  case(private_data::kind::integer):
+      printf("%d",m_data->m_data.i);
       break;
-  case(kind::string):
-      printf("shared string\"");
-      m_data.s.print();
-      printf("\"");
+  case(private_data::kind::string):
+      printf("\"%s\"",m_data->m_data.s.data());
       break;
-  case(kind::reference):
+  case(private_data::kind::reference):
       printf("reference ");
 
-      m_data.r->print();
+      m_data->m_data.ref->print();
       break;
-  case(kind::routine):
+  case(private_data::kind::routine):
       printf("routine");
-      m_data.rt->print();
+      m_data->m_data.r.print();
       break;
-  case(kind::table):
+  case(private_data::kind::table):
       printf("table");
+      m_data->m_data.tbl.print();
       break;
   default:
       printf("unknown value kind\n");

@@ -26,6 +26,16 @@ private_data
 
 
 
+shared_string::
+shared_string() noexcept:
+m_data(new private_data)
+{
+  m_data->reference_count = 1;
+}
+
+
+
+
 void
 shared_string::
 unrefer() noexcept

@@ -58,7 +58,7 @@ member_access(operand&  lo, operand&  ro, process&  proc)
     }
 
 
-  lo = value(lv.get_table()[ro.get_string().view()]);
+  lo = value(lv.get_table()[ro.get_identifier().get_string()]);
 }
 
 

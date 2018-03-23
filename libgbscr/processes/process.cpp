@@ -49,7 +49,6 @@ clear() noexcept
 
 
   m_entry_list.clear();
-  m_constant_list.clear();
 
   m_global_table.clear();
 
@@ -219,9 +218,11 @@ void
 process::
 print() const noexcept
 {
+  printf("global table{\n");
+
   m_global_table.print();
 
-  printf("\n");
+  printf("\n}\n");
 }
 
 
