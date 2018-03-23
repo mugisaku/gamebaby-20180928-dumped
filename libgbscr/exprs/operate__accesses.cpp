@@ -68,13 +68,17 @@ subscript(operand&  lo, operand&  ro, process&  proc)
   auto  lv = to_reference(lo,proc)->get_operand().evaluate(proc);
   auto  rv =     to_value(ro,proc);
 
-    if(!rv.is_integer() ||
-       !rv.is_string())
+    if(!rv.is_string())
     {
       printf("subscript error: keyがない\n");
 
+      rv.print();
+
       throw operation_error{};
     }
+
+
+  lo = value(lv.get_table()[rv.get_string()]);
 }
 
 

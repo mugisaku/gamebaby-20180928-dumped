@@ -28,7 +28,12 @@ convert_to_boolean() const
   else
     if(is_string())
     {
-      return std::strtol(get_string().data(),nullptr,0);
+      gbstd::string_view  sv(get_string());
+
+      return (sv == gbstd::string_view( "true"))?  true
+            :(sv == gbstd::string_view("false"))? false
+            :(sv == gbstd::string_view(    "0"))? false
+            :true;
     }
 
   else
@@ -108,6 +113,7 @@ convert_to_string() const
 
     if(is_boolean())
     {
+      return shared_string(get_boolean()? "true":"false");
     }
 
   else

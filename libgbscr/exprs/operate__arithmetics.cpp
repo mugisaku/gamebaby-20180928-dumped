@@ -23,7 +23,27 @@ add(operand&  lo, operand&  ro, process&  proc)
   auto  lv = to_value(lo,proc);
   auto  rv = to_value(ro,proc);
 
-  lo = value(lv.convert_to_integer()+rv.convert_to_integer());
+    if(lv.is_integer())
+    {
+      lo = value(lv.get_integer()+rv.convert_to_integer());
+    }
+
+  else
+    if(lv.is_string())
+    {
+      gbstd::string  s(lv.get_string());
+
+      auto  rs = rv.convert_to_string();
+
+      s.append(rs.view());
+
+      lo = value(std::move(s));
+    }
+
+  else
+    {
+      lo = value();
+    }
 }
 
 
