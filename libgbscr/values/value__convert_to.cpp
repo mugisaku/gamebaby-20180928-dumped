@@ -1,5 +1,6 @@
 #include"libgbscr/value.hpp"
 #include"libgbscr/stmt.hpp"
+#include"libgbscr/table.hpp"
 #include"libgbstd/utility.hpp"
 #include<cstdlib>
 

@@ -356,52 +356,6 @@ public:
 bool  read_operand(cursor&  cur, operand&  o, process&  proc);
 
 
-class
-variable
-{
-  table  m_table;
-
-  operand  m_operand;
-
-  gbstd::string  m_name;
-
-  variable(const operand&  o, gbstd::string_view  name) noexcept:
-  m_operand(o),
-  m_name(name){}
-
-  variable(operand&&  o, gbstd::string_view  name) noexcept:
-  m_operand(std::move(o)),
-  m_name(name){}
-
-public:
-  variable(const variable&   rhs) noexcept=delete;
-  variable(      variable&&  rhs) noexcept=delete;
-
-  variable&  operator=(const variable&   rhs) noexcept=delete;
-  variable&  operator=(      variable&&  rhs) noexcept=delete;
-
-  void          set_table(const table&  tbl)       noexcept{       m_table = tbl;}
-  const table&  get_table(                 ) const noexcept{return m_table      ;}
-
-  void            set_operand(const operand&  o)       noexcept{       m_operand = o;}
-  const operand&  get_operand(                 ) const noexcept{return m_operand    ;}
-
-  reference  get_reference() noexcept{return reference(*this);}
-
-  void                  set_name(gbstd::string_view  name)       noexcept{       m_name = name;}
-  const gbstd::string&  get_name(                        ) const noexcept{return m_name       ;}
-
-  void  print() const noexcept;
-
-  static variable*  create_instance(operand&&  o, gbstd::string_view  name) noexcept{return new variable(std::move(o),name);}
-  static variable*    copy_instance(const variable&  src) noexcept{return new variable(src.m_operand,src.m_name);}
-
-};
-
-
-bool  read_variable(cursor&  cur, variable*&  var, processes::process&  proc);
-
-
 }
 
 
@@ -420,7 +374,6 @@ using exprs::operate_postfix_unary;
 using exprs::operate_binary;
 using exprs::operate_conditional;
 using exprs::operate_stack;
-using exprs::variable;
 
 
 }

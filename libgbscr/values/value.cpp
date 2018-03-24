@@ -1,5 +1,6 @@
 #include"libgbscr/value.hpp"
 #include"libgbscr/stmt.hpp"
+#include"libgbscr/table.hpp"
 #include"libgbstd/utility.hpp"
 #include<new>
 
@@ -66,14 +67,34 @@ public:
     m_kind = kind::null;
   }
 
+
+  private_data*  m_next;
+
 };
+
+
+value::private_data*
+value::
+stock;
 
 
 value::private_data*
 value::
 pop() noexcept
 {
-  auto  ptr =  new private_data;
+  private_data*  ptr;
+
+    if(stock)
+    {
+      ptr = stock              ;
+            stock = ptr->m_next;
+    }
+
+  else
+    {
+      ptr = new private_data;
+    }
+
 
   ptr->m_count = 1;
 
@@ -83,11 +104,12 @@ pop() noexcept
 
 void
 value::
-push(private_data*  data) noexcept
+push(private_data*  ptr) noexcept
 {
-  data->clear();
+  ptr->clear();
 
-  delete data;
+  ptr->m_next = stock      ;
+                stock = ptr;
 }
 
 
@@ -289,7 +311,7 @@ int                    value::get_integer()   const noexcept{return m_data->m_da
 const gbstd::string&   value::get_string()    const noexcept{return m_data->m_data.s;}
 const reference&       value::get_reference() const noexcept{return m_data->m_data.ref;}
 const stmts::routine&  value::get_routine()   const noexcept{return m_data->m_data.r;}
-const table&           value::get_table()     const noexcept{return m_data->m_data.tbl;}
+table&                 value::get_table()     const noexcept{return m_data->m_data.tbl;}
 
 
 void

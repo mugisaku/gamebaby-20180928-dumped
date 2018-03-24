@@ -9,6 +9,7 @@
 #include"libgbscr/value.hpp"
 #include"libgbscr/expr.hpp"
 #include"libgbscr/stmt.hpp"
+#include"libgbscr/table.hpp"
 
 
 namespace gbscr{
@@ -26,18 +27,6 @@ process
 
   size_t  m_number_of_frames=0;
 
-
-  struct entry{
-    gbstd::string  file_path;
-    gbstd::string  file_content;
-
-    tokens::block  block;
-
-  };
-
-
-  std::vector<std::unique_ptr<entry>>  m_entry_list;
-
   table  m_global_table;
 
   uint32_t  m_sleeping_time=0;
@@ -50,8 +39,6 @@ process
 
   } m_state=state::not_ready;
 
-
-  static std::unique_ptr<entry>  create_entry(const char*  filepath) noexcept;
 
   void  finish_stmt() noexcept;
 
@@ -68,7 +55,9 @@ public:
   process&  operator=(const process&   rhs) noexcept=delete;
   process&  operator=(      process&&  rhs) noexcept=delete;
 
-  void  load_file(const char*  filepath) noexcept;
+  void  load_from_file(const char*  filepath) noexcept;
+  void  load_from_file(FILE*  f) noexcept;
+  void  load_from_string(gbstd::string_view  sv) noexcept;
 
   void  clear() noexcept;
 

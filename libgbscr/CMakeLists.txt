@@ -17,13 +17,13 @@ set(SOURCES
   exprs/operate__accesses.cpp
   exprs/operation.cpp
   exprs/operand.cpp
-  exprs/variable.cpp
   stmts/stmt.cpp
   stmts/stmt_list.cpp
   stmts/routine.cpp
   values/value.cpp
   values/value__convert_to.cpp
-  values/table.cpp
+  tables/variable.cpp
+  tables/table.cpp
   tokens/token.cpp
   tokens/block.cpp
   tokens/cursor.cpp

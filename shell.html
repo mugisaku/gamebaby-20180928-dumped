@@ -68,7 +68,7 @@
       <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
       -->
     </div>
-    <!--textarea class="emscripten" id="output" rows="4"></textarea-->
+    <textarea class="emscripten" id="output" rows="4"></textarea>
 <!--
 操作はキーボードを使って行います<p>
 使用するキーには、概ね以下のような役割を持たせています<p>
@@ -84,6 +84,8 @@
 <tr><td>地形生成プログラム。マウスでクリックすると、隆起</td></tr>
 <tr><td height="20"> </td></tr>
 <tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby/blob/master/landriser_sdl.cpp">こちら</a></td></tr>
+<tr><td><textarea>xxx</textarea></td></tr>
+<tr><td><button type="button" onclick="callback()">実行</button></td></tr>
 </table>
 </td>
 </tr>
@@ -165,6 +167,15 @@
           if (text) Module.printErr('[post-exception status] ' + text);
         };
       };
+
+
+function
+callback()
+{
+  Module.ccall("fn","number",["string"],["ai"]);
+}
+
+
     </script>
     {{{ SCRIPT }}}
   </body>

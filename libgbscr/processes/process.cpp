@@ -48,8 +48,6 @@ clear() noexcept
     }
 
 
-  m_entry_list.clear();
-
   m_global_table.clear();
 
   m_top_frame = nullptr;

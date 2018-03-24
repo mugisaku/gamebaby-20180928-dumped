@@ -7,62 +7,57 @@ namespace processes{
 
 
 
-std::unique_ptr<process::entry>
+void
 process::
-create_entry(const char*  filepath) noexcept
+load_from_file(const char*  filepath) noexcept
 {
   auto  f = fopen(filepath,"rb");
 
     if(f)
     {
-      auto  ent = new entry;
-
-      ent->file_path.assign(filepath);
-
-        for(;;)
-        {
-          auto  c = fgetc(f);
-
-            if(feof(f) || ferror(f))
-            {
-              break;
-            }
-
-
-          ent->file_content += c;
-        }
-
+      load_from_file(f);
 
       fclose(f);
-
-
-      stream  s(ent->file_content.data());
-
-      ent->block = tokens::block(s);
-
-      return std::unique_ptr<entry>(ent);
     }
-
-
-  return nullptr;
 }
 
 
 void
 process::
-load_file(const char*  filepath) noexcept
+load_from_file(FILE*  f) noexcept
 {
-  auto  ent = create_entry(filepath);
+  gbstd::string  s;
 
-    if(!ent)
+    for(;;)
     {
-      return;
+      auto  c = fgetc(f);
+
+        if(feof(f) || ferror(f))
+        {
+          break;
+        }
+
+
+      s.append(c);
     }
 
 
-  m_global_table.load(ent->block,*this);
+  load_from_string(s);
+}
 
-  m_entry_list.emplace_back(std::move(ent));
+
+void
+process::
+load_from_string(gbstd::string_view  sv) noexcept
+{
+  clear();
+
+
+  stream  s(sv.data());
+
+  tokens::block  blk(s);
+
+  m_global_table.load(blk,*this);
 }
 
 

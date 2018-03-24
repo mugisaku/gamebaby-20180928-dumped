@@ -5,6 +5,7 @@
 #include"libgbscr/process.hpp"
 #include"libgbscr/expr.hpp"
 #include"libgbscr/stmt.hpp"
+#include"libgbscr/table.hpp"
 #include"libgbscr/stream.hpp"
 
 
@@ -48,7 +49,7 @@ frame
   const stmt*  current;
   const stmt*      end;
 
-  values::table  table;
+  tables::table  table;
 
   int  saved_value;
 
