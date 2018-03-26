@@ -56,7 +56,7 @@ read_operand(cursor&  cur, operand&  o, process&  proc)
         for(auto  c: s)
         {
           i *=    10;
-          i |= c-'0';
+          i += c-'0';
         }
 
 

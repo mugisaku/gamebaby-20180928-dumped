@@ -25,6 +25,18 @@ point
   y(y_){}
 
 
+  constexpr bool  operator==(point const&  rhs) const noexcept
+  {
+    return(x == rhs.x) &&
+          (y == rhs.y);
+  }
+
+  constexpr bool  operator!=(point const&  rhs) const noexcept
+  {
+    return(x != rhs.x) ||
+          (y != rhs.y);
+  }
+
   constexpr point  operator+(point const&  rhs) const noexcept
   {
     return point(x+rhs.x,y+rhs.y);

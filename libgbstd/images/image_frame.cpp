@@ -11,25 +11,7 @@ namespace images{
 
 void
 image_frame::
-set_offset(int  x, int  y) noexcept
-{
-  m_x_offset = x;
-  m_y_offset = y;
-}
-
-
-void
-image_frame::
-add_offset(int  x, int  y) noexcept
-{
-  m_x_offset += x;
-  m_y_offset += y;
-}
-
-
-void
-image_frame::
-fill(pixel  pix) noexcept
+fill(pixel  pix) const noexcept
 {
     for(int  y = 0;  y < m_height;  ++y){
     for(int  x = 0;  x <  m_width;  ++x){
@@ -50,7 +32,7 @@ clamp(int  n) noexcept
 
 void
 image_frame::
-add(int  r, int  g, int  b) noexcept
+add(int  r, int  g, int  b) const noexcept
 {
     for(int  y = 0;  y < m_height;  ++y){
     for(int  x = 0;  x <  m_width;  ++x){
@@ -70,7 +52,7 @@ add(int  r, int  g, int  b) noexcept
 
 void
 image_frame::
-reverse_color() noexcept
+reverse_color() const noexcept
 {
     for(int  y = 0;  y < m_height;  ++y){
     for(int  x = 0;  x <  m_width;  ++x){

@@ -55,16 +55,16 @@ public:
   static constexpr uint32_t   mouse_lbutton_flag = 0x100;
   static constexpr uint32_t   mouse_rbutton_flag = 0x200;
 
-  bool       is_up_button_pressing() const noexcept{return test(    up_button_flag);}
-  bool     is_left_button_pressing() const noexcept{return test(  left_button_flag);}
-  bool    is_right_button_pressing() const noexcept{return test( right_button_flag);}
-  bool     is_down_button_pressing() const noexcept{return test(  down_button_flag);}
-  bool        is_p_button_pressing() const noexcept{return test(     p_button_flag);}
-  bool        is_n_button_pressing() const noexcept{return test(     n_button_flag);}
-  bool    is_start_button_pressing() const noexcept{return test( start_button_flag);}
-  bool    is_shift_button_pressing() const noexcept{return test( shift_button_flag);}
-  bool   is_mouse_lbutton_pressing() const noexcept{return test(mouse_lbutton_flag);}
-  bool   is_mouse_rbutton_pressing() const noexcept{return test(mouse_rbutton_flag);}
+  bool       is_up_button_pressed() const noexcept{return test(    up_button_flag);}
+  bool     is_left_button_pressed() const noexcept{return test(  left_button_flag);}
+  bool    is_right_button_pressed() const noexcept{return test( right_button_flag);}
+  bool     is_down_button_pressed() const noexcept{return test(  down_button_flag);}
+  bool        is_p_button_pressed() const noexcept{return test(     p_button_flag);}
+  bool        is_n_button_pressed() const noexcept{return test(     n_button_flag);}
+  bool    is_start_button_pressed() const noexcept{return test( start_button_flag);}
+  bool    is_shift_button_pressed() const noexcept{return test( shift_button_flag);}
+  bool   is_mouse_lbutton_pressed() const noexcept{return test(mouse_lbutton_flag);}
+  bool   is_mouse_rbutton_pressed() const noexcept{return test(mouse_rbutton_flag);}
 
 
 };

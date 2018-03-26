@@ -57,7 +57,7 @@
 <tr>
 <td>
     <div class="emscripten_border">
-      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+      <canvas class="emscripten" width="32" height="32" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
 </td>
 <td>
@@ -68,7 +68,6 @@
       <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
       -->
     </div>
-    <textarea class="emscripten" id="output" rows="4"></textarea>
 <!--
 操作はキーボードを使って行います<p>
 使用するキーには、概ね以下のような役割を持たせています<p>
@@ -81,11 +80,31 @@
 <tr><td>SHIFTキー: 切り替え</td></tr>
 <tr><td>SPACEキー: 強い決定</td></tr>
 -->
-<tr><td>地形生成プログラム。マウスでクリックすると、隆起</td></tr>
-<tr><td height="20"> </td></tr>
-<tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby/blob/master/landriser_sdl.cpp">こちら</a></td></tr>
-<tr><td><textarea>xxx</textarea></td></tr>
-<tr><td><button type="button" onclick="callback()">実行</button></td></tr>
+<tr><td><textarea id="user_input" cols="80" rows="16">
+t:table{a:0,b:2}
+
+add:routine(x,y)
+{
+  return x+y;
+}
+
+main:routine()
+{
+  t.a = "x";
+
+    for(n = 0;  n < 8;  n = add(n,1))
+    {
+      print n;
+
+      t["a"] += n;
+    }
+
+
+  print t["a"];
+}
+</textarea></td><td><button type="button" onclick="callback()">実行</button></td></tr>
+<tr><td><textarea class="emscripten" id="output" cols="80" rows="8"></textarea></td></tr>
+<tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby/tree/master/libgbscr">こちら</a></td></tr>
 </table>
 </td>
 </tr>
@@ -172,7 +191,12 @@
 function
 callback()
 {
-  Module.ccall("fn","number",["string"],["ai"]);
+  var  ui = document.getElementById("user_input");
+  var   o = document.getElementById("output");
+
+  o.value = "";
+
+  Module.ccall("fn","number",["string"],[ui.value]);
 }
 
 

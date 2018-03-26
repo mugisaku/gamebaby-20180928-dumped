@@ -5,6 +5,7 @@ set(SOURCES
   riff_subchunk_view.cpp
   wave.cpp
   images/image.cpp
+  images/image_cursor.cpp
   images/image_frame.cpp
   images/image__png.cpp
   images/image__draw.cpp
@@ -16,7 +17,9 @@ set(SOURCES
   texts/text_buffer.cpp
   texts/text_roll.cpp
   texts/text_roll_iterator.cpp
-  widget.cpp
+  widgets/widget.cpp
+  widgets/container.cpp
+  widgets/root.cpp
   unicode.cpp
   environment.cpp
   random_number.cpp

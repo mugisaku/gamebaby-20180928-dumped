@@ -72,7 +72,7 @@ table
 
 public:
   table() noexcept{}
-  table(const table&   rhs) noexcept=default;
+  table(const table&   rhs)         =default;
   table(      table&&  rhs) noexcept=default;
   table(const block&  blk, processes::process&  proc){load(blk,proc);}
  ~table(){clear();}
