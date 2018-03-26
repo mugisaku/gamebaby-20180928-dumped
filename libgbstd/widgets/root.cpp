@@ -8,7 +8,7 @@ namespace widgets{
 
 
 
-void
+bool
 root::
 react(image&  img) noexcept
 {
@@ -79,7 +79,12 @@ react(image&  img) noexcept
       container::redraw(img);
 
       unset_flag(flags::needed_to_redraw);
+
+      return true;
     }
+
+
+  return false;
 }
 
 

@@ -192,9 +192,9 @@ public:
 
   void  draw_line(pixel  pix, int  x0, int  y0, int  x1, int  y1) const noexcept{m_image->draw_line(pix,get_x(x0),get_y(y0),get_x(x1),get_y(y1));}
 
-  void  draw_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle(pix,get_x(x),get_y(y),w,h);}
-  void  draw_rectangle_safely(pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle(pix,get_x(x),get_y(y),w,h);}
-  void  fill_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle(pix,get_x(x),get_y(y),w,h);}
+  void  draw_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle(       pix,get_x(x),get_y(y),w,h);}
+  void  draw_rectangle_safely(pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle_safely(pix,get_x(x),get_y(y),w,h);}
+  void  fill_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->fill_rectangle(       pix,get_x(x),get_y(y),w,h);}
 
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_character(c,style,get_x(x),get_y(y));}
   void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_text(sv,style,get_x(x),get_y(y));}

@@ -20,6 +20,8 @@ set(SOURCES
   widgets/widget.cpp
   widgets/container.cpp
   widgets/root.cpp
+  widgets/label.cpp
+  widgets/button.cpp
   unicode.cpp
   environment.cpp
   random_number.cpp

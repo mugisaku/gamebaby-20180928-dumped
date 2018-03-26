@@ -4,7 +4,7 @@
 
 #include"libgbstd/image.hpp"
 #include"libgbstd/controller.hpp"
-#include<memory>
+#include"libgbstd/string.hpp"
 
 
 namespace gbstd{
@@ -58,6 +58,10 @@ protected:
 
   const style*  m_current_style=nullptr;
 
+  void*  m_userdata=nullptr;
+
+  void  (*m_deleter)(void*  ptr)=nullptr;
+
   widget*  m_previous=nullptr;
   widget*  m_next    =nullptr;
 
@@ -74,7 +78,7 @@ public:
   widget(int  w=1, int  h=1) noexcept: m_width(w), m_height(h){}
   widget(const widget&   rhs) noexcept=delete;
   widget(      widget&&  rhs) noexcept=delete;
-  virtual ~widget(){}
+  virtual ~widget();
 
   widget&  operator=(const widget&   rhs) noexcept=delete;
   widget&  operator=(      widget&&  rhs) noexcept=delete;
@@ -89,6 +93,15 @@ public:
 
   void  need_to_redraw() noexcept;
   void  need_to_reform() noexcept;
+
+  void*  get_userdata() const noexcept{return m_userdata;}
+
+  template<typename  T>  void  set_userdata(T*  ptr,  void  (*deleter)(T*  ptr)) noexcept
+  {
+    m_userdata =     ptr;
+    m_deleter  = deleter;
+  }
+
 
   bool  test_by_point(int  x, int  y) const noexcept;
 
@@ -163,12 +176,59 @@ public:
   root() noexcept{}
  ~root(){}
 
-  void  react(image&  img) noexcept;
+  bool  react(image&  img) noexcept;
 
 };
 
 
-}}
+
+
+class
+label: public widget
+{
+  gbstd::u16string  m_text;
+
+  void  reform() noexcept override;
+
+public:
+  label(gbstd::u16string_view  sv) noexcept;
+
+  void  set_text(gbstd::u16string_view  sv) noexcept;
+
+  void  render(image_cursor  cur) noexcept override;
+
+};
+
+
+class
+button: public label
+{
+  void  (*m_callback)(button&  button)=nullptr;
+
+  enum class state{
+    released,
+     pressed,
+  } m_state=state::released;
+
+public:
+  button(gbstd::u16string_view  sv, void  (*callback)(button&)) noexcept: label(sv), m_callback(callback){}
+
+  bool  is_pressed()  const noexcept{return m_state ==  state::pressed;}
+  bool  is_released() const noexcept{return m_state == state::released;}
+
+  void  do_when_cursor_got_out()            noexcept override;
+  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+
+};
+
+
+}
+
+
+using widgets::widget;
+
+
+}
 
 
 #endif

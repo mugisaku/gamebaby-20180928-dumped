@@ -8,6 +8,18 @@ namespace widgets{
 
 
 
+widget::
+~widget()
+{
+    if(m_deleter)
+    {
+      m_deleter(m_userdata);
+    }
+}
+
+
+
+
 void
 widget::
 notify_flag(uint32_t  v) noexcept

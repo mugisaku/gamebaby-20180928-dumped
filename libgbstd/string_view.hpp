@@ -58,6 +58,18 @@ public:
   }
 
 
+  basic_string_view&  operator=(const basic_string<T>&  s) noexcept
+  {
+    return assign(s);
+  }
+
+  constexpr basic_string_view&  operator=(const T*  s) noexcept
+  {
+    return assign(s);
+  }
+
+
+
   basic_string_view&  assign(const basic_string<T>&  s) noexcept
   {
     return assign(s.data(),s.size());
@@ -78,9 +90,9 @@ public:
 
   constexpr size_t  size() const noexcept{return m_length;}
 
-  constexpr const char*  data() const noexcept{return m_pointer;}
+  constexpr const T*  data() const noexcept{return m_pointer;}
 
-  constexpr const char&  operator[](int  i) const noexcept{return m_pointer[i];}
+  constexpr const T&  operator[](int  i) const noexcept{return m_pointer[i];}
 
   constexpr bool  is_null_terminated() const noexcept{return !*(m_pointer+m_length);}
 

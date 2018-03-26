@@ -119,7 +119,7 @@ public:
     m_length   = l;
     m_capacity = l;
 
-    std::memcpy(m_data,s,l);
+    std::memcpy(m_data,s,sizeof(T)*l);
 
     m_data[l] = 0;
 
@@ -188,7 +188,7 @@ public:
 
   basic_string_view<T>  view() const noexcept{return basic_string_view<T>(data(),size());}
 
-  const char*  data() const noexcept{return m_data;}
+  const T*  data() const noexcept{return m_data;}
 
   using iterator = const T*;
 
