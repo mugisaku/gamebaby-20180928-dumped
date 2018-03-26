@@ -28,15 +28,7 @@ void
 widget::
 need_to_redraw() noexcept
 {
-    if(!test_flag(flags::need_to_redraw_self))
-    {
-      set_flag(flags::need_to_redraw_self);
-
-        if(m_container)
-        {
-          m_container->notify_flag(flags::need_to_redraw_children);
-        }
-    }
+  notify_flag(flags::needed_to_redraw);
 }
 
 
@@ -45,6 +37,7 @@ widget::
 need_to_reform() noexcept
 {
   notify_flag(flags::needed_to_reform);
+  notify_flag(flags::needed_to_redraw);
 }
 
 
@@ -64,6 +57,14 @@ widget::
 reform() noexcept
 {
   m_absolute_end_point = m_absolute_point+point(m_width,m_height);
+}
+
+
+void
+widget::
+redraw(image&  img) noexcept
+{
+  render(image_cursor(img,m_absolute_point.x,m_absolute_point.y));
 }
 
 

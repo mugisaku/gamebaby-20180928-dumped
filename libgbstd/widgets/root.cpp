@@ -10,7 +10,7 @@ namespace widgets{
 
 void
 root::
-react() noexcept
+react(image&  img) noexcept
 {
     if(test_flag(flags::needed_to_reform))
     {
@@ -73,6 +73,13 @@ react() noexcept
 
 
   m_previous_ctrl = ctrl;
+
+    if(test_flag(flags::needed_to_redraw))
+    {
+      container::redraw(img);
+
+      unset_flag(flags::needed_to_redraw);
+    }
 }
 
 

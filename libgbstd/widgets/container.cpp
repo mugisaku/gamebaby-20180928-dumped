@@ -186,6 +186,27 @@ reform() noexcept
 
 void
 container::
+redraw(image&  img) noexcept
+{
+  auto  current = m_first_child;
+
+    while(current)
+    {
+        if(current->test_flag(flags::needed_to_redraw))
+        {
+          current->redraw(img);
+
+          current->unset_flag(flags::needed_to_redraw);
+        }
+
+
+      current = current->m_next;
+    }
+}
+
+
+void
+container::
 show_all() noexcept
 {
   show();

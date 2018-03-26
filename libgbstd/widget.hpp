@@ -37,9 +37,8 @@ protected:
   struct flags{
     static constexpr uint32_t  shown                   = 0x0001;
     static constexpr uint32_t  frozen                  = 0x0002;
-    static constexpr uint32_t  need_to_redraw_children = 0x0004;
-    static constexpr uint32_t  need_to_redraw_self     = 0x0008;
-    static constexpr uint32_t  needed_to_reform        = 0x0010;
+    static constexpr uint32_t  needed_to_redraw        = 0x0004;
+    static constexpr uint32_t  needed_to_reform        = 0x0008;
   };
 
 
@@ -68,7 +67,8 @@ protected:
 
   void  notify_flag(uint32_t  v) noexcept;
 
-  virtual void  reform() noexcept;
+  virtual void  reform(           ) noexcept;
+  virtual void  redraw(image&  img) noexcept;
 
 public:
   widget(int  w=1, int  h=1) noexcept: m_width(w), m_height(h){}
@@ -129,7 +129,8 @@ container: public widget
   widget*  m_first_child=nullptr;
   widget*  m_last_child =nullptr;
 
-  void  reform() noexcept override;
+  void  reform(           ) noexcept override;
+  void  redraw(image&  img) noexcept override;
 
 public:
   container() noexcept{}
@@ -162,7 +163,7 @@ public:
   root() noexcept{}
  ~root(){}
 
-  void  react() noexcept;
+  void  react(image&  img) noexcept;
 
 };
 
