@@ -22,6 +22,7 @@ set(SOURCES
   widgets/root.cpp
   widgets/label.cpp
   widgets/button.cpp
+  widgets/table.cpp
   unicode.cpp
   environment.cpp
   random_number.cpp

@@ -5,6 +5,7 @@
 #include"libgbstd/image.hpp"
 #include"libgbstd/controller.hpp"
 #include"libgbstd/string.hpp"
+#include<initializer_list>
 
 
 namespace gbstd{
@@ -219,7 +220,43 @@ public:
   void  do_when_cursor_got_out()            noexcept override;
   void  do_when_mouse_acted(int  x, int  y) noexcept override;
 
+  void  render(image_cursor  cur) noexcept override;
+
 };
+
+
+
+
+class
+table_column: public container
+{
+  int  m_interval=0;
+  int      m_tail=0;
+
+public:
+  table_column(int  interval, std::initializer_list<widget*>  ls) noexcept:
+  m_interval(interval){append(ls);}
+
+  void  append(std::initializer_list<widget*>  ls) noexcept;
+
+};
+
+
+class
+table_row: public container
+{
+  int  m_interval=0;
+  int      m_tail=0;
+
+public:
+  table_row(int  interval, std::initializer_list<widget*>  ls) noexcept:
+  m_interval(interval){append(ls);}
+
+  void  append(std::initializer_list<widget*>  ls) noexcept;
+
+};
+
+
 
 
 }

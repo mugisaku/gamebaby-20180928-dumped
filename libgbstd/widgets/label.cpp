@@ -10,7 +10,7 @@ namespace widgets{
 
 label::
 label(gbstd::u16string_view  sv) noexcept:
-widget(8+4,16+4)
+widget(0,16+4)
 {
   set_text(sv);
 }
@@ -22,7 +22,7 @@ void
 label::
 reform() noexcept
 {
-  m_width = 8*m_text.size();
+  m_width = (8*m_text.size())+4;
 
   widget::reform();
 }

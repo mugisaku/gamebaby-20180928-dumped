@@ -50,6 +50,16 @@ do_when_mouse_acted(int  x, int  y) noexcept
 }
 
 
+void
+button::
+render(image_cursor  cur) noexcept
+{
+  label::render(cur);
+
+  cur.draw_rectangle(predefined::white,0,0,m_width,m_height);
+}
+
+
 
 
 }}
