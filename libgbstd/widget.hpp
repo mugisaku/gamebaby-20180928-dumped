@@ -79,13 +79,9 @@ public:
   widget&  operator=(const widget&   rhs) noexcept=delete;
   widget&  operator=(      widget&&  rhs) noexcept=delete;
 
-  virtual void  do_when_cursor_got_in()                    noexcept{}
-  virtual void  do_when_cursor_got_out()                   noexcept{}
-  virtual void  do_when_left_was_pressed(  int  x, int  y) noexcept{}
-  virtual void  do_when_left_was_released( int  x, int  y) noexcept{}
-  virtual void  do_when_right_was_pressed( int  x, int  y) noexcept{}
-  virtual void  do_when_right_was_released(int  x, int  y) noexcept{}
-  virtual void  do_when_cursor_moved(      int  x, int  y) noexcept{}
+  virtual void  do_when_cursor_got_in()             noexcept{}
+  virtual void  do_when_cursor_got_out()            noexcept{}
+  virtual void  do_when_mouse_acted(int  x, int  y) noexcept{}
 
   virtual void  render(image_cursor  cur) noexcept{}
 
