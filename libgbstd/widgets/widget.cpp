@@ -59,16 +59,16 @@ test_by_point(int  x, int  y) const noexcept
 {
   return((x >= m_absolute_point.x) &&
          (y >= m_absolute_point.y) &&
-         (x <  m_absolute_end_point.x) &&
-         (y <  m_absolute_end_point.y));
+         (x <  (m_absolute_point.x+m_width )) &&
+         (y <  (m_absolute_point.y+m_height)));
 }
 
 
 void
 widget::
-reform() noexcept
+reform(point  abs_pt) noexcept
 {
-  m_absolute_end_point = m_absolute_point+point(m_width,m_height);
+  m_absolute_point = abs_pt;
 }
 
 
@@ -76,7 +76,7 @@ void
 widget::
 redraw(image&  img) noexcept
 {
-  render(image_cursor(img,m_absolute_point.x,m_absolute_point.y));
+  render(image_cursor(img,m_absolute_point));
 }
 
 

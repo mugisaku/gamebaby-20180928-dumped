@@ -21,6 +21,10 @@ clear() noexcept
       delete current       ;
              current = next;
     }
+
+
+  m_first_child = nullptr;
+  m_last_child  = nullptr;
 }
 
 
@@ -57,8 +61,7 @@ append_child(widget*  child, int  x, int  y) noexcept
         }
 
 
-      child->m_absolute_point = m_absolute_point+point(x,y);
-      child->m_relative_point =                  point(x,y);
+      child->m_relative_point = point(x,y);
 
       child->need_to_reform();
     }
@@ -153,10 +156,10 @@ scan_by_point(int  x, int  y) noexcept
 
 void
 container::
-reform() noexcept
+reform(point  abs_pt) noexcept
 {
-  int  w = m_width ;
-  int  h = m_height;
+  int  w = 1;
+  int  h = 1;
 
   auto  current = m_first_child;
 
@@ -164,14 +167,16 @@ reform() noexcept
     {
         if(current->test_flag(flags::needed_to_reform))
         {
-          current->reform();
-
-          w = std::max(w,current->m_absolute_end_point.x);
-          h = std::max(h,current->m_absolute_end_point.y);
+          current->reform(abs_pt+current->get_relative_point());
 
           current->unset_flag(flags::needed_to_reform);
         }
 
+
+      auto  rel_pt = current->get_relative_point();
+
+      w = std::max(w,rel_pt.x+current->get_width() );
+      h = std::max(h,rel_pt.y+current->get_height());
 
       current = current->m_next;
     }
@@ -180,7 +185,7 @@ reform() noexcept
   m_width  = w;
   m_height = h;
 
-  widget::reform();
+  widget::reform(abs_pt);
 }
 
 
@@ -221,35 +226,6 @@ show_all() noexcept
       current = current->m_next;
     }
 }
-/*
-void
-widget::
-redraw() noexcept
-{
-    if(test_flag(flags::need_to_redraw_children))
-    {
-      auto  current = m_first_child;
-
-        while(current)
-        {
-          current->redraw();
-
-          current = current->m_next;
-        }
-
-
-      unset_flag(flags::need_to_redraw_children);
-    }
-
-  else
-    if(test_flag(flags::need_to_redraw_self))
-    {
-      render();
-
-      unset_flag(flags::need_to_redraw_self);
-    }
-}
-*/
 
 
 }}

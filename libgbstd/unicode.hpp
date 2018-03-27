@@ -18,7 +18,7 @@ utf8_decoder
   const char*  m_end=nullptr;
 
 public:
-  utf8_decoder(                    ) noexcept{}
+  utf8_decoder(                      ) noexcept{}
   utf8_decoder(gbstd::string_view  sv) noexcept{*this = sv;}
 
   utf8_decoder&  operator=(gbstd::string_view  sv) noexcept

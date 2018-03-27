@@ -159,7 +159,7 @@ public:
       }
 
 
-    char*  p = &m_data[m_length];
+    T*  p = &m_data[m_length];
 
     *p++ = c;
     *p   = 0;

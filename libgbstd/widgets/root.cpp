@@ -14,7 +14,7 @@ react(image&  img) noexcept
 {
     if(test_flag(flags::needed_to_reform))
     {
-      container::reform();
+      container::reform(point{0,0});
 
       unset_flag(flags::needed_to_reform);
     }
