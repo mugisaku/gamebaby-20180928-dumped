@@ -156,8 +156,11 @@ scan_by_point(int  x, int  y) noexcept
 
 void
 container::
-reform(point  abs_pt) noexcept
+reform(point  base_pt) noexcept
 {
+  widget::reform(base_pt);
+
+
   int  w = 1;
   int  h = 1;
 
@@ -165,13 +168,8 @@ reform(point  abs_pt) noexcept
 
     while(current)
     {
-        if(current->test_flag(flags::needed_to_reform))
-        {
-          current->reform(abs_pt+current->get_relative_point());
-
-          current->unset_flag(flags::needed_to_reform);
-        }
-
+      current->reform_if_needed(get_absolute_point());
+ 
 
       auto  rel_pt = current->get_relative_point();
 
@@ -184,8 +182,6 @@ reform(point  abs_pt) noexcept
 
   m_width  = w;
   m_height = h;
-
-  widget::reform(abs_pt);
 }
 
 
@@ -197,13 +193,7 @@ redraw(image&  img) noexcept
 
     while(current)
     {
-        if(current->test_flag(flags::needed_to_redraw))
-        {
-          current->redraw(img);
-
-          current->unset_flag(flags::needed_to_redraw);
-        }
-
+      current->redraw_if_needed(img);
 
       current = current->m_next;
     }

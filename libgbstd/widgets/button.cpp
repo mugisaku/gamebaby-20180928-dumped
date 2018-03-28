@@ -13,7 +13,7 @@ constexpr int  margin = 4;
 
 button::
 button(gbstd::u16string_view  sv, void  (*callback)(button&)) noexcept:
-widget(0,8+(margin*2)),
+widget(0,16+(margin*2)),
 m_text(sv),
 m_callback(callback)
 {
@@ -76,11 +76,11 @@ do_when_mouse_acted(int  x, int  y) noexcept
 
 void
 button::
-reform(point  abs_pt) noexcept
+reform(point  base_pt) noexcept
 {
   m_width = (m_icon? icon::size:0)+(8*m_text.size())+(margin*2);
 
-  widget::reform(abs_pt);
+  widget::reform(base_pt);
 }
 
 

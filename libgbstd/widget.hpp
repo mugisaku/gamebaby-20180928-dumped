@@ -13,18 +13,6 @@ namespace widgets{
 
 
 class widget;
-
-
-class
-style
-{
-  color_index  m_area_color_index;
-
-  color_index  m_text_color_index[4];
-
-};
-
-
 class container;
 
 
@@ -44,10 +32,6 @@ protected:
 
   int  m_width =0;
   int  m_height=0;
-
-  style  m_style;
-
-  const style*  m_current_style=nullptr;
 
   void*  m_userdata=nullptr;
 
@@ -73,7 +57,7 @@ public:
   widget&  operator=(const widget&   rhs) noexcept=delete;
   widget&  operator=(      widget&&  rhs) noexcept=delete;
 
-  virtual void  reform(point  abs_pt) noexcept;
+  virtual void  reform(point  base_pt) noexcept;
   virtual void  redraw(image&  img) noexcept;
 
   virtual void  do_when_cursor_got_in()             noexcept{}
@@ -122,10 +106,16 @@ public:
   void  show() noexcept{  set_flag(flags::shown);}
   void  hide() noexcept{unset_flag(flags::shown);}
 
+  void  reform_if_needed(point  base_pt) noexcept;
+  void  redraw_if_needed(image&  img) noexcept;
+
   virtual void  show_all() noexcept{show();}
 
   bool  is_shown() const noexcept{return test_flag(flags::shown);}
   bool  is_frozen() const noexcept{return test_flag(flags::frozen);}
+
+  bool  is_needed_to_reform() const noexcept{return test_flag(flags::needed_to_reform);}
+  bool  is_needed_to_redraw() const noexcept{return test_flag(flags::needed_to_redraw);}
 
   widget*  get_previous() const noexcept{return m_previous;}
   widget*  get_next() const noexcept{return m_next;}
@@ -146,14 +136,14 @@ protected:
   widget*  m_first_child=nullptr;
   widget*  m_last_child =nullptr;
 
-  void  reform(point  abs_pt) noexcept override;
-  void  redraw(image&  img) noexcept override;
-
 public:
   container() noexcept{}
  ~container(){clear();}
 
   void  clear() noexcept;
+
+  void  reform(point  base_pt) noexcept override;
+  void  redraw(image&  img) noexcept override;
 
   void  render(image_cursor  cur) noexcept override;
 
@@ -180,7 +170,7 @@ public:
   root() noexcept{}
  ~root(){}
 
-  bool  react(image&  img) noexcept;
+  void  react() noexcept;
 
 };
 
@@ -192,14 +182,14 @@ label: public widget
 {
   gbstd::u16string  m_text;
 
-  void  reform(point  abs_pt) noexcept override;
-
 public:
   label(gbstd::string_view     sv) noexcept;
   label(gbstd::u16string_view  sv) noexcept;
 
   void  set_text(gbstd::u16string_view  sv) noexcept;
   void  set_text(gbstd::string_view     sv) noexcept;
+
+  void  reform(point  base_pt) noexcept override;
 
   void  render(image_cursor  cur) noexcept override;
 
@@ -247,14 +237,14 @@ button: public widget
      pressed,
   } m_state=state::released;
 
-  void  reform(point  abs_pt) noexcept override;
-
 public:
   button(                            gbstd::u16string_view  sv, void  (*callback)(button&)) noexcept;
   button(const widgets::icon&  icon, gbstd::u16string_view  sv, void  (*callback)(button&)) noexcept;
 
   bool  is_pressed()  const noexcept{return m_state ==  state::pressed;}
   bool  is_released() const noexcept{return m_state == state::released;}
+
+  void  reform(point  base_pt) noexcept override;
 
   void  do_when_cursor_got_out()            noexcept override;
   void  do_when_mouse_acted(int  x, int  y) noexcept override;
@@ -271,10 +261,10 @@ public:
 class
 table_column: public container
 {
-  void  reform(point  abs_pt) noexcept override;
-
 public:
   table_column(std::initializer_list<widget*>  ls) noexcept{append(ls);}
+
+  void  reform(point  base_pt) noexcept override;
 
   void  append(std::initializer_list<widget*>  ls) noexcept;
 
@@ -284,10 +274,10 @@ public:
 class
 table_row: public container
 {
-  void  reform(point  abs_pt) noexcept override;
-
 public:
   table_row(std::initializer_list<widget*>  ls) noexcept{append(ls);}
+
+  void  reform(point  base_pt) noexcept override;
 
   void  append(std::initializer_list<widget*>  ls) noexcept;
 

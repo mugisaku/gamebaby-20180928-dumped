@@ -26,9 +26,9 @@ color_index
 
   constexpr operator bool() const noexcept{return code>>9;}
 
-  constexpr int  get_r() const noexcept{return (code>>6)&07;}
-  constexpr int  get_g() const noexcept{return (code>>3)&07;}
-  constexpr int  get_b() const noexcept{return (code   )&07;}
+  constexpr int  get_r() const noexcept{return (code>>6)&7;}
+  constexpr int  get_g() const noexcept{return (code>>3)&7;}
+  constexpr int  get_b() const noexcept{return (code   )&7;}
 
   constexpr int  get_r255() const noexcept{return (((code>>6)&07)<<5)|0b11111;}
   constexpr int  get_g255() const noexcept{return (((code>>3)&07)<<5)|0b11111;}

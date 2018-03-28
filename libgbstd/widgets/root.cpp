@@ -8,16 +8,11 @@ namespace widgets{
 
 
 
-bool
+void
 root::
-react(image&  img) noexcept
+react() noexcept
 {
-    if(test_flag(flags::needed_to_reform))
-    {
-      container::reform(point{0,0});
-
-      unset_flag(flags::needed_to_reform);
-    }
+  reform_if_needed(point{0,0});
 
 
   auto  pt = ctrl.get_point();
@@ -73,18 +68,6 @@ react(image&  img) noexcept
 
 
   m_previous_ctrl = ctrl;
-
-    if(test_flag(flags::needed_to_redraw))
-    {
-      container::redraw(img);
-
-      unset_flag(flags::needed_to_redraw);
-
-      return true;
-    }
-
-
-  return false;
 }
 
 

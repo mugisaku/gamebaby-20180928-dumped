@@ -10,8 +10,10 @@ namespace widgets{
 
 void
 table_column::
-reform(point  abs_pt) noexcept
+reform(point  base_pt) noexcept
 {
+  widget::reform(base_pt);
+
   int  y = 0;
   int  w = 1;
   int  h = 1;
@@ -24,9 +26,7 @@ reform(point  abs_pt) noexcept
 
       current->set_relative_point(rel_pt);
 
-      current->reform(abs_pt+rel_pt);
-
-      current->unset_flag(flags::needed_to_reform);
+      current->reform_if_needed(get_absolute_point());
 
 
       y += current->get_height();
@@ -40,8 +40,6 @@ reform(point  abs_pt) noexcept
 
   m_width  = w;
   m_height = h;
-
-  widget::reform(abs_pt);
 }
 
 
@@ -60,8 +58,10 @@ append(std::initializer_list<widget*>  ls) noexcept
 
 void
 table_row::
-reform(point  abs_pt) noexcept
+reform(point  base_pt) noexcept
 {
+  widget::reform(base_pt);
+
   int  x = 0;
   int  w = 1;
   int  h = 1;
@@ -74,9 +74,7 @@ reform(point  abs_pt) noexcept
 
       current->set_relative_point(rel_pt);
 
-      current->reform(abs_pt+rel_pt);
-
-      current->unset_flag(flags::needed_to_reform);
+      current->reform_if_needed(get_absolute_point());
 
 
       x += current->get_width();
@@ -91,8 +89,6 @@ reform(point  abs_pt) noexcept
 
   m_width  = w;
   m_height = h;
-
-  widget::reform(abs_pt);
 }
 
 

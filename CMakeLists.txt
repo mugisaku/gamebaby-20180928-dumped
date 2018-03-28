@@ -42,7 +42,7 @@ endif()
 
 add_subdirectory(libgbstd)
 #add_subdirectory(libgbsnd)
-add_subdirectory(libgbscr)
+#add_subdirectory(libgbscr)
 #add_subdirectory(libtok)
 
 include_directories(./)

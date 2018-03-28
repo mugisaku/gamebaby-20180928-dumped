@@ -29,11 +29,11 @@ widget(0,16+4)
 
 void
 label::
-reform(point  abs_pt) noexcept
+reform(point  base_pt) noexcept
 {
   m_width = (8*m_text.size())+4;
 
-  widget::reform(abs_pt);
+  widget::reform(base_pt);
 }
 
 

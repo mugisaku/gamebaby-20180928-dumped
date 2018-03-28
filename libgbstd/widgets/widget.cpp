@@ -24,14 +24,11 @@ void
 widget::
 notify_flag(uint32_t  v) noexcept
 {
-    if(!test_flag(v))
-    {
-      set_flag(v);
+  set_flag(v);
 
-        if(m_container)
-        {
-          m_container->notify_flag(v);
-        }
+    if(m_container)
+    {
+      m_container->notify_flag(v);
     }
 }
 
@@ -66,9 +63,11 @@ test_by_point(int  x, int  y) const noexcept
 
 void
 widget::
-reform(point  abs_pt) noexcept
+reform(point  base_pt) noexcept
 {
-  m_absolute_point = abs_pt;
+  m_absolute_point = base_pt+m_relative_point;
+
+  unset_flag(flags::needed_to_reform);
 }
 
 
@@ -77,6 +76,8 @@ widget::
 redraw(image&  img) noexcept
 {
   render(image_cursor(img,m_absolute_point));
+
+  unset_flag(flags::needed_to_redraw);
 }
 
 
@@ -106,11 +107,40 @@ erase() noexcept
 
 void
 widget::
+reform_if_needed(point  base_pt) noexcept
+{
+    if(test_flag(flags::needed_to_reform))
+    {
+      reform(base_pt);
+    }
+}
+
+
+void
+widget::
+redraw_if_needed(image&  img) noexcept
+{
+    if(test_flag(flags::needed_to_redraw))
+    {
+      redraw(img);
+    }
+}
+
+
+void
+widget::
 print() const noexcept
 {
-  static int  n;
+//  static int  n;
 
-  printf("%p %8d\n",this,n++);
+  printf("%p w:%4d h:%4d rel_pt{%4d,%4d} abs_pt{%4d,%4d}\n",this,
+    m_width,
+    m_height,
+    m_relative_point.x,
+    m_relative_point.y,
+    m_absolute_point.x,
+    m_absolute_point.y
+  );
 }
 
 
