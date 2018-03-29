@@ -67,12 +67,12 @@ public:
 struct
 pixel
 {
-  color_index  index=0;
+  images::color_index  color_index=0;
 
   int16_t  z=0;
 
-  constexpr pixel(color_index  i=color_index(), int16_t  z_=0) noexcept:
-  index(i), z(z_){}
+  constexpr pixel(images::color_index  i=images::color_index(), int16_t  z_=0) noexcept:
+  color_index(i), z(z_){}
 
 };
 
@@ -100,7 +100,7 @@ image
 
 public:
   image() noexcept{}
-  image(int  w, int  h) noexcept;
+  image(int  w, int  h, std::initializer_list<color_index>  ls={}) noexcept;
 
 
   void  resize(int  w, int  h) noexcept;
@@ -114,6 +114,12 @@ public:
   const pixel&  get_const_pixel(int  x, int  y) const noexcept{return m_pixels[m_width*y+x];}
 
   uint32_t  get_pixel_color(int  x, int  y, palette const&  pal) const noexcept;
+
+
+  void  fill(pixel  pix=pixel()) noexcept;
+
+  void  add_rgb(int  r, int  g, int  b) noexcept;
+  void  reverse_rgb() noexcept;
 
 
   void  draw_dot(       color_index  i, int  x, int  y) noexcept;
@@ -184,6 +190,7 @@ public:
 
   uint32_t  get_pixel_color(int  x, int  y, palette const&  pal) const noexcept{return m_image->get_pixel_color(get_x(x),get_y(y),pal);}
 
+
   void  draw_dot(       color_index  i, int  x, int  y) const noexcept{m_image->draw_dot(       i,get_x(x),get_y(y));}
   void  draw_dot_safely(color_index  i, int  x, int  y) const noexcept{m_image->draw_dot_safely(i,get_x(x),get_y(y));}
 
@@ -215,10 +222,10 @@ image_frame: public image_cursor
   int  m_height;
 
 public:
-  image_frame(image&  image) noexcept:
-  image_cursor(image),
-  m_width(image.get_width()),
-  m_height(image.get_height()){}
+  image_frame(image&  image, point  pt=point(), int  w=0, int  h=0) noexcept:
+  image_cursor(image,pt),
+  m_width(w? w:image.get_width()),
+  m_height(h? h:image.get_height()){}
 
 
   int  get_width()  const noexcept{return m_width;}

@@ -38,13 +38,13 @@ add(int  r, int  g, int  b) const noexcept
     for(int  x = 0;  x <  m_width;  ++x){
       auto&  pix = get_pixel(x,y);
 
-        if(pix.index)
+        if(pix.color_index)
         {
-          auto  new_r = clamp(pix.index.get_r()+r);
-          auto  new_g = clamp(pix.index.get_g()+g);
-          auto  new_b = clamp(pix.index.get_b()+b);
+          auto  new_r = clamp(pix.color_index.get_r()+r);
+          auto  new_g = clamp(pix.color_index.get_g()+g);
+          auto  new_b = clamp(pix.color_index.get_b()+b);
 
-          pix.index = color_index(new_r,new_g,new_b);
+          pix.color_index = color_index(new_r,new_g,new_b);
         }
     }}
 }
@@ -58,13 +58,13 @@ reverse_color() const noexcept
     for(int  x = 0;  x <  m_width;  ++x){
       auto&  pix = get_pixel(x,y);
 
-        if(pix.index)
+        if(pix.color_index)
         {
-          auto  new_r = (7-pix.index.get_r());
-          auto  new_g = (7-pix.index.get_g());
-          auto  new_b = (7-pix.index.get_b());
+          auto  new_r = (7-pix.color_index.get_r());
+          auto  new_g = (7-pix.color_index.get_g());
+          auto  new_b = (7-pix.color_index.get_b());
 
-          pix.index = color_index(new_r,new_g,new_b);
+          pix.color_index = color_index(new_r,new_g,new_b);
         }
     }}
 }

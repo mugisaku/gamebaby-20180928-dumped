@@ -17,7 +17,7 @@ draw_dot(color_index  i, int  x, int  y) noexcept
 {
     if(i)
     {
-      m_pixels[(m_width*y)+x].index = i;
+      m_pixels[(m_width*y)+x].color_index = i;
     }
 }
 
@@ -40,7 +40,7 @@ void
 image::
 draw_dot(pixel  pix, int  x, int  y) noexcept
 {
-    if(pix.index)
+    if(pix.color_index)
     {
       auto&  dst = m_pixels[(m_width*y)+x];
 
@@ -296,7 +296,7 @@ draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
 
             for(int  xx = 0;  xx < w;  xx += 1)
             {
-              dst->index = style.get_color_index(code>>14);
+              dst->color_index = style.get_color_index(code>>14);
 
               ++dst;
 
