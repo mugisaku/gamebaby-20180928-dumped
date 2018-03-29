@@ -6,6 +6,7 @@
 #include"libgbstd/controller.hpp"
 #include"libgbstd/string.hpp"
 #include<initializer_list>
+#include<memory>
 
 
 namespace gbstd{
@@ -19,13 +20,10 @@ class container;
 class
 widget
 {
-   friend class container;
-   friend class root;
-
 protected:
   uint32_t  m_flags=0;
 
-  container*  m_container=nullptr;
+  widget*  m_parent=nullptr;
 
   point  m_absolute_point;
   point  m_relative_point;
@@ -37,9 +35,6 @@ protected:
 
   void  (*m_deleter)(void*  ptr)=nullptr;
 
-  widget*  m_previous=nullptr;
-  widget*  m_next    =nullptr;
-
 public:
   struct flags{
     static constexpr uint32_t  shown                   = 0x0001;
@@ -49,10 +44,10 @@ public:
   };
 
 
-  widget(int  w=1, int  h=1) noexcept: m_width(w), m_height(h){}
+  widget(int  w=1, int  h=1) noexcept: m_width(w), m_height(h){need_to_reform();}
   widget(const widget&   rhs) noexcept=delete;
   widget(      widget&&  rhs) noexcept=delete;
-  virtual ~widget();
+  virtual ~widget(){clear();}
 
   widget&  operator=(const widget&   rhs) noexcept=delete;
   widget&  operator=(      widget&&  rhs) noexcept=delete;
@@ -66,10 +61,16 @@ public:
 
   virtual void  render(image_cursor  cur) noexcept{}
 
-  widget*  erase() noexcept;
+  virtual bool  remove(widget*  target) noexcept{return false;}
+
+  virtual void  clear() noexcept;
 
   void  need_to_redraw() noexcept;
   void  need_to_reform() noexcept;
+
+
+  void     set_parent(widget*  parent)       noexcept{       m_parent = parent;}
+  widget*  get_parent(               ) const noexcept{return m_parent         ;}
 
   void*  get_userdata() const noexcept{return m_userdata;}
 
@@ -117,9 +118,6 @@ public:
   bool  is_needed_to_reform() const noexcept{return test_flag(flags::needed_to_reform);}
   bool  is_needed_to_redraw() const noexcept{return test_flag(flags::needed_to_redraw);}
 
-  widget*  get_previous() const noexcept{return m_previous;}
-  widget*  get_next() const noexcept{return m_next;}
-
   void  print() const noexcept;
 
 };
@@ -130,17 +128,12 @@ public:
 class
 container: public widget
 {
-  friend class root;
-
 protected:
-  widget*  m_first_child=nullptr;
-  widget*  m_last_child =nullptr;
+  std::vector<std::unique_ptr<widget>>  m_children;
 
 public:
-  container() noexcept{}
- ~container(){clear();}
-
-  void  clear() noexcept;
+  void  clear() noexcept override;
+  bool  remove(widget*  target) noexcept override;
 
   void  reform(point  base_pt) noexcept override;
   void  redraw(image&  img) noexcept override;
@@ -150,7 +143,6 @@ public:
   widget*  scan_by_point(int  x, int  y) noexcept override;
 
   void  append_child(widget*  child, int  x, int  y) noexcept;
-  void  remove_child(widget*  child                ) noexcept;
 
   void  show_all() noexcept override;
 
@@ -224,11 +216,41 @@ public:
 
 
 class
+icon_selector: public widget
+{
+  const icon*  m_icons;
+
+  int  m_current=0;
+
+public:
+  icon_selector(const icon*  icons) noexcept: widget(icon::size,icon::size), m_icons(icons){}
+
+  const icon&  operator*() const noexcept{return m_icons[m_current];}
+
+  void  set_current(int  i) noexcept
+  {
+    m_current = i;
+
+    need_to_redraw();
+  }
+
+  void  render(image_cursor  cur) noexcept override
+  {
+    auto&  icon = m_icons[m_current];
+
+      for(auto  y = 0;  y < icon::size;  ++y){
+      for(auto  x = 0;  x < icon::size;  ++x){
+        cur.draw_dot(icon.get_color_index(x,y),x,y);
+      }}
+  }
+
+};
+
+
+class
 button: public widget
 {
-  const icon*  m_icon=nullptr;
-
-  gbstd::u16string  m_text;
+  std::unique_ptr<widget>  m_target;
 
   void  (*m_callback)(button&  button)=nullptr;
 
@@ -237,9 +259,15 @@ button: public widget
      pressed,
   } m_state=state::released;
 
+
+  int  m_count=0;
+
 public:
-  button(                            gbstd::u16string_view  sv, void  (*callback)(button&)) noexcept;
-  button(const widgets::icon&  icon, gbstd::u16string_view  sv, void  (*callback)(button&)) noexcept;
+  button(widget*  target, void  (*callback)(button&)) noexcept;
+
+  int  get_count() const noexcept{return m_count;}
+
+  void  reset_count() noexcept{m_count = 0;}
 
   bool  is_pressed()  const noexcept{return m_state ==  state::pressed;}
   bool  is_released() const noexcept{return m_state == state::released;}
@@ -293,6 +321,9 @@ dial
   int  m_max=0;
 
   void  (*m_callback)(dial&  dial, int  old_value, int  new_value)=nullptr;
+
+  icon_selector*     m_up_selector;
+  icon_selector*   m_down_selector;
 
   button*     m_up_button;
   button*   m_down_button;

@@ -8,12 +8,15 @@ namespace widgets{
 
 
 
+void
 widget::
-~widget()
+clear() noexcept
 {
     if(m_deleter)
     {
       m_deleter(m_userdata);
+
+      m_deleter = nullptr;
     }
 }
 
@@ -26,9 +29,9 @@ notify_flag(uint32_t  v) noexcept
 {
   set_flag(v);
 
-    if(m_container)
+    if(m_parent)
     {
-      m_container->notify_flag(v);
+      m_parent->notify_flag(v);
     }
 }
 
@@ -78,30 +81,6 @@ redraw(image&  img) noexcept
   render(image_cursor(img,m_absolute_point));
 
   unset_flag(flags::needed_to_redraw);
-}
-
-
-widget*
-widget::
-erase() noexcept
-{
-  auto  next = m_next;
-
-    if(m_previous)
-    {
-      m_previous->m_next = m_next;
-    }
-
-
-    if(m_next)
-    {
-      m_next->m_previous = m_previous;
-    }
-
-
-  m_container->remove_child(this);
-
-  return next;
 }
 
 

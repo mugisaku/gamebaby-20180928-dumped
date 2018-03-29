@@ -232,8 +232,8 @@ public:
 };
 
 
-void  transfer(const image_frame&  src, const image_frame&  dst        ) noexcept;
-void  transfer(const image_frame&  src, const image_frame&  dst, int  z) noexcept;
+void  transfer(const image_frame&  src, const image_cursor&  dst        ) noexcept;
+void  transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept;
 
 
 }

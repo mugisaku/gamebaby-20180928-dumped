@@ -10,7 +10,7 @@ namespace images{
 
 
 void
-transfer(const image_frame&  src, const image_frame&  dst) noexcept
+transfer(const image_frame&  src, const image_cursor&  dst) noexcept
 {
   bool  reverse_flag = false;
 
@@ -21,8 +21,8 @@ transfer(const image_frame&  src, const image_frame&  dst) noexcept
 
   int  dst_x = dst.get_x_offset();
   int  dst_y = dst.get_y_offset();
-  int  dst_w = dst.get_width();
-  int  dst_h = dst.get_height();
+  int  dst_w = dst.get_image().get_width();
+  int  dst_h = dst.get_image().get_height();
 
     if(src_w < 0)
     {
@@ -137,7 +137,7 @@ transfer(const image_frame&  src, const image_frame&  dst) noexcept
 
 
 void
-transfer(const image_frame&  src, const image_frame&  dst, int  z) noexcept
+transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept
 {
   bool  reverse_flag = false;
 
@@ -148,8 +148,8 @@ transfer(const image_frame&  src, const image_frame&  dst, int  z) noexcept
 
   int  dst_x = dst.get_x_offset();
   int  dst_y = dst.get_y_offset();
-  int  dst_w = dst.get_width();
-  int  dst_h = dst.get_height();
+  int  dst_w = dst.get_image().get_width();
+  int  dst_h = dst.get_image().get_height();
 
     if(src_w < 0)
     {

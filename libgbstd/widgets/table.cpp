@@ -18,23 +18,19 @@ reform(point  base_pt) noexcept
   int  w = 1;
   int  h = 1;
 
-  auto  current = m_first_child;
-
-    while(current)
+    for(auto&  child: m_children)
     {
       point  rel_pt(0,y);
 
-      current->set_relative_point(rel_pt);
+      child->set_relative_point(rel_pt);
 
-      current->reform_if_needed(get_absolute_point());
+      child->reform_if_needed(get_absolute_point());
 
 
-      y += current->get_height();
+      y += child->get_height();
 
-      w = std::max(w,rel_pt.x+current->get_width() );
-      h = std::max(h,rel_pt.y+current->get_height());
-
-      current = current->get_next();
+      w = std::max(w,rel_pt.x+child->get_width() );
+      h = std::max(h,rel_pt.y+child->get_height());
     }
 
 
@@ -66,24 +62,20 @@ reform(point  base_pt) noexcept
   int  w = 1;
   int  h = 1;
 
-  auto  current = m_first_child;
-
-    while(current)
+    for(auto&  child: m_children)
     {
       point  rel_pt(x,0);
 
-      current->set_relative_point(rel_pt);
+      child->set_relative_point(rel_pt);
 
-      current->reform_if_needed(get_absolute_point());
-
-
-      x += current->get_width();
+      child->reform_if_needed(get_absolute_point());
 
 
-      w = std::max(w,rel_pt.x+current->get_width() );
-      h = std::max(h,rel_pt.y+current->get_height());
+      x += child->get_width();
 
-      current = current->get_next();
+
+      w = std::max(w,rel_pt.x+child->get_width() );
+      h = std::max(h,rel_pt.y+child->get_height());
     }
 
 

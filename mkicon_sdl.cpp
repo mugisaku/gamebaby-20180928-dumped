@@ -10,7 +10,19 @@ namespace{
 
 
 constexpr int  screen_w = 480;
-constexpr int  screen_h = 480;
+constexpr int  screen_h = 400;
+
+
+namespace types{
+class canvas;
+class   farm;
+}
+
+
+namespace ptrs{
+types::canvas*  cv;
+types::farm*  farm;
+}
 
 
 gbstd::image
@@ -49,34 +61,109 @@ update_color() noexcept
 }
 
 
-gbstd::color_index
-icon_data[widgets::icon::size][widgets::icon::size];
+constexpr int  cv_w = 16;
+constexpr int  cv_h = 24;
+
+gbstd::image
+cv_image(cv_w,cv_h);
+
+
+namespace types{
+
+
+class
+farm: public gbstd::widget
+{
+  static constexpr int  w = 8;
+  static constexpr int  h = 8;
+
+  struct row{
+    int  offset;
+    int  number;
+
+  };
+
+  static constexpr row  m_rows[h]={
+    {3,5},
+    {2,6},
+    {1,7},
+    {0,8},
+    {0,8},
+    {1,7},
+    {2,6},
+    {3,5},
+  };
+
+public:
+  farm() noexcept: widget(cv_w*w,cv_h*h){}
+
+  void  render(gbstd::image_cursor  cur) noexcept override
+  {
+    image_cursor  dst_base_cur(cur);
+
+    image_frame   src_frm(cv_image);
+
+      for(int  y = 0;  y < h;  ++y)
+      {
+        cur.draw_hline(gbstd::images::predefined::gray,0,cv_h*y,cv_w*w);
+      }
+
+
+      for(int  x = 0;  x < w;  ++x)
+      {
+        cur.draw_vline(gbstd::images::predefined::gray,(cv_w*2)*x,0,cv_h*h);
+      }
+
+
+      for(int  y = 0;  y < h;  ++y)
+      {
+        auto&  row = m_rows[y];
+
+        image_cursor  dst_cur(dst_base_cur)                    ;
+                              dst_base_cur.add_offset(0,cv_h/2);
+
+        dst_cur.add_offset((cv_w/2)*row.offset,0);
+
+          for(int  n = 0;  n < row.number;  ++n)
+          {
+            images::transfer(src_frm,dst_cur);
+
+            dst_cur.add_offset(cv_w,0);
+          }
+      }
+
+
+  }
+
+};
 
 
 class
 canvas: public widgets::widget
 {
-  static constexpr int  pixel_size = 16;
+  static constexpr int  pixel_size = 12;
 
 
 public:
-  canvas() noexcept: widget(pixel_size*widgets::icon::size,pixel_size*widgets::icon::size){}
+  canvas() noexcept: widget(pixel_size*cv_w,pixel_size*cv_h){}
 
   void  do_when_mouse_acted(int  x, int  y) noexcept override
   {
-    auto&  dst = icon_data[y/pixel_size][x/pixel_size];
+    auto&  dst = cv_image.get_pixel(x/pixel_size,y/pixel_size);
 
       if(gbstd::ctrl.is_mouse_lbutton_pressed())
       {
-        dst = current_color;
+        dst.index = current_color;
 
         need_to_redraw();
+
+        ptrs::farm->need_to_redraw();
       }
 
     else
       if(gbstd::ctrl.is_mouse_rbutton_pressed())
       {
-        dst = 0;
+        dst.index = 0;
 
         need_to_redraw();
       }
@@ -84,34 +171,33 @@ public:
 
   void  render(gbstd::image_cursor  cur) noexcept override
   {
-    cur.fill_rectangle(gbstd::images::predefined::black,0,0,pixel_size*widgets::icon::size,pixel_size*widgets::icon::size);
+    cur.fill_rectangle(gbstd::images::predefined::black,0,0,pixel_size*cv_w,pixel_size*cv_h);
 
-      for(int  y = 0;  y < widgets::icon::size;  ++y){
-      for(int  x = 0;  x < widgets::icon::size;  ++x){
-        cur.fill_rectangle(icon_data[y][x],pixel_size*x,pixel_size*y,pixel_size,pixel_size);
+      for(int  y = 0;  y < cv_h;  ++y){
+      for(int  x = 0;  x < cv_w;  ++x){
+        cur.fill_rectangle(cv_image.get_pixel(x,y),pixel_size*x,pixel_size*y,pixel_size,pixel_size);
       }}
 
 
-      for(int  y = 0;  y < widgets::icon::size;  ++y)
+      for(int  y = 0;  y < cv_h;  ++y)
       {
-        cur.draw_hline(gbstd::images::predefined::gray,0,pixel_size*y,pixel_size*widgets::icon::size);
+        cur.draw_hline(gbstd::images::predefined::gray,0,pixel_size*y,pixel_size*cv_w);
       }
 
 
-      for(int  x = 0;  x < widgets::icon::size;  ++x)
+      for(int  x = 0;  x < cv_w;  ++x)
       {
-        cur.draw_vline(gbstd::images::predefined::gray,pixel_size*x,0,pixel_size*widgets::icon::size);
+        cur.draw_vline(gbstd::images::predefined::gray,pixel_size*x,0,pixel_size*cv_h);
       }
 
 
-    cur.draw_hline(gbstd::images::predefined::light_gray,0,pixel_size*(widgets::icon::size/2),pixel_size*widgets::icon::size);
-    cur.draw_vline(gbstd::images::predefined::light_gray,pixel_size*(widgets::icon::size/2),0,pixel_size*widgets::icon::size);
+    cur.draw_hline(gbstd::images::predefined::light_gray,0,pixel_size*(cv_h/2),pixel_size*cv_w);
+    cur.draw_vline(gbstd::images::predefined::light_gray,pixel_size*(cv_w/2),0,pixel_size*cv_h);
   }
 
 };
 
 
-namespace types{
 class
 color_sample: public gbstd::widget
 {
@@ -132,15 +218,47 @@ public:
 
 
 void
-save() noexcept
+clear_all(widgets::button&  btn) noexcept
 {
-    for(int  y = 0;  y < widgets::icon::size;  ++y)
+    if(btn.get_count())
     {
-        for(int  x = 0;  x < widgets::icon::size;  ++x)
-        {
-          auto  v = icon_data[y][x];
+      btn.reset_count();
 
-          printf("0%4o,",v);
+      image_frame  frm(cv_image);
+
+      frm.fill(pixel());
+
+      ptrs::cv->need_to_redraw();
+    }
+}
+
+
+void
+fill_all(widgets::button&  btn) noexcept
+{
+    if(btn.get_count())
+    {
+      btn.reset_count();
+
+      image_frame  frm(cv_image);
+
+      frm.fill(current_color);
+
+      ptrs::cv->need_to_redraw();
+    }
+}
+
+
+void
+save(widgets::button&  btn) noexcept
+{
+    for(int  y = 0;  y < cv_h;  ++y)
+    {
+        for(int  x = 0;  x < cv_w;  ++x)
+        {
+          auto  v = cv_image.get_pixel(x,y);
+
+          printf("0%4o,",v.index);
         }
 
 
@@ -177,20 +295,24 @@ main(int  argc, char**  argv)
 
   auto  pal = new widgets::table_column({
     color_sample,
-    r_dial.get_widget(),
-    g_dial.get_widget(),
-    b_dial.get_widget(),
+    new widgets::table_row({new widgets::label(u"[ R ]"),r_dial.get_widget()}),
+    new widgets::table_row({new widgets::label(u"[ G ]"),g_dial.get_widget()}),
+    new widgets::table_row({new widgets::label(u"[ B ]"),b_dial.get_widget()}),
   });
 
 
-  auto  cv = new canvas;
+  ptrs::cv   = new types::canvas;
+  ptrs::farm = new types::farm;
 
-  auto  save_btn = new widgets::button(u"SAVE",[](widgets::button&  btn){save();});
+  auto  clra_btn = new widgets::button(new widgets::label(u"CLEAR ALL"),clear_all);;
+  auto  fila_btn = new widgets::button(new widgets::label(u" FILL ALL"),fill_all);;
+  auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);;
 
-  auto  row = new widgets::table_row({cv,pal});
-  auto  col = new widgets::table_column({row,save_btn});
+  auto  lcol = new widgets::table_column({pal,clra_btn,fila_btn,save_btn});
 
-  root.append_child(col,0,0);
+  auto  row = new widgets::table_row({ptrs::cv,lcol,ptrs::farm});
+
+  root.append_child(row,0,0);
 
   root.show_all();
 

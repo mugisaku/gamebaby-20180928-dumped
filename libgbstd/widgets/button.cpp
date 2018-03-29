@@ -12,19 +12,8 @@ constexpr int  margin = 4;
 
 
 button::
-button(gbstd::u16string_view  sv, void  (*callback)(button&)) noexcept:
-widget(0,16+(margin*2)),
-m_text(sv),
-m_callback(callback)
-{
-}
-
-
-button::
-button(const widgets::icon&  icon, gbstd::u16string_view  sv, void  (*callback)(button&)) noexcept:
-widget(0,icon::size+(margin*2)),
-m_icon(&icon),
-m_text(sv),
+button(widget*  target, void  (*callback)(button&)) noexcept:
+m_target(target),
 m_callback(callback)
 {
 }
@@ -36,9 +25,18 @@ void
 button::
 do_when_cursor_got_out() noexcept
 {
-  m_state = state::released;
+    if(is_pressed())
+    {
+      m_state = state::released;
 
-  need_to_redraw();
+        if(m_callback)
+        {
+          m_callback(*this);
+        }
+
+
+      need_to_redraw();
+    }
 }
 
 
@@ -52,6 +50,12 @@ do_when_mouse_acted(int  x, int  y) noexcept
         {
           m_state = state::pressed;
 
+            if(m_callback)
+            {
+              m_callback(*this);
+            }
+
+
           need_to_redraw();
         }
     }
@@ -60,13 +64,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
     {
         if(!ctrl.is_mouse_lbutton_pressed())
         {
-          m_state = state::released;
-
-            if(m_callback)
-            {
-              m_callback(*this);
-            }
-
+          ++m_count;
 
           do_when_cursor_got_out();
         }
@@ -78,19 +76,15 @@ void
 button::
 reform(point  base_pt) noexcept
 {
-  m_width = (m_icon? icon::size:0)+(8*m_text.size())+(margin*2);
-
   widget::reform(base_pt);
-}
 
 
-void
-button::
-set_text(gbstd::u16string_view  sv) noexcept
-{
-  m_text = sv;
+  m_target->reform(get_absolute_point()+point(margin,margin));
 
-  need_to_reform();
+  auto  rel_pt = m_target->get_relative_point();
+
+  m_width  = rel_pt.x+m_target->get_width() +(margin*2);
+  m_height = rel_pt.y+m_target->get_height()+(margin*2);
 }
 
 
@@ -100,16 +94,11 @@ void
 button::
 render(image_cursor  cur) noexcept
 {
-    if(m_icon)
+    if(m_target)
     {
-        for(int  y = 0;  y < icon::size;  ++y){
-        for(int  x = 0;  x < icon::size;  ++x){
-          cur.draw_dot(m_icon->get_color_index(x,y),margin+x,margin+y);
-        }}
+      m_target->redraw(cur.get_image());
     }
 
-
-  cur.draw_text(m_text,text_style(),margin+(m_icon? icon::size:0),margin);
 
   cur.draw_rectangle(predefined::white,0,0,m_width,m_height);
 }
