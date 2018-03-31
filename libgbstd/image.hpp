@@ -37,17 +37,19 @@ color_index
 };
 
 
-struct predefined{
-static constexpr color_index        null = color_index(00000);
-static constexpr color_index       white = color_index(01777);
-static constexpr color_index       black = color_index(01000);
-static constexpr color_index        gray = color_index(01333);
-static constexpr color_index  light_gray = color_index(01555);
-static constexpr color_index   dark_gray = color_index(01111);
-static constexpr color_index         red = color_index(01700);
-static constexpr color_index       green = color_index(01070);
-static constexpr color_index        blue = color_index(01007);
-static constexpr color_index      yellow = color_index(01770);
+struct
+predefined
+{
+  static constexpr color_index        null = color_index(00000);
+  static constexpr color_index       white = color_index(01777);
+  static constexpr color_index       black = color_index(01000);
+  static constexpr color_index        gray = color_index(01333);
+  static constexpr color_index  light_gray = color_index(01555);
+  static constexpr color_index   dark_gray = color_index(01111);
+  static constexpr color_index         red = color_index(01700);
+  static constexpr color_index       green = color_index(01070);
+  static constexpr color_index        blue = color_index(01007);
+  static constexpr color_index      yellow = color_index(01770);
 };
 
 
@@ -139,6 +141,8 @@ public:
   void  draw_rectangle_safely(pixel  pix, int  x, int  y, int  w, int  h) noexcept;
   void  fill_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) noexcept;
 
+  void  draw_doubleline_rectangle(pixel  in, pixel  out, int  x, int  y, int  w, int  h) noexcept;
+
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) noexcept;
   void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) noexcept;
   void  draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) noexcept;
@@ -207,6 +211,9 @@ public:
   void  draw_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle(       pix,get_x(x),get_y(y),w,h);}
   void  draw_rectangle_safely(pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle_safely(pix,get_x(x),get_y(y),w,h);}
   void  fill_rectangle(       pixel  pix, int  x, int  y, int  w, int  h) const noexcept{m_image->fill_rectangle(       pix,get_x(x),get_y(y),w,h);}
+
+  void  draw_doubleline_rectangle(pixel  in, pixel  out, int  x, int  y, int  w, int  h) const noexcept{
+    m_image->draw_doubleline_rectangle(in,out,get_x(x),get_y(y),w,h);}
 
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_character(c,style,get_x(x),get_y(y));}
   void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_text(sv,style,get_x(x),get_y(y));}

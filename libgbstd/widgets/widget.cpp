@@ -108,11 +108,10 @@ redraw_if_needed(image&  img) noexcept
 
 void
 widget::
-print() const noexcept
+print(int  indent) const noexcept
 {
-//  static int  n;
-
-  printf("%p w:%4d h:%4d rel_pt{%4d,%4d} abs_pt{%4d,%4d}\n",this,
+  printf("%p %s(%s) - flags:%d w:%4d h:%4d rel_pt{%4d,%4d} abs_pt{%4d,%4d}",this,m_name.data(),get_widget_name(),
+    m_flags,
     m_width,
     m_height,
     m_relative_point.x,

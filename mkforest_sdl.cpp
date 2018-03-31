@@ -1,6 +1,16 @@
-#include"sdl.hpp"
+#include<SDL.h>
+#include"libgbstd/image.hpp"
+#include"libgbstd/controller.hpp"
+#include"sdl_screen.cpp"
+#include"sdl_controller.cpp"
+
 #include"libgbstd/widget.hpp"
 
+
+#ifdef EMSCRIPTEN
+#include<emscripten.h>
+#include<SDL.h>
+#endif
 
 
 using namespace gbstd;
@@ -14,14 +24,16 @@ constexpr int  screen_h = 400;
 
 
 namespace types{
-class canvas;
-class   farm;
+class     canvas;
+class       farm;
+class table_view;
 }
 
 
 namespace ptrs{
-types::canvas*  cv;
-types::farm*  farm;
+types::canvas*      cv;
+types::farm*      farm;
+types::table_view*  tv;
 }
 
 
@@ -41,21 +53,25 @@ gbstd::images::color_index
 current_color;
 
 
+bool
+need_to_hide_cursors;
+
+
 void
 update_color() noexcept;
 
 
-widgets::dial  r_dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
-widgets::dial  g_dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
-widgets::dial  b_dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
+widgets::dial*  r_dial;
+widgets::dial*  g_dial;
+widgets::dial*  b_dial;
 
 
 void
 update_color() noexcept
 {
-  current_color = gbstd::images::color_index(r_dial.get_current(),
-                                             g_dial.get_current(),
-                                             b_dial.get_current());
+  current_color = gbstd::images::color_index(r_dial->get_current(),
+                                             g_dial->get_current(),
+                                             b_dial->get_current());
 
   color_sample->need_to_redraw();
 }
@@ -124,10 +140,6 @@ cv_image(cv_w,cv_h,{
 });
 
 
-gbstd::point
-farm_pt;
-
-
 constexpr int  table_width = 6;
 
 gbstd::point
@@ -191,20 +203,22 @@ namespace types{
 class
 farm: public gbstd::widget
 {
-  point  m_point;
+  point  m_fixed_point;
+  point  m_float_point;
 
 public:
   farm() noexcept: widget(cv_w*farm_w,cv_h*4){}
 
+  const gbstd::point&  get_fixed_point() const noexcept{return m_fixed_point;}
+
   void  do_when_mouse_acted(int  x, int  y) noexcept override
   {
-    m_point.x = x/(cv_w*2);
-    m_point.y = y/(cv_h  );
+    m_float_point.x = x/(cv_w*2);
+    m_float_point.y = y/(cv_h  );
 
       if(gbstd::ctrl.is_mouse_lbutton_pressed())
       {
-        farm_pt.x = m_point.x*(cv_w*2);
-        farm_pt.y = m_point.y*(cv_h  );
+        m_fixed_point = m_float_point;
       }
 
 
@@ -216,7 +230,16 @@ public:
   {
     images::transfer(image_frame(farm_image,point(),0,0),cur);
 
-    cur.draw_rectangle(images::predefined::white,(cv_w*2)*m_point.x,cv_h*m_point.y,cv_w*2,cv_h);
+      if(!need_to_hide_cursors)
+      {
+        constexpr int  w = cv_w*2;
+        constexpr int  h = cv_h;
+
+        using gbstd::images::predefined;
+
+        cur.draw_doubleline_rectangle(predefined::black,predefined::white,w*m_fixed_point.x,h*m_fixed_point.y,w,h);
+        cur.draw_doubleline_rectangle(predefined::red  ,predefined::white,w*m_float_point.x,h*m_float_point.y,w,h);
+      }
   }
 
 };
@@ -308,12 +331,12 @@ public:
 
 
 class
-table: public gbstd::widget
+table_view: public gbstd::widget
 {
   point  m_point;
 
 public:
-  table() noexcept: widget(cv_w*2*table_width,cv_h*table_width){}
+  table_view() noexcept: widget(cv_w*2*table_width,cv_h*table_width){}
 
   void  do_when_mouse_acted(int  x, int  y) noexcept override
   {
@@ -322,7 +345,10 @@ public:
 
       if(gbstd::ctrl.is_mouse_lbutton_pressed())
       {
-        ::table[m_point.y][m_point.x] = farm_pt;
+        auto&  pt = table[m_point.y][m_point.x];
+
+        pt.x = (cv_w*2)*ptrs::farm->get_fixed_point().x;
+        pt.y = (cv_h  )*ptrs::farm->get_fixed_point().y;
       }
 
 
@@ -333,7 +359,7 @@ public:
   {
       for(int  y = 0;  y < table_width;  ++y){
       for(int  x = 0;  x < table_width;  ++x){
-        auto  pt = ::table[y][x];
+        auto  pt = table[y][x];
 
         image_frame   src(farm_image,pt,cv_w*2,cv_h);
 
@@ -362,6 +388,8 @@ clear_all(widgets::button&  btn) noexcept
       frm.fill(pixel());
 
       ptrs::cv->need_to_redraw();
+      ptrs::farm->need_to_redraw();
+      ptrs::tv->need_to_redraw();
     }
 }
 
@@ -378,6 +406,8 @@ fill_all(widgets::button&  btn) noexcept
       frm.fill(current_color);
 
       ptrs::cv->need_to_redraw();
+      ptrs::farm->need_to_redraw();
+      ptrs::tv->need_to_redraw();
     }
 }
 
@@ -385,17 +415,50 @@ fill_all(widgets::button&  btn) noexcept
 void
 save(widgets::button&  btn) noexcept
 {
-    for(int  y = 0;  y < cv_h;  ++y)
+    if(btn.get_count())
     {
-        for(int  x = 0;  x < cv_w;  ++x)
+      btn.reset_count();
+
+#ifdef EMSCRIPTEN
+      need_to_hide_cursors = true;
+
+      ptrs::farm->redraw(image);
+
+      need_to_hide_cursors = false;
+
+      sdl::update_screen(image);
+
+
+      char  buf[256];
+
+      auto&  pt = ptrs::farm->get_absolute_point();
+      auto    w = ptrs::farm->get_width();
+      auto    h = ptrs::farm->get_height();
+
+      snprintf(buf,sizeof(buf),
+        "  var  src = document.getElementById(\"canvas\");"
+        "  var  clp = document.createElement(\"canvas\");"
+        "  var  ctx = clp.getContext(\"2d\");"
+        "  ctx.drawImage(src,%d,%d,%d,%d,0,0,%d,%d);"
+        "  var  img = document.getElementById(\"img\");"
+        "  img.src = clp.toDataURL();",pt.x,pt.y,w,h,w,h);
+
+
+      emscripten_run_script(buf);
+#else
+        for(int  y = 0;  y < cv_h;  ++y)
         {
-          auto  v = cv_image.get_pixel(x,y);
+            for(int  x = 0;  x < cv_w;  ++x)
+            {
+              auto  v = cv_image.get_pixel(x,y);
 
-          printf("0%04o,",v.color_index);
+              printf("0%04o,",static_cast<unsigned int>(v.color_index));
+            }
+
+
+          printf("\n");
         }
-
-
-      printf("\n");
+#endif
     }
 }
 
@@ -424,25 +487,30 @@ main(int  argc, char**  argv)
 {
   sdl::init(screen_w,screen_h);
 
+  r_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
+  g_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
+  b_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
+
   color_sample = new types::color_sample;
 
   auto  pal = new widgets::table_column({
     color_sample,
-    new widgets::table_row({new widgets::label(u"[ R ]"),r_dial.get_widget()}),
-    new widgets::table_row({new widgets::label(u"[ G ]"),g_dial.get_widget()}),
-    new widgets::table_row({new widgets::label(u"[ B ]"),b_dial.get_widget()}),
+    new widgets::table_row({new widgets::label(u"[ R ]"),r_dial}),
+    new widgets::table_row({new widgets::label(u"[ G ]"),g_dial}),
+    new widgets::table_row({new widgets::label(u"[ B ]"),b_dial}),
   });
 
 
   ptrs::cv   = new types::canvas;
   ptrs::farm = new types::farm;
+  ptrs::tv   = new types::table_view;
 
   auto  clra_btn = new widgets::button(new widgets::label(u"CLEAR ALL"),clear_all);;
   auto  fila_btn = new widgets::button(new widgets::label(u" FILL ALL"),fill_all);;
   auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);;
 
   auto  mcol = new widgets::table_column({pal,clra_btn,fila_btn,save_btn});
-  auto  lcol = new widgets::table_column({ptrs::farm,new types::table});
+  auto  lcol = new widgets::table_column({ptrs::farm,ptrs::tv});
 
   auto  row = new widgets::table_row({ptrs::cv,mcol,lcol});
 
@@ -454,15 +522,19 @@ main(int  argc, char**  argv)
 
   make_farm();
 
+#ifdef EMSCRIPTEN
+  emscripten_set_main_loop(main_loop,0,false);
+#else
     for(;;)
     {
       main_loop();
 
       SDL_Delay(20);
     }
+#endif
 
 
-  sdl::quit();
+//  sdl::quit();
 
   return 0;
 }

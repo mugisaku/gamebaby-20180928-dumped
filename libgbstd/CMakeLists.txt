@@ -23,6 +23,7 @@ set(SOURCES
   widgets/label.cpp
   widgets/button.cpp
   widgets/table.cpp
+  widgets/icon_selector.cpp
   widgets/dial.cpp
   unicode.cpp
   environment.cpp

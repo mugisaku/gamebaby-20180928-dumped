@@ -80,30 +80,8 @@
 <tr><td>SHIFTキー: 切り替え</td></tr>
 <tr><td>SPACEキー: 強い決定</td></tr>
 -->
-<tr><td><textarea id="user_input" cols="80" rows="16">
-t:table{a:0,b:2}
-
-add:routine(x,y)
-{
-  return x+y;
-}
-
-main:routine()
-{
-  t.a = "x";
-
-    for(n = 0;  n < 8;  n = add(n,1))
-    {
-      print n;
-
-      t["a"] += n;
-    }
-
-
-  print t["a"];
-}
-</textarea></td><td><button type="button" onclick="callback()">実行</button></td></tr>
-<tr><td><textarea class="emscripten" id="output" cols="80" rows="8"></textarea></td></tr>
+<!--tr><td><textarea class="emscripten" id="output" cols="80" rows="8"></textarea></td></tr-->
+<tr><td><img id="img"></img></td></tr>
 <tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby/tree/master/libgbscr">こちら</a></td></tr>
 </table>
 </td>
@@ -186,18 +164,6 @@ main:routine()
           if (text) Module.printErr('[post-exception status] ' + text);
         };
       };
-
-
-function
-callback()
-{
-  var  ui = document.getElementById("user_input");
-  var   o = document.getElementById("output");
-
-  o.value = "";
-
-  Module.ccall("fn","number",["string"],[ui.value]);
-}
 
 
     </script>

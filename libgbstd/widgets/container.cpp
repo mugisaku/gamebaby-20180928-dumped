@@ -64,22 +64,6 @@ remove(widget*  target) noexcept
 
 
 
-void
-container::
-render(image_cursor  cur) noexcept
-{
-    for(auto&  child: m_children)
-    {
-        if(child->test_flag(flags::shown))
-        {
-          child->render(image_cursor(cur+child->get_relative_point()));
-        }
-    }
-}
-
-
-
-
 widget*
 container::
 scan_by_point(int  x, int  y) noexcept
@@ -139,8 +123,14 @@ redraw(image&  img) noexcept
 {
     for(auto&  child: m_children)
     {
-      child->redraw_if_needed(img);
+        if(child->test_flag(flags::shown))
+        {
+          child->redraw_if_needed(img);
+        }
     }
+
+
+  unset_flag(flags::needed_to_redraw);
 }
 
 
@@ -155,6 +145,38 @@ show_all() noexcept
       child->show_all();
     }
 }
+
+
+
+
+void
+container::
+print(int  indent) const noexcept
+{
+  widget::print(indent);
+
+  printf_with_indent(indent+2,"{\n");
+
+  auto   it = m_children.cbegin();
+  auto  end = m_children.cend();
+
+    if(it != end)
+    {
+      (*it)->print(indent+2);
+
+        while(++it != end)
+        {
+          printf_with_indent(indent+2,",\n");
+
+          (*it)->print(indent+2);
+        }
+    }
+
+
+  printf_with_indent(indent,"\n}");
+}
+
+
 
 
 }}

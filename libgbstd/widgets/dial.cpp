@@ -117,7 +117,7 @@ m_callback(callback)
 
   m_label = new label(ts(format,min,max));
 
-  m_table_row = new table_row({m_down_button,m_up_button,m_label});
+  append({m_down_button,m_up_button,m_label});
 }
 
 

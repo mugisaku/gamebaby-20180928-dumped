@@ -231,6 +231,17 @@ fill_rectangle(pixel  pix, int  x, int  y, int  w, int  h) noexcept
 
 
 
+void
+image::
+draw_doubleline_rectangle(pixel  in, pixel  out, int  x, int  y, int  w, int  h) noexcept
+{
+  draw_rectangle(out,x  ,y  ,w  ,h  );
+  draw_rectangle( in,x+1,y+1,w-2,h-2);
+}
+
+
+
+
 namespace{
 
 

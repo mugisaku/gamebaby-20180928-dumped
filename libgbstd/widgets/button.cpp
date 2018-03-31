@@ -79,7 +79,7 @@ reform(point  base_pt) noexcept
   widget::reform(base_pt);
 
 
-  m_target->reform(get_absolute_point()+point(margin,margin));
+  m_target->reform_if_needed(get_absolute_point()+point(margin,margin));
 
   auto  rel_pt = m_target->get_relative_point();
 
@@ -96,11 +96,42 @@ render(image_cursor  cur) noexcept
 {
     if(m_target)
     {
-      m_target->redraw(cur.get_image());
+      m_target->redraw_if_needed(cur.get_image());
     }
 
 
-  cur.draw_rectangle(predefined::white,0,0,m_width,m_height);
+  cur.draw_rectangle(images::predefined::white,0,0,m_width,m_height);
+}
+
+
+void
+button::
+show_all() noexcept
+{
+  widget::show();
+
+    if(m_target)
+    {
+      m_target->show_all();
+    }
+}
+
+
+void
+button::
+print(int  indent) const noexcept
+{
+  widget::print(indent);
+
+  printf_with_indent(indent+2,"{\n");
+
+    if(m_target)
+    {
+      m_target->print(indent+2);
+    }
+
+
+  printf_with_indent(indent,"\n}");
 }
 
 

@@ -5,6 +5,7 @@
 #include"libgbstd/image.hpp"
 #include"libgbstd/controller.hpp"
 #include"libgbstd/string.hpp"
+#include"libgbstd/utility.hpp"
 #include<initializer_list>
 #include<memory>
 
@@ -21,6 +22,8 @@ class
 widget
 {
 protected:
+  gbstd::string  m_name;
+
   uint32_t  m_flags=0;
 
   widget*  m_parent=nullptr;
@@ -52,6 +55,8 @@ public:
   widget&  operator=(const widget&   rhs) noexcept=delete;
   widget&  operator=(      widget&&  rhs) noexcept=delete;
 
+  virtual const char*  get_widget_name() const noexcept{return "widget";}
+
   virtual void  reform(point  base_pt) noexcept;
   virtual void  redraw(image&  img) noexcept;
 
@@ -67,6 +72,10 @@ public:
 
   void  need_to_redraw() noexcept;
   void  need_to_reform() noexcept;
+
+
+  void                  set_name(gbstd::string_view  name)       noexcept{       m_name = name;}
+  const gbstd::string&  get_name(                        ) const noexcept{return m_name       ;}
 
 
   void     set_parent(widget*  parent)       noexcept{       m_parent = parent;}
@@ -118,7 +127,7 @@ public:
   bool  is_needed_to_reform() const noexcept{return test_flag(flags::needed_to_reform);}
   bool  is_needed_to_redraw() const noexcept{return test_flag(flags::needed_to_redraw);}
 
-  void  print() const noexcept;
+  virtual void  print(int  indent=0) const noexcept;
 
 };
 
@@ -132,19 +141,21 @@ protected:
   std::vector<std::unique_ptr<widget>>  m_children;
 
 public:
+  const char*  get_widget_name() const noexcept override{return "container";}
+
   void  clear() noexcept override;
   bool  remove(widget*  target) noexcept override;
 
   void  reform(point  base_pt) noexcept override;
   void  redraw(image&  img) noexcept override;
 
-  void  render(image_cursor  cur) noexcept override;
-
   widget*  scan_by_point(int  x, int  y) noexcept override;
 
   void  append_child(widget*  child, int  x, int  y) noexcept;
 
   void  show_all() noexcept override;
+
+  void  print(int  indent=0) const noexcept override;
 
 };
 
@@ -162,6 +173,8 @@ public:
   root() noexcept{}
  ~root(){}
 
+  const char*  get_widget_name() const noexcept override{return "root";}
+
   void  react() noexcept;
 
 };
@@ -177,6 +190,8 @@ label: public widget
 public:
   label(gbstd::string_view     sv) noexcept;
   label(gbstd::u16string_view  sv) noexcept;
+
+  const char*  get_widget_name() const noexcept override{return "label";}
 
   void  set_text(gbstd::u16string_view  sv) noexcept;
   void  set_text(gbstd::string_view     sv) noexcept;
@@ -234,15 +249,9 @@ public:
     need_to_redraw();
   }
 
-  void  render(image_cursor  cur) noexcept override
-  {
-    auto&  icon = m_icons[m_current];
+  const char*  get_widget_name() const noexcept override{return "icon_selector";}
 
-      for(auto  y = 0;  y < icon::size;  ++y){
-      for(auto  x = 0;  x < icon::size;  ++x){
-        cur.draw_dot(icon.get_color_index(x,y),x,y);
-      }}
-  }
+  void  render(image_cursor  cur) noexcept override;
 
 };
 
@@ -265,6 +274,8 @@ button: public widget
 public:
   button(widget*  target, void  (*callback)(button&)) noexcept;
 
+  const char*  get_widget_name() const noexcept override{return "button";}
+
   int  get_count() const noexcept{return m_count;}
 
   void  reset_count() noexcept{m_count = 0;}
@@ -281,6 +292,10 @@ public:
 
   void  render(image_cursor  cur) noexcept override;
 
+  void  print(int  indent=0) const noexcept override;
+
+  void  show_all() noexcept override;
+
 };
 
 
@@ -290,7 +305,9 @@ class
 table_column: public container
 {
 public:
-  table_column(std::initializer_list<widget*>  ls) noexcept{append(ls);}
+  table_column(std::initializer_list<widget*>  ls={}) noexcept{append(ls);}
+
+  const char*  get_widget_name() const noexcept override{return "table_column";}
 
   void  reform(point  base_pt) noexcept override;
 
@@ -303,7 +320,9 @@ class
 table_row: public container
 {
 public:
-  table_row(std::initializer_list<widget*>  ls) noexcept{append(ls);}
+  table_row(std::initializer_list<widget*>  ls={}) noexcept{append(ls);}
+
+  const char*  get_widget_name() const noexcept override{return "table_row";}
 
   void  reform(point  base_pt) noexcept override;
 
@@ -313,7 +332,7 @@ public:
 
 
 class
-dial
+dial: public table_row
 {
   int  m_current=0;
 
@@ -330,8 +349,6 @@ dial
 
   label*   m_label;
 
-  table_row*  m_table_row;
-
   static void    up(button&  btn);
   static void  down(button&  btn);
 
@@ -341,8 +358,6 @@ public:
   int  get_current() const noexcept{return m_current;}
   int  get_min() const noexcept{return m_min;}
   int  get_max() const noexcept{return m_max;}
-
-  widget*  get_widget() const noexcept{return m_table_row;}
 
 };
 
