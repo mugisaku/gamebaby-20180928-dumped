@@ -119,8 +119,10 @@ reform(point  base_pt) noexcept
 
 void
 container::
-redraw(image&  img) noexcept
+render(image_cursor  cur) noexcept
 {
+  auto&  img = cur.get_image();
+
     for(auto&  child: m_children)
     {
         if(child->test_flag(flags::shown))
@@ -128,9 +130,6 @@ redraw(image&  img) noexcept
           child->redraw_if_needed(img);
         }
     }
-
-
-  unset_flag(flags::needed_to_redraw);
 }
 
 

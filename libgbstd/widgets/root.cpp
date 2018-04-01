@@ -12,7 +12,7 @@ void
 root::
 react() noexcept
 {
-  reform_if_needed(point{0,0});
+  m_container.reform_if_needed(point{0,0});
 
 
   auto  pt = ctrl.get_point();
@@ -23,7 +23,7 @@ react() noexcept
     {
         if(!m_current)
         {
-          m_current = scan_by_point(pt.x,pt.y);
+          m_current = m_container.scan_by_point(pt.x,pt.y);
 
             if(m_current)
             {
@@ -39,7 +39,7 @@ react() noexcept
             {
               m_current->do_when_cursor_got_out();
 
-              m_current = scan_by_point(pt.x,pt.y);
+              m_current = m_container.scan_by_point(pt.x,pt.y);
 
                 if(m_current)
                 {
@@ -69,8 +69,6 @@ react() noexcept
 
   m_previous_ctrl = ctrl;
 }
-
-
 
 
 }}

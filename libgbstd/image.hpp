@@ -79,6 +79,9 @@ pixel
 };
 
 
+constexpr int  font_width  =  8;
+constexpr int  font_height = 16;
+
 class
 text_style
 {
@@ -257,6 +260,8 @@ using images::color_index;
 using images::palette;
 using images::text_style;
 using images::predefined;
+using images::font_width;
+using images::font_height;
 
 using images::image;
 using images::image_cursor;

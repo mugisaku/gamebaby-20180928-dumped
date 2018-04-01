@@ -147,7 +147,7 @@ public:
   bool  remove(widget*  target) noexcept override;
 
   void  reform(point  base_pt) noexcept override;
-  void  redraw(image&  img) noexcept override;
+  void  render(image_cursor  cur) noexcept override;
 
   widget*  scan_by_point(int  x, int  y) noexcept override;
 
@@ -163,19 +163,85 @@ public:
 
 
 class
-root: public container
+root
 {
+  container  m_container;
+
   widget*  m_current=nullptr;
 
   controller  m_previous_ctrl;
 
 public:
   root() noexcept{}
- ~root(){}
 
-  const char*  get_widget_name() const noexcept override{return "root";}
+  container*  operator->() noexcept{return &m_container;}
+
+  int  get_width()  const noexcept{return m_container.get_width() ;}
+  int  get_height() const noexcept{return m_container.get_height();}
 
   void  react() noexcept;
+
+  void  update() noexcept{m_container.reform_if_needed(point());}
+
+  void  render(image&  dst, int  x, int  y) noexcept{m_container.render(image_cursor(dst,x,y));}
+
+};
+
+
+class window_manager;
+
+
+class
+window
+{
+  friend class window_manager;
+
+  window_manager*  m_manager;
+
+  root    m_root;
+  image  m_image;
+
+  pixel  m_pixels[4] = {pixel(predefined::null),
+                        pixel(predefined::blue      ,30000),
+                        pixel(predefined::white     ,30000),
+                        pixel(predefined::light_gray,30000)};
+
+  point  m_point;
+
+  window*  m_previous=nullptr;
+  window*  m_next    =nullptr;
+
+  void  draw_frame() noexcept;
+
+public:
+  window() noexcept{}
+
+  root*  operator->() noexcept{return &m_root;}
+
+  const point&  get_point() const noexcept{return m_point;}
+
+  const image&  get_image() const noexcept{return m_image;}
+
+  void  update() noexcept;
+
+};
+
+
+class
+window_manager
+{
+  window*  m_bottom=nullptr;
+  window*  m_top   =nullptr;
+
+public:
+  window_manager() noexcept{}
+ ~window_manager(){clear();}
+
+  void  clear()  noexcept;
+
+  window&  new_window() noexcept;
+
+  void  composite(image&  dst) noexcept;
 
 };
 

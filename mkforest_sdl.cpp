@@ -245,6 +245,51 @@ public:
 };
 
 
+
+
+class
+table_view: public gbstd::widget
+{
+  point  m_point;
+
+public:
+  table_view() noexcept: widget(cv_w*2*table_width,cv_h*table_width){}
+
+  void  do_when_mouse_acted(int  x, int  y) noexcept override
+  {
+    m_point.x = x/(cv_w*2);
+    m_point.y = y/(cv_h  );
+
+      if(gbstd::ctrl.is_mouse_lbutton_pressed())
+      {
+        auto&  pt = table[m_point.y][m_point.x];
+
+        pt.x = (cv_w*2)*ptrs::farm->get_fixed_point().x;
+        pt.y = (cv_h  )*ptrs::farm->get_fixed_point().y;
+      }
+
+
+    need_to_redraw();
+  }
+
+  void  render(gbstd::image_cursor  cur) noexcept override
+  {
+      for(int  y = 0;  y < table_width;  ++y){
+      for(int  x = 0;  x < table_width;  ++x){
+        auto  pt = table[y][x];
+
+        image_frame   src(farm_image,pt,cv_w*2,cv_h);
+
+        images::transfer(src,cur+point(cv_w*2*x,cv_h*y));
+      }}
+
+
+    cur.draw_rectangle(gbstd::images::predefined::white,(cv_w*2)*m_point.x,cv_h*m_point.y,cv_w*2,cv_h);
+  }
+
+};
+
+
 class
 canvas: public widgets::widget
 {
@@ -267,6 +312,7 @@ public:
         make_farm();
 
         ptrs::farm->need_to_redraw();
+        ptrs::tv  ->need_to_redraw();
       }
 
     else
@@ -274,9 +320,12 @@ public:
       {
         dst.color_index = 0;
 
+        need_to_redraw();
+
         make_farm();
 
-        need_to_redraw();
+        ptrs::farm->need_to_redraw();
+        ptrs::tv  ->need_to_redraw();
       }
   }
 
@@ -328,49 +377,6 @@ public:
   }
 
 };
-
-
-class
-table_view: public gbstd::widget
-{
-  point  m_point;
-
-public:
-  table_view() noexcept: widget(cv_w*2*table_width,cv_h*table_width){}
-
-  void  do_when_mouse_acted(int  x, int  y) noexcept override
-  {
-    m_point.x = x/(cv_w*2);
-    m_point.y = y/(cv_h  );
-
-      if(gbstd::ctrl.is_mouse_lbutton_pressed())
-      {
-        auto&  pt = table[m_point.y][m_point.x];
-
-        pt.x = (cv_w*2)*ptrs::farm->get_fixed_point().x;
-        pt.y = (cv_h  )*ptrs::farm->get_fixed_point().y;
-      }
-
-
-    need_to_redraw();
-  }
-
-  void  render(gbstd::image_cursor  cur) noexcept override
-  {
-      for(int  y = 0;  y < table_width;  ++y){
-      for(int  x = 0;  x < table_width;  ++x){
-        auto  pt = table[y][x];
-
-        image_frame   src(farm_image,pt,cv_w*2,cv_h);
-
-        images::transfer(src,cur+point(cv_w*2*x,cv_h*y));
-      }}
-
-
-    cur.draw_rectangle(gbstd::images::predefined::white,(cv_w*2)*m_point.x,cv_h*m_point.y,cv_w*2,cv_h);
-  }
-
-};
 }
 
 
@@ -387,7 +393,11 @@ clear_all(widgets::button&  btn) noexcept
 
       frm.fill(pixel());
 
+
       ptrs::cv->need_to_redraw();
+
+      make_farm();
+
       ptrs::farm->need_to_redraw();
       ptrs::tv->need_to_redraw();
     }
@@ -405,7 +415,11 @@ fill_all(widgets::button&  btn) noexcept
 
       frm.fill(current_color);
 
+
       ptrs::cv->need_to_redraw();
+
+      make_farm();
+
       ptrs::farm->need_to_redraw();
       ptrs::tv->need_to_redraw();
     }

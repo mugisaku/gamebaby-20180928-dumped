@@ -25,6 +25,7 @@ set(SOURCES
   widgets/table.cpp
   widgets/icon_selector.cpp
   widgets/dial.cpp
+  widgets/window.cpp
   unicode.cpp
   environment.cpp
   random_number.cpp
