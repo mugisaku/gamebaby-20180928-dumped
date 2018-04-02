@@ -32,16 +32,15 @@ controller: public button_state
 {
   uint32_t  m_time=0;
 
-  point  m_point;
+  point           m_point;
+  point  m_previous_point;
 
 public:
-  void  change_point(int  x, int  y){m_point = point(x,y);}
+  const point&  get_point() const noexcept{return m_point;}
+  const point&  get_previous_point() const noexcept{return m_previous_point;}
 
-  point  get_point() const noexcept{return m_point;}
-
-  void  change_time(uint32_t  v) noexcept{m_time = v;}
-
-  uint32_t  get_time() const noexcept{return m_time;}
+  void      set_time(uint32_t  v)       noexcept{       m_time = v;}
+  uint32_t  get_time(           ) const noexcept{return m_time    ;}
 
 
   static constexpr uint32_t       up_button_flag = 0x001;
@@ -54,6 +53,16 @@ public:
   static constexpr uint32_t    shift_button_flag = 0x080;
   static constexpr uint32_t   mouse_lbutton_flag = 0x100;
   static constexpr uint32_t   mouse_rbutton_flag = 0x200;
+  static constexpr uint32_t     mouse_acted_flag = 0x400;
+
+  void  save_point() noexcept{m_previous_point = m_point;}
+
+  void  set_point(int  x, int  y) noexcept{m_point = point(x,y);}
+
+  void    press_mouse_lbutton() noexcept;
+  void    press_mouse_rbutton() noexcept;
+  void  release_mouse_lbutton() noexcept;
+  void  release_mouse_rbutton() noexcept;
 
   bool       is_up_button_pressed() const noexcept{return test(    up_button_flag);}
   bool     is_left_button_pressed() const noexcept{return test(  left_button_flag);}
@@ -65,6 +74,9 @@ public:
   bool    is_shift_button_pressed() const noexcept{return test( shift_button_flag);}
   bool   is_mouse_lbutton_pressed() const noexcept{return test(mouse_lbutton_flag);}
   bool   is_mouse_rbutton_pressed() const noexcept{return test(mouse_rbutton_flag);}
+  bool            did_mouse_acted() const noexcept{return test(mouse_acted_flag);}
+
+  bool  did_mouse_moved() const noexcept{return m_previous_point != m_point;}
 
 
 };

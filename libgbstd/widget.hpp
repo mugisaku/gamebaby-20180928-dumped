@@ -162,32 +162,6 @@ public:
 
 
 
-class
-root
-{
-  container  m_container;
-
-  widget*  m_current=nullptr;
-
-  controller  m_previous_ctrl;
-
-public:
-  root() noexcept{}
-
-  container*  operator->() noexcept{return &m_container;}
-
-  int  get_width()  const noexcept{return m_container.get_width() ;}
-  int  get_height() const noexcept{return m_container.get_height();}
-
-  void  react() noexcept;
-
-  void  update() noexcept{m_container.reform_if_needed(point());}
-
-  void  render(image&  dst, int  x, int  y) noexcept{m_container.render(image_cursor(dst,x,y));}
-
-};
-
-
 class window_manager;
 
 
@@ -198,7 +172,10 @@ window
 
   window_manager*  m_manager;
 
-  root    m_root;
+  container  m_container;
+
+  widget*  m_current=nullptr;
+
   image  m_image;
 
   pixel  m_pixels[4] = {pixel(predefined::null),
@@ -208,21 +185,55 @@ window
 
   point  m_point;
 
-  window*  m_previous=nullptr;
-  window*  m_next    =nullptr;
+  bool  m_modified_flag=true;
+
+  window*  m_low =nullptr;
+  window*  m_high=nullptr;
 
   void  draw_frame() noexcept;
 
 public:
-  window() noexcept{}
+  window(int  x=0, int  y=0) noexcept;
 
-  root*  operator->() noexcept{return &m_root;}
+  container*  operator->() noexcept{return &m_container;}
+
+  container&  get_container() noexcept{return m_container;}
 
   const point&  get_point() const noexcept{return m_point;}
 
+  bool  test_by_point(int  x, int  y) const noexcept;
+
+  bool  is_image_modified() noexcept;
+
   const image&  get_image() const noexcept{return m_image;}
 
+  int  get_width()  const noexcept{return m_image.get_width() ;}
+  int  get_height() const noexcept{return m_image.get_height();}
+
+  void   react() noexcept;
   void  update() noexcept;
+
+};
+
+
+class
+window_pointer
+{
+  friend class window_manager;
+
+  window*  m_data=nullptr;
+
+public:
+  window_pointer() noexcept{}
+  window_pointer(window&  w) noexcept: m_data(&w){}
+
+  window*  operator->() const noexcept{return  m_data;}
+  window&  operator *() const noexcept{return *m_data;}
+
+  operator bool() const noexcept{return m_data;}
+
+  bool  operator==(const window_pointer&  rhs) const noexcept{return m_data == rhs.m_data;}
+  bool  operator!=(const window_pointer&  rhs) const noexcept{return m_data != rhs.m_data;}
 
 };
 
@@ -233,13 +244,26 @@ window_manager
   window*  m_bottom=nullptr;
   window*  m_top   =nullptr;
 
+  bool  m_modified_flag=true;
+
+  void   touch(window&  win) noexcept;
+  void  remove(window&  win) noexcept;
+
 public:
   window_manager() noexcept{}
  ~window_manager(){clear();}
 
   void  clear()  noexcept;
 
-  window&  new_window() noexcept;
+  window_pointer  new_window(int  x, int  y) noexcept;
+
+  void  delete_window(window_pointer  ptr) noexcept;
+
+  void  reset_windows_all() noexcept;
+
+  bool  is_any_window_modified() noexcept;
+
+  void  update() noexcept;
 
   void  composite(image&  dst) noexcept;
 

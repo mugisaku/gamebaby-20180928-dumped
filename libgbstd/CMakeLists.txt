@@ -19,14 +19,15 @@ set(SOURCES
   texts/text_roll_iterator.cpp
   widgets/widget.cpp
   widgets/container.cpp
-  widgets/root.cpp
   widgets/label.cpp
   widgets/button.cpp
   widgets/table.cpp
   widgets/icon_selector.cpp
   widgets/dial.cpp
   widgets/window.cpp
+  widgets/window_manager.cpp
   unicode.cpp
+  utility.cpp
   environment.cpp
   random_number.cpp
   controller.cpp

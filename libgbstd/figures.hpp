@@ -5,11 +5,6 @@
 #include<cstdio>
 
 
-#ifndef report
-#define report printf("[report] %s, %s, %d\n",__FILE__,__func__,__LINE__);
-#endif
-
-
 namespace gbstd{
 namespace images{
 
@@ -76,6 +71,14 @@ point
   {
     x += rhs.x;
     y += rhs.y;
+
+    return *this;
+  }
+
+  constexpr point&  operator-=(point const&  rhs) noexcept
+  {
+    x -= rhs.x;
+    y -= rhs.y;
 
     return *this;
   }

@@ -120,12 +120,24 @@ draw_frame_bottom(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noe
 }
 
 
+
+
+window::
+window(int  x, int  y) noexcept:
+m_point(x,y)
+{
+  m_container.set_relative_point(point(8,8));
+}
+
+
+
+
 void
 window::
 draw_frame() noexcept
 {
-  int  w = m_root.get_width() +8;
-  int  h = m_root.get_height()+8;
+  int  w = get_width() ;
+  int  h = get_height();
 
   draw_frame_top(   m_image,0,0    ,w     ,m_pixels);
   draw_frame_body(  m_image,0,0  +8,w,h-16,m_pixels);
@@ -133,28 +145,106 @@ draw_frame() noexcept
 }
 
 
+bool
+window::
+test_by_point(int  x, int  y) const noexcept
+{
+  return((x >= (m_point.x                     )) &&
+         (y >= (m_point.y                     )) &&
+         (x <  (m_point.x+m_image.get_width() )) &&
+         (y <  (m_point.y+m_image.get_height())));
+}
+
+
+bool
+window::
+is_image_modified() noexcept
+{
+    if(m_modified_flag)
+    {
+      m_modified_flag = false;
+
+      return true;
+    }
+
+
+  return false;
+}
+
+
+void
+window::
+react() noexcept
+{
+  m_container.reform_if_needed(point());
+
+  auto  pt = ctrl.get_point();
+
+    if(ctrl.did_mouse_moved())
+    {
+        if(!m_current)
+        {
+          m_current = m_container.scan_by_point(pt.x,pt.y);
+
+            if(m_current)
+            {
+              m_current->do_when_cursor_got_in();
+            }
+        }
+
+      else
+        {
+            if(!m_current->test_by_point(pt.x,pt.y))
+            {
+              m_current->do_when_cursor_got_out();
+
+              m_current = m_container.scan_by_point(pt.x,pt.y);
+
+                if(m_current)
+                {
+                  m_current->do_when_cursor_got_in();
+                }
+            }
+        }
+    }
+
+
+    if(m_current && ctrl.did_mouse_acted())
+    {
+      pt -= m_current->get_absolute_point();
+
+      m_current->do_when_mouse_acted(pt.x,pt.y);
+    }
+
+
+  update();
+}
+
+
 void
 window::
 update() noexcept
 {
-  m_root.update();
-
-  int  w = m_root.get_width() +8;
-  int  h = m_root.get_height()+8;
-
-    if((w != m_image.get_width()) ||
-       (h != m_image.get_height()))
+    if(m_container.is_needed_to_redraw())
     {
-      m_image.resize(w,h);
+report;
+      m_container.reform_if_needed(point());
 
-      draw_frame();
+      int  w = m_container.get_width() +8;
+      int  h = m_container.get_height()+8;
 
-      m_root.render(m_image,8,8);
-    }
+        if((w != m_image.get_width()) ||
+           (h != m_image.get_height()))
+        {
+          m_image.resize(w,h);
 
-  else
-    {
-      m_root.render(m_image,8,8);
+          draw_frame();
+        }
+
+
+      m_container.redraw(m_image);
+
+      m_modified_flag = true;
     }
 }
 

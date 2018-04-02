@@ -8,11 +8,14 @@
 
 
 #ifndef report
-#define report printf("[report] %s, %s, %d\n",__FILE__,__func__,__LINE__);
+#define report printf("[report %8d] %s, %s, %d\n",reporting_counter++,__FILE__,__func__,__LINE__);
 #endif
 
 
 namespace gbstd{
+
+
+extern int  reporting_counter;
 
 
 template<typename  T>
@@ -62,63 +65,16 @@ tmpstr
 
 public:
   tmpstr() noexcept: buf{0}{}
-  tmpstr(const char*  fmt, ...) noexcept
-  {
-    va_list  ap;
-    va_start(ap,fmt);
-
-    vsnprintf(buf,sizeof(buf),fmt,ap);
-
-    va_end(ap);
-  }
-
+  tmpstr(const char*  fmt, ...) noexcept;
 
   const char*  operator*() const noexcept{return buf;}
 
-  const char*  operator()(const char*  fmt, ...) noexcept
-  {
-    va_list  ap;
-    va_start(ap,fmt);
-
-    vsnprintf(buf,sizeof(buf),fmt,ap);
-
-    va_end(ap);
-
-    return buf;
-  }
+  const char*  operator()(const char*  fmt, ...) noexcept;
 
 };
 
 
-inline
-void
-printf_with_indent(int  indent, const char*  fmt, ...) noexcept
-{
-  char  buf[256];
-
-  va_list  ap;
-  va_start(ap,fmt);
-
-  vsnprintf(buf,sizeof(buf),fmt,ap);
-
-  va_end(ap);
-
-  const char*  p = buf;
-
-    while(*p)
-    {
-      fputc(*p,stdout);
-
-        if(*p++ == '\n')
-        {
-            for(int  n = 0;  n < indent;  ++n)
-            {
-              fputc(' ',stdout);
-            }
-        }
-    }
-}
-
+void  printf_with_indent(int  indent, const char*  fmt, ...) noexcept;
 
 
 }
