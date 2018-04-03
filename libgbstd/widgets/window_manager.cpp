@@ -23,7 +23,8 @@ clear() noexcept
     }
 
 
-  m_modified_flag = true;
+  m_modified_flag =  true;
+  m_moving_flag   = false;
 
   m_bottom = nullptr;
   m_top    = nullptr;
@@ -51,7 +52,8 @@ new_window(int  x, int  y) noexcept
     }
 
 
-  m_modified_flag = true;
+  m_modified_flag =  true;
+  m_moving_flag   = false;
 
   m_top = win;
 
@@ -65,7 +67,8 @@ delete_window(window_pointer  ptr) noexcept
 {
   remove(*ptr);
 
-  m_modified_flag = true;
+  m_modified_flag =  true;
+  m_moving_flag   = false;
 
     if(m_top == ptr.m_data)
     {
@@ -109,7 +112,8 @@ reset_windows_all() noexcept
     }
 
 
-  m_modified_flag = true;
+  m_modified_flag =  true;
+  m_moving_flag   = false;
 }
 
 
@@ -139,6 +143,14 @@ touch(window&  win) noexcept
     {
       m_modified_flag = true;
     }
+
+  else
+    if(ctrl.is_mouse_lbutton_pressed() && !win.get_current())
+    {
+      m_moving_flag = true;
+
+      m_gripping_point = ctrl.get_point();
+    }
 }
 
 
@@ -152,6 +164,23 @@ update() noexcept
 
     if(current)
     {
+        if(m_moving_flag)
+        {
+            if(ctrl.did_mouse_moved())
+            {
+report;
+              m_modified_flag = true;
+            }
+
+
+            if(!ctrl.is_mouse_lbutton_pressed())
+            {
+report;
+              m_moving_flag = false;
+            }
+        }
+
+      else
         if(current->test_by_point(pt.x,pt.y))
         {
           touch(*current);

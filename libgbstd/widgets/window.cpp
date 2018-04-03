@@ -178,7 +178,7 @@ react() noexcept
 {
   m_container.reform_if_needed(point());
 
-  auto  pt = ctrl.get_point();
+  auto  pt = ctrl.get_point()-m_point;
 
     if(ctrl.did_mouse_moved())
     {

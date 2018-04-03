@@ -199,7 +199,8 @@ public:
 
   container&  get_container() noexcept{return m_container;}
 
-  const point&  get_point() const noexcept{return m_point;}
+  void          set_point(point  pt)       noexcept{       m_point = pt;}
+  const point&  get_point(         ) const noexcept{return m_point     ;}
 
   bool  test_by_point(int  x, int  y) const noexcept;
 
@@ -209,6 +210,8 @@ public:
 
   int  get_width()  const noexcept{return m_image.get_width() ;}
   int  get_height() const noexcept{return m_image.get_height();}
+
+  const widget*  get_current() const noexcept{return m_current;}
 
   void   react() noexcept;
   void  update() noexcept;
@@ -245,6 +248,10 @@ window_manager
   window*  m_top   =nullptr;
 
   bool  m_modified_flag=true;
+
+  bool  m_moving_flag=false;
+
+  point  m_gripping_point;
 
   void   touch(window&  win) noexcept;
   void  remove(window&  win) noexcept;

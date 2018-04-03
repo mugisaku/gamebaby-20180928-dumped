@@ -43,17 +43,18 @@ public:
   uint32_t  get_time(           ) const noexcept{return m_time    ;}
 
 
-  static constexpr uint32_t       up_button_flag = 0x001;
-  static constexpr uint32_t     left_button_flag = 0x002;
-  static constexpr uint32_t    right_button_flag = 0x004;
-  static constexpr uint32_t     down_button_flag = 0x008;
-  static constexpr uint32_t        p_button_flag = 0x010;
-  static constexpr uint32_t        n_button_flag = 0x020;
-  static constexpr uint32_t    start_button_flag = 0x040;
-  static constexpr uint32_t    shift_button_flag = 0x080;
-  static constexpr uint32_t   mouse_lbutton_flag = 0x100;
-  static constexpr uint32_t   mouse_rbutton_flag = 0x200;
-  static constexpr uint32_t     mouse_acted_flag = 0x400;
+  static constexpr uint32_t         up_button_flag = 0x001;
+  static constexpr uint32_t       left_button_flag = 0x002;
+  static constexpr uint32_t      right_button_flag = 0x004;
+  static constexpr uint32_t       down_button_flag = 0x008;
+  static constexpr uint32_t          p_button_flag = 0x010;
+  static constexpr uint32_t          n_button_flag = 0x020;
+  static constexpr uint32_t      start_button_flag = 0x040;
+  static constexpr uint32_t      shift_button_flag = 0x080;
+  static constexpr uint32_t     mouse_lbutton_flag = 0x100;
+  static constexpr uint32_t     mouse_rbutton_flag = 0x200;
+  static constexpr uint32_t       mouse_acted_flag = 0x400;
+  static constexpr uint32_t  needed_to_redraw_flag = 0x800;
 
   void  save_point() noexcept{m_previous_point = m_point;}
 
@@ -75,6 +76,7 @@ public:
   bool   is_mouse_lbutton_pressed() const noexcept{return test(mouse_lbutton_flag);}
   bool   is_mouse_rbutton_pressed() const noexcept{return test(mouse_rbutton_flag);}
   bool            did_mouse_acted() const noexcept{return test(mouse_acted_flag);}
+  bool        is_needed_to_redraw() const noexcept{return test(needed_to_redraw_flag);}
 
   bool  did_mouse_moved() const noexcept{return m_previous_point != m_point;}
 
