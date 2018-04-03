@@ -118,6 +118,9 @@ public:
         pixel&        get_pixel(int  x, int  y)       noexcept{return m_pixels[m_width*y+x];}
   const pixel&  get_const_pixel(int  x, int  y) const noexcept{return m_pixels[m_width*y+x];}
 
+  void  set_pixel(pixel  pix, int  x, int  y                ) noexcept{get_pixel(x,y) = pix;}
+  void  set_pixel(pixel  pix, int  x, int  y, int  w, int  h) noexcept;
+
   uint32_t  get_pixel_color(int  x, int  y, palette const&  pal) const noexcept;
 
 

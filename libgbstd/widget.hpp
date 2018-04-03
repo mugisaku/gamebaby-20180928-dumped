@@ -16,6 +16,7 @@ namespace widgets{
 
 class widget;
 class container;
+class window;
 
 
 class
@@ -26,7 +27,7 @@ protected:
 
   uint32_t  m_flags=0;
 
-  widget*  m_parent=nullptr;
+  container*  m_parent=nullptr;
 
   point  m_absolute_point;
   point  m_relative_point;
@@ -57,6 +58,8 @@ public:
 
   virtual const char*  get_widget_name() const noexcept{return "widget";}
 
+  virtual window*  get_window() const noexcept;
+
   virtual void  reform(point  base_pt) noexcept;
   virtual void  redraw(image&  img) noexcept;
 
@@ -78,8 +81,9 @@ public:
   const gbstd::string&  get_name(                        ) const noexcept{return m_name       ;}
 
 
-  void     set_parent(widget*  parent)       noexcept{       m_parent = parent;}
-  widget*  get_parent(               ) const noexcept{return m_parent         ;}
+  void        set_parent(container*  parent)       noexcept{       m_parent = parent;}
+  container*  get_parent(                  ) const noexcept{return m_parent         ;}
+
 
   void*  get_userdata() const noexcept{return m_userdata;}
 
@@ -138,18 +142,24 @@ class
 container: public widget
 {
 protected:
+  window*  m_window=nullptr;
+
   std::vector<std::unique_ptr<widget>>  m_children;
 
 public:
   const char*  get_widget_name() const noexcept override{return "container";}
 
   void  clear() noexcept override;
+
   bool  remove(widget*  target) noexcept override;
 
   void  reform(point  base_pt) noexcept override;
   void  render(image_cursor  cur) noexcept override;
 
   widget*  scan_by_point(int  x, int  y) noexcept override;
+
+  void     set_window(window*  w)       noexcept{m_window = w;}
+  window*  get_window(          ) const noexcept override{return m_window? m_window:widget::get_window();}
 
   void  append_child(widget*  child, int  x, int  y) noexcept;
 
@@ -170,6 +180,8 @@ window
 {
   friend class window_manager;
 
+  uint32_t  m_number;
+
   window_manager*  m_manager;
 
   container  m_container;
@@ -185,7 +197,8 @@ window
 
   point  m_point;
 
-  bool  m_modified_flag=true;
+  bool  m_modified_flag   = true;
+  bool  m_transparent_flag=false;
 
   window*  m_low =nullptr;
   window*  m_high=nullptr;
@@ -193,11 +206,13 @@ window
   void  draw_frame() noexcept;
 
 public:
-  window(int  x=0, int  y=0) noexcept;
+  window(uint32_t  n, int  x=0, int  y=0) noexcept;
 
   container*  operator->() noexcept{return &m_container;}
 
   container&  get_container() noexcept{return m_container;}
+
+  window_manager*  get_manager() const noexcept{return m_manager;}
 
   void          set_point(point  pt)       noexcept{       m_point = pt;}
   const point&  get_point(         ) const noexcept{return m_point     ;}
@@ -205,6 +220,10 @@ public:
   bool  test_by_point(int  x, int  y) const noexcept;
 
   bool  is_image_modified() noexcept;
+  bool  is_transparent() const noexcept{return m_transparent_flag;}
+
+  void    set_transparent_flag() noexcept{m_transparent_flag =  true;}
+  void  unset_transparent_flag() noexcept{m_transparent_flag = false;}
 
   const image&  get_image() const noexcept{return m_image;}
 
@@ -265,8 +284,6 @@ public:
   window_pointer  new_window(int  x, int  y) noexcept;
 
   void  delete_window(window_pointer  ptr) noexcept;
-
-  void  reset_windows_all() noexcept;
 
   bool  is_any_window_modified() noexcept;
 

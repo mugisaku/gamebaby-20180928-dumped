@@ -53,12 +53,51 @@ get_pixel_color(int  x, int  y, palette const&  pal) const noexcept
 
 void
 image::
+set_pixel(pixel  pix, int  x, int  y, int  w, int  h) noexcept
+{
+    if(x < 0)
+    {
+      w += x    ;
+           x = 0;
+    }
+
+
+    if(y < 0)
+    {
+      h += y    ;
+           y = 0;
+    }
+
+
+    if((x+w) >= m_width)
+    {
+      w = m_width-x;
+    }
+
+
+    if((y+h) >= m_height)
+    {
+      h = m_height-y;
+    }
+
+
+    for(int  yy = 0;  yy < h;  ++yy){
+    for(int  xx = 0;  xx < w;  ++xx){
+      set_pixel(pix,x+xx,y+yy);
+    }}
+}
+
+
+
+
+void
+image::
 fill(pixel  pix) noexcept
 {
-    for(int  y = 0;  y < m_height;  ++y){
-    for(int  x = 0;  x <  m_width;  ++x){
-      get_pixel(x,y) = pix;
-    }}
+    for(auto&  dst: m_pixels)
+    {
+      dst = pix;
+    }
 }
 
 

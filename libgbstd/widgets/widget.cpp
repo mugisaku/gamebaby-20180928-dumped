@@ -64,6 +64,14 @@ test_by_point(int  x, int  y) const noexcept
 }
 
 
+window*
+widget::
+get_window() const noexcept
+{
+  return m_parent? m_parent->get_window():nullptr;
+}
+
+
 void
 widget::
 reform(point  base_pt) noexcept

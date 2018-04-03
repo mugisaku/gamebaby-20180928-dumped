@@ -123,10 +123,13 @@ draw_frame_bottom(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noe
 
 
 window::
-window(int  x, int  y) noexcept:
+window(uint32_t  n, int  x, int  y) noexcept:
+m_number(n),
 m_point(x,y)
 {
   m_container.set_relative_point(point(8,8));
+
+  m_container.set_window(this);
 }
 
 
@@ -227,7 +230,6 @@ update() noexcept
 {
     if(m_container.is_needed_to_redraw())
     {
-report;
       m_container.reform_if_needed(point());
 
       int  w = m_container.get_width() +8;

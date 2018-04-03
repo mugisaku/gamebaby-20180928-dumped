@@ -35,15 +35,15 @@ window_pointer
 window_manager::
 new_window(int  x, int  y) noexcept
 {
-  auto  win = new window(x,y);
+static uint32_t  n;
+  auto  win = new window(n++,x,y);
 
   win->m_manager = this;
 
     if(m_top)
     {
-      m_top->m_high = win;
-
-      win->m_low = m_top;
+      m_top->m_high = win               ;
+                      win->m_low = m_top;
     }
 
   else
@@ -52,10 +52,10 @@ new_window(int  x, int  y) noexcept
     }
 
 
+  m_top = win;
+
   m_modified_flag =  true;
   m_moving_flag   = false;
-
-  m_top = win;
 
   return window_pointer(*win);
 }
@@ -95,25 +95,10 @@ remove(window&  win) noexcept
     {
       win.m_low->m_high = win.m_high;
     }
-}
 
 
-void
-window_manager::
-reset_windows_all() noexcept
-{
-  auto  current = m_bottom;
-
-    while(current)
-    {
-      current->update();
-
-      current = current->m_high;
-    }
-
-
-  m_modified_flag =  true;
-  m_moving_flag   = false;
+  win.m_high = nullptr;
+  win.m_low  = nullptr;
 }
 
 
@@ -164,18 +149,22 @@ update() noexcept
 
     if(current)
     {
+      current->update();
+
         if(m_moving_flag)
         {
             if(ctrl.did_mouse_moved())
             {
-report;
+              current->set_point(current->get_point()-(m_gripping_point-pt));
+
+              m_gripping_point = pt;
+
               m_modified_flag = true;
             }
 
 
             if(!ctrl.is_mouse_lbutton_pressed())
             {
-report;
               m_moving_flag = false;
             }
         }
@@ -187,13 +176,24 @@ report;
         }
 
       else
+        if(ctrl.did_mouse_acted())
         {
           current = current->m_low;
 
             while(current)
             {
+              current->update();
+
                 if(current->test_by_point(pt.x,pt.y))
                 {
+                  m_modified_flag = true;
+
+                    if(current == m_bottom)
+                    {
+                      m_bottom = m_bottom->m_high;
+                    }
+
+
                   remove(*current);
 
                   m_top->m_high = current;
@@ -220,8 +220,12 @@ composite(image&  dst) noexcept
 {
   auto  current = m_bottom;
 
+  dst.fill();
+
     while(current)
     {
+      current->update();
+
       images::transfer(image_frame(current->m_image),image_cursor(dst,current->get_point()));
 
       current = current->m_high;
