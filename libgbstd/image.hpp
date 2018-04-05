@@ -85,9 +85,12 @@ constexpr int  font_height = 16;
 class
 text_style
 {
-  color_index  m_colors[4]={0,predefined::white,0,0};
+  color_index  m_colors[4];
 
 public:
+  text_style(color_index  c0=0, color_index  c1=predefined::white, color_index  c2=0, color_index  c3=0) noexcept:
+  m_colors{c0,c1,c2,c3}{}
+
   void         set_color_index(int  i, color_index  ci)       noexcept{       m_colors[i] = ci;}
   color_index  get_color_index(int  i                 ) const noexcept{return m_colors[i]     ;}
 

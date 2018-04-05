@@ -28,6 +28,8 @@ clear() noexcept
 
   m_bottom = nullptr;
   m_top    = nullptr;
+
+  m_number_of_windows = 0;
 }
 
 
@@ -37,6 +39,7 @@ new_window(int  x, int  y) noexcept
 {
 static uint32_t  n;
   auto  win = new window(n++,x,y);
+win->set_header_flag();
 
   win->m_manager = this;
 
@@ -54,6 +57,8 @@ static uint32_t  n;
 
   m_top = win;
 
+  ++m_number_of_windows;
+
   m_modified_flag =  true;
   m_moving_flag   = false;
 
@@ -65,18 +70,44 @@ void
 window_manager::
 delete_window(window_pointer  ptr) noexcept
 {
-  remove(*ptr);
-
-  m_modified_flag =  true;
-  m_moving_flag   = false;
-
-    if(m_top == ptr.m_data)
+    if(m_number_of_windows == 1)
     {
       m_top    = nullptr;
       m_bottom = nullptr;
     }
 
+  else
+    {
+        if(m_top == ptr.m_data)
+        {
+          m_top = m_top->m_low;
 
+            if(m_top)
+            {
+              m_top->m_high = nullptr;
+            }
+        }
+
+      else
+        if(m_bottom == ptr.m_data)
+        {
+          m_bottom = m_bottom->m_high;
+
+            if(m_bottom)
+            {
+              m_bottom->m_low = nullptr;
+            }
+        }
+
+      else
+        {
+          remove(*ptr);
+        }
+    }
+
+
+  --m_number_of_windows;
+ 
   delete ptr.m_data;
 }
 
@@ -99,6 +130,8 @@ remove(window&  win) noexcept
 
   win.m_high = nullptr;
   win.m_low  = nullptr;
+
+  m_modified_flag = true;
 }
 
 
@@ -122,7 +155,9 @@ void
 window_manager::
 touch(window&  win) noexcept
 {
+report;
   win.react();
+report;
 
     if(win.is_image_modified())
     {
@@ -143,6 +178,12 @@ void
 window_manager::
 update() noexcept
 {
+    if(!ctrl.did_mouse_acted())
+    {
+      return;
+    }
+
+
   auto  pt = ctrl.get_point();
 
   auto  current = m_top;
@@ -176,7 +217,6 @@ update() noexcept
         }
 
       else
-        if(ctrl.did_mouse_acted())
         {
           current = current->m_low;
 

@@ -11,10 +11,10 @@ void
 controller::
 press_mouse_lbutton() noexcept
 {
-    if(!test(mouse_lbutton_flag))
+    if(!test(flags::pressed_mouse_lbutton))
     {
-      set(mouse_lbutton_flag);
-      set(mouse_acted_flag);
+      set(flags::pressed_mouse_lbutton);
+      set(flags::modified_mouse_button);
     }
 }
 
@@ -23,10 +23,10 @@ void
 controller::
 press_mouse_rbutton() noexcept
 {
-    if(!test(mouse_rbutton_flag))
+    if(!test(flags::pressed_mouse_rbutton))
     {
-      set(mouse_rbutton_flag);
-      set(mouse_acted_flag);
+      set(flags::pressed_mouse_rbutton);
+      set(flags::modified_mouse_button);
     }
 }
 
@@ -35,10 +35,10 @@ void
 controller::
 release_mouse_lbutton() noexcept
 {
-    if(test(mouse_lbutton_flag))
+    if(test(flags::pressed_mouse_lbutton))
     {
-      unset(mouse_lbutton_flag);
-        set(mouse_acted_flag);
+      unset(flags::pressed_mouse_lbutton);
+        set(flags::modified_mouse_button);
     }
 }
 
@@ -47,10 +47,10 @@ void
 controller::
 release_mouse_rbutton() noexcept
 {
-    if(test(mouse_rbutton_flag))
+    if(test(flags::pressed_mouse_rbutton))
     {
-      unset(mouse_rbutton_flag);
-        set(mouse_acted_flag);
+      unset(flags::pressed_mouse_rbutton);
+        set(flags::modified_mouse_button);
     }
 }
 

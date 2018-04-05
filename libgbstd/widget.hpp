@@ -197,13 +197,22 @@ window
 
   point  m_point;
 
-  bool  m_modified_flag   = true;
-  bool  m_transparent_flag=false;
+  bool  m_modified=true;
+
+  uint32_t  m_state=0;
 
   window*  m_low =nullptr;
   window*  m_high=nullptr;
 
   void  draw_frame() noexcept;
+
+  struct flags{
+    static constexpr uint32_t  transparent = 0x01;
+    static constexpr uint32_t       header = 0x02;
+
+  };
+
+  void  change_state(uint32_t  st) noexcept;
 
 public:
   window(uint32_t  n, int  x=0, int  y=0) noexcept;
@@ -220,10 +229,14 @@ public:
   bool  test_by_point(int  x, int  y) const noexcept;
 
   bool  is_image_modified() noexcept;
-  bool  is_transparent() const noexcept{return m_transparent_flag;}
 
-  void    set_transparent_flag() noexcept{m_transparent_flag =  true;}
-  void  unset_transparent_flag() noexcept{m_transparent_flag = false;}
+  bool  is_transparent() const noexcept{return m_state&flags::transparent;}
+
+  void    set_transparent_flag() noexcept{change_state(m_state| flags::transparent);}
+  void  unset_transparent_flag() noexcept{change_state(m_state&~flags::transparent);}
+
+  void    set_header_flag() noexcept{change_state(m_state| flags::header);}
+  void  unset_header_flag() noexcept{change_state(m_state&~flags::header);}
 
   const image&  get_image() const noexcept{return m_image;}
 
@@ -266,6 +279,8 @@ window_manager
   window*  m_bottom=nullptr;
   window*  m_top   =nullptr;
 
+  uint32_t  m_number_of_windows=0;
+
   bool  m_modified_flag=true;
 
   bool  m_moving_flag=false;
@@ -299,6 +314,8 @@ public:
 class
 label: public widget
 {
+  text_style  m_text_style=text_style(predefined::blue,predefined::white,predefined::blue,predefined::black);
+
   gbstd::u16string  m_text;
 
 public:
@@ -309,6 +326,8 @@ public:
 
   void  set_text(gbstd::u16string_view  sv) noexcept;
   void  set_text(gbstd::string_view     sv) noexcept;
+
+  void  set_text_sytle(const text_style&  style) noexcept;
 
   void  reform(point  base_pt) noexcept override;
 

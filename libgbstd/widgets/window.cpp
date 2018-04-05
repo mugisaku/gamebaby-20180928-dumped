@@ -11,41 +11,26 @@ namespace widgets{
 namespace{
 
 
-constexpr uint8_t
-top_piece[8][8] =
-{
-  {0,0,3,3,3,3,3,3},
-  {0,3,3,2,2,2,2,2},
-  {3,3,2,2,3,3,3,3},
-  {3,2,2,3,3,1,1,1},
-  {3,2,3,3,1,1,1,1},
-  {3,2,3,1,1,1,1,1},
-  {3,2,3,1,1,1,1,1},
-  {3,2,3,1,1,1,1,1},
-
-};
-
-
-constexpr uint8_t
-bottom_piece[8][8] =
-{
-  {3,2,3,1,1,1,1,1},
-  {3,2,3,1,1,1,1,1},
-  {3,2,3,3,1,1,1,1},
-  {3,2,2,3,3,1,1,1},
-  {3,2,2,2,3,3,3,3},
-  {3,3,2,2,2,2,2,2},
-  {0,3,3,2,2,2,2,2},
-  {0,0,3,3,3,3,3,3},
-};
-
-
 void
 draw_frame_top(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexcept
 {
+  constexpr uint8_t  piece[8][8] =
+  {
+    {0,0,3,3,3,3,3,3},
+    {0,3,3,2,2,2,2,2},
+    {3,3,2,2,3,3,3,3},
+    {3,2,2,3,3,1,1,1},
+    {3,2,3,3,1,1,1,1},
+    {3,2,3,1,1,1,1,1},
+    {3,2,3,1,1,1,1,1},
+    {3,2,3,1,1,1,1,1},
+
+  };
+
+
     for(int  yy = 0;  yy < 8;  yy += 1){
     for(int  xx = 0;  xx < 8;  xx += 1){
-      auto  v = top_piece[yy][xx];
+      auto  v = piece[yy][xx];
 
         if(v)
         {
@@ -66,6 +51,67 @@ draw_frame_top(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexce
   dst.draw_hline(pixels[1],x,y++,w);
   dst.draw_hline(pixels[1],x,y++,w);
   dst.draw_hline(pixels[1],x,y++,w);
+}
+
+
+void
+draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexcept
+{
+  constexpr uint8_t  piece[16][8] =
+  {
+    {0,0,3,3,3,3,3,3},
+    {0,3,3,2,2,2,2,2},
+    {3,3,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,3,3,3,3,3,3},
+
+  };
+
+
+    for(int  yy = 0;  yy < 16;  yy += 1){
+    for(int  xx = 0;  xx <  8;  xx += 1){
+      auto  v = piece[yy][xx];
+
+        if(v)
+        {
+          dst.draw_dot(pixels[v],x+xx    ,y+yy);
+          dst.draw_dot(pixels[v],x+w-1-xx,y+yy);
+        }
+    }}
+
+
+  x +=  8;
+  w -= 16;
+
+  dst.draw_hline(pixels[3],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(pixels[3],x,y++,w);
 }
 
 
@@ -91,9 +137,22 @@ draw_frame_body(image&  dst, int  x, int  y, int  w, int  h, pixel const*  pixel
 void
 draw_frame_bottom(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexcept
 {
+  constexpr uint8_t  piece[8][8] =
+  {
+    {3,2,3,1,1,1,1,1},
+    {3,2,3,1,1,1,1,1},
+    {3,2,3,3,1,1,1,1},
+    {3,2,2,3,3,1,1,1},
+    {3,2,2,2,3,3,3,3},
+    {3,3,2,2,2,2,2,2},
+    {0,3,3,2,2,2,2,2},
+    {0,0,3,3,3,3,3,3},
+  };
+
+
     for(int  yy = 0;  yy < 8;  yy += 1){
     for(int  xx = 0;  xx < 8;  xx += 1){
-      auto  v = bottom_piece[yy][xx];
+      auto  v = piece[yy][xx];
 
         if(v)
         {
@@ -142,9 +201,15 @@ draw_frame() noexcept
   int  w = get_width() ;
   int  h = get_height();
 
-  draw_frame_top(   m_image,0,0    ,w     ,m_pixels);
-  draw_frame_body(  m_image,0,0  +8,w,h-16,m_pixels);
-  draw_frame_bottom(m_image,0,0+h-8,w     ,m_pixels);
+  bool  hdr = m_state&flags::header;
+
+    if(hdr){draw_frame_top_with_header(m_image,0,0,w,m_pixels);}
+  else     {draw_frame_top(            m_image,0,0,w,m_pixels);}
+
+
+  draw_frame_bottom(m_image,0,h-8,w,m_pixels);
+
+  draw_frame_body(  m_image,0,hdr? 16:8,w,m_container.get_height(),m_pixels);
 }
 
 
@@ -163,15 +228,28 @@ bool
 window::
 is_image_modified() noexcept
 {
-    if(m_modified_flag)
+    if(m_modified)
     {
-      m_modified_flag = false;
+      m_modified = false;
 
       return true;
     }
 
 
   return false;
+}
+
+
+void
+window::
+change_state(uint32_t  st) noexcept
+{
+  m_state    =   st;
+  m_modified = true;
+
+  m_container.set_relative_point(point(8,(m_state&flags::header)? 16:8));
+
+  m_container.need_to_reform();
 }
 
 
@@ -233,7 +311,7 @@ update() noexcept
       m_container.reform_if_needed(point());
 
       int  w = m_container.get_width() +8;
-      int  h = m_container.get_height()+8;
+      int  h = m_container.get_height()+((m_state&flags::header)? 24:16);
 
         if((w != m_image.get_width()) ||
            (h != m_image.get_height()))
@@ -246,7 +324,7 @@ update() noexcept
 
       m_container.redraw(m_image);
 
-      m_modified_flag = true;
+      m_modified = true;
     }
 }
 

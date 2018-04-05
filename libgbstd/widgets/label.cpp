@@ -67,9 +67,19 @@ set_text(gbstd::string_view  sv) noexcept
 
 void
 label::
+set_text_sytle(const text_style&  style) noexcept
+{
+  m_text_style = style;
+
+  need_to_redraw();
+}
+
+
+void
+label::
 render(image_cursor  cur) noexcept
 {
-  cur.draw_text(m_text,text_style(),2,2);
+  cur.draw_text(m_text,m_text_style,2,2);
 }
 
 

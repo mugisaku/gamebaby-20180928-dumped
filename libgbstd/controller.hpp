@@ -43,18 +43,21 @@ public:
   uint32_t  get_time(           ) const noexcept{return m_time    ;}
 
 
-  static constexpr uint32_t         up_button_flag = 0x001;
-  static constexpr uint32_t       left_button_flag = 0x002;
-  static constexpr uint32_t      right_button_flag = 0x004;
-  static constexpr uint32_t       down_button_flag = 0x008;
-  static constexpr uint32_t          p_button_flag = 0x010;
-  static constexpr uint32_t          n_button_flag = 0x020;
-  static constexpr uint32_t      start_button_flag = 0x040;
-  static constexpr uint32_t      shift_button_flag = 0x080;
-  static constexpr uint32_t     mouse_lbutton_flag = 0x100;
-  static constexpr uint32_t     mouse_rbutton_flag = 0x200;
-  static constexpr uint32_t       mouse_acted_flag = 0x400;
-  static constexpr uint32_t  needed_to_redraw_flag = 0x800;
+  struct flags{
+    static constexpr uint32_t         pressed_up_button = 0x001;
+    static constexpr uint32_t       pressed_left_button = 0x002;
+    static constexpr uint32_t      pressed_right_button = 0x004;
+    static constexpr uint32_t       pressed_down_button = 0x008;
+    static constexpr uint32_t          pressed_p_button = 0x010;
+    static constexpr uint32_t          pressed_n_button = 0x020;
+    static constexpr uint32_t      pressed_start_button = 0x040;
+    static constexpr uint32_t      pressed_shift_button = 0x080;
+    static constexpr uint32_t     pressed_mouse_lbutton = 0x100;
+    static constexpr uint32_t     pressed_mouse_rbutton = 0x200;
+    static constexpr uint32_t     modified_mouse_button = 0x400;
+    static constexpr uint32_t          needed_to_redraw = 0x800;
+  };
+
 
   void  save_point() noexcept{m_previous_point = m_point;}
 
@@ -65,18 +68,18 @@ public:
   void  release_mouse_lbutton() noexcept;
   void  release_mouse_rbutton() noexcept;
 
-  bool       is_up_button_pressed() const noexcept{return test(    up_button_flag);}
-  bool     is_left_button_pressed() const noexcept{return test(  left_button_flag);}
-  bool    is_right_button_pressed() const noexcept{return test( right_button_flag);}
-  bool     is_down_button_pressed() const noexcept{return test(  down_button_flag);}
-  bool        is_p_button_pressed() const noexcept{return test(     p_button_flag);}
-  bool        is_n_button_pressed() const noexcept{return test(     n_button_flag);}
-  bool    is_start_button_pressed() const noexcept{return test( start_button_flag);}
-  bool    is_shift_button_pressed() const noexcept{return test( shift_button_flag);}
-  bool   is_mouse_lbutton_pressed() const noexcept{return test(mouse_lbutton_flag);}
-  bool   is_mouse_rbutton_pressed() const noexcept{return test(mouse_rbutton_flag);}
-  bool            did_mouse_acted() const noexcept{return test(mouse_acted_flag);}
-  bool        is_needed_to_redraw() const noexcept{return test(needed_to_redraw_flag);}
+  bool       is_up_button_pressed() const noexcept{return test(    flags::pressed_up_button);}
+  bool     is_left_button_pressed() const noexcept{return test(  flags::pressed_left_button);}
+  bool    is_right_button_pressed() const noexcept{return test( flags::pressed_right_button);}
+  bool     is_down_button_pressed() const noexcept{return test(  flags::pressed_down_button);}
+  bool        is_p_button_pressed() const noexcept{return test(     flags::pressed_p_button);}
+  bool        is_n_button_pressed() const noexcept{return test(     flags::pressed_n_button);}
+  bool    is_start_button_pressed() const noexcept{return test( flags::pressed_start_button);}
+  bool    is_shift_button_pressed() const noexcept{return test( flags::pressed_shift_button);}
+  bool   is_mouse_lbutton_pressed() const noexcept{return test(flags::pressed_mouse_lbutton);}
+  bool   is_mouse_rbutton_pressed() const noexcept{return test(flags::pressed_mouse_rbutton);}
+  bool            did_mouse_acted() const noexcept{return test(flags::modified_mouse_button) || did_mouse_moved();}
+  bool        is_needed_to_redraw() const noexcept{return test(flags::needed_to_redraw);}
 
   bool  did_mouse_moved() const noexcept{return m_previous_point != m_point;}
 

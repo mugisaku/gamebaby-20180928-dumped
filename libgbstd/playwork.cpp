@@ -61,8 +61,8 @@ public:
 };
 
 
-constexpr uint32_t  key_flags = (controller::p_button_flag|
-                                 controller::n_button_flag);
+constexpr uint32_t  key_flags = (controller::flags::pressed_p_button|
+                                 controller::flags::pressed_n_button);
 
 
 uint32_t
