@@ -78,6 +78,7 @@ public:
   bool    is_shift_button_pressed() const noexcept{return test( flags::pressed_shift_button);}
   bool   is_mouse_lbutton_pressed() const noexcept{return test(flags::pressed_mouse_lbutton);}
   bool   is_mouse_rbutton_pressed() const noexcept{return test(flags::pressed_mouse_rbutton);}
+  bool   is_mouse_button_modified() const noexcept{return test(flags::modified_mouse_button);}
   bool            did_mouse_acted() const noexcept{return test(flags::modified_mouse_button) || did_mouse_moved();}
   bool        is_needed_to_redraw() const noexcept{return test(flags::needed_to_redraw);}
 

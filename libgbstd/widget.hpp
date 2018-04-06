@@ -37,8 +37,6 @@ protected:
 
   void*  m_userdata=nullptr;
 
-  void  (*m_deleter)(void*  ptr)=nullptr;
-
 public:
   struct flags{
     static constexpr uint32_t  shown                   = 0x0001;
@@ -51,7 +49,7 @@ public:
   widget(int  w=1, int  h=1) noexcept: m_width(w), m_height(h){need_to_reform();}
   widget(const widget&   rhs) noexcept=delete;
   widget(      widget&&  rhs) noexcept=delete;
-  virtual ~widget(){clear();}
+  virtual ~widget(){}
 
   widget&  operator=(const widget&   rhs) noexcept=delete;
   widget&  operator=(      widget&&  rhs) noexcept=delete;
@@ -71,8 +69,6 @@ public:
 
   virtual bool  remove(widget*  target) noexcept{return false;}
 
-  virtual void  clear() noexcept;
-
   void  need_to_redraw() noexcept;
   void  need_to_reform() noexcept;
 
@@ -87,10 +83,9 @@ public:
 
   void*  get_userdata() const noexcept{return m_userdata;}
 
-  template<typename  T>  void  set_userdata(T*  ptr,  void  (*deleter)(T*  ptr)=nullptr) noexcept
+  template<typename  T>  void  set_userdata(T*  ptr) noexcept
   {
     m_userdata = ptr;
-    m_deleter  = reinterpret_cast<void(*)(void*)>(deleter);
   }
 
 
@@ -149,7 +144,7 @@ protected:
 public:
   const char*  get_widget_name() const noexcept override{return "container";}
 
-  void  clear() noexcept override;
+  void  clear() noexcept;
 
   bool  remove(widget*  target) noexcept override;
 
@@ -184,11 +179,11 @@ window
 
   window_manager*  m_manager;
 
+  image  m_image;
+
   container  m_container;
 
   widget*  m_current=nullptr;
-
-  image  m_image;
 
   pixel  m_pixels[4] = {pixel(predefined::null),
                         pixel(predefined::blue      ,30000),
@@ -238,10 +233,11 @@ public:
   void    set_header_flag() noexcept{change_state(m_state| flags::header);}
   void  unset_header_flag() noexcept{change_state(m_state&~flags::header);}
 
-  const image&  get_image() const noexcept{return m_image;}
+        image&  get_image()             noexcept{return m_image;}
+  const image&  get_const_image() const noexcept{return m_image;}
 
-  int  get_width()  const noexcept{return m_image.get_width() ;}
-  int  get_height() const noexcept{return m_image.get_height();}
+  int  get_width()  const noexcept{return get_const_image().get_width() ;}
+  int  get_height() const noexcept{return get_const_image().get_height();}
 
   const widget*  get_current() const noexcept{return m_current;}
 
@@ -276,6 +272,8 @@ public:
 class
 window_manager
 {
+  window*  m_dumped=nullptr;
+
   window*  m_bottom=nullptr;
   window*  m_top   =nullptr;
 
@@ -289,6 +287,8 @@ window_manager
 
   void   touch(window&  win) noexcept;
   void  remove(window&  win) noexcept;
+
+  void  destroy_dumped_all() noexcept;
 
 public:
   window_manager() noexcept{}

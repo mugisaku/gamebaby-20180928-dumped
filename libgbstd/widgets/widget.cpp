@@ -10,21 +10,6 @@ namespace widgets{
 
 void
 widget::
-clear() noexcept
-{
-    if(m_deleter)
-    {
-      m_deleter(m_userdata);
-
-      m_deleter = nullptr;
-    }
-}
-
-
-
-
-void
-widget::
 notify_flag(uint32_t  v) noexcept
 {
   set_flag(v);

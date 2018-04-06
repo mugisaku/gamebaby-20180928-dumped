@@ -183,6 +183,7 @@ draw_frame_bottom(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noe
 
 window::
 window(uint32_t  n, int  x, int  y) noexcept:
+//m_image(new image),
 m_number(n),
 m_point(x,y)
 {
@@ -203,13 +204,13 @@ draw_frame() noexcept
 
   bool  hdr = m_state&flags::header;
 
-    if(hdr){draw_frame_top_with_header(m_image,0,0,w,m_pixels);}
-  else     {draw_frame_top(            m_image,0,0,w,m_pixels);}
+    if(hdr){draw_frame_top_with_header(get_image(),0,0,w,m_pixels);}
+  else     {draw_frame_top(            get_image(),0,0,w,m_pixels);}
 
 
-  draw_frame_bottom(m_image,0,h-8,w,m_pixels);
+  draw_frame_bottom(get_image(),0,h-8,w,m_pixels);
 
-  draw_frame_body(  m_image,0,hdr? 16:8,w,m_container.get_height(),m_pixels);
+  draw_frame_body(get_image(),0,hdr? 16:8,w,m_container.get_height(),m_pixels);
 }
 
 
@@ -217,10 +218,10 @@ bool
 window::
 test_by_point(int  x, int  y) const noexcept
 {
-  return((x >= (m_point.x                     )) &&
-         (y >= (m_point.y                     )) &&
-         (x <  (m_point.x+m_image.get_width() )) &&
-         (y <  (m_point.y+m_image.get_height())));
+  return((x >= (m_point.x             )) &&
+         (y >= (m_point.y             )) &&
+         (x <  (m_point.x+get_width() )) &&
+         (y <  (m_point.y+get_height())));
 }
 
 
@@ -313,16 +314,16 @@ update() noexcept
       int  w = m_container.get_width() +8;
       int  h = m_container.get_height()+((m_state&flags::header)? 24:16);
 
-        if((w != m_image.get_width()) ||
-           (h != m_image.get_height()))
+        if((w != get_width()) ||
+           (h != get_height()))
         {
-          m_image.resize(w,h);
+          get_image().resize(w,h);
 
           draw_frame();
         }
 
 
-      m_container.redraw(m_image);
+      m_container.redraw(get_image());
 
       m_modified = true;
     }

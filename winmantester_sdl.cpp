@@ -74,7 +74,8 @@ main(int  argc, char**  argv)
 
         auto  wp = winman.new_window(n,n);
 
-        n += 8;
+        n +=    8;
+        n &= 0xFF;
 
         auto  new_btn = new widgets::button(new widgets::label(u"CLOSE"),[](widgets::button&  btn){
           winman.delete_window(*btn.get_window());

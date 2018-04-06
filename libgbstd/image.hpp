@@ -101,8 +101,8 @@ public:
 class
 image
 {
-  int  m_width;
-  int  m_height;
+  int  m_width =0;
+  int  m_height=0;
 
   std::vector<pixel>  m_pixels;
 

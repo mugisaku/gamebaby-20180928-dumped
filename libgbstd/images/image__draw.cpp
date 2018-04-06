@@ -307,9 +307,9 @@ draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
 
             for(int  xx = 0;  xx < w;  xx += 1)
             {
-              dst->color_index = style.get_color_index(code>>14);
+              auto  i = style.get_color_index(code>>14);
 
-              ++dst;
+              dst++->color_index = i;
 
               code <<= 2;
             }

@@ -30,6 +30,8 @@ clear() noexcept
   m_top    = nullptr;
 
   m_number_of_windows = 0;
+
+  destroy_dumped_all();
 }
 
 
@@ -37,9 +39,11 @@ window_pointer
 window_manager::
 new_window(int  x, int  y) noexcept
 {
-static uint32_t  n;
+  static uint32_t  n;
+
   auto  win = new window(n++,x,y);
-win->set_header_flag();
+
+  win->set_header_flag();
 
   win->m_manager = this;
 
@@ -107,8 +111,25 @@ delete_window(window_pointer  ptr) noexcept
 
 
   --m_number_of_windows;
- 
-  delete ptr.m_data;
+
+  m_modified_flag = true;
+
+  ptr.m_data->m_low = m_dumped             ;
+                      m_dumped = ptr.m_data;
+}
+
+
+void
+window_manager::
+destroy_dumped_all() noexcept
+{
+    while(m_dumped)
+    {
+      auto  next = m_dumped->m_low;
+
+      delete m_dumped       ;
+             m_dumped = next;
+    }
 }
 
 
@@ -155,9 +176,7 @@ void
 window_manager::
 touch(window&  win) noexcept
 {
-report;
   win.react();
-report;
 
     if(win.is_image_modified())
     {
@@ -178,6 +197,8 @@ void
 window_manager::
 update() noexcept
 {
+  destroy_dumped_all();
+
     if(!ctrl.did_mouse_acted())
     {
       return;
@@ -217,6 +238,7 @@ update() noexcept
         }
 
       else
+        if(ctrl.is_mouse_button_modified())
         {
           current = current->m_low;
 
@@ -266,7 +288,7 @@ composite(image&  dst) noexcept
     {
       current->update();
 
-      images::transfer(image_frame(current->m_image),image_cursor(dst,current->get_point()));
+      images::transfer(image_frame(current->get_image()),image_cursor(dst,current->get_point()));
 
       current = current->m_high;
     }
