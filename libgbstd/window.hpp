@@ -1,82 +1,159 @@
-#ifndef GMBB_WINDOW_HPP
-#define GMBB_WINDOW_HPP
+#ifndef gbstd_window_hpp_was_included
+#define gbstd_window_hpp_was_included
 
 
-#include"libgbstd/task.hpp"
+#include"libgbstd/widget.hpp"
 
 
 namespace gbstd{
 namespace windows{
 
 
-enum class
-window_state
+class window_manager;
+
+
+class
+window
 {
-  hidden,
+  friend class window_manager;
 
-  full_opened,
+  uint32_t  m_number;
 
-  open_to_down,
-  open_to_right,
-  close_to_up,
-  close_to_left,
+  window_manager*  m_manager;
+
+  image  m_image;
+
+  container  m_container;
+
+  widget*  m_current=nullptr;
+
+  color_index  m_colors[4] = {predefined::null      ,
+                              predefined::blue      ,
+                              predefined::white     ,
+                              predefined::light_gray,};
+
+  point  m_point;
+
+  bool  m_modified=true;
+
+  uint32_t  m_state=0;
+
+  window*  m_low =nullptr;
+  window*  m_high=nullptr;
+
+  void  draw_frame() noexcept;
+
+  struct flags{
+    static constexpr uint32_t  transparent = 0x01;
+    static constexpr uint32_t       header = 0x02;
+
+  };
+
+  void  change_state(uint32_t  st) noexcept;
+
+public:
+  window(uint32_t  n, int  x=0, int  y=0) noexcept;
+
+  container*  operator->() noexcept{return &m_container;}
+
+  container&  get_container() noexcept{return m_container;}
+
+  window_manager*  get_manager() const noexcept{return m_manager;}
+
+  void          set_point(point  pt)       noexcept{       m_point = pt;}
+  const point&  get_point(         ) const noexcept{return m_point     ;}
+
+  bool  test_by_point(int  x, int  y) const noexcept;
+
+  bool  is_image_modified() noexcept;
+
+  bool  is_transparent() const noexcept{return m_state&flags::transparent;}
+
+  void    set_transparent_flag() noexcept{change_state(m_state| flags::transparent);}
+  void  unset_transparent_flag() noexcept{change_state(m_state&~flags::transparent);}
+
+  void    set_header_flag() noexcept{change_state(m_state| flags::header);}
+  void  unset_header_flag() noexcept{change_state(m_state&~flags::header);}
+
+        image&  get_image()             noexcept{return m_image;}
+  const image&  get_const_image() const noexcept{return m_image;}
+
+  int  get_width()  const noexcept{return get_const_image().get_width() ;}
+  int  get_height() const noexcept{return get_const_image().get_height();}
+
+  const widget*  get_current() const noexcept{return m_current;}
+
+  void   react() noexcept;
+  void  update() noexcept;
 
 };
 
 
 class
-window: public task
+window_pointer
 {
-protected:
-  window_state  m_state=window_state::full_opened;
+  friend class window_manager;
 
-  pixel  m_pixels[4] = {pixel(predefined::null),
-                        pixel(predefined::blue      ,30000),
-                        pixel(predefined::white     ,30000),
-                        pixel(predefined::light_gray,30000)};
-
-  int   m_width    =0;
-  int   m_width_max=0;
-  int  m_height    =0;
-  int  m_height_max=0;
-
-  void  draw_frame(image&  dst, point  offset) const noexcept;
+  window*  m_data=nullptr;
 
 public:
-  window(              ) noexcept{}
-  window(int  w, int  h, point  pt) noexcept: task(pt){resize(w,h);}
-  window(rectangle  rect) noexcept: task(rect){resize(rect.w,rect.h);}
+  window_pointer() noexcept{}
+  window_pointer(window&  w) noexcept: m_data(&w){}
 
-  void  resize(int  w, int  h) noexcept;
+  window*  operator->() const noexcept{return  m_data;}
+  window&  operator *() const noexcept{return *m_data;}
 
-  bool  operator==(window_state  st) const noexcept{return m_state == st;}
-  bool  operator!=(window_state  st) const noexcept{return m_state != st;}
+  operator bool() const noexcept{return m_data;}
 
-  window_state  get_state(                ) const noexcept{return m_state;}
-  void          set_state(window_state  st) noexcept;
-
-  void  change_border0_color(color_index  ci) noexcept;
-  void  change_border1_color(color_index  ci) noexcept;
-  void  change_surface_color(color_index  ci) noexcept;
-
-  void  animate() noexcept;
-
-  void  render(image&  dst, point  offset) const noexcept override;
+  bool  operator==(const window_pointer&  rhs) const noexcept{return m_data == rhs.m_data;}
+  bool  operator!=(const window_pointer&  rhs) const noexcept{return m_data != rhs.m_data;}
 
 };
 
 
+class
+window_manager
+{
+  window*  m_bottom=nullptr;
+  window*  m_top   =nullptr;
+
+  uint32_t  m_number_of_windows=0;
+
+  bool  m_modified_flag=true;
+
+  bool  m_moving_flag=false;
+
+  point  m_gripping_point;
+
+  void   touch(window&  win) noexcept;
+  void  remove(window&  win) noexcept;
+
+public:
+  window_manager() noexcept{}
+ ~window_manager(){clear();}
+
+  void  clear()  noexcept;
+
+  window_pointer  new_window(int  x, int  y) noexcept;
+
+  void  delete_window(window_pointer  ptr) noexcept;
+
+  bool  is_any_window_modified() noexcept;
+
+  void  update() noexcept;
+
+  void  composite(image&  dst) noexcept;
+
+};
+
 
 }
-
 
 using windows::window;
-using windows::window_state;
+using windows::window_manager;
 
 
 }
-
-
 
 
 #endif

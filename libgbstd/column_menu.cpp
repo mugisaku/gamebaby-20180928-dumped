@@ -8,14 +8,12 @@ namespace menus{
 
 
 column_menu::
-column_menu(const menu_base&  base, int  number_of_pages, point  pt) noexcept:
+column_menu(const menu_base&  base, int  number_of_pages) noexcept:
 m_base(base),
 m_number_of_pages(number_of_pages)
 {
-  window::resize(m_base.get_item_width()  +16,
-                 m_base.get_image_height()+16);
-
-  set_base_point(pt);
+  m_width  = m_base.get_item_width()  +16;
+  m_height = m_base.get_image_height()+16;
 }
 
 
@@ -35,8 +33,8 @@ change_item_width(int  n) noexcept
 {
   m_base.get_renderer().set_item_width(8*n);
 
-  window::resize(m_base.get_item_width()  +16,
-                 m_base.get_image_height()+16);
+  m_width  = m_base.get_item_width()  +16;
+  m_height = m_base.get_image_height()+16;
 
 }
 
@@ -104,29 +102,21 @@ change_number_of_rows(int  n) noexcept
 {
   m_base.set_number_of_visible_rows(n);
 
-  window::resize(m_base.get_item_width()  +16,
-                 m_base.get_image_height()+16);
+  m_width  = m_base.get_item_width()  +16;
+  m_height = m_base.get_image_height()+16;
 }
 
 
 void
 column_menu::
-render(image&  dst, point  offset) const noexcept
+render(image_cursor  cur) noexcept
 {
-  window::render(dst,offset);
+  int  h = m_base.get_item_height();
 
-    if(window::get_state() == window_state::full_opened)
-    {
-      point  const base_offset(get_base_point()+offset+8);
-
-      int  h = m_base.get_item_height();
-
-      m_base.render(dst,base_offset,(m_base.get_number_of_visible_rows()*m_page_index));
+  m_base.render(cur,(m_base.get_number_of_visible_rows()*m_page_index));
 
 
-      dst.draw_rectangle(predefined::yellow,base_offset.x,
-                                            base_offset.y+(h*m_row_index),m_base.get_item_width(),h);
-    }
+  cur.draw_rectangle(predefined::yellow,0,(h*m_row_index),m_base.get_item_width(),h);
 }
 
 

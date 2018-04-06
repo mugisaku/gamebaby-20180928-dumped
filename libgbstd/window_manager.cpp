@@ -1,9 +1,9 @@
-#include"libgbstd/widget.hpp"
+#include"libgbstd/window.hpp"
 
 
 
 namespace gbstd{
-namespace widgets{
+namespace windows{
 
 
 

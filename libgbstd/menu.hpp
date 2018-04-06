@@ -5,7 +5,7 @@
 #include<cstdint>
 #include<algorithm>
 #include"libgbstd/image.hpp"
-#include"libgbstd/window.hpp"
+#include"libgbstd/widget.hpp"
 
 
 
@@ -14,7 +14,7 @@ namespace gbstd{
 namespace menus{
 
 
-using callback = void  (*)(image&  dst, images::point  point, int  index);
+using callback = void  (*)(image_cursor  cur, int  index);
 
 
 class
@@ -37,12 +37,12 @@ public:
   void  set_item_width( int  n) noexcept{m_item_width  = n;}
   void  set_item_height(int  n) noexcept{m_item_height = n;}
 
-  void  operator()(image&  dst, images::point  base_point, images::point  item_position, int  index) const noexcept
+  void  operator()(image_cursor  cur, images::point  item_position, int  index) const noexcept
   {
-    int  x = base_point.x+(m_item_width *item_position.x);
-    int  y = base_point.y+(m_item_height*item_position.y);
+    int  x = (m_item_width *item_position.x);
+    int  y = (m_item_height*item_position.y);
 
-    m_callback(dst,point(x,y),index);
+    m_callback(cur+point(x,y),index);
   }
 
 };
@@ -70,13 +70,13 @@ public:
 
   void  set_number_of_visible_rows(int  n) noexcept{m_number_of_visible_rows = n;}
 
-  void  render(image&  dst, point  dst_point, int  start_index, int  number_of_columns=1) const noexcept;
+  void  render(image_cursor  cur, int  start_index, int  number_of_columns=1) const noexcept;
 
 };
 
 
 class
-column_menu: public window
+column_menu: public widget
 {
   menu_base  m_base;
 
@@ -86,7 +86,7 @@ column_menu: public window
   int  m_number_of_pages;
 
 public:
-  column_menu(const menu_base&  base, int  number_of_pages, point  pt) noexcept;
+  column_menu(const menu_base&  base, int  number_of_pages) noexcept;
 
   int  get_item_index() const noexcept;
 
@@ -103,13 +103,13 @@ public:
 
   void  reset_cursor() noexcept;
 
-  void  render(image&  dst, point  offset) const noexcept override;
+  void  render(image_cursor  cur) noexcept override;
 
 };
 
 
 class
-roll_menu: public window
+roll_menu: public widget
 {
   menu_base  m_base;
 
@@ -121,7 +121,7 @@ roll_menu: public window
   point  m_cursor;
 
 public:
-  roll_menu(const menu_base&  base, int  col_n, int  row_n, point  pt) noexcept;
+  roll_menu(const menu_base&  base, int  col_n, int  row_n) noexcept;
 
   int  get_item_index() const noexcept{return (m_number_of_columns*(m_y_base+m_cursor.y))+m_cursor.x;}
 
@@ -132,7 +132,7 @@ public:
 
   void  reset_cursor() noexcept;
 
-  void  render(image&  dst, point  offset) const noexcept override;
+  void  render(image_cursor  cur) noexcept override;
 
 };
 

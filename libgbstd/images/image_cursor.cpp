@@ -13,8 +13,8 @@ image_cursor
 image_cursor::
 operator+(point  offset) const noexcept
 {
-  return image_cursor(*m_image,m_x_offset+offset.x,
-                               m_y_offset+offset.y);
+  return image_cursor(*m_image,point(m_x_offset+offset.x,
+                                     m_y_offset+offset.y));
 }
 
 

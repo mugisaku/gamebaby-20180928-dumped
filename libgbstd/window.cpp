@@ -1,6 +1,4 @@
 #include"libgbstd/window.hpp"
-#include<cstdlib>
-
 
 
 
@@ -10,147 +8,321 @@ namespace windows{
 
 
 
-void
-window::
-resize(int  w, int  h) noexcept
-{
-  m_width_max  = w;
-  m_height_max = h;
+namespace{
 
-  set_state(window_state::full_opened);
+
+void
+draw_frame_top(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
+{
+  constexpr uint8_t  piece[8][8] =
+  {
+    {0,0,3,3,3,3,3,3},
+    {0,3,3,2,2,2,2,2},
+    {3,3,2,2,3,3,3,3},
+    {3,2,2,3,3,1,1,1},
+    {3,2,3,3,1,1,1,1},
+    {3,2,3,1,1,1,1,1},
+    {3,2,3,1,1,1,1,1},
+    {3,2,3,1,1,1,1,1},
+
+  };
+
+
+    for(int  yy = 0;  yy < 8;  yy += 1){
+    for(int  xx = 0;  xx < 8;  xx += 1){
+      auto  v = piece[yy][xx];
+
+        if(v)
+        {
+          dst.draw_dot(colors[v],x+xx    ,y+yy);
+          dst.draw_dot(colors[v],x+w-1-xx,y+yy);
+        }
+    }}
+
+
+  x +=  8;
+  w -= 16;
+
+  dst.draw_hline(colors[3],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[3],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
 }
 
 
 void
-window::
-set_state(window_state  st) noexcept
+draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
 {
-  m_state = st;
+  constexpr uint8_t  piece[16][8] =
+  {
+    {0,0,3,3,3,3,3,3},
+    {0,3,3,2,2,2,2,2},
+    {3,3,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
 
-    switch(m_state)
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,2,2,2,2,2,2},
+    {3,2,3,3,3,3,3,3},
+
+  };
+
+
+    for(int  yy = 0;  yy < 16;  yy += 1){
+    for(int  xx = 0;  xx <  8;  xx += 1){
+      auto  v = piece[yy][xx];
+
+        if(v)
+        {
+          dst.draw_dot(colors[v],x+xx    ,y+yy);
+          dst.draw_dot(colors[v],x+w-1-xx,y+yy);
+        }
+    }}
+
+
+  x +=  8;
+  w -= 16;
+
+  dst.draw_hline(colors[3],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[3],x,y++,w);
+}
+
+
+void
+draw_frame_body(image&  dst, int  x, int  y, int  w, int  h, const color_index*  colors) noexcept
+{
+  dst.draw_vline(colors[3],x+0,y,h);
+  dst.draw_vline(colors[2],x+1,y,h);
+  dst.draw_vline(colors[3],x+2,y,h);
+
+  dst.draw_vline(colors[3],x+w-1-0,y,h);
+  dst.draw_vline(colors[2],x+w-1-1,y,h);
+  dst.draw_vline(colors[3],x+w-1-2,y,h);
+
+
+    while(h--)
     {
-  case(window_state::hidden):
-      break;
-  case(window_state::open_to_down):
-      m_width  = m_width_max;
-      m_height =          16;
-      break;
-  case(window_state::close_to_left):
-  case(window_state::close_to_up):
-  case(window_state::full_opened):
-      m_width  = m_width_max;
-      m_height = m_height_max;
-      break;
-  case(window_state::open_to_right):
-      m_width  =           16;
-      m_height = m_height_max;
-      break;
-    }
-}
-
-
-
-
-void
-window::
-change_border0_color(color_index  ci) noexcept
-{
-  m_pixels[2] = ci;
-}
-
-
-void
-window::
-change_border1_color(color_index  ci) noexcept
-{
-  m_pixels[2] = ci;
-}
-
-
-void
-window::
-change_surface_color(color_index  ci) noexcept
-{
-  m_pixels[1] = ci;
-}
-
-
-
-
-void
-window::
-animate() noexcept
-{
-  constexpr int  step = 8;
-
-    switch(m_state)
-    {
-  case(window_state::hidden):
-  case(window_state::full_opened):
-      break;
-  case(window_state::open_to_right):
-        if(m_width < m_width_max)
-        {
-          m_width += step;
-
-            if(m_width >= m_width_max)
-            {
-              m_width = m_width_max;
-
-              m_state = window_state::full_opened;
-            }
-        }
-      break;
-  case(window_state::close_to_left):
-        if(m_width > 16)
-        {
-          m_width -= step;
-
-            if(m_width <= 16)
-            {
-              m_width = 16;
-
-              m_state = window_state::hidden;
-            }
-        }
-      break;
-  case(window_state::open_to_down):
-        if(m_height < m_height_max)
-        {
-          m_height += step;
-
-            if(m_height >= m_height_max)
-            {
-              m_height = m_height_max;
-
-              m_state = window_state::full_opened;
-            }
-        }
-      break;
-  case(window_state::close_to_up):
-        if(m_height > 16)
-        {
-          m_height -= step;
-
-            if(m_height <= 16)
-            {
-              m_height = 16;
-
-              m_state = window_state::hidden;
-            }
-        }
-      break;
+      dst.draw_hline(colors[1],x+3,y++,w-6);
     }
 }
 
 
 void
-window::
-render(image&  dst, point  offset) const noexcept
+draw_frame_bottom(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
 {
-    if(m_state != window_state::hidden)
+  constexpr uint8_t  piece[8][8] =
+  {
+    {3,2,3,1,1,1,1,1},
+    {3,2,3,1,1,1,1,1},
+    {3,2,3,3,1,1,1,1},
+    {3,2,2,3,3,1,1,1},
+    {3,2,2,2,3,3,3,3},
+    {3,3,2,2,2,2,2,2},
+    {0,3,3,2,2,2,2,2},
+    {0,0,3,3,3,3,3,3},
+  };
+
+
+    for(int  yy = 0;  yy < 8;  yy += 1){
+    for(int  xx = 0;  xx < 8;  xx += 1){
+      auto  v = piece[yy][xx];
+
+        if(v)
+        {
+          dst.draw_dot(colors[v],x+xx    ,y+yy);
+          dst.draw_dot(colors[v],x+w-1-xx,y+yy);
+        }
+    }}
+
+
+  x +=  8;
+  w -= 16;
+
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[3],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[3],x,y  ,w);
+}
+
+
+}
+
+
+
+
+window::
+window(uint32_t  n, int  x, int  y) noexcept:
+m_number(n),
+m_point(x,y)
+{
+  m_container.set_relative_point(point(8,8));
+
+  m_container.set_window(this);
+}
+
+
+
+
+void
+window::
+draw_frame() noexcept
+{
+  int  w = get_width() ;
+  int  h = get_height();
+
+  bool  hdr = m_state&flags::header;
+
+    if(hdr){draw_frame_top_with_header(get_image(),0,0,w,m_colors);}
+  else     {draw_frame_top(            get_image(),0,0,w,m_colors);}
+
+
+  draw_frame_bottom(get_image(),0,h-8,w,m_colors);
+
+  draw_frame_body(get_image(),0,hdr? 16:8,w,m_container.get_height(),m_colors);
+}
+
+
+bool
+window::
+test_by_point(int  x, int  y) const noexcept
+{
+  return((x >= (m_point.x             )) &&
+         (y >= (m_point.y             )) &&
+         (x <  (m_point.x+get_width() )) &&
+         (y <  (m_point.y+get_height())));
+}
+
+
+bool
+window::
+is_image_modified() noexcept
+{
+    if(m_modified)
     {
-      draw_frame(dst,offset);
+      m_modified = false;
+
+      return true;
+    }
+
+
+  return false;
+}
+
+
+void
+window::
+change_state(uint32_t  st) noexcept
+{
+  m_state    =   st;
+  m_modified = true;
+
+  m_container.set_relative_point(point(8,(m_state&flags::header)? 16:8));
+
+  m_container.need_to_reform();
+}
+
+
+void
+window::
+react() noexcept
+{
+  m_container.reform_if_needed(point());
+
+  auto  pt = ctrl.get_point()-m_point;
+
+    if(!m_current)
+    {
+      m_current = m_container.scan_by_point(pt.x,pt.y);
+
+        if(m_current)
+        {
+          m_current->do_when_cursor_got_in();
+        }
+    }
+
+  else
+    if(ctrl.did_mouse_moved())
+    {
+        if(!m_current->test_by_point(pt.x,pt.y))
+        {
+          m_current->do_when_cursor_got_out();
+
+          m_current = m_container.scan_by_point(pt.x,pt.y);
+
+            if(m_current)
+            {
+              m_current->do_when_cursor_got_in();
+            }
+        }
+    }
+
+
+    if(m_current && ctrl.did_mouse_acted())
+    {
+      pt -= m_current->get_absolute_point();
+
+      m_current->do_when_mouse_acted(pt.x,pt.y);
+    }
+
+
+  update();
+}
+
+
+void
+window::
+update() noexcept
+{
+    if(m_container.is_needed_to_redraw())
+    {
+      m_container.reform_if_needed(point());
+
+      int  w = m_container.get_width() +16;
+      int  h = m_container.get_height()+((m_state&flags::header)? 24:16);
+
+        if((w != get_width()) ||
+           (h != get_height()))
+        {
+          get_image().resize(w,h);
+
+          draw_frame();
+        }
+
+
+      m_container.redraw(get_image());
+
+      m_modified = true;
     }
 }
 

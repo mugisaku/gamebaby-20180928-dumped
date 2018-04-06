@@ -8,15 +8,13 @@ namespace menus{
 
 
 roll_menu::
-roll_menu(const menu_base&  base, int  col_n, int  row_n, point  pt) noexcept:
+roll_menu(const menu_base&  base, int  col_n, int  row_n) noexcept:
 m_base(base),
 m_number_of_columns(col_n),
 m_number_of_rows(row_n)
 {
-  window::resize(m_base.get_item_width()*m_number_of_columns+16,
-                 m_base.get_image_height()                  +16);
-
-  set_base_point(pt);
+  m_width  = (m_base.get_item_width()*m_number_of_columns+16);
+  m_height = (m_base.get_image_height()                  +16);
 }
 
 
@@ -80,23 +78,15 @@ move_cursor_to_down()  noexcept
 
 void
 roll_menu::
-render(image&  dst, point  offset) const noexcept
+render(image_cursor  cur) noexcept
 {
-  window::render(dst,offset);
+  int  w = m_base.get_item_width();
+  int  h = m_base.get_item_height();
 
-    if(window::get_state() == window_state::full_opened)
-    {
-      point  const base_offset(get_base_point()+offset+8);
+  m_base.render(cur,(m_number_of_columns*m_y_base),m_number_of_columns);
 
-      int  w = m_base.get_item_width();
-      int  h = m_base.get_item_height();
-
-      m_base.render(dst,base_offset,(m_number_of_columns*m_y_base),m_number_of_columns);
-
-
-      dst.draw_rectangle(predefined::yellow,base_offset.x+(w*m_cursor.x),
-                                            base_offset.y+(h*m_cursor.y),w,h);
-    }
+  cur.draw_rectangle(predefined::yellow,(w*m_cursor.x),
+                                        (h*m_cursor.y),w,h);
 }
 
 

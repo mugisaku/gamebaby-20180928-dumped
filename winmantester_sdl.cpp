@@ -4,7 +4,7 @@
 #include"sdl_screen.cpp"
 #include"sdl_controller.cpp"
 
-#include"libgbstd/widget.hpp"
+#include"libgbstd/window.hpp"
 
 
 #ifdef EMSCRIPTEN
@@ -27,7 +27,7 @@ gbstd::image
 image(screen_w,screen_h);
 
 
-widgets::window_manager
+windows::window_manager
 winman;
 
 

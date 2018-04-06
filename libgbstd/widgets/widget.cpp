@@ -49,7 +49,7 @@ test_by_point(int  x, int  y) const noexcept
 }
 
 
-window*
+windows::window*
 widget::
 get_window() const noexcept
 {

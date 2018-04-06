@@ -24,16 +24,14 @@ set(SOURCES
   widgets/table.cpp
   widgets/icon_selector.cpp
   widgets/dial.cpp
-  widgets/window.cpp
-  widgets/window_manager.cpp
+  window.cpp
+  window_manager.cpp
   unicode.cpp
   utility.cpp
   environment.cpp
   random_number.cpp
   controller.cpp
   line_maker.cpp
-  window.cpp
-  window__draw_frame.cpp
   menu_base.cpp
   roll_menu.cpp
   column_menu.cpp

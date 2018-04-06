@@ -179,11 +179,6 @@ public:
   m_x_offset(pt.x),
   m_y_offset(pt.y){}
 
-  image_cursor(const image_cursor&  src, int  x, int  y) noexcept:
-  m_image(src.m_image),
-  m_x_offset(src.m_x_offset+x),
-  m_y_offset(src.m_y_offset+y){}
-
 
   image_cursor  operator+(point  offset) const noexcept;
 
