@@ -94,8 +94,8 @@ render(image&  dst, point  offset) const noexcept
       m_base.render(dst,base_offset,(m_number_of_columns*m_y_base),m_number_of_columns);
 
 
-      dst.draw_rectangle(pixel(predefined::yellow,30000),base_offset.x+(w*m_cursor.x),
-                                                         base_offset.y+(h*m_cursor.y),w,h);
+      dst.draw_rectangle(predefined::yellow,base_offset.x+(w*m_cursor.x),
+                                            base_offset.y+(h*m_cursor.y),w,h);
     }
 }
 

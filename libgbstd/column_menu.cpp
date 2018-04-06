@@ -124,8 +124,8 @@ render(image&  dst, point  offset) const noexcept
       m_base.render(dst,base_offset,(m_base.get_number_of_visible_rows()*m_page_index));
 
 
-      dst.draw_rectangle(pixel(predefined::yellow,30000),base_offset.x,
-                                                         base_offset.y+(h*m_row_index),m_base.get_item_width(),h);
+      dst.draw_rectangle(predefined::yellow,base_offset.x,
+                                            base_offset.y+(h*m_row_index),m_base.get_item_width(),h);
     }
 }
 

@@ -30,8 +30,6 @@ clear() noexcept
   m_top    = nullptr;
 
   m_number_of_windows = 0;
-
-  destroy_dumped_all();
 }
 
 
@@ -114,22 +112,7 @@ delete_window(window_pointer  ptr) noexcept
 
   m_modified_flag = true;
 
-  ptr.m_data->m_low = m_dumped             ;
-                      m_dumped = ptr.m_data;
-}
-
-
-void
-window_manager::
-destroy_dumped_all() noexcept
-{
-    while(m_dumped)
-    {
-      auto  next = m_dumped->m_low;
-
-      delete m_dumped       ;
-             m_dumped = next;
-    }
+  delete ptr.m_data;
 }
 
 
@@ -197,8 +180,6 @@ void
 window_manager::
 update() noexcept
 {
-  destroy_dumped_all();
-
     if(!ctrl.did_mouse_acted())
     {
       return;

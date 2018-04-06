@@ -12,7 +12,7 @@ namespace{
 
 
 void
-draw_frame_top(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexcept
+draw_frame_top(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
 {
   constexpr uint8_t  piece[8][8] =
   {
@@ -34,8 +34,8 @@ draw_frame_top(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexce
 
         if(v)
         {
-          dst.draw_dot(pixels[v],x+xx    ,y+yy);
-          dst.draw_dot(pixels[v],x+w-1-xx,y+yy);
+          dst.draw_dot(colors[v],x+xx    ,y+yy);
+          dst.draw_dot(colors[v],x+w-1-xx,y+yy);
         }
     }}
 
@@ -43,19 +43,19 @@ draw_frame_top(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexce
   x +=  8;
   w -= 16;
 
-  dst.draw_hline(pixels[3],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[3],x,y++,w);
-  dst.draw_hline(pixels[1],x,y++,w);
-  dst.draw_hline(pixels[1],x,y++,w);
-  dst.draw_hline(pixels[1],x,y++,w);
-  dst.draw_hline(pixels[1],x,y++,w);
-  dst.draw_hline(pixels[1],x,y++,w);
+  dst.draw_hline(colors[3],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[3],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
 }
 
 
 void
-draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexcept
+draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
 {
   constexpr uint8_t  piece[16][8] =
   {
@@ -86,8 +86,8 @@ draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, pixel const*  pi
 
         if(v)
         {
-          dst.draw_dot(pixels[v],x+xx    ,y+yy);
-          dst.draw_dot(pixels[v],x+w-1-xx,y+yy);
+          dst.draw_dot(colors[v],x+xx    ,y+yy);
+          dst.draw_dot(colors[v],x+w-1-xx,y+yy);
         }
     }}
 
@@ -95,47 +95,47 @@ draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, pixel const*  pi
   x +=  8;
   w -= 16;
 
-  dst.draw_hline(pixels[3],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
+  dst.draw_hline(colors[3],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
 
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[3],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[3],x,y++,w);
 }
 
 
 void
-draw_frame_body(image&  dst, int  x, int  y, int  w, int  h, pixel const*  pixels) noexcept
+draw_frame_body(image&  dst, int  x, int  y, int  w, int  h, const color_index*  colors) noexcept
 {
-  dst.draw_vline(pixels[3],x+0,y,h);
-  dst.draw_vline(pixels[2],x+1,y,h);
-  dst.draw_vline(pixels[3],x+2,y,h);
+  dst.draw_vline(colors[3],x+0,y,h);
+  dst.draw_vline(colors[2],x+1,y,h);
+  dst.draw_vline(colors[3],x+2,y,h);
 
-  dst.draw_vline(pixels[3],x+w-1-0,y,h);
-  dst.draw_vline(pixels[2],x+w-1-1,y,h);
-  dst.draw_vline(pixels[3],x+w-1-2,y,h);
+  dst.draw_vline(colors[3],x+w-1-0,y,h);
+  dst.draw_vline(colors[2],x+w-1-1,y,h);
+  dst.draw_vline(colors[3],x+w-1-2,y,h);
 
 
     while(h--)
     {
-      dst.draw_hline(pixels[1],x+3,y++,w-6);
+      dst.draw_hline(colors[1],x+3,y++,w-6);
     }
 }
 
 
 void
-draw_frame_bottom(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noexcept
+draw_frame_bottom(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
 {
   constexpr uint8_t  piece[8][8] =
   {
@@ -156,8 +156,8 @@ draw_frame_bottom(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noe
 
         if(v)
         {
-          dst.draw_dot(pixels[v],x+xx    ,y+yy);
-          dst.draw_dot(pixels[v],x+w-1-xx,y+yy);
+          dst.draw_dot(colors[v],x+xx    ,y+yy);
+          dst.draw_dot(colors[v],x+w-1-xx,y+yy);
         }
     }}
 
@@ -165,14 +165,14 @@ draw_frame_bottom(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noe
   x +=  8;
   w -= 16;
 
-  dst.draw_hline(pixels[1],x,y++,w);
-  dst.draw_hline(pixels[1],x,y++,w);
-  dst.draw_hline(pixels[1],x,y++,w);
-  dst.draw_hline(pixels[1],x,y++,w);
-  dst.draw_hline(pixels[3],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[2],x,y++,w);
-  dst.draw_hline(pixels[3],x,y  ,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[1],x,y++,w);
+  dst.draw_hline(colors[3],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[2],x,y++,w);
+  dst.draw_hline(colors[3],x,y  ,w);
 }
 
 
@@ -183,7 +183,6 @@ draw_frame_bottom(image&  dst, int  x, int  y, int  w, pixel const*  pixels) noe
 
 window::
 window(uint32_t  n, int  x, int  y) noexcept:
-//m_image(new image),
 m_number(n),
 m_point(x,y)
 {
@@ -204,13 +203,13 @@ draw_frame() noexcept
 
   bool  hdr = m_state&flags::header;
 
-    if(hdr){draw_frame_top_with_header(get_image(),0,0,w,m_pixels);}
-  else     {draw_frame_top(            get_image(),0,0,w,m_pixels);}
+    if(hdr){draw_frame_top_with_header(get_image(),0,0,w,m_colors);}
+  else     {draw_frame_top(            get_image(),0,0,w,m_colors);}
 
 
-  draw_frame_bottom(get_image(),0,h-8,w,m_pixels);
+  draw_frame_bottom(get_image(),0,h-8,w,m_colors);
 
-  draw_frame_body(get_image(),0,hdr? 16:8,w,m_container.get_height(),m_pixels);
+  draw_frame_body(get_image(),0,hdr? 16:8,w,m_container.get_height(),m_colors);
 }
 
 
@@ -262,10 +261,23 @@ react() noexcept
 
   auto  pt = ctrl.get_point()-m_point;
 
+    if(!m_current)
+    {
+      m_current = m_container.scan_by_point(pt.x,pt.y);
+
+        if(m_current)
+        {
+          m_current->do_when_cursor_got_in();
+        }
+    }
+
+  else
     if(ctrl.did_mouse_moved())
     {
-        if(!m_current)
+        if(!m_current->test_by_point(pt.x,pt.y))
         {
+          m_current->do_when_cursor_got_out();
+
           m_current = m_container.scan_by_point(pt.x,pt.y);
 
             if(m_current)
@@ -273,24 +285,13 @@ react() noexcept
               m_current->do_when_cursor_got_in();
             }
         }
-
-      else
-        {
-            if(!m_current->test_by_point(pt.x,pt.y))
-            {
-              m_current->do_when_cursor_got_out();
-
-              m_current = m_container.scan_by_point(pt.x,pt.y);
-
-                if(m_current)
-                {
-                  m_current->do_when_cursor_got_in();
-                }
-            }
-        }
     }
 
 
+if(m_current)
+{
+report;
+}
     if(m_current && ctrl.did_mouse_acted())
     {
       pt -= m_current->get_absolute_point();
@@ -311,7 +312,7 @@ update() noexcept
     {
       m_container.reform_if_needed(point());
 
-      int  w = m_container.get_width() +8;
+      int  w = m_container.get_width() +16;
       int  h = m_container.get_height()+((m_state&flags::header)? 24:16);
 
         if((w != get_width()) ||

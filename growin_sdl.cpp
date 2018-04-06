@@ -37,6 +37,24 @@ public:
 };
 
 
+struct
+parameters
+{
+  static constexpr int      physical_level;
+  static constexpr int        mental_level;
+  static constexpr int  intellectual_level;
+
+  static constexpr int  power_of_arms;
+  static constexpr int  power_of_legs;
+  static constexpr int  power_of_voice;
+
+  static constexpr int     love_level;
+  static constexpr int  courage_level;
+  static constexpr int    smile_level;
+
+};
+
+
 class
 status
 {
@@ -49,10 +67,10 @@ status
 
   int  m_power_of_arms=0;
   int  m_power_of_legs=0;
-  int  m_power_of_heart=0;
   int  m_power_of_voice=0;
 
-  int  m_cultural_level=0;
+  int  m_love_level   =0;
+  int  m__level   =0;
   int  m_smile_level   =0;
 
 public:

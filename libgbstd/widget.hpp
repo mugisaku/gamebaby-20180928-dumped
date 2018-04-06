@@ -185,10 +185,10 @@ window
 
   widget*  m_current=nullptr;
 
-  pixel  m_pixels[4] = {pixel(predefined::null),
-                        pixel(predefined::blue      ,30000),
-                        pixel(predefined::white     ,30000),
-                        pixel(predefined::light_gray,30000)};
+  color_index  m_colors[4] = {predefined::null      ,
+                              predefined::blue      ,
+                              predefined::white     ,
+                              predefined::light_gray,};
 
   point  m_point;
 
@@ -272,8 +272,6 @@ public:
 class
 window_manager
 {
-  window*  m_dumped=nullptr;
-
   window*  m_bottom=nullptr;
   window*  m_top   =nullptr;
 
@@ -287,8 +285,6 @@ window_manager
 
   void   touch(window&  win) noexcept;
   void  remove(window&  win) noexcept;
-
-  void  destroy_dumped_all() noexcept;
 
 public:
   window_manager() noexcept{}

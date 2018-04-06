@@ -66,7 +66,7 @@ main(int  argc, char**  argv)
   auto  wp = winman.new_window(200,32);
 
   (*wp)->append_child(new widgets::button(new widgets::label(u"NEW"),[](widgets::button&  btn){
-      if(btn.get_count())
+      if(btn.is_released() && btn.get_count())
       {
         btn.reset_count();
 
@@ -78,7 +78,12 @@ main(int  argc, char**  argv)
         n &= 0xFF;
 
         auto  new_btn = new widgets::button(new widgets::label(u"CLOSE"),[](widgets::button&  btn){
-          winman.delete_window(*btn.get_window());
+            if(btn.is_released() && btn.get_count())
+            {
+              btn.reset_count();
+
+              winman.delete_window(*btn.get_window());
+            }
         });
 
         (*wp)->append_child(new_btn,0,0);

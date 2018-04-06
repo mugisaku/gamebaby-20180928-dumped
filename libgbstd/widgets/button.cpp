@@ -94,13 +94,31 @@ void
 button::
 render(image_cursor  cur) noexcept
 {
-    if(m_target)
+    if(is_pressed())
     {
-      m_target->redraw_if_needed(cur.get_image());
+      cur.draw_hline(predefined::black,0,         0,m_width);
+      cur.draw_hline(predefined::white,0,m_height-1,m_width);
+      cur.draw_vline(predefined::black,        0,0,m_height);
+      cur.draw_vline(predefined::white,m_width-1,0,m_height);
+
+      cur.fill_rectangle(predefined::gray,1,1,m_width-2,m_height-2);
+    }
+
+  else
+    {
+      cur.draw_hline(predefined::white,0,         0,m_width);
+      cur.draw_hline(predefined::black,0,m_height-1,m_width);
+      cur.draw_vline(predefined::white,        0,0,m_height);
+      cur.draw_vline(predefined::black,m_width-1,0,m_height);
+
+      cur.fill_rectangle(predefined::light_gray,1,1,m_width-2,m_height-2);
     }
 
 
-  cur.draw_rectangle(images::predefined::white,0,0,m_width,m_height);
+    if(m_target)
+    {
+      m_target->redraw(cur.get_image());
+    }
 }
 
 

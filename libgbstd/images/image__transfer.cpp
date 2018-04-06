@@ -117,7 +117,7 @@ transfer(const image_frame&  src, const image_cursor&  dst) noexcept
             {
               auto  pix = src_img.get_const_pixel(x--,src_y+yy);
 
-              dst_img.draw_dot(pix,dst_x+xx,dst_y+yy);
+              dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
             }
         }
 
@@ -127,7 +127,7 @@ transfer(const image_frame&  src, const image_cursor&  dst) noexcept
             {
               auto  pix = src_img.get_const_pixel(src_x+xx,src_y+yy);
 
-              dst_img.draw_dot(pix,dst_x+xx,dst_y+yy);
+              dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
             }
         }
     }
@@ -246,7 +246,7 @@ transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept
 
               pix.z = z;
 
-              dst_img.draw_dot(pix,dst_x+xx,dst_y+yy);
+              dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
             }
         }
 
@@ -258,7 +258,7 @@ transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept
 
               pix.z = z;
 
-              dst_img.draw_dot(pix,dst_x+xx,dst_y+yy);
+              dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
             }
         }
     }
