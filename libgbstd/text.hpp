@@ -3,9 +3,10 @@
 
 
 #include<string>
+#include<vector>
 #include<cstdarg>
-#include"libgbstd/unicode.hpp"
 #include"libgbstd/string.hpp"
+#include"libgbstd/figures.hpp"
 #include<initializer_list>
 
 
@@ -18,30 +19,68 @@ gbstd::string_view  make_text_with_va_list(const char*  fmt, va_list  ap) noexce
 
 
 class
-text_buffer
+utf8_decoder
 {
-  char*  m_data_source=nullptr;
+  const char*  m_pointer=nullptr;
+  const char*  m_end=nullptr;
 
-  size_t  m_data_length=0;
+public:
+  utf8_decoder(                      ) noexcept{}
+  utf8_decoder(gbstd::string_view  sv) noexcept{*this = sv;}
 
-  char*   m_input_pointer=nullptr;
+  utf8_decoder&  operator=(gbstd::string_view  sv) noexcept
+  {
+    m_pointer = sv.data();
+    m_end     = sv.data()+sv.size();
+
+    return *this;
+  }
+
+  operator bool() const noexcept{return m_pointer < m_end;}
+
+  char32_t  operator()() noexcept;
+
+  const char*  get_pointer() const noexcept{return m_pointer;}
+  const char*  get_end() const noexcept{return m_end;}
+
+};
+
+
+size_t  u8slen(gbstd::string_view  sv) noexcept;
+
+
+struct
+utf8_encoder
+{
+  char  codes[8];
+
+  utf8_encoder(char32_t  c=0) noexcept{(*this)(c);}
+
+  utf8_encoder&  operator()(char32_t  c) noexcept;
+
+};
+
+
+class
+character_queue
+{
+  static constexpr size_t  buffer_size = 1024;
+
+  char  m_data[buffer_size];
+
+  char*  m_input_pointer=nullptr;
 
   utf8_decoder  m_decoder;
 
 public:
-  text_buffer() noexcept{}
-  text_buffer(size_t  length) noexcept{resize(length);}
-  text_buffer(const text_buffer&   rhs) noexcept=delete;
-  text_buffer(      text_buffer&&  rhs) noexcept=delete;
- ~text_buffer(){clear();}
+  character_queue() noexcept{reset();}
+  character_queue(const character_queue&   rhs) noexcept=delete;
+  character_queue(      character_queue&&  rhs) noexcept=delete;
 
-  text_buffer&  operator=(const text_buffer&   rhs) noexcept=delete;
-  text_buffer&  operator=(      text_buffer&&  rhs) noexcept=delete;
+  character_queue&  operator=(const character_queue&   rhs) noexcept=delete;
+  character_queue&  operator=(      character_queue&&  rhs) noexcept=delete;
 
-  void  clear() noexcept;
   void  reset() noexcept;
-
-  void  resize(size_t  length) noexcept;
 
   bool  is_remaining() const noexcept{return(m_decoder.get_pointer() < m_input_pointer);}
 
@@ -56,73 +95,64 @@ public:
 
 
 class
-text_roll
+text
 {
-public:
-  struct line{
-    char16_t*    begin;
-    char16_t*  current;
-    char16_t*      end;
+  int  m_width =0;
+  int  m_height=0;
 
-    line*  next;
-  };
-
-
-  class iterator{
-    const line*  m_line;
-
-  public:
-    iterator(const line*  line=nullptr) noexcept: m_line(line){}
-
-    gbstd::u16string_view  operator*() const noexcept;
-
-    bool  operator!=(const iterator&  rhs) const noexcept;
-
-    iterator&  operator++() noexcept;
-
-  };
-
-private:
-  int  m_number_of_columns=0;
-  int  m_number_of_rows=0;
-
-  char16_t  m_last_char=0;
-
-  char16_t*  m_data_source=nullptr;
-  char16_t*  m_data_source_end;
-  line*      m_line_source=nullptr;
-
-  line*    m_first;
-  line*  m_current;
-  line*     m_last;
+  std::vector<char16_t>  m_chars;
 
 public:
-  text_roll(                      ) noexcept{}
-  text_roll(int  col_n, int  row_n) noexcept{resize(col_n,row_n);}
-  text_roll(const text_roll&   rhs) noexcept=delete;
-  text_roll(      text_roll&&  rhs) noexcept=delete;
- ~text_roll(){clear();}
+  text(                      ) noexcept{}
+  text(int  w, int  h) noexcept{resize(w,h);}
 
-  text_roll&  operator=(const text_roll&   rhs) noexcept=delete;
-  text_roll&  operator=(      text_roll&&  rhs) noexcept=delete;
+  int  get_width()  const noexcept{return m_width;}
+  int  get_height() const noexcept{return m_height;}
 
-  int  get_number_of_columns() const noexcept{return m_number_of_columns;}
-  int  get_number_of_rows() const noexcept{return m_number_of_rows;}
+        char16_t&  get_char(int  x, int  y)       noexcept{return m_chars[m_width*y+x];}
+  const char16_t&  get_char(int  x, int  y) const noexcept{return m_chars[m_width*y+x];}
 
-  void  clear() noexcept;
+  void  resize(int  w, int  h) noexcept;
 
-  void  reset() noexcept;
+};
 
-  void  resize(int  col_n, int  row_n) noexcept;
 
-  void  rotate() noexcept;
+class
+text_cursor
+{
+  text*  m_text;
 
-  void  push(char16_t  c) noexcept;
+  point  m_point;
 
-  bool  is_full() const noexcept;
+public:
+  text_cursor(text&  text, point  pt) noexcept: m_text(&text), m_point(pt){}
 
-  iterator  begin() const noexcept{return iterator(m_first);}
-  iterator    end() const noexcept{return iterator(       );}
+  text_cursor  operator+(point  pt) const noexcept{return text_cursor(*m_text,m_point+pt);}
+
+  void      put(char16_t  c) const noexcept{m_text->get_char(m_point.x,m_point.y) = c;}
+  char16_t  get(           ) const noexcept{return m_text->get_char(m_point.x,m_point.y);}
+
+  void  advance() noexcept;
+
+  void  fill_line(char16_t  c) const noexcept;
+
+};
+
+
+
+
+class
+string_form
+{
+  char  buf[256];
+
+public:
+  string_form() noexcept: buf{0}{}
+  string_form(const char*  fmt, ...) noexcept;
+
+  const char*  operator*() const noexcept{return buf;}
+
+  const char*  operator()(const char*  fmt, ...) noexcept;
 
 };
 
@@ -130,10 +160,13 @@ public:
 }
 
 
-using texts::make_text;
-using texts::make_text_with_va_list;
-using texts::text_buffer;
-using texts::text_roll;
+using texts::utf8_decoder;
+using texts::utf8_encoder;
+using texts::u8slen;
+using texts::text;
+using texts::text_cursor;
+using texts::character_queue;
+using texts::string_form;
 
 
 }

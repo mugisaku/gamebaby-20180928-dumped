@@ -1,11 +1,11 @@
-#include"libgbstd/random_number.hpp"
+#include"libgbstd/utility.hpp"
 #include<random>
 
 
 
 
 namespace gbstd{
-namespace random_number{
+namespace random_numbers{
 
 
 namespace{

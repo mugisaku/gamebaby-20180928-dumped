@@ -15,11 +15,8 @@ class window_manager;
 class
 window
 {
-  friend class window_manager;
-
-  uint32_t  m_number;
-
-  window_manager*  m_manager;
+protected:
+  window_manager*  m_manager=nullptr;
 
   image  m_image;
 
@@ -52,13 +49,15 @@ window
   void  change_state(uint32_t  st) noexcept;
 
 public:
-  window(uint32_t  n, int  x=0, int  y=0) noexcept;
+  window() noexcept;
+  virtual ~window() noexcept{}
 
   container*  operator->() noexcept{return &m_container;}
 
   container&  get_container() noexcept{return m_container;}
 
-  window_manager*  get_manager() const noexcept{return m_manager;}
+  void             set_manager(window_manager*  man)       noexcept{       m_manager = man;}
+  window_manager*  get_manager(                    ) const noexcept{return m_manager      ;}
 
   void          set_point(point  pt)       noexcept{       m_point = pt;}
   const point&  get_point(         ) const noexcept{return m_point     ;}
@@ -83,30 +82,14 @@ public:
 
   const widget*  get_current() const noexcept{return m_current;}
 
+  void     set_high(window*  w)       noexcept{       m_high = w;}
+  window*  get_high(          ) const noexcept{return m_high    ;}
+
+  void     set_low(window*  w)       noexcept{       m_low = w;}
+  window*  get_low(          ) const noexcept{return m_low;}
+
   void   react() noexcept;
   void  update() noexcept;
-
-};
-
-
-class
-window_pointer
-{
-  friend class window_manager;
-
-  window*  m_data=nullptr;
-
-public:
-  window_pointer() noexcept{}
-  window_pointer(window&  w) noexcept: m_data(&w){}
-
-  window*  operator->() const noexcept{return  m_data;}
-  window&  operator *() const noexcept{return *m_data;}
-
-  operator bool() const noexcept{return m_data;}
-
-  bool  operator==(const window_pointer&  rhs) const noexcept{return m_data == rhs.m_data;}
-  bool  operator!=(const window_pointer&  rhs) const noexcept{return m_data != rhs.m_data;}
 
 };
 
@@ -117,8 +100,6 @@ window_manager
   window*  m_bottom=nullptr;
   window*  m_top   =nullptr;
 
-  uint32_t  m_number_of_windows=0;
-
   bool  m_modified_flag=true;
 
   bool  m_moving_flag=false;
@@ -126,7 +107,6 @@ window_manager
   point  m_gripping_point;
 
   void   touch(window&  win) noexcept;
-  void  remove(window&  win) noexcept;
 
 public:
   window_manager() noexcept{}
@@ -134,9 +114,8 @@ public:
 
   void  clear()  noexcept;
 
-  window_pointer  new_window(int  x, int  y) noexcept;
-
-  void  delete_window(window_pointer  ptr) noexcept;
+  window*  append(window*  w, int  x, int  y) noexcept;
+  window*  remove(window*  w) noexcept;
 
   bool  is_any_window_modified() noexcept;
 

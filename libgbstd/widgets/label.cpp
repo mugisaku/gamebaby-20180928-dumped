@@ -1,5 +1,5 @@
 #include"libgbstd/widget.hpp"
-#include"libgbstd/unicode.hpp"
+#include"libgbstd/text.hpp"
 
 
 

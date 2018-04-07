@@ -10,13 +10,15 @@ set(SOURCES
   images/image__png.cpp
   images/image__draw.cpp
   images/image__transfer.cpp
+  images/line_maker.cpp
   playwork.cpp
   task.cpp
   group_task.cpp
   texts/text.cpp
-  texts/text_buffer.cpp
-  texts/text_roll.cpp
-  texts/text_roll_iterator.cpp
+  texts/unicode.cpp
+  texts/text_cursor.cpp
+  texts/character_queue.cpp
+  texts/string_form.cpp
   widgets/widget.cpp
   widgets/container.cpp
   widgets/label.cpp
@@ -24,14 +26,12 @@ set(SOURCES
   widgets/table.cpp
   widgets/icon_selector.cpp
   widgets/dial.cpp
-  window.cpp
-  window_manager.cpp
-  unicode.cpp
-  utility.cpp
+  windows/window.cpp
+  windows/window_manager.cpp
+  utilities/utility.cpp
+  utilities/random_number.cpp
   environment.cpp
-  random_number.cpp
   controller.cpp
-  line_maker.cpp
   menu_base.cpp
   roll_menu.cpp
   column_menu.cpp

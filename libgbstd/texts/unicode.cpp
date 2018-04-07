@@ -1,11 +1,11 @@
-#include"unicode.hpp"
+#include"libgbstd/text.hpp"
 #include<cstdio>
 
 
 
 
 namespace gbstd{
-namespace unicodes{
+namespace texts{
 
 
 namespace{

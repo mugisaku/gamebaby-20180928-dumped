@@ -63,7 +63,7 @@ main(int  argc, char**  argv)
   sdl::init(screen_w,screen_h);
 
 
-  auto  wp = winman.new_window(200,32);
+  auto  wp = winman.append(new window,200,32);
 
   (*wp)->append_child(new widgets::button(new widgets::label(u"NEW"),[](widgets::button&  btn){
       if(btn.is_released() && btn.get_count())
@@ -72,7 +72,7 @@ main(int  argc, char**  argv)
 
         static int  n;
 
-        auto  wp = winman.new_window(n,n);
+        auto  wp = winman.append(new window(),n,n);
 
         n +=    8;
         n &= 0xFF;
@@ -82,7 +82,7 @@ main(int  argc, char**  argv)
             {
               btn.reset_count();
 
-              winman.delete_window(*btn.get_window());
+              delete winman.remove(btn.get_window());
             }
         });
 

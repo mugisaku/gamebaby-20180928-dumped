@@ -1,9 +1,10 @@
-#include"libgbstd/line_maker.hpp"
+#include"libgbstd/image.hpp"
 #include<algorithm>
 
 
 
 namespace gbstd{
+namespace images{
 
 
 line_maker::
@@ -84,7 +85,7 @@ step() noexcept
 }
 
 
-}
+}}
 
 
 

@@ -16,10 +16,10 @@ clear() noexcept
 
     while(current)
     {
-      auto  high = current->m_high;
+      auto  hi = current->get_high();
 
-      delete current       ;
-             current = high;
+      delete current     ;
+             current = hi;
     }
 
 
@@ -28,114 +28,88 @@ clear() noexcept
 
   m_bottom = nullptr;
   m_top    = nullptr;
-
-  m_number_of_windows = 0;
 }
 
 
-window_pointer
+window*
 window_manager::
-new_window(int  x, int  y) noexcept
+append(window*  w, int  x, int  y) noexcept
 {
-  static uint32_t  n;
+  w->set_point(point(x,y));
 
-  auto  win = new window(n++,x,y);
-
-  win->set_header_flag();
-
-  win->m_manager = this;
+  w->set_manager(this);
 
     if(m_top)
     {
-      m_top->m_high = win               ;
-                      win->m_low = m_top;
+      m_top->set_high(w);
+
+      w->set_low(m_top);
     }
 
   else
     {
-      m_bottom = win;
+      m_bottom = w;
     }
 
 
-  m_top = win;
-
-  ++m_number_of_windows;
+  m_top = w;
 
   m_modified_flag =  true;
   m_moving_flag   = false;
 
-  return window_pointer(*win);
+  return w;
 }
 
 
-void
+window*
 window_manager::
-delete_window(window_pointer  ptr) noexcept
+remove(window*  w) noexcept
 {
-    if(m_number_of_windows == 1)
+    if(m_top == w)
     {
-      m_top    = nullptr;
-      m_bottom = nullptr;
+      m_top = m_top->get_low();
+
+        if(m_top)
+        {
+          m_top->set_high(nullptr);
+        }
+    }
+
+  else
+    if(m_bottom == w)
+    {
+      m_bottom = m_bottom->get_high();
+
+        if(m_bottom)
+        {
+          m_bottom->set_low(nullptr);
+        }
     }
 
   else
     {
-        if(m_top == ptr.m_data)
-        {
-          m_top = m_top->m_low;
+      auto  hi = w->get_high();
+      auto  lo = w->get_low();
 
-            if(m_top)
-            {
-              m_top->m_high = nullptr;
-            }
+        if(hi)
+        {
+          hi->set_low(lo);
         }
 
-      else
-        if(m_bottom == ptr.m_data)
-        {
-          m_bottom = m_bottom->m_high;
 
-            if(m_bottom)
-            {
-              m_bottom->m_low = nullptr;
-            }
-        }
-
-      else
+        if(lo)
         {
-          remove(*ptr);
+          lo->set_high(hi);
         }
     }
 
 
-  --m_number_of_windows;
+  w->set_high(nullptr);
+  w->set_low( nullptr);
 
   m_modified_flag = true;
 
-  delete ptr.m_data;
-}
-
-
-void
-window_manager::
-remove(window&  win) noexcept
-{
-    if(win.m_high)
-    {
-      win.m_high->m_low = win.m_low;
-    }
-
-
-    if(win.m_low)
-    {
-      win.m_low->m_high = win.m_high;
-    }
-
-
-  win.m_high = nullptr;
-  win.m_low  = nullptr;
-
-  m_modified_flag = true;
+  return w;
 }
 
 
@@ -221,7 +195,7 @@ update() noexcept
       else
         if(ctrl.is_mouse_button_modified())
         {
-          current = current->m_low;
+          current = current->get_low();
 
             while(current)
             {
@@ -233,15 +207,13 @@ update() noexcept
 
                     if(current == m_bottom)
                     {
-                      m_bottom = m_bottom->m_high;
+                      m_bottom = m_bottom->get_high();
                     }
 
 
-                  remove(*current);
+                  m_top->set_high(remove(current));
 
-                  m_top->m_high = current;
-
-                  current->m_low = m_top          ;
+                  current->set_low(m_top)         ;
                                    m_top = current;
 
                   touch(*current);
@@ -250,7 +222,7 @@ update() noexcept
                 }
 
 
-              current = current->m_low;
+              current = current->get_low();
             }
         }
     }
@@ -271,7 +243,7 @@ composite(image&  dst) noexcept
 
       images::transfer(image_frame(current->get_image()),image_cursor(dst,current->get_point()));
 
-      current = current->m_high;
+      current = current->get_high();
     }
 }
 

@@ -182,9 +182,7 @@ draw_frame_bottom(image&  dst, int  x, int  y, int  w, const color_index*  color
 
 
 window::
-window(uint32_t  n, int  x, int  y) noexcept:
-m_number(n),
-m_point(x,y)
+window() noexcept
 {
   m_container.set_relative_point(point(8,8));
 

@@ -1,4 +1,5 @@
 #include"libgbstd/widget.hpp"
+#include"libgbstd/text.hpp"
 
 
 
@@ -113,9 +114,9 @@ m_callback(callback)
   m_up_button->set_userdata(this);
 
 
-  tmpstr  ts;
+  string_form  fs;
 
-  m_label = new label(ts(format,min,max));
+  m_label = new label(fs(format,min,max));
 
   append({m_down_button,m_up_button,m_label});
 }
@@ -145,9 +146,9 @@ up(button&  btn)
             }
 
 
-          tmpstr  ts;
+          string_form  fs;
 
-          dial.m_label->set_text(ts(format,dial.m_current,dial.m_max));
+          dial.m_label->set_text(fs(format,dial.m_current,dial.m_max));
         }
     }
 }
@@ -175,9 +176,9 @@ down(button&  btn)
             }
 
 
-          tmpstr  ts;
+          string_form  fs;
 
-          dial.m_label->set_text(ts(format,dial.m_current,dial.m_max));
+          dial.m_label->set_text(fs(format,dial.m_current,dial.m_max));
         }
     }
 }

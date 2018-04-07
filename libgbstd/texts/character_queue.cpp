@@ -1,6 +1,5 @@
 #include"libgbstd/text.hpp"
 #include"libgbstd/environment.hpp"
-#include"libgbstd/unicode.hpp"
 #include<cctype>
 
 
@@ -27,39 +26,14 @@ bool  isidentn(char  c) noexcept{return(isalnum(c) || (c == '_'));}
 
 
 void
-text_buffer::
-clear() noexcept
-{
-  delete[] m_data_source          ;
-           m_data_source = nullptr;
-
-  m_data_length = 0;
-}
-
-
-void
-text_buffer::
+character_queue::
 reset() noexcept
 {
-  m_input_pointer = m_data_source;
+  m_input_pointer = m_data;
 
-  m_decoder = gbstd::string_view(m_data_source,m_data_length);
+  m_decoder = gbstd::string_view(m_data,buffer_size);
 
   m_input_pointer[0] = 0;
-}
-
-
-void
-text_buffer::
-resize(size_t  length) noexcept
-{
-  clear();
-
-  m_data_source = new char[length+1];
-
-  m_data_length = length;
-
-  reset();
 }
 
 
@@ -92,7 +66,7 @@ scan(gbstd::string_view::iterator&  src,
 
 
 void
-text_buffer::
+character_queue::
 push(gbstd::string_view  sv, bool  with_newline)
 {
   auto   it = sv.begin();
@@ -146,7 +120,7 @@ push(gbstd::string_view  sv, bool  with_newline)
 
 
 char16_t
-text_buffer::
+character_queue::
 pop() noexcept
 {
     if(m_decoder)

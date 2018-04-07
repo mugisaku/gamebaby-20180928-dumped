@@ -1,6 +1,5 @@
 #include"libgbstd/image.hpp"
-#include"libgbstd/line_maker.hpp"
-#include"libgbstd/unicode.hpp"
+#include"libgbstd/text.hpp"
 #include<cstring>
 
 
@@ -232,7 +231,7 @@ static
 const glyph_data
 data_table[] =
 {
-#include"libgbstd/font_data.cpp"
+#include"libgbstd/images/font_data.cpp"
 };
 
 
