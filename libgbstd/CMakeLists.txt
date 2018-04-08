@@ -16,7 +16,6 @@ set(SOURCES
   group_task.cpp
   texts/text.cpp
   texts/unicode.cpp
-  texts/text_cursor.cpp
   texts/character_queue.cpp
   texts/string_form.cpp
   widgets/widget.cpp
@@ -26,7 +25,9 @@ set(SOURCES
   widgets/table.cpp
   widgets/icon_selector.cpp
   widgets/dial.cpp
+  widgets/text_roll.cpp
   windows/window.cpp
+  windows/window__draw_frame.cpp
   windows/window_manager.cpp
   utilities/utility.cpp
   utilities/random_number.cpp

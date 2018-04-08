@@ -3,6 +3,7 @@
 
 
 #include"libgbstd/widget.hpp"
+#include"libgbstd/text.hpp"
 
 
 namespace gbstd{

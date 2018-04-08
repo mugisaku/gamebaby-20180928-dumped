@@ -5,6 +5,7 @@
 #include"libgbstd/image.hpp"
 #include"libgbstd/controller.hpp"
 #include"libgbstd/string.hpp"
+#include"libgbstd/text.hpp"
 #include"libgbstd/utility.hpp"
 #include<initializer_list>
 #include<memory>
@@ -357,6 +358,38 @@ public:
 };
 
 
+class
+text_roll: public widget
+{
+  character_queue  m_queue;
+
+  text  m_text;
+
+  int  m_start_line=0;
+
+  bool  m_full_lined=false;
+
+  point  m_cursor;
+
+public:
+  text_roll(int  w, int  h) noexcept;
+
+  const char*  get_widget_name() const noexcept override{return "text_roll";}
+
+  character_queue&  get_queue() noexcept{return m_queue;}
+
+  bool  is_needing_to_linefeed() const noexcept{return m_cursor.x >= m_text.get_width();}
+
+  void  clear() noexcept;
+
+  void  linefeed() noexcept;
+  void  pump() noexcept;
+
+  void  reform(point  base_pt) noexcept override;
+
+  void  render(image_cursor  cur) noexcept override;
+
+};
 
 
 }

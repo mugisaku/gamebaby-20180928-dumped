@@ -73,16 +73,16 @@ character_queue
   utf8_decoder  m_decoder;
 
 public:
-  character_queue() noexcept{reset();}
+  character_queue() noexcept{clear();}
   character_queue(const character_queue&   rhs) noexcept=delete;
   character_queue(      character_queue&&  rhs) noexcept=delete;
 
   character_queue&  operator=(const character_queue&   rhs) noexcept=delete;
   character_queue&  operator=(      character_queue&&  rhs) noexcept=delete;
 
-  void  reset() noexcept;
+  operator bool() const noexcept{return(m_decoder.get_pointer() < m_input_pointer);}
 
-  bool  is_remaining() const noexcept{return(m_decoder.get_pointer() < m_input_pointer);}
+  void  clear() noexcept;
 
   void  push(gbstd::string_view  sv, bool  with_newline=true);
 
@@ -114,27 +114,7 @@ public:
 
   void  resize(int  w, int  h) noexcept;
 
-};
-
-
-class
-text_cursor
-{
-  text*  m_text;
-
-  point  m_point;
-
-public:
-  text_cursor(text&  text, point  pt) noexcept: m_text(&text), m_point(pt){}
-
-  text_cursor  operator+(point  pt) const noexcept{return text_cursor(*m_text,m_point+pt);}
-
-  void      put(char16_t  c) const noexcept{m_text->get_char(m_point.x,m_point.y) = c;}
-  char16_t  get(           ) const noexcept{return m_text->get_char(m_point.x,m_point.y);}
-
-  void  advance() noexcept;
-
-  void  fill_line(char16_t  c) const noexcept;
+  void  fill(char16_t  c) noexcept{std::fill(m_chars.begin(),m_chars.end(),c);}
 
 };
 
@@ -164,7 +144,6 @@ using texts::utf8_decoder;
 using texts::utf8_encoder;
 using texts::u8slen;
 using texts::text;
-using texts::text_cursor;
 using texts::character_queue;
 using texts::string_form;
 

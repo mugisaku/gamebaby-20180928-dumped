@@ -27,7 +27,7 @@ bool  isidentn(char  c) noexcept{return(isalnum(c) || (c == '_'));}
 
 void
 character_queue::
-reset() noexcept
+clear() noexcept
 {
   m_input_pointer = m_data;
 

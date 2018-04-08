@@ -12,17 +12,6 @@ void
 window_manager::
 clear() noexcept
 {
-  auto  current = m_bottom;
-
-    while(current)
-    {
-      auto  hi = current->get_high();
-
-      delete current     ;
-             current = hi;
-    }
-
-
   m_modified_flag =  true;
   m_moving_flag   = false;
 
@@ -49,10 +38,14 @@ append(window*  w, int  x, int  y) noexcept
   else
     {
       m_bottom = w;
+
+      m_bottom->set_low(nullptr);
     }
 
 
   m_top = w;
+
+  m_top->set_high(nullptr);
 
   m_modified_flag =  true;
   m_moving_flag   = false;

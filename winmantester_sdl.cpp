@@ -31,9 +31,15 @@ windows::window_manager
 winman;
 
 
+widgets::text_roll*
+txtrol;
+
+
 void
 main_loop()
 {
+  txtrol->pump();
+
     if(winman.is_any_window_modified())
     {
       winman.composite(image);
@@ -62,7 +68,6 @@ main(int  argc, char**  argv)
 {
   sdl::init(screen_w,screen_h);
 
-
   auto  wp = winman.append(new window,200,32);
 
   (*wp)->append_child(new widgets::button(new widgets::label(u"NEW"),[](widgets::button&  btn){
@@ -73,6 +78,8 @@ main(int  argc, char**  argv)
         static int  n;
 
         auto  wp = winman.append(new window(),n,n);
+
+        txtrol->get_queue().push("abcdefg");
 
         n +=    8;
         n &= 0xFF;
@@ -91,6 +98,11 @@ main(int  argc, char**  argv)
         (*wp)->show_all();
       }
   }),0,0);
+
+
+  txtrol = new widgets::text_roll(8,6);
+
+  (*wp)->append_child(txtrol,0,40);
 
   (*wp)->show_all();
 
