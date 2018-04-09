@@ -12,8 +12,8 @@ void
 window_manager::
 clear() noexcept
 {
-  m_modified_flag =  true;
-  m_moving_flag   = false;
+  m_needing_to_refresh =  true;
+  m_moving_flag        = false;
 
   m_bottom = nullptr;
   m_top    = nullptr;
@@ -47,8 +47,8 @@ append(window*  w, int  x, int  y) noexcept
 
   m_top->set_high(nullptr);
 
-  m_modified_flag =  true;
-  m_moving_flag   = false;
+  m_needing_to_refresh =  true;
+  m_moving_flag        = false;
 
   return w;
 }
@@ -100,25 +100,9 @@ remove(window*  w) noexcept
   w->set_high(nullptr);
   w->set_low( nullptr);
 
-  m_modified_flag = true;
+  m_needing_to_refresh = true;
 
   return w;
-}
-
-
-bool
-window_manager::
-is_any_window_modified() noexcept
-{
-    if(m_modified_flag)
-    {
-      m_modified_flag = false;
-
-      return true;
-    }
-
-
-  return false;
 }
 
 
@@ -128,12 +112,6 @@ touch(window&  win) noexcept
 {
   win.react();
 
-    if(win.is_image_modified())
-    {
-      m_modified_flag = true;
-    }
-
-  else
     if(ctrl.is_mouse_lbutton_pressed() && !win.get_current())
     {
       m_moving_flag = true;
@@ -169,7 +147,7 @@ update() noexcept
 
               m_gripping_point = pt;
 
-              m_modified_flag = true;
+              m_needing_to_refresh = true;
             }
 
 
@@ -196,7 +174,7 @@ update() noexcept
 
                 if(current->test_by_point(pt.x,pt.y))
                 {
-                  m_modified_flag = true;
+                  m_needing_to_refresh = true;
 
                     if(current == m_bottom)
                     {
@@ -222,22 +200,35 @@ update() noexcept
 }
 
 
-void
+bool
 window_manager::
 composite(image&  dst) noexcept
 {
   auto  current = m_bottom;
 
-  dst.fill();
+  bool  refreshed = m_needing_to_refresh;
+
+    if(m_needing_to_refresh)
+    {
+      dst.fill();
+    }
+
 
     while(current)
     {
-      current->update();
+        if(current->update() || refreshed)
+        {
+          images::transfer(image_frame(current->get_image()),image_cursor(dst,current->get_point()));
 
-      images::transfer(image_frame(current->get_image()),image_cursor(dst,current->get_point()));
+          refreshed = true;
+        }
+
 
       current = current->get_high();
     }
+
+
+  return refreshed;
 }
 
 

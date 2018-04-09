@@ -38,23 +38,33 @@ txtrol;
 void
 main_loop()
 {
-  txtrol->pump();
-
-    if(winman.is_any_window_modified())
-    {
-      winman.composite(image);
-
-      sdl::update_screen(image);
-    }
-
-  else
-    if(ctrl.is_needed_to_redraw())
+    if(winman.composite(image) || ctrl.is_needed_to_redraw())
     {
       sdl::update_screen(image);
     }
 
 
   sdl::update_controller();
+
+  static uint32_t  next;
+
+  auto  now = ctrl.get_time();
+
+    if(now >= next)
+    {
+      next = now+100;
+
+        if(txtrol->is_needing_to_linefeed())
+        {
+          txtrol->linefeed();
+        }
+
+      else
+        {
+          txtrol->pump();
+        }
+    }
+
 
   winman.update();
 }

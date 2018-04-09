@@ -14,10 +14,6 @@ namespace gbstd{
 namespace texts{
 
 
-gbstd::string_view  make_text(const char*  fmt, ...) noexcept;
-gbstd::string_view  make_text_with_va_list(const char*  fmt, va_list  ap) noexcept;
-
-
 class
 utf8_decoder
 {

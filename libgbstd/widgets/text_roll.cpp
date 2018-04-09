@@ -57,6 +57,7 @@ linefeed() noexcept
         }
     }
 
+
   need_to_redraw();
 }
 

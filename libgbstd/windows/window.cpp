@@ -30,28 +30,11 @@ test_by_point(int  x, int  y) const noexcept
 }
 
 
-bool
-window::
-is_image_modified() noexcept
-{
-    if(m_modified)
-    {
-      m_modified = false;
-
-      return true;
-    }
-
-
-  return false;
-}
-
-
 void
 window::
 change_state(uint32_t  st) noexcept
 {
-  m_state    =   st;
-  m_modified = true;
+  m_state = st;
 
   m_container.set_relative_point(point(8,(m_state&flags::header)? 16:8));
 
@@ -106,7 +89,7 @@ react() noexcept
 }
 
 
-void
+bool
 window::
 update() noexcept
 {
@@ -128,8 +111,11 @@ update() noexcept
 
       m_container.redraw(get_image());
 
-      m_modified = true;
+      return true;
     }
+
+
+  return false;
 }
 
 

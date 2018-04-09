@@ -32,8 +32,6 @@ protected:
 
   point  m_point;
 
-  bool  m_modified=true;
-
   uint32_t  m_state=0;
 
   window*  m_low =nullptr;
@@ -65,8 +63,6 @@ public:
 
   bool  test_by_point(int  x, int  y) const noexcept;
 
-  bool  is_image_modified() noexcept;
-
   bool  is_transparent() const noexcept{return m_state&flags::transparent;}
 
   void    set_transparent_flag() noexcept{change_state(m_state| flags::transparent);}
@@ -90,7 +86,7 @@ public:
   window*  get_low(          ) const noexcept{return m_low;}
 
   void   react() noexcept;
-  void  update() noexcept;
+  bool  update() noexcept;
 
 };
 
@@ -101,7 +97,7 @@ window_manager
   window*  m_bottom=nullptr;
   window*  m_top   =nullptr;
 
-  bool  m_modified_flag=true;
+  bool  m_needing_to_refresh=true;
 
   bool  m_moving_flag=false;
 
@@ -118,11 +114,9 @@ public:
   window*  append(window*  w, int  x, int  y) noexcept;
   window*  remove(window*  w) noexcept;
 
-  bool  is_any_window_modified() noexcept;
-
   void  update() noexcept;
 
-  void  composite(image&  dst) noexcept;
+  bool  composite(image&  dst) noexcept;
 
 };
 
