@@ -26,6 +26,7 @@ set(SOURCES
   widgets/icon_selector.cpp
   widgets/dial.cpp
   widgets/text_roll.cpp
+  widgets/menu.cpp
   windows/window.cpp
   windows/window__draw_frame.cpp
   windows/window_manager.cpp

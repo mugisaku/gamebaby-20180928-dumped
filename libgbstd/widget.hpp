@@ -396,6 +396,44 @@ public:
 };
 
 
+
+
+using menu_item_reactor  = bool  (*)(                   point  index);
+using menu_item_renderer = void  (*)(image_cursor  cur, point  index);
+
+
+struct
+menu_parameter
+{
+  int  table_width =0;
+  int  table_height=0;
+
+  int  item_width =0;
+  int  item_height=0;
+
+  menu_item_reactor   item_reactor =nullptr;
+  menu_item_renderer  item_renderer=nullptr;
+
+};
+
+
+class
+menu: public widget
+{
+  menu_parameter  m_parameter;
+
+public:
+  menu(const menu_parameter&  para) noexcept: m_parameter(para){}
+
+  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+
+  void  reform(point  base_pt) noexcept override;
+
+  void  render(image_cursor  cur) noexcept override;
+
+};
+
+
 }
 
 

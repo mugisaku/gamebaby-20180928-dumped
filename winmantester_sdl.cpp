@@ -30,6 +30,43 @@ gbstd::widgets::text_roll*
 txtrol;
 
 
+bool
+table[6][6] = {0};
+
+
+gbstd::widgets::menu_parameter
+menu_para
+{
+  6,6,32,32,
+    [](gbstd::point  index)->bool
+    {
+        if(gbstd::ctrl.is_mouse_lbutton_pressed())
+        {
+          table[index.y][index.x] = true;
+
+          return true;
+        }
+
+      else
+        if(gbstd::ctrl.is_mouse_rbutton_pressed())
+        {
+          table[index.y][index.x] = false;
+
+          return true;
+        }
+
+      return false;
+    },
+
+    [](gbstd::image_cursor  cur, gbstd::point  index)
+    {
+      auto  b = table[index.y][index.x];
+
+      cur.draw_rectangle(b? gbstd::predefined::red:gbstd::predefined::green,0,0,32,32);
+    }
+};
+
+
 void
 main_loop()
 {
@@ -117,6 +154,8 @@ main(int  argc, char**  argv)
       }
   }),0,0);
 
+
+  (*wp)->append_child(new gbstd::widgets::menu(menu_para),80,60);
 
   txtrol = new gbstd::widgets::text_roll(14,3);
 
