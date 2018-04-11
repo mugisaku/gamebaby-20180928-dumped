@@ -121,82 +121,95 @@ touch(window&  win) noexcept
 }
 
 
-void
+bool
 window_manager::
-update() noexcept
+check_other_windows_than_top() noexcept
 {
-    if(!ctrl.did_mouse_acted())
-    {
-      return;
-    }
-
-
   auto  pt = ctrl.get_point();
 
-  auto  current = m_top;
+  auto  current = m_top->get_low();
 
-    if(current)
+    while(current)
     {
       current->update();
 
-        if(m_moving_flag)
-        {
-            if(ctrl.did_mouse_moved())
-            {
-              current->set_point(current->get_point()-(m_gripping_point-pt));
-
-              m_gripping_point = pt;
-
-              m_needing_to_refresh = true;
-            }
-
-
-            if(!ctrl.is_mouse_lbutton_pressed())
-            {
-              m_moving_flag = false;
-            }
-        }
-
-      else
         if(current->test_by_point(pt.x,pt.y))
         {
+          m_needing_to_refresh = true;
+
+            if(current == m_bottom)
+            {
+              m_bottom = m_bottom->get_high();
+            }
+
+
+          m_top->set_high(remove(current));
+
+          current->set_low(m_top)         ;
+                           m_top = current;
+
           touch(*current);
+
+          return true;
+        }
+
+
+      current = current->get_low();
+    }
+
+
+  return false;
+}
+
+
+bool
+window_manager::
+update() noexcept
+{
+  auto  pt = ctrl.get_point();
+
+    if(m_moving_flag)
+    {
+        if(ctrl.did_mouse_moved())
+        {
+          m_top->set_point(m_top->get_point()-(m_gripping_point-pt));
+
+          m_gripping_point = pt;
+
+          m_needing_to_refresh = true;
+        }
+
+
+        if(!ctrl.is_mouse_lbutton_pressed())
+        {
+          m_moving_flag = false;
+        }
+
+
+      return true;
+    }
+
+
+    if(m_top)
+    {
+      m_top->update();
+
+        if(m_top->test_by_point(pt.x,pt.y))
+        {
+          touch(*m_top);
+
+          return true;
         }
 
       else
         if(ctrl.is_mouse_button_modified())
         {
-          current = current->get_low();
-
-            while(current)
-            {
-              current->update();
-
-                if(current->test_by_point(pt.x,pt.y))
-                {
-                  m_needing_to_refresh = true;
-
-                    if(current == m_bottom)
-                    {
-                      m_bottom = m_bottom->get_high();
-                    }
-
-
-                  m_top->set_high(remove(current));
-
-                  current->set_low(m_top)         ;
-                                   m_top = current;
-
-                  touch(*current);
-
-                  break;
-                }
-
-
-              current = current->get_low();
-            }
+          return check_other_windows_than_top();
         }
     }
+
+
+  return false;
 }
 
 

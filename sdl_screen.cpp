@@ -77,6 +77,8 @@ quit() noexcept
   SDL_DestroyWindow(window);
 
   SDL_Quit();
+
+  std::_Exit(0);
 }
 
 

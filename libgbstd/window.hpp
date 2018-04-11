@@ -37,6 +37,8 @@ protected:
   window*  m_low =nullptr;
   window*  m_high=nullptr;
 
+  window*  m_child=nullptr;
+
   void  draw_frame() noexcept;
 
   struct flags{
@@ -85,6 +87,8 @@ public:
   void     set_low(window*  w)       noexcept{       m_low = w;}
   window*  get_low(          ) const noexcept{return m_low;}
 
+  window*  get_child() const noexcept{return m_child;}
+
   void   react() noexcept;
   bool  update() noexcept;
 
@@ -105,6 +109,8 @@ window_manager
 
   void   touch(window&  win) noexcept;
 
+  bool  check_other_windows_than_top() noexcept;
+
 public:
   window_manager() noexcept{}
  ~window_manager(){clear();}
@@ -114,7 +120,7 @@ public:
   window*  append(window*  w, int  x, int  y) noexcept;
   window*  remove(window*  w) noexcept;
 
-  void  update() noexcept;
+  bool  update() noexcept;
 
   bool  composite(image&  dst) noexcept;
 

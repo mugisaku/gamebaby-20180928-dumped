@@ -61,7 +61,13 @@ main_loop()
     }
 
 
-  winman.update();
+    if(gbstd::ctrl.did_mouse_acted())
+    {
+        if(!winman.update() && gbstd::ctrl.is_mouse_button_modified())
+        {
+          report;
+        }
+    }
 }
 
 
