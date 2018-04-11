@@ -32,7 +32,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS} -O0 -g")
 if(EMSC)
   set(EXECUTABLE_EXTENSION ".html")
   set(CMAKE_CXX_COMPILER  em++)
-  set(CMAKE_CXX_FLAGS "-Werror -std=c++1z -Wno-switch -O2")
+  set(CMAKE_CXX_FLAGS "-Werror -std=c++1z -Wno-switch -Os")
   set(CMAKE_CXX_FLAGS_DEBUG "")
   set(CMAKE_CXX_LINK_FLAGS  "${CMAKE_CXX_LINK_FLAGS} --shell-file ../shell.html -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_SDL=2")
 endif()
@@ -40,14 +40,19 @@ endif()
 
 
 
+set(SDL_SOURCES
+  sdl_screen.cpp
+  sdl_controller.cpp
+)
+
+
 add_subdirectory(libgbstd)
 #add_subdirectory(libgbsnd)
 #add_subdirectory(libgbscr)
-#add_subdirectory(libtok)
 
 include_directories(./)
 include_directories(/usr/include/SDL2)
-add_executable("winmantester${EXECUTABLE_EXTENSION}" winmantester_sdl.cpp)
+add_executable("winmantester${EXECUTABLE_EXTENSION}" winmantester_sdl.cpp ${SDL_SOURCES})
 #add_executable("growin${EXECUTABLE_EXTENSION}" growin_sdl.cpp)
 #add_executable("test_gbscr${EXECUTABLE_EXTENSION}" test_gbscr.cpp)
 #add_executable("mkforest${EXECUTABLE_EXTENSION}" mkforest_sdl.cpp)

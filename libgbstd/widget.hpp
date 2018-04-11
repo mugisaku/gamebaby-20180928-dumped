@@ -368,8 +368,11 @@ text_roll: public widget
   int  m_start_line=0;
 
   bool  m_full_lined=false;
+  bool  m_needing_to_fill=false;
 
   point  m_cursor;
+
+  text_style  m_style;
 
 public:
   text_roll(int  w, int  h) noexcept;
@@ -383,7 +386,8 @@ public:
   void  clear() noexcept;
 
   void  linefeed() noexcept;
-  void  pump() noexcept;
+
+  void  type() noexcept;
 
   void  reform(point  base_pt) noexcept override;
 

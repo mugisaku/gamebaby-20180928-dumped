@@ -12,6 +12,7 @@ text_roll::
 text_roll(int  w, int  h) noexcept:
 m_text(w,h)
 {
+  m_style.set_color_index(0,predefined::blue);
 }
 
 
@@ -51,6 +52,10 @@ linefeed() noexcept
 
     if(m_full_lined)
     {
+      m_text.fill_line(0,m_cursor.y);
+
+      m_needing_to_fill = true;
+
         if(++m_start_line >= m_text.get_height())
         {
           m_start_line = 0;
@@ -64,13 +69,24 @@ linefeed() noexcept
 
 void
 text_roll::
-pump() noexcept
+type() noexcept
 {
     if(m_queue)
     {
-      m_text.get_char(m_cursor.x++,m_cursor.y) = m_queue.pop();
+      auto  c = m_queue.pop();
 
-      need_to_redraw();
+        if(c)
+        {
+          m_text.get_char(m_cursor.x++,m_cursor.y) = c;
+
+          need_to_redraw();
+        }
+    }
+
+  else
+    if(m_queue[0])
+    {
+      m_queue.clear();
     }
 }
 
@@ -90,6 +106,14 @@ void
 text_roll::
 render(image_cursor  cur) noexcept
 {
+    if(m_needing_to_fill)
+    {
+      cur.fill_rectangle(m_style.get_color_index(0),0,0,m_width,m_height);
+
+      m_needing_to_fill = false;
+    }
+
+
   int  w = m_text.get_width();
   int  h = m_text.get_height();
   int  n = h;
@@ -100,7 +124,7 @@ render(image_cursor  cur) noexcept
 
     while(n--)
     {
-      cur.draw_text(gbstd::u16string_view(&m_text.get_char(0,l++),w),text_style(),0,y);
+      cur.draw_text(gbstd::u16string_view(&m_text.get_char(0,l++),w),m_style,0,y);
 
         if(l >= h)
         {

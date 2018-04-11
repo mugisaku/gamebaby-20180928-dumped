@@ -31,7 +31,7 @@ clear() noexcept
 {
   m_input_pointer = m_data;
 
-  m_decoder = gbstd::string_view(m_data,buffer_size);
+  m_decoder = gbstd::string_view(m_data,buffer_size-1);
 
   m_input_pointer[0] = 0;
 }
@@ -72,8 +72,16 @@ push(gbstd::string_view  sv, bool  with_newline)
   auto   it = sv.begin();
   auto  end = sv.end();
     
-    while((it != end) && (m_input_pointer < m_decoder.get_end()))
+    while(it != end)
     {
+        if(m_input_pointer >= m_decoder.get_end())
+        {
+          printf("character_queue push error: バッファがいっぱいです\n");
+
+          break;
+        }
+
+
         if(*it == '$')
         {
           ++it;
@@ -128,6 +136,8 @@ pop() noexcept
       return m_decoder();
     }
 
+
+  clear();
 
   return 0;
 }

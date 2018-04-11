@@ -20,6 +20,20 @@ resize(int  w, int  h) noexcept
 }
 
 
+void
+text::
+fill_line(char16_t  c, int  y) noexcept
+{
+  auto  p = &get_char(0,y);
+
+  int  n = m_width;
+
+    while(n--)
+    {
+      *p++ = c;
+    }
+}
+
 
 }}
 

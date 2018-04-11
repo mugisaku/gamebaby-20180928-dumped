@@ -9,7 +9,7 @@
 
 
 #ifndef report
-#define report printf("[report %8d] %s, %s, %d\n",reporting_counter++,__FILE__,__func__,__LINE__);
+#define report printf("[report %8d] %s, %s, %d\n",gbstd::reporting_counter++,__FILE__,__func__,__LINE__);
 #endif
 
 

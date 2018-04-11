@@ -24,13 +24,7 @@ public:
   utf8_decoder(                      ) noexcept{}
   utf8_decoder(gbstd::string_view  sv) noexcept{*this = sv;}
 
-  utf8_decoder&  operator=(gbstd::string_view  sv) noexcept
-  {
-    m_pointer = sv.data();
-    m_end     = sv.data()+sv.size();
-
-    return *this;
-  }
+  utf8_decoder&  operator=(gbstd::string_view  sv) noexcept;
 
   operator bool() const noexcept{return m_pointer < m_end;}
 
@@ -76,6 +70,8 @@ public:
   character_queue&  operator=(const character_queue&   rhs) noexcept=delete;
   character_queue&  operator=(      character_queue&&  rhs) noexcept=delete;
 
+  const char&  operator[](int  i) const noexcept{return m_data[i];}
+
   operator bool() const noexcept{return(m_decoder.get_pointer() < m_input_pointer);}
 
   void  clear() noexcept;
@@ -111,6 +107,8 @@ public:
   void  resize(int  w, int  h) noexcept;
 
   void  fill(char16_t  c) noexcept{std::fill(m_chars.begin(),m_chars.end(),c);}
+
+  void  fill_line(char16_t  c, int  y) noexcept;
 
 };
 

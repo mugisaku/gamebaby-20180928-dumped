@@ -1,6 +1,4 @@
-#include<SDL.h>
-#include"libgbstd/controller.hpp"
-#include<cstdlib>
+#include"sdl.hpp"
 
 
 

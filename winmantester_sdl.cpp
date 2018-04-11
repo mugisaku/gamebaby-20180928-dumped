@@ -1,19 +1,14 @@
 #include<SDL.h>
 #include"libgbstd/image.hpp"
 #include"libgbstd/controller.hpp"
-#include"sdl_screen.cpp"
-#include"sdl_controller.cpp"
-
 #include"libgbstd/window.hpp"
+#include"sdl.hpp"
 
 
 #ifdef EMSCRIPTEN
 #include<emscripten.h>
 #include<SDL.h>
 #endif
-
-
-using namespace gbstd;
 
 
 namespace{
@@ -27,18 +22,18 @@ gbstd::image
 image(screen_w,screen_h);
 
 
-windows::window_manager
+gbstd::windows::window_manager
 winman;
 
 
-widgets::text_roll*
+gbstd::widgets::text_roll*
 txtrol;
 
 
 void
 main_loop()
 {
-    if(winman.composite(image) || ctrl.is_needed_to_redraw())
+    if(winman.composite(image) || gbstd::ctrl.is_needed_to_redraw())
     {
       sdl::update_screen(image);
     }
@@ -48,11 +43,11 @@ main_loop()
 
   static uint32_t  next;
 
-  auto  now = ctrl.get_time();
+  auto  now = gbstd::ctrl.get_time();
 
     if(now >= next)
     {
-      next = now+100;
+      next = now+40;
 
         if(txtrol->is_needing_to_linefeed())
         {
@@ -61,7 +56,7 @@ main_loop()
 
       else
         {
-          txtrol->pump();
+          txtrol->type();
         }
     }
 
@@ -78,25 +73,29 @@ main(int  argc, char**  argv)
 {
   sdl::init(screen_w,screen_h);
 
-  auto  wp = winman.append(new window,200,32);
+  auto  wp = winman.append(new gbstd::window,200,32);
 
-  (*wp)->append_child(new widgets::button(new widgets::label(u"NEW"),[](widgets::button&  btn){
+  (*wp)->append_child(new gbstd::widgets::button(new gbstd::widgets::label(u"NEW"),[](gbstd::widgets::button&  btn){
       if(btn.is_released() && btn.get_count())
       {
         btn.reset_count();
 
         static int  n;
 
-        auto  wp = winman.append(new window(),n,n);
+        auto  wp = winman.append(new gbstd::window(),n,n);
 
-        txtrol->get_queue().push("abcdefg");
+        wp->set_header_flag();
+
+        txtrol->get_queue().push("あたらしい　ウィンドウが　さくせい　されました");
 
         n +=    8;
         n &= 0xFF;
 
-        auto  new_btn = new widgets::button(new widgets::label(u"CLOSE"),[](widgets::button&  btn){
+        auto  new_btn = new gbstd::widgets::button(new gbstd::widgets::label(u"CLOSE"),[](gbstd::widgets::button&  btn){
             if(btn.is_released() && btn.get_count())
             {
+              txtrol->get_queue().push("ウィンドウが　はき　されました");
+
               btn.reset_count();
 
               delete winman.remove(btn.get_window());
@@ -110,7 +109,7 @@ main(int  argc, char**  argv)
   }),0,0);
 
 
-  txtrol = new widgets::text_roll(8,6);
+  txtrol = new gbstd::widgets::text_roll(14,3);
 
   (*wp)->append_child(txtrol,0,40);
 
@@ -125,10 +124,11 @@ main(int  argc, char**  argv)
 
       SDL_Delay(20);
     }
-#endif
 
 
   sdl::quit();
+#endif
+
 
   return 0;
 }
