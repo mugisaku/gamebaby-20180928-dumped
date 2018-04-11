@@ -63,9 +63,11 @@ main_loop()
 
     if(gbstd::ctrl.did_mouse_acted())
     {
-        if(!winman.update() && gbstd::ctrl.is_mouse_button_modified())
+        if(!winman.update() && gbstd::ctrl.is_mouse_rbutton_pressed())
         {
-          report;
+          auto  pt = gbstd::ctrl.get_point();
+
+          auto  wp = winman.append(new gbstd::window,pt.x,pt.y);
         }
     }
 }
@@ -91,6 +93,7 @@ main(int  argc, char**  argv)
         auto  wp = winman.append(new gbstd::window(),n,n);
 
         wp->set_header_flag();
+        wp->set_movable_flag();
 
         txtrol->get_queue().push("あたらしい　ウィンドウが　さくせい　されました");
 

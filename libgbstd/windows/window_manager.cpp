@@ -112,7 +112,7 @@ touch(window&  win) noexcept
 {
   win.react();
 
-    if(ctrl.is_mouse_lbutton_pressed() && !win.get_current())
+    if(win.is_movable() && ctrl.is_mouse_lbutton_pressed() && !win.get_current())
     {
       m_moving_flag = true;
 

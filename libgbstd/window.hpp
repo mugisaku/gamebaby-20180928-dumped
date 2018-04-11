@@ -44,6 +44,7 @@ protected:
   struct flags{
     static constexpr uint32_t  transparent = 0x01;
     static constexpr uint32_t       header = 0x02;
+    static constexpr uint32_t      movable = 0x04;
 
   };
 
@@ -64,6 +65,11 @@ public:
   const point&  get_point(         ) const noexcept{return m_point     ;}
 
   bool  test_by_point(int  x, int  y) const noexcept;
+
+  bool  is_movable() const noexcept{return m_state&flags::movable;}
+
+  void    set_movable_flag() noexcept{change_state(m_state| flags::movable);}
+  void  unset_movable_flag() noexcept{change_state(m_state&~flags::movable);}
 
   bool  is_transparent() const noexcept{return m_state&flags::transparent;}
 
