@@ -6,7 +6,6 @@ set(SOURCES
   wave.cpp
   images/image.cpp
   images/image_cursor.cpp
-  images/image_frame.cpp
   images/image__png.cpp
   images/image__draw.cpp
   images/image__transfer.cpp
@@ -30,6 +29,8 @@ set(SOURCES
   windows/window.cpp
   windows/window__draw_frame.cpp
   windows/window_manager.cpp
+  pieces/piece.cpp
+  pieces/piece_manager.cpp
   utilities/utility.cpp
   utilities/random_number.cpp
   environment.cpp

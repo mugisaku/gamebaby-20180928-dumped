@@ -223,32 +223,8 @@ public:
 };
 
 
-class
-image_frame: public image_cursor
-{
-  int  m_width;
-  int  m_height;
-
-public:
-  image_frame(image&  image, point  pt=point(), int  w=0, int  h=0) noexcept:
-  image_cursor(image,pt),
-  m_width(w? w:image.get_width()),
-  m_height(h? h:image.get_height()){}
-
-
-  int  get_width()  const noexcept{return m_width;}
-  int  get_height() const noexcept{return m_height;}
-
-  void  fill(pixel  pix=pixel()) const noexcept;
-
-  void  add(int  r, int  g, int  b) const noexcept;
-  void  reverse_color() const noexcept;
-
-};
-
-
-void  transfer(const image_frame&  src, const image_cursor&  dst        ) noexcept;
-void  transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept;
+void  transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_cursor&  dst        ) noexcept;
+void  transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_cursor&  dst, int  z) noexcept;
 
 
 class
@@ -289,7 +265,6 @@ using images::font_height;
 
 using images::image;
 using images::image_cursor;
-using images::image_frame;
 using images::pixel;
 using images::line_maker;
 

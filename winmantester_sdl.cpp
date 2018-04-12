@@ -31,7 +31,11 @@ txtrol;
 
 
 bool
-table[6][6] = {0};
+table[6][6];
+
+
+bool*   first;
+bool*  second;
 
 
 gbstd::widgets::menu_parameter

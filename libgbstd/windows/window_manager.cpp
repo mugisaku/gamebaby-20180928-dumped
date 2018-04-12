@@ -231,7 +231,10 @@ composite(image&  dst) noexcept
     {
         if(current->update() || refreshed)
         {
-          images::transfer(image_frame(current->get_image()),image_cursor(dst,current->get_point()));
+          auto  w = current->get_width();
+          auto  h = current->get_height();
+
+          images::transfer(current->get_image(),point(),w,h,image_cursor(dst,current->get_point()));
 
           refreshed = true;
         }

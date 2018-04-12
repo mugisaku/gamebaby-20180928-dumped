@@ -10,14 +10,12 @@ namespace images{
 
 
 void
-transfer(const image_frame&  src, const image_cursor&  dst) noexcept
+transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_cursor&  dst) noexcept
 {
   bool  reverse_flag = false;
 
-  int  src_x = src.get_x_offset();
-  int  src_y = src.get_y_offset();
-  int  src_w = src.get_width();
-  int  src_h = src.get_height();
+  int  src_x = src_pt.x;
+  int  src_y = src_pt.y;
 
   int  dst_x = dst.get_x_offset();
   int  dst_y = dst.get_y_offset();
@@ -104,7 +102,6 @@ transfer(const image_frame&  src, const image_cursor&  dst) noexcept
     }
 
 
-  auto&  src_img = src.get_image();
   auto&  dst_img = dst.get_image();
 
     for(int  yy = 0;  yy < src_h;  yy += 1)
@@ -115,7 +112,7 @@ transfer(const image_frame&  src, const image_cursor&  dst) noexcept
 
             for(int  xx = 0;  xx < src_w;  xx += 1)
             {
-              auto  pix = src_img.get_const_pixel(x--,src_y+yy);
+              auto  pix = src.get_const_pixel(x--,src_y+yy);
 
               dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
             }
@@ -125,7 +122,7 @@ transfer(const image_frame&  src, const image_cursor&  dst) noexcept
         {
             for(int  xx = 0;  xx < src_w;  xx += 1)
             {
-              auto  pix = src_img.get_const_pixel(src_x+xx,src_y+yy);
+              auto  pix = src.get_const_pixel(src_x+xx,src_y+yy);
 
               dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
             }
@@ -137,14 +134,12 @@ transfer(const image_frame&  src, const image_cursor&  dst) noexcept
 
 
 void
-transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept
+transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_cursor&  dst, int  z) noexcept
 {
   bool  reverse_flag = false;
 
-  int  src_x = src.get_x_offset();
-  int  src_y = src.get_y_offset();
-  int  src_w = src.get_width();
-  int  src_h = src.get_height();
+  int  src_x = src_pt.x;
+  int  src_y = src_pt.y;
 
   int  dst_x = dst.get_x_offset();
   int  dst_y = dst.get_y_offset();
@@ -231,7 +226,6 @@ transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept
     }
 
 
-  auto&  src_img = src.get_image();
   auto&  dst_img = dst.get_image();
 
     for(int  yy = 0;  yy < src_h;  yy += 1)
@@ -242,7 +236,7 @@ transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept
 
             for(int  xx = 0;  xx < src_w;  xx += 1)
             {
-              auto  pix = src_img.get_const_pixel(x--,src_y+yy);
+              auto  pix = src.get_const_pixel(x--,src_y+yy);
 
               pix.z = z;
 
@@ -254,7 +248,7 @@ transfer(const image_frame&  src, const image_cursor&  dst, int  z) noexcept
         {
             for(int  xx = 0;  xx < src_w;  xx += 1)
             {
-              auto  pix = src_img.get_const_pixel(src_x+xx,src_y+yy);
+              auto  pix = src.get_const_pixel(src_x+xx,src_y+yy);
 
               pix.z = z;
 
