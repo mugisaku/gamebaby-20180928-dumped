@@ -29,10 +29,9 @@ set(SOURCES
   windows/window.cpp
   windows/window__draw_frame.cpp
   windows/window_manager.cpp
-  pieces/piece.cpp
-  pieces/piece_manager.cpp
   utilities/utility.cpp
   utilities/random_number.cpp
+  garden.cpp
   environment.cpp
   controller.cpp
   menu_base.cpp

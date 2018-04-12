@@ -224,6 +224,8 @@ composite(image&  dst) noexcept
     if(m_needing_to_refresh)
     {
       dst.fill();
+
+      m_needing_to_refresh = false;
     }
 
 
