@@ -39,6 +39,12 @@ printf_with_indent(int  indent, const char*  fmt, ...) noexcept
 }
 
 
+std::random_device
+random_device;
+
+
+std::default_random_engine
+random_number_engine;
 
 
 }

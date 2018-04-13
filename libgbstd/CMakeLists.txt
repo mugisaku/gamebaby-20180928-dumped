@@ -1,18 +1,12 @@
 
 
 set(SOURCES
-  riff_chunk.cpp
-  riff_subchunk_view.cpp
-  wave.cpp
   images/image.cpp
   images/image_cursor.cpp
   images/image__png.cpp
   images/image__draw.cpp
   images/image__transfer.cpp
   images/line_maker.cpp
-  playwork.cpp
-  task.cpp
-  group_task.cpp
   texts/text.cpp
   texts/unicode.cpp
   texts/character_queue.cpp
@@ -29,17 +23,22 @@ set(SOURCES
   windows/window.cpp
   windows/window__draw_frame.cpp
   windows/window_manager.cpp
-  utilities/utility.cpp
-  utilities/random_number.cpp
+  ios/binary_stream.cpp
+  ios/binary_stream_reader.cpp
+  ios/binary_stream_writer.cpp
+  ios/riff_chunk.cpp
+  ios/riff_subchunk_view.cpp
+  ios/wave.cpp
+  playwork.cpp
+  task.cpp
+  group_task.cpp
+  utility.cpp
   garden.cpp
   environment.cpp
   controller.cpp
   menu_base.cpp
   roll_menu.cpp
   column_menu.cpp
-  binary_streams/binary_stream.cpp
-  binary_streams/binary_stream_reader.cpp
-  binary_streams/binary_stream_writer.cpp
 )
 
 

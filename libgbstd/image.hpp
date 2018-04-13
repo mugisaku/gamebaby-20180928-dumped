@@ -6,7 +6,7 @@
 #include<vector>
 #include<string>
 #include"libgbstd/figures.hpp"
-#include"libgbstd/binary_stream.hpp"
+#include"libgbstd/ios/binary_stream.hpp"
 #include"libgbstd/ro_ptr.hpp"
 
 

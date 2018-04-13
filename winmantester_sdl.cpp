@@ -56,7 +56,8 @@ piece
   int  m_width;
   int  m_height;
 
-  gbstd::point  m_point;
+  gbstd::real_point  m_point;
+  gbstd::real_point  m_vector;
 
 };
 
@@ -127,8 +128,10 @@ crash(gbstd::window*  win) noexcept
   int  w = holder->image.get_width();
   int  h = holder->image.get_height();
 
-  int  pw = 2;
-  int  ph = 2;
+  int  pw = 4;
+  int  ph = 4;
+
+  gbstd::normal_rand  rand(0,4);
 
     for(int  y = 0;  y < h;  y += ph){
     for(int  x = 0;  x < w;  x += pw){
@@ -137,7 +140,8 @@ crash(gbstd::window*  win) noexcept
       p.m_holder = holder;
 
       p.m_src_point = gbstd::point(x,y);
-      p.m_point     = win->get_point()+gbstd::point(x,y);
+      p.m_point     = gbstd::real_point(win->get_point()+gbstd::point(x,y));
+      p.m_vector    = gbstd::real_point(rand(),rand());
 
       p.m_width  = pw;
       p.m_height = ph;
@@ -192,9 +196,11 @@ update_garden() noexcept
 
           garden.append(spr);
 
-          it->m_point.y += rand()%16;
+          it->m_point += it->m_vector;
 
-          ++it;
+          it->m_vector.y += 1.2;
+
+          ++it;	
         }
     }
 }
@@ -285,8 +291,6 @@ main(int  argc, char**  argv)
 
         wp->set_header_flag();
         wp->set_movable_flag();
-
-        txtrol->get_queue().push("あたらしい　ウィンドウが　さくせい　されました");
 
         n +=    8;
         n &= 0xFF;

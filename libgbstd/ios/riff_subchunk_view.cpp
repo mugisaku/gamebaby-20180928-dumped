@@ -1,4 +1,4 @@
-#include"libgbstd/riff.hpp"
+#include"libgbstd/io.hpp"
 #include<cstdio>
 
 

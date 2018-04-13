@@ -1,4 +1,4 @@
-#include"libgbstd/wave.hpp"
+#include"libgbstd/io.hpp"
 #include<cstdlib>
 #include<cstdio>
 

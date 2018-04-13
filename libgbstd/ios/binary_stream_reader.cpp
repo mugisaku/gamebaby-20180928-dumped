@@ -1,4 +1,4 @@
-#include"libgbstd/binary_stream.hpp"
+#include"libgbstd/io.hpp"
 #include<cstdio>
 
 

@@ -9,65 +9,73 @@ namespace gbstd{
 namespace images{
 
 
+template<typename  T>
 struct
-point
+basic_point
 {
-  int  x;
-  int  y;
+  using value_type = T;
 
-  constexpr point(int  x_=0, int  y_=0) noexcept:
+  value_type  x;
+  value_type  y;
+
+  constexpr basic_point(value_type  x_=0, value_type  y_=0) noexcept:
   x(x_),
   y(y_){}
 
+  template<typename  U>
+  constexpr basic_point(basic_point<U>  rhs) noexcept:
+  x(static_cast<T>(rhs.x)),
+  y(static_cast<T>(rhs.y)){}
 
-  constexpr bool  operator==(point const&  rhs) const noexcept
+
+  constexpr bool  operator==(basic_point const&  rhs) const noexcept
   {
     return(x == rhs.x) &&
           (y == rhs.y);
   }
 
-  constexpr bool  operator!=(point const&  rhs) const noexcept
+  constexpr bool  operator!=(basic_point const&  rhs) const noexcept
   {
     return(x != rhs.x) ||
           (y != rhs.y);
   }
 
-  constexpr point  operator+(point const&  rhs) const noexcept
+  constexpr basic_point  operator+(basic_point const&  rhs) const noexcept
   {
-    return point(x+rhs.x,y+rhs.y);
+    return basic_point(x+rhs.x,y+rhs.y);
   }
 
-  constexpr point  operator-(point const&  rhs) const noexcept
+  constexpr basic_point  operator-(basic_point const&  rhs) const noexcept
   {
-    return point(x-rhs.x,y-rhs.y);
+    return basic_point(x-rhs.x,y-rhs.y);
   }
 
-  constexpr point  operator+(int  n) const noexcept
+  constexpr basic_point  operator+(value_type  n) const noexcept
   {
-    return point(x+n,y+n);
+    return basic_point(x+n,y+n);
   }
 
-  constexpr point  operator*(int  n) const noexcept
+  constexpr basic_point  operator*(value_type  n) const noexcept
   {
-    return point(x*n,y*n);
+    return basic_point(x*n,y*n);
   }
 
-  constexpr point  operator/(int  n) const noexcept
+  constexpr basic_point  operator/(value_type  n) const noexcept
   {
-    return point(x/n,y/n);
+    return basic_point(x/n,y/n);
   }
 
-  constexpr point  operator%(int  n) const noexcept
+  constexpr basic_point  operator%(value_type  n) const noexcept
   {
-    return point(x%n,y%n);
+    return basic_point(x%n,y%n);
   }
 
-  constexpr point  operator-() const noexcept
+  constexpr basic_point  operator-() const noexcept
   {
-    return point(-x,-y);
+    return basic_point(-x,-y);
   }
 
-  constexpr point&  operator+=(point const&  rhs) noexcept
+  constexpr basic_point&  operator+=(basic_point const&  rhs) noexcept
   {
     x += rhs.x;
     y += rhs.y;
@@ -75,7 +83,7 @@ point
     return *this;
   }
 
-  constexpr point&  operator-=(point const&  rhs) noexcept
+  constexpr basic_point&  operator-=(basic_point const&  rhs) noexcept
   {
     x -= rhs.x;
     y -= rhs.y;
@@ -83,7 +91,7 @@ point
     return *this;
   }
 
-  constexpr point&  operator*=(int  n) noexcept
+  constexpr basic_point&  operator*=(value_type  n) noexcept
   {
     x *= n;
     y *= n;
@@ -91,7 +99,7 @@ point
     return *this;
   }
 
-  constexpr point&  operator/=(int  n) noexcept
+  constexpr basic_point&  operator/=(value_type  n) noexcept
   {
     x /= n;
     y /= n;
@@ -99,7 +107,7 @@ point
     return *this;
   }
 
-  constexpr point&  operator%=(int  n) noexcept
+  constexpr basic_point&  operator%=(value_type  n) noexcept
   {
     x %= n;
     y %= n;
@@ -107,13 +115,8 @@ point
     return *this;
   }
 
-  void  print(char const*  prefix="") const
-  {
-    printf("[print point %s] %4d %4d\n",prefix,x,y);
-  }
 
-
-  point&  move_x(int  n) noexcept
+  basic_point&  move_x(value_type  n) noexcept
   {
     x += n;
 
@@ -121,68 +124,18 @@ point
   }
 
 
-  point&  move_y(int  n) noexcept
+  basic_point&  move_y(value_type  n) noexcept
   {
     y += n;
 
     return *this;
   }
 
-
-  void  transform(int  w, int  h) noexcept
-  {
-      if(x < 0)
-      {
-          while(x < 0)
-          {
-            x += w;
-          }
-      }
-
-    else
-      if(x >= w)
-      {
-          while(x >= w)
-          {
-            x -= w;
-          }
-      }
-
-
-      if(y < 0)
-      {
-          while(y < 0)
-          {
-            y += h;
-          }
-      }
-
-    else
-      if(y >= h)
-      {
-          while(y >= h)
-          {
-            y -= h;
-          }
-      }
-  }
-
-
-  void  transform(int  w, int  h, int  field_w, int  field_h) noexcept
-  {
-      while((x+w) >= field_w)
-      {
-        x -= field_w;
-      }
-
-
-      while((y+h) >= field_h)
-      {
-        y -= field_h;
-      }
-  }
-
 };
+
+
+using      point = basic_point<int>;
+using real_point = basic_point<double>;
 
 
 struct
@@ -235,6 +188,7 @@ line
 
 
 using images::point;
+using images::real_point;
 using images::rectangle;
 using images::triangle;
 using images::line;

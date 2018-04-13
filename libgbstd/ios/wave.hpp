@@ -2,7 +2,7 @@
 #define wave_hpp_included
 
 
-#include"libgbstd/riff.hpp"
+#include"libgbstd/ios/riff.hpp"
 #include<cstdio>
 
 
