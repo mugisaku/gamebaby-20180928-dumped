@@ -25,10 +25,10 @@ protected:
 
   widget*  m_current=nullptr;
 
-  color_index  m_colors[4] = {predefined::null      ,
-                              predefined::blue      ,
-                              predefined::white     ,
-                              predefined::light_gray,};
+  color  m_colors[4] = {color()               ,
+                        predefined::blue      ,
+                        predefined::white     ,
+                        predefined::light_gray,};
 
   point  m_point;
 

@@ -13,6 +13,7 @@ set(SOURCES
   texts/string_form.cpp
   widgets/widget.cpp
   widgets/container.cpp
+  widgets/root.cpp
   widgets/label.cpp
   widgets/button.cpp
   widgets/table.cpp

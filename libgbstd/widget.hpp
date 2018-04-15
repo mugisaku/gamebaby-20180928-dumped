@@ -175,6 +175,26 @@ public:
 
 
 class
+root
+{
+  container  m_container;
+
+  widget*  m_current=nullptr;
+
+public:
+  container*  operator->() noexcept{return &m_container;}
+
+  const widget*  get_current() const noexcept{return m_current;}
+
+  void   react() noexcept;
+  bool  update() noexcept;
+
+};
+
+
+
+
+class
 label: public widget
 {
   text_style  m_text_style=text_style(predefined::blue,predefined::white,predefined::blue,predefined::black);
@@ -206,10 +226,21 @@ public:
   static constexpr int  size = 16;
 
 private:
-  color_index  m_data[size][size]={0};
+  color  m_data[size][size]={0};
 
 public:
-  icon(std::initializer_list<color_index>  ls) noexcept
+  icon(std::initializer_list<int>  ls) noexcept
+  {
+    auto   it = &m_data[   0][0];
+    auto  end = &m_data[size][0];
+
+      for(auto  i: ls)
+      {
+        *it++ = color(i);
+      }
+  }
+
+  icon(std::initializer_list<color>  ls) noexcept
   {
     auto   it = &m_data[   0][0];
     auto  end = &m_data[size][0];
@@ -220,8 +251,8 @@ public:
       }
   }
 
-  void         set_color_index(int  x, int  y, color_index  i)       noexcept{       m_data[y][x] = i;}
-  color_index  get_color_index(int  x, int  y                ) const noexcept{return m_data[y][x]    ;}
+  void   set_color(int  x, int  y, color  i)       noexcept{       m_data[y][x] = i;}
+  color  get_color(int  x, int  y          ) const noexcept{return m_data[y][x]    ;}
 
 };
 
@@ -279,6 +310,27 @@ public:
   bool  is_pressed()  const noexcept{return m_state ==  state::pressed;}
   bool  is_released() const noexcept{return m_state == state::released;}
 
+  void  reform(point  base_pt) noexcept override;
+
+  void  do_when_cursor_got_out()            noexcept override;
+  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+
+  void  render(image_cursor  cur) noexcept override;
+
+  void  print(int  indent=0) const noexcept override;
+
+  void  show_all() noexcept override;
+
+};
+
+
+class
+radio_button: public button
+{
+
+public:
+
+  const char*  get_widget_name() const noexcept override{return "radio_button";}
   void  reform(point  base_pt) noexcept override;
 
   void  do_when_cursor_got_out()            noexcept override;

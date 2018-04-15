@@ -12,18 +12,18 @@ namespace images{
 
 void
 image::
-draw_dot(color_index  i, int  x, int  y) noexcept
+draw_dot(color  i, int  x, int  y) noexcept
 {
     if(i)
     {
-      m_pixels[(m_width*y)+x].color_index = i;
+      m_pixels[(m_width*y)+x].color = i;
     }
 }
 
 
 void
 image::
-draw_dot_safely(color_index  i, int  x, int  y) noexcept
+draw_dot_safely(color  i, int  x, int  y) noexcept
 {
     if((x >=        0) &&
        (x <   m_width) &&
@@ -37,7 +37,7 @@ draw_dot_safely(color_index  i, int  x, int  y) noexcept
 
 void
 image::
-draw_vline(color_index  i, int  x, int  y, int  l) noexcept
+draw_vline(color  i, int  x, int  y, int  l) noexcept
 {
     while(l--)
     {
@@ -50,7 +50,7 @@ draw_vline(color_index  i, int  x, int  y, int  l) noexcept
 
 void
 image::
-draw_vline_safely(color_index  i, int  x, int  y, int  l) noexcept
+draw_vline_safely(color  i, int  x, int  y, int  l) noexcept
 {
     if((x >=       0) &&
        (x <  m_width))
@@ -83,7 +83,7 @@ draw_vline_safely(color_index  i, int  x, int  y, int  l) noexcept
 
 void
 image::
-draw_hline(color_index  i, int  x, int  y, int  l, int  interval) noexcept
+draw_hline(color  i, int  x, int  y, int  l, int  interval) noexcept
 {
   int  n = interval;
 
@@ -109,7 +109,7 @@ draw_hline(color_index  i, int  x, int  y, int  l, int  interval) noexcept
 
 void
 image::
-draw_hline_safely(color_index  i, int  x, int  y, int  l) noexcept
+draw_hline_safely(color  i, int  x, int  y, int  l) noexcept
 {
     if((y >=        0) &&
        (y <  m_height))
@@ -142,7 +142,7 @@ draw_hline_safely(color_index  i, int  x, int  y, int  l) noexcept
 
 void
 image::
-draw_line(color_index  i, int  x0, int  y0, int  x1, int  y1) noexcept
+draw_line(color  i, int  x0, int  y0, int  x1, int  y1) noexcept
 {
   line_maker  lnmk(x0,y0,x1,y1);
 
@@ -163,7 +163,7 @@ draw_line(color_index  i, int  x0, int  y0, int  x1, int  y1) noexcept
 
 void
 image::
-draw_rectangle(color_index  i, int  x, int  y, int  w, int  h) noexcept
+draw_rectangle(color  i, int  x, int  y, int  w, int  h) noexcept
 {
   draw_hline(i,x,y    ,w);
   draw_hline(i,x,y+h-1,w);
@@ -175,7 +175,7 @@ draw_rectangle(color_index  i, int  x, int  y, int  w, int  h) noexcept
 
 void
 image::
-draw_rectangle_safely(color_index  i, int  x, int  y, int  w, int  h) noexcept
+draw_rectangle_safely(color  i, int  x, int  y, int  w, int  h) noexcept
 {
   draw_hline_safely(i,x,y    ,w);
   draw_hline_safely(i,x,y+h-1,w);
@@ -187,7 +187,7 @@ draw_rectangle_safely(color_index  i, int  x, int  y, int  w, int  h) noexcept
 
 void
 image::
-fill_rectangle(color_index  i, int  x, int  y, int  w, int  h) noexcept
+fill_rectangle(color  i, int  x, int  y, int  w, int  h) noexcept
 {
     while(h--)
     {
@@ -202,7 +202,7 @@ fill_rectangle(color_index  i, int  x, int  y, int  w, int  h) noexcept
 
 void
 image::
-draw_doubleline_rectangle(color_index  in, color_index  out, int  x, int  y, int  w, int  h) noexcept
+draw_doubleline_rectangle(color  in, color  out, int  x, int  y, int  w, int  h) noexcept
 {
   draw_rectangle(out,x  ,y  ,w  ,h  );
   draw_rectangle( in,x+1,y+1,w-2,h-2);
@@ -276,9 +276,9 @@ draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
 
             for(int  xx = 0;  xx < w;  xx += 1)
             {
-              auto  i = style.get_color_index(code>>14);
+              auto  i = style.get_color(code>>14);
 
-              dst++->color_index = i;
+              dst++->color = i;
 
               code <<= 2;
             }

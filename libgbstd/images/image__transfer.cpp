@@ -14,6 +14,9 @@ transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_c
 {
   bool  reverse_flag = false;
 
+    if(!src_w){src_w = src.get_width() ;}
+    if(!src_h){src_h = src.get_height();}
+
   int  src_x = src_pt.x;
   int  src_y = src_pt.y;
 
@@ -114,7 +117,10 @@ transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_c
             {
               auto  pix = src.get_const_pixel(x--,src_y+yy);
 
-              dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
+                if(pix.color)
+                {
+                  dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
+                }
             }
         }
 
@@ -124,7 +130,10 @@ transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_c
             {
               auto  pix = src.get_const_pixel(src_x+xx,src_y+yy);
 
-              dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
+                if(pix.color)
+                {
+                  dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
+                }
             }
         }
     }
@@ -137,6 +146,9 @@ void
 transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_cursor&  dst, int  z) noexcept
 {
   bool  reverse_flag = false;
+
+    if(!src_w){src_w = src.get_width() ;}
+    if(!src_h){src_h = src.get_height();}
 
   int  src_x = src_pt.x;
   int  src_y = src_pt.y;

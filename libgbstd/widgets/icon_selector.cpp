@@ -16,7 +16,7 @@ render(image_cursor  cur) noexcept
 
     for(auto  y = 0;  y < icon::size;  ++y){
     for(auto  x = 0;  x < icon::size;  ++x){
-      cur.draw_dot(icon.get_color_index(x,y),x,y);
+      cur.draw_dot(icon.get_color(x,y),x,y);
     }}
 }
 

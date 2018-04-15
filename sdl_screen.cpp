@@ -21,16 +21,16 @@ transfer(const gbstd::image&  src, uint8_t*  p_base, int  pitch) noexcept
 
     for(int  y = 0;  y < h;  ++y)
     {
-      auto  p = p_base         ;
-                p_base += pitch;
+      auto  p = reinterpret_cast<uint8_t*>(p_base)        ;
+                                           p_base += pitch;
 
         for(int  x = 0;  x < w;  ++x)
         {
-          auto&  i = src.get_const_pixel(x,y).color_index;
+          auto  c = src.get_const_pixel(x,y).color;
 
-          *p++ = i.get_r255();
-          *p++ = i.get_g255();
-          *p++ = i.get_b255();
+          *p++ = c.get_r255();
+          *p++ = c.get_g255();
+          *p++ = c.get_b255();
         }
     }
 }

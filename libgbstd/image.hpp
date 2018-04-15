@@ -17,22 +17,26 @@ namespace images{
 
 
 struct
-color_index
+color
 {
   uint16_t  code;
 
-  constexpr color_index(uint16_t  code_=0) noexcept: code(code_){}
-  constexpr color_index(int  ri, int  gi, int  bi) noexcept: code(01000|(ri<<6)|(gi<<3)|bi){}
+  static constexpr int  masked(int  v) noexcept{return v&7;}
 
-  constexpr operator bool() const noexcept{return code>>9;}
+  constexpr color(int  v=0) noexcept: code((v&01000)? color(v>>6,v>>3,v).code:0){}
+  constexpr color(int  r7, int  g7, int  b7) noexcept: code(0x8000|((masked(r7)<<2)<<10)|
+                                                                   ((masked(g7)<<2)<< 5)|
+                                                                   ((masked(b7)<<2)    )){}
 
-  constexpr int  get_r() const noexcept{return (code>>6)&7;}
-  constexpr int  get_g() const noexcept{return (code>>3)&7;}
-  constexpr int  get_b() const noexcept{return (code   )&7;}
+  constexpr operator bool() const noexcept{return code>>15;}
 
-  constexpr int  get_r255() const noexcept{return (((code>>6)&07)<<5)|0b11111;}
-  constexpr int  get_g255() const noexcept{return (((code>>3)&07)<<5)|0b11111;}
-  constexpr int  get_b255() const noexcept{return (((code   )&07)<<5)|0b11111;}
+  constexpr int  get_r7() const noexcept{return masked(((code>>10)>>2));}
+  constexpr int  get_g7() const noexcept{return masked(((code>> 5)>>2));}
+  constexpr int  get_b7() const noexcept{return masked(((code    )>>2));}
+
+  constexpr int  get_r255() const noexcept{return (get_r7()<<5)|0b11111;}
+  constexpr int  get_g255() const noexcept{return (get_g7()<<5)|0b11111;}
+  constexpr int  get_b255() const noexcept{return (get_b7()<<5)|0b11111;}
 
 };
 
@@ -40,41 +44,27 @@ color_index
 struct
 predefined
 {
-  static constexpr color_index        null = color_index(00000);
-  static constexpr color_index       white = color_index(01777);
-  static constexpr color_index       black = color_index(01000);
-  static constexpr color_index        gray = color_index(01333);
-  static constexpr color_index  light_gray = color_index(01555);
-  static constexpr color_index   dark_gray = color_index(01111);
-  static constexpr color_index         red = color_index(01700);
-  static constexpr color_index       green = color_index(01070);
-  static constexpr color_index        blue = color_index(01007);
-  static constexpr color_index      yellow = color_index(01770);
-};
-
-
-class
-palette
-{
-  uint32_t  m_color_table[01000];
-
-public:
-  void  set_color(color_index  i, uint32_t  value) noexcept{m_color_table[i.code&0777] = value;}
-
-  uint32_t  get_color(color_index  i) const noexcept{return m_color_table[i.code&0777];};
-
+  static constexpr color       white = color(7,7,7);
+  static constexpr color       black = color(0,0,0);
+  static constexpr color        gray = color(3,3,3);
+  static constexpr color  light_gray = color(5,5,5);
+  static constexpr color   dark_gray = color(1,1,1);
+  static constexpr color         red = color(7,0,0);
+  static constexpr color       green = color(0,7,0);
+  static constexpr color        blue = color(0,0,7);
+  static constexpr color      yellow = color(7,7,0);
 };
 
 
 struct
 pixel
 {
-  images::color_index  color_index=0;
+  images::color  color=0;
 
   uint16_t  z=0;
 
-  constexpr pixel(images::color_index  i=images::color_index(), uint16_t  z_=0) noexcept:
-  color_index(i), z(z_){}
+  constexpr pixel(images::color  i=images::color(), uint16_t  z_=0) noexcept:
+  color(i), z(z_){}
 
 };
 
@@ -85,14 +75,14 @@ constexpr int  font_height = 16;
 class
 text_style
 {
-  color_index  m_colors[4];
+  color  m_colors[4];
 
 public:
-  text_style(color_index  c0=0, color_index  c1=predefined::white, color_index  c2=0, color_index  c3=0) noexcept:
+  text_style(color  c0=0, color  c1=predefined::white, color  c2=0, color  c3=0) noexcept:
   m_colors{c0,c1,c2,c3}{}
 
-  void         set_color_index(int  i, color_index  ci)       noexcept{       m_colors[i] = ci;}
-  color_index  get_color_index(int  i                 ) const noexcept{return m_colors[i]     ;}
+  void         set_color(int  i, color  ci)       noexcept{       m_colors[i] = ci;}
+  color  get_color(int  i                 ) const noexcept{return m_colors[i]     ;}
 
 };
 
@@ -108,7 +98,8 @@ image
 
 public:
   image() noexcept{}
-  image(int  w, int  h, std::initializer_list<color_index>  ls={}) noexcept;
+  image(int  w, int  h, std::initializer_list<int>  ls) noexcept;
+  image(int  w, int  h, std::initializer_list<color>  ls={}) noexcept;
 
 
   void  resize(int  w, int  h) noexcept;
@@ -124,8 +115,6 @@ public:
   void  set_pixel(pixel  pix, int  x, int  y                ) noexcept{get_pixel(x,y) = pix;}
   void  set_pixel(pixel  pix, int  x, int  y, int  w, int  h) noexcept;
 
-  uint32_t  get_pixel_color(int  x, int  y, palette const&  pal) const noexcept;
-
 
   void  fill(pixel  pix=pixel()) noexcept;
 
@@ -133,21 +122,21 @@ public:
   void  reverse_rgb() noexcept;
 
 
-  void  draw_dot(       color_index  i, int  x, int  y) noexcept;
-  void  draw_dot_safely(color_index  i, int  x, int  y) noexcept;
+  void  draw_dot(       color  i, int  x, int  y) noexcept;
+  void  draw_dot_safely(color  i, int  x, int  y) noexcept;
 
-  void  draw_vline(       color_index  i, int  x, int  y, int  l) noexcept;
-  void  draw_vline_safely(color_index  i, int  x, int  y, int  l) noexcept;
-  void  draw_hline(       color_index  i, int  x, int  y, int  l, int  interval=0) noexcept;
-  void  draw_hline_safely(color_index  i, int  x, int  y, int  l) noexcept;
+  void  draw_vline(       color  i, int  x, int  y, int  l) noexcept;
+  void  draw_vline_safely(color  i, int  x, int  y, int  l) noexcept;
+  void  draw_hline(       color  i, int  x, int  y, int  l, int  interval=0) noexcept;
+  void  draw_hline_safely(color  i, int  x, int  y, int  l) noexcept;
 
-  void  draw_line(color_index  i, int  x0, int  y0, int  x1, int  y1) noexcept;
+  void  draw_line(color  i, int  x0, int  y0, int  x1, int  y1) noexcept;
 
-  void  draw_rectangle(       color_index  i, int  x, int  y, int  w, int  h) noexcept;
-  void  draw_rectangle_safely(color_index  i, int  x, int  y, int  w, int  h) noexcept;
-  void  fill_rectangle(       color_index  i, int  x, int  y, int  w, int  h) noexcept;
+  void  draw_rectangle(       color  i, int  x, int  y, int  w, int  h) noexcept;
+  void  draw_rectangle_safely(color  i, int  x, int  y, int  w, int  h) noexcept;
+  void  fill_rectangle(       color  i, int  x, int  y, int  w, int  h) noexcept;
 
-  void  draw_doubleline_rectangle(color_index  in, color_index  out, int  x, int  y, int  w, int  h) noexcept;
+  void  draw_doubleline_rectangle(color  in, color  out, int  x, int  y, int  w, int  h) noexcept;
 
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) noexcept;
   void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) noexcept;
@@ -196,24 +185,22 @@ public:
   void  set_pixel(pixel  pix, int  x, int  y                ) noexcept{m_image->set_pixel(pix,get_x(x),get_y(y));}
   void  set_pixel(pixel  pix, int  x, int  y, int  w, int  h) noexcept{m_image->set_pixel(pix,get_x(x),get_y(y),w,h);}
 
-  uint32_t  get_pixel_color(int  x, int  y, palette const&  pal) const noexcept{return m_image->get_pixel_color(get_x(x),get_y(y),pal);}
 
+  void  draw_dot(       color  i, int  x, int  y) const noexcept{m_image->draw_dot(       i,get_x(x),get_y(y));}
+  void  draw_dot_safely(color  i, int  x, int  y) const noexcept{m_image->draw_dot_safely(i,get_x(x),get_y(y));}
 
-  void  draw_dot(       color_index  i, int  x, int  y) const noexcept{m_image->draw_dot(       i,get_x(x),get_y(y));}
-  void  draw_dot_safely(color_index  i, int  x, int  y) const noexcept{m_image->draw_dot_safely(i,get_x(x),get_y(y));}
+  void  draw_vline(       color  i, int  x, int  y, int  l) const noexcept{m_image->draw_vline(                 i,get_x(x),get_y(y),l);}
+  void  draw_vline_safely(color  i, int  x, int  y, int  l) const noexcept{m_image->draw_vline_safely(          i,get_x(x),get_y(y),l);}
+  void  draw_hline(       color  i, int  x, int  y, int  l, int  interval=0) const noexcept{m_image->draw_hline(i,get_x(x),get_y(y),l,interval);}
+  void  draw_hline_safely(color  i, int  x, int  y, int  l) const noexcept{m_image->draw_hline_safely(          i,get_x(x),get_y(y),l);}
 
-  void  draw_vline(       color_index  i, int  x, int  y, int  l) const noexcept{m_image->draw_vline(                 i,get_x(x),get_y(y),l);}
-  void  draw_vline_safely(color_index  i, int  x, int  y, int  l) const noexcept{m_image->draw_vline_safely(          i,get_x(x),get_y(y),l);}
-  void  draw_hline(       color_index  i, int  x, int  y, int  l, int  interval=0) const noexcept{m_image->draw_hline(i,get_x(x),get_y(y),l,interval);}
-  void  draw_hline_safely(color_index  i, int  x, int  y, int  l) const noexcept{m_image->draw_hline_safely(          i,get_x(x),get_y(y),l);}
+  void  draw_line(color  i, int  x0, int  y0, int  x1, int  y1) const noexcept{m_image->draw_line(i,get_x(x0),get_y(y0),get_x(x1),get_y(y1));}
 
-  void  draw_line(color_index  i, int  x0, int  y0, int  x1, int  y1) const noexcept{m_image->draw_line(i,get_x(x0),get_y(y0),get_x(x1),get_y(y1));}
+  void  draw_rectangle(       color  i, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle(       i,get_x(x),get_y(y),w,h);}
+  void  draw_rectangle_safely(color  i, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle_safely(i,get_x(x),get_y(y),w,h);}
+  void  fill_rectangle(       color  i, int  x, int  y, int  w, int  h) const noexcept{m_image->fill_rectangle(       i,get_x(x),get_y(y),w,h);}
 
-  void  draw_rectangle(       color_index  i, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle(       i,get_x(x),get_y(y),w,h);}
-  void  draw_rectangle_safely(color_index  i, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle_safely(i,get_x(x),get_y(y),w,h);}
-  void  fill_rectangle(       color_index  i, int  x, int  y, int  w, int  h) const noexcept{m_image->fill_rectangle(       i,get_x(x),get_y(y),w,h);}
-
-  void  draw_doubleline_rectangle(color_index  in, color_index  out, int  x, int  y, int  w, int  h) const noexcept{
+  void  draw_doubleline_rectangle(color  in, color  out, int  x, int  y, int  w, int  h) const noexcept{
     m_image->draw_doubleline_rectangle(in,out,get_x(x),get_y(y),w,h);}
 
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_character(c,style,get_x(x),get_y(y));}
@@ -256,8 +243,7 @@ public:
 }
 
 
-using images::color_index;
-using images::palette;
+using images::color;
 using images::text_style;
 using images::predefined;
 using images::font_width;

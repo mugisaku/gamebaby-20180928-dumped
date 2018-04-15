@@ -47,12 +47,15 @@ set(SDL_SOURCES
 
 
 add_subdirectory(libgbstd)
+add_subdirectory(libmarkit)
 #add_subdirectory(libgbsnd)
 #add_subdirectory(libgbscr)
 
 include_directories(./)
 include_directories(/usr/include/SDL2)
-add_executable("winmantester${EXECUTABLE_EXTENSION}" winmantester_sdl.cpp ${SDL_SOURCES})
+add_executable("mkicon_sdl${EXECUTABLE_EXTENSION}" mkicon_sdl.cpp ${SDL_SOURCES})
+#add_executable("markit_sdl${EXECUTABLE_EXTENSION}" markit_sdl.cpp ${SDL_SOURCES})
+#add_executable("winmantester${EXECUTABLE_EXTENSION}" winmantester_sdl.cpp ${SDL_SOURCES})
 #add_executable("growin${EXECUTABLE_EXTENSION}" growin_sdl.cpp)
 #add_executable("test_gbscr${EXECUTABLE_EXTENSION}" test_gbscr.cpp)
 #add_executable("mkforest${EXECUTABLE_EXTENSION}" mkforest_sdl.cpp)
@@ -69,7 +72,9 @@ add_executable("winmantester${EXECUTABLE_EXTENSION}" winmantester_sdl.cpp ${SDL_
 #add_executable("testRandom${EXECUTABLE_EXTENSION}" Battle/testRandom.cpp)
 #add_executable("testMessembly${EXECUTABLE_EXTENSION}" Game/testMessembly.cpp ${GAME_SOURCES})
 #target_link_libraries("test_gbscr${EXECUTABLE_EXTENSION}" "gbscr" "gbstd")
-target_link_libraries("winmantester${EXECUTABLE_EXTENSION}" "gbstd")
+target_link_libraries("mkicon_sdl${EXECUTABLE_EXTENSION}" "gbstd")
+#target_link_libraries("markit_sdl${EXECUTABLE_EXTENSION}" "gbstd" "markit")
+#target_link_libraries("winmantester${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("growin${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("mkforest${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("testGBSTD${EXECUTABLE_EXTENSION}" "gbstd")

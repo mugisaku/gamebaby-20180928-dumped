@@ -12,7 +12,7 @@ namespace{
 
 
 void
-draw_frame_top(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
+draw_frame_top(image&  dst, int  x, int  y, int  w, const color*  colors) noexcept
 {
   constexpr uint8_t  piece[8][8] =
   {
@@ -55,7 +55,7 @@ draw_frame_top(image&  dst, int  x, int  y, int  w, const color_index*  colors) 
 
 
 void
-draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
+draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, const color*  colors) noexcept
 {
   constexpr uint8_t  piece[16][8] =
   {
@@ -116,7 +116,7 @@ draw_frame_top_with_header(image&  dst, int  x, int  y, int  w, const color_inde
 
 
 void
-draw_frame_body(image&  dst, int  x, int  y, int  w, int  h, const color_index*  colors) noexcept
+draw_frame_body(image&  dst, int  x, int  y, int  w, int  h, const color*  colors) noexcept
 {
   dst.draw_vline(colors[3],x+0,y,h);
   dst.draw_vline(colors[2],x+1,y,h);
@@ -135,7 +135,7 @@ draw_frame_body(image&  dst, int  x, int  y, int  w, int  h, const color_index* 
 
 
 void
-draw_frame_bottom(image&  dst, int  x, int  y, int  w, const color_index*  colors) noexcept
+draw_frame_bottom(image&  dst, int  x, int  y, int  w, const color*  colors) noexcept
 {
   constexpr uint8_t  piece[8][8] =
   {
