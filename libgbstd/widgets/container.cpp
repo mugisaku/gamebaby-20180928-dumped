@@ -10,12 +10,23 @@ namespace widgets{
 
 void
 container::
-clear() noexcept
+change_current_by_name(gbstd::string_view  name) noexcept
 {
-  m_children.clear();
+    for(auto&  child: m_children)
+    {
+        if(child->get_name() == name)
+        {
+          m_current = child.get();
+
+          need_to_reform();
+
+          return;
+        }
+    }
+
+
+  printf("container change_current_by_name error: %sというウィジェットは無い",name.data());
 }
-
-
 
 
 void
@@ -26,7 +37,7 @@ append_child(widget*  child, int  x, int  y) noexcept
     {
         if(child->get_parent())
         {
-          printf("append_child error: すでに親がいる\n");
+          printf("container append_child error: すでに親がいる\n");
 
           return;
         }
@@ -39,26 +50,12 @@ append_child(widget*  child, int  x, int  y) noexcept
       child->set_relative_point(point(x,y));
 
       child->need_to_reform();
-    }
-}
 
-
-bool
-container::
-remove(widget*  target) noexcept
-{
-    for(auto&  child: m_children)
-    {
-        if(child->remove(target))
+        if(!m_current)
         {
-          need_to_reform();
-
-          return true;
+          m_current = child;
         }
     }
-
-
-  return false;
 }
 
 
@@ -70,16 +67,34 @@ scan_by_point(int  x, int  y) noexcept
 {
     if(test_by_point(x,y))
     {
-        for(auto&  child: m_children)
+        if(m_unique)
         {
-            if( child->test_flag(flags::shown) &&
-               !child->test_flag(flags::frozen))
+            if( m_current &&
+                m_current->test_flag(flags::shown) &&
+               !m_current->test_flag(flags::frozen))
             {
-              auto  w = child->scan_by_point(x,y);
+              auto  w = m_current->scan_by_point(x,y);
 
                 if(w)
                 {
                   return w;
+                }
+            }
+        }
+
+      else
+        {
+            for(auto&  child: m_children)
+            {
+                if( child->test_flag(flags::shown) &&
+                   !child->test_flag(flags::frozen))
+                {
+                  auto  w = child->scan_by_point(x,y);
+
+                    if(w)
+                    {
+                      return w;
+                    }
                 }
             }
         }
@@ -100,15 +115,32 @@ reform(point  base_pt) noexcept
   int  w = 1;
   int  h = 1;
 
-    for(auto&  child: m_children)
+    if(m_unique)
     {
-      child->reform_if_needed(get_absolute_point());
- 
+        if(m_current)
+        {
+          m_current->reform_if_needed(get_absolute_point());
+     
 
-      auto  rel_pt = child->get_relative_point();
+          auto  rel_pt = m_current->get_relative_point();
 
-      w = std::max(w,rel_pt.x+child->get_width() );
-      h = std::max(h,rel_pt.y+child->get_height());
+          w = std::max(w,rel_pt.x+m_current->get_width() );
+          h = std::max(h,rel_pt.y+m_current->get_height());
+        }
+    }
+
+  else
+    {
+        for(auto&  child: m_children)
+        {
+          child->reform_if_needed(get_absolute_point());
+     
+
+          auto  rel_pt = child->get_relative_point();
+
+          w = std::max(w,rel_pt.x+child->get_width() );
+          h = std::max(h,rel_pt.y+child->get_height());
+        }
     }
 
 
@@ -123,11 +155,22 @@ render(image_cursor  cur) noexcept
 {
   auto&  img = cur.get_image();
 
-    for(auto&  child: m_children)
+    if(m_unique)
     {
-        if(child->test_flag(flags::shown))
+        if(m_current && m_current->test_flag(flags::shown))
         {
-          child->redraw_if_needed(img);
+          m_current->redraw_if_needed(img);
+        }
+    }
+
+  else
+    {
+        for(auto&  child: m_children)
+        {
+            if(child->test_flag(flags::shown))
+            {
+              child->redraw_if_needed(img);
+            }
         }
     }
 }

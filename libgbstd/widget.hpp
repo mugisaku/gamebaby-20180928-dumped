@@ -34,7 +34,7 @@ protected:
 
   uint32_t  m_flags=0;
 
-  container*  m_parent=nullptr;
+  widget*  m_parent=nullptr;
 
   point  m_absolute_point;
   point  m_relative_point;
@@ -74,8 +74,6 @@ public:
 
   virtual void  render(image_cursor  cur) noexcept{}
 
-  virtual bool  remove(widget*  target) noexcept{return false;}
-
   void  need_to_redraw() noexcept;
   void  need_to_reform() noexcept;
 
@@ -84,8 +82,8 @@ public:
   const gbstd::string&  get_name(                        ) const noexcept{return m_name       ;}
 
 
-  void        set_parent(container*  parent)       noexcept{       m_parent = parent;}
-  container*  get_parent(                  ) const noexcept{return m_parent         ;}
+  void     set_parent(widget*  parent)       noexcept{       m_parent = parent;}
+  widget*  get_parent(               ) const noexcept{return m_parent         ;}
 
 
   void*  get_userdata() const noexcept{return m_userdata;}
@@ -148,12 +146,19 @@ protected:
 
   std::vector<std::unique_ptr<widget>>  m_children;
 
+  widget*  m_current=nullptr;
+
+  bool  m_unique;
+
 public:
+  container(bool  unique=false) noexcept: m_unique(unique){}
+
   const char*  get_widget_name() const noexcept override{return "container";}
 
-  void  clear() noexcept;
+  bool  is_unique() const noexcept{return m_unique;}
 
-  bool  remove(widget*  target) noexcept override;
+  void  change_current_by_name(gbstd::string_view  name) noexcept;
+  widget*  get_current() const noexcept{return m_current;}
 
   void  reform(point  base_pt) noexcept override;
   void  render(image_cursor  cur) noexcept override;
@@ -164,6 +169,45 @@ public:
   windows::window*  get_window(                   ) const noexcept override{return m_window? m_window:widget::get_window();}
 
   void  append_child(widget*  child, int  x, int  y) noexcept;
+
+  void  show_all() noexcept override;
+
+  void  print(int  indent=0) const noexcept override;
+
+};
+
+
+enum class
+event_kind
+{
+  cursor_got_in,
+  cursor_got_out,
+  mouse_acted,
+};
+
+
+class
+wrapper: public widget
+{
+  std::unique_ptr<widget>  m_target;
+
+  void  (*m_callback)(wrapper&,event_kind,int,int)=nullptr;
+
+public:
+  wrapper(widget*  target, void  (*callback)(wrapper&,event_kind,int,int)) noexcept:
+  m_target(target), m_callback(callback){}
+
+  const char*  get_widget_name() const noexcept override{return "wrapper";}
+
+  void  do_when_cursor_got_in()             noexcept override;
+  void  do_when_cursor_got_out()            noexcept override;
+  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+
+  void  reform(point  base_pt) noexcept override;
+  void  render(image_cursor  cur) noexcept override;
+
+  void     set_target(widget*  target) noexcept;
+  widget*  get_target(               ) const noexcept{return m_target.get();}
 
   void  show_all() noexcept override;
 
@@ -229,30 +273,13 @@ private:
   color  m_data[size][size]={0};
 
 public:
-  icon(std::initializer_list<int>  ls) noexcept
-  {
-    auto   it = &m_data[   0][0];
-    auto  end = &m_data[size][0];
-
-      for(auto  i: ls)
-      {
-        *it++ = color(i);
-      }
-  }
-
-  icon(std::initializer_list<color>  ls) noexcept
-  {
-    auto   it = &m_data[   0][0];
-    auto  end = &m_data[size][0];
-
-      for(auto  i: ls)
-      {
-        *it++ = i;
-      }
-  }
+  icon(std::initializer_list<int>  ls) noexcept;
+  icon(std::initializer_list<color>  ls) noexcept;
 
   void   set_color(int  x, int  y, color  i)       noexcept{       m_data[y][x] = i;}
   color  get_color(int  x, int  y          ) const noexcept{return m_data[y][x]    ;}
+
+  void  print() const noexcept;
 
 };
 
@@ -325,24 +352,54 @@ public:
 
 
 class
-radio_button: public button
+radio_button: public wrapper
 {
+public:
+  using callback_prototype = void  (*)(radio_button&  btn, uint32_t  old_state, uint32_t  new_state);
+
+private:
+  struct shared_data;
+
+  shared_data*  m_data;
+
+protected:
+  uint32_t  m_bit_id;
+
+  radio_button*  m_next=nullptr;
+
+  static void  common_callback(wrapper&  wr, event_kind  k, int  x, int  y) noexcept;
+
+  void  call(uint32_t  new_state) noexcept;
 
 public:
+  radio_button(widget*  target, callback_prototype  cb) noexcept;
+  radio_button(widget*  target, radio_button&  first) noexcept;
+ ~radio_button();
 
   const char*  get_widget_name() const noexcept override{return "radio_button";}
-  void  reform(point  base_pt) noexcept override;
 
-  void  do_when_cursor_got_out()            noexcept override;
-  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+  bool  is_checked() const noexcept;
 
-  void  set_text(gbstd::u16string_view  sv) noexcept;
+  virtual void  change_state() noexcept;
+
+  uint32_t  get_bit_id() const noexcept{return m_bit_id;}
+
+  uint32_t  get_state() const noexcept;
 
   void  render(image_cursor  cur) noexcept override;
 
-  void  print(int  indent=0) const noexcept override;
+};
 
-  void  show_all() noexcept override;
+
+class
+check_button: public radio_button
+{
+public:
+  using radio_button::radio_button;
+
+  const char*  get_widget_name() const noexcept override{return "check_button";}
+
+  void  change_state() noexcept override;
 
 };
 
@@ -359,6 +416,7 @@ public:
 
   void  reform(point  base_pt) noexcept override;
 
+  void  append(widget*  w) noexcept;
   void  append(std::initializer_list<widget*>  ls) noexcept;
 
 };
@@ -374,6 +432,7 @@ public:
 
   void  reform(point  base_pt) noexcept override;
 
+  void  append(widget*  w) noexcept;
   void  append(std::initializer_list<widget*>  ls) noexcept;
 
 };
@@ -484,6 +543,10 @@ public:
   void  render(image_cursor  cur) noexcept override;
 
 };
+
+
+widget*  create_radio_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state=0) noexcept;
+widget*  create_check_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state=0) noexcept;
 
 
 }

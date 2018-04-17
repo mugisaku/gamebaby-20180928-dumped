@@ -13,14 +13,19 @@ set(SOURCES
   texts/string_form.cpp
   widgets/widget.cpp
   widgets/container.cpp
+  widgets/wrapper.cpp
   widgets/root.cpp
   widgets/label.cpp
   widgets/button.cpp
   widgets/table.cpp
+  widgets/icon.cpp
   widgets/icon_selector.cpp
   widgets/dial.cpp
   widgets/text_roll.cpp
   widgets/menu.cpp
+  widgets/radio_button.cpp
+  widgets/check_button.cpp
+  widgets/create_button_menu.cpp
   windows/window.cpp
   windows/window__draw_frame.cpp
   windows/window_manager.cpp

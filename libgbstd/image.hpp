@@ -38,6 +38,8 @@ color
   constexpr int  get_g255() const noexcept{return (get_g7()<<5)|0b11111;}
   constexpr int  get_b255() const noexcept{return (get_b7()<<5)|0b11111;}
 
+  void  print() const noexcept{printf("0%d%d%d%d",(*this? 1:0),get_r7(),get_g7(),get_b7());}
+
 };
 
 
