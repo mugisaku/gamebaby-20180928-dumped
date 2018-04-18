@@ -7,6 +7,7 @@ set(SOURCES
   images/image__draw.cpp
   images/image__transfer.cpp
   images/line_maker.cpp
+  images/icon.cpp
   texts/text.cpp
   texts/unicode.cpp
   texts/character_queue.cpp
@@ -18,7 +19,6 @@ set(SOURCES
   widgets/label.cpp
   widgets/button.cpp
   widgets/table.cpp
-  widgets/icon.cpp
   widgets/icon_selector.cpp
   widgets/dial.cpp
   widgets/text_roll.cpp

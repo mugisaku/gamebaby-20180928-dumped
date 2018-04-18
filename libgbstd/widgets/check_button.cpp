@@ -8,6 +8,22 @@ namespace widgets{
 
 
 
+const icon**
+check_button::
+get_icons() const noexcept
+{
+  static const icon*
+  icons[] =
+  {
+    &predefined_icon::radio_checked,
+    &predefined_icon::radio_unchecked,
+  };
+
+
+  return icons;
+}
+
+
 void
 check_button::
 change_state() noexcept

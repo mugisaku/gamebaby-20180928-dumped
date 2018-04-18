@@ -47,7 +47,7 @@ color
 
 
 struct
-predefined
+predefined_color
 {
   static constexpr color       white = color(7,7,7);
   static constexpr color       black = color(0,0,0);
@@ -83,11 +83,11 @@ text_style
   color  m_colors[4];
 
 public:
-  text_style(color  c0=0, color  c1=predefined::white, color  c2=0, color  c3=0) noexcept:
+  text_style(color  c0=0, color  c1=predefined_color::white, color  c2=0, color  c3=0) noexcept:
   m_colors{c0,c1,c2,c3}{}
 
-  void         set_color(int  i, color  ci)       noexcept{       m_colors[i] = ci;}
-  color  get_color(int  i                 ) const noexcept{return m_colors[i]     ;}
+  void   set_color(int  i, color  ci)       noexcept{       m_colors[i] = ci;}
+  color  get_color(int  i           ) const noexcept{return m_colors[i]     ;}
 
 };
 
@@ -222,6 +222,55 @@ void  transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const i
 void  transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_cursor&  dst, int  z) noexcept;
 
 
+
+
+class
+icon
+{
+public:
+  static constexpr int  size = 16;
+
+private:
+  color  m_data[size][size]={0};
+
+public:
+  icon(std::initializer_list<int>  ls) noexcept;
+  icon(std::initializer_list<color>  ls) noexcept;
+
+  void   set_color(int  x, int  y, color  i)       noexcept{       m_data[y][x] = i;}
+  color  get_color(int  x, int  y          ) const noexcept{return m_data[y][x]    ;}
+
+  void  print() const noexcept;
+
+};
+
+
+
+
+struct
+predefined_icon
+{
+  static const icon    checked;
+  static const icon  unchecked;
+
+  static const icon    radio_checked;
+  static const icon  radio_unchecked;
+
+//  static const icon         up;
+//  static const icon  sunken_up;
+
+  static const icon         left;
+  static const icon  sunken_left;
+
+  static const icon         right;
+  static const icon  sunken_right;
+
+//  static const icon         down;
+//  static const icon  sunken_down;
+
+};
+
+
 class
 line_maker
 {
@@ -253,12 +302,14 @@ public:
 
 using images::color;
 using images::text_style;
-using images::predefined;
+using images::predefined_color;
+using images::predefined_icon;
 using images::font_width;
 using images::font_height;
 
 using images::image;
 using images::image_cursor;
+using images::icon;
 using images::pixel;
 using images::line_maker;
 

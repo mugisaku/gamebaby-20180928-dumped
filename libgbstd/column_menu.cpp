@@ -116,7 +116,7 @@ render(image_cursor  cur) noexcept
   m_base.render(cur,(m_base.get_number_of_visible_rows()*m_page_index));
 
 
-  cur.draw_rectangle(predefined::yellow,0,(h*m_row_index),m_base.get_item_width(),h);
+  cur.draw_rectangle(predefined_color::yellow,0,(h*m_row_index),m_base.get_item_width(),h);
 }
 
 

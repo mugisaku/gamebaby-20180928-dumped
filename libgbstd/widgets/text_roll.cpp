@@ -12,7 +12,7 @@ text_roll::
 text_roll(int  w, int  h) noexcept:
 m_text(w,h)
 {
-  m_style.set_color(0,predefined::blue);
+  m_style.set_color(0,predefined_color::blue);
 }
 
 

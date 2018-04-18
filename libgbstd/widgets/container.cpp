@@ -69,9 +69,8 @@ scan_by_point(int  x, int  y) noexcept
     {
         if(m_unique)
         {
-            if( m_current &&
-                m_current->test_flag(flags::shown) &&
-               !m_current->test_flag(flags::frozen))
+            if(m_current &&
+               m_current->test_flag(flags::shown))
             {
               auto  w = m_current->scan_by_point(x,y);
 
@@ -86,8 +85,7 @@ scan_by_point(int  x, int  y) noexcept
         {
             for(auto&  child: m_children)
             {
-                if( child->test_flag(flags::shown) &&
-                   !child->test_flag(flags::frozen))
+                if(child->test_flag(flags::shown))
                 {
                   auto  w = child->scan_by_point(x,y);
 

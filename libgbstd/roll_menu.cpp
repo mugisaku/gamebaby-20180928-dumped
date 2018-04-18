@@ -85,7 +85,7 @@ render(image_cursor  cur) noexcept
 
   m_base.render(cur,(m_number_of_columns*m_y_base),m_number_of_columns);
 
-  cur.draw_rectangle(predefined::yellow,(w*m_cursor.x),
+  cur.draw_rectangle(predefined_color::yellow,(w*m_cursor.x),
                                         (h*m_cursor.y),w,h);
 }
 

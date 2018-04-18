@@ -46,10 +46,9 @@ protected:
 
 public:
   struct flags{
-    static constexpr uint32_t  shown                   = 0x0001;
-    static constexpr uint32_t  frozen                  = 0x0002;
-    static constexpr uint32_t  needed_to_redraw        = 0x0004;
-    static constexpr uint32_t  needed_to_reform        = 0x0008;
+    static constexpr uint32_t  shown            = 0x0001;
+    static constexpr uint32_t  needed_to_redraw = 0x0002;
+    static constexpr uint32_t  needed_to_reform = 0x0004;
   };
 
 
@@ -114,9 +113,6 @@ public:
   void  notify_flag(uint32_t  v) noexcept;
 
 
-  void    freeze() noexcept{  set_flag(flags::frozen);}
-  void  unfreeze() noexcept{unset_flag(flags::frozen);}
-
   void  show() noexcept{  set_flag(flags::shown);}
   void  hide() noexcept{unset_flag(flags::shown);}
 
@@ -126,7 +122,6 @@ public:
   virtual void  show_all() noexcept{show();}
 
   bool  is_shown() const noexcept{return test_flag(flags::shown);}
-  bool  is_frozen() const noexcept{return test_flag(flags::frozen);}
 
   bool  is_needed_to_reform() const noexcept{return test_flag(flags::needed_to_reform);}
   bool  is_needed_to_redraw() const noexcept{return test_flag(flags::needed_to_redraw);}
@@ -241,7 +236,7 @@ public:
 class
 label: public widget
 {
-  text_style  m_text_style=text_style(predefined::blue,predefined::white,predefined::blue,predefined::black);
+  text_style  m_text_style=text_style(predefined_color::blue,predefined_color::white,predefined_color::blue,predefined_color::black);
 
   gbstd::u16string  m_text;
 
@@ -264,37 +259,16 @@ public:
 
 
 class
-icon
-{
-public:
-  static constexpr int  size = 16;
-
-private:
-  color  m_data[size][size]={0};
-
-public:
-  icon(std::initializer_list<int>  ls) noexcept;
-  icon(std::initializer_list<color>  ls) noexcept;
-
-  void   set_color(int  x, int  y, color  i)       noexcept{       m_data[y][x] = i;}
-  color  get_color(int  x, int  y          ) const noexcept{return m_data[y][x]    ;}
-
-  void  print() const noexcept;
-
-};
-
-
-class
 icon_selector: public widget
 {
-  const icon*  m_icons;
+  const icon**  m_icons;
 
   int  m_current=0;
 
 public:
-  icon_selector(const icon*  icons) noexcept: widget(icon::size,icon::size), m_icons(icons){}
+  icon_selector(const icon**  icons) noexcept: widget(icon::size,icon::size), m_icons(icons){}
 
-  const icon&  operator*() const noexcept{return m_icons[m_current];}
+  const icon*  operator*() const noexcept{return m_icons[m_current];}
 
   void  set_current(int  i) noexcept
   {
@@ -371,6 +345,8 @@ protected:
 
   static void  common_callback(wrapper&  wr, event_kind  k, int  x, int  y) noexcept;
 
+  virtual const icon**  get_icons() const noexcept;
+
   void  call(uint32_t  new_state) noexcept;
 
 public:
@@ -386,7 +362,8 @@ public:
 
   uint32_t  get_bit_id() const noexcept{return m_bit_id;}
 
-  uint32_t  get_state() const noexcept;
+  uint32_t  get_state(            ) const noexcept;
+  void      set_state(uint32_t  st)       noexcept;
 
 };
 
@@ -394,6 +371,8 @@ public:
 class
 check_button: public radio_button
 {
+  const icon**  get_icons() const noexcept override;
+
 public:
   using radio_button::radio_button;
 

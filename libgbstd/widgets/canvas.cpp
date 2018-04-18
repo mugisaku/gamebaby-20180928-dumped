@@ -315,7 +315,7 @@ render(image_cursor  cur) noexcept
   const int  w = m_image->get_width();
   const int  h = m_image->get_height();
 
-  cur.fill_rectangle(predefined::blue,0,0,m_pixel_size*w,m_pixel_size*h);
+  cur.fill_rectangle(predefined_color::blue,0,0,m_pixel_size*w,m_pixel_size*h);
 
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
@@ -332,18 +332,18 @@ render(image_cursor  cur) noexcept
     {
         for(int  y = 0;  y < h;  ++y)
         {
-          cur.draw_hline(predefined::gray,0,m_pixel_size*y,m_pixel_size*w);
+          cur.draw_hline(predefined_color::gray,0,m_pixel_size*y,m_pixel_size*w);
         }
 
 
         for(int  x = 0;  x < w;  ++x)
         {
-          cur.draw_vline(predefined::gray,m_pixel_size*x,0,m_pixel_size*h);
+          cur.draw_vline(predefined_color::gray,m_pixel_size*x,0,m_pixel_size*h);
         }
 
 
-      cur.draw_hline(predefined::light_gray,0,m_pixel_size*(h/2),m_pixel_size*w);
-      cur.draw_vline(predefined::light_gray,m_pixel_size*(w/2),0,m_pixel_size*h);
+      cur.draw_hline(predefined_color::light_gray,0,m_pixel_size*(h/2),m_pixel_size*w);
+      cur.draw_vline(predefined_color::light_gray,m_pixel_size*(w/2),0,m_pixel_size*h);
     }
 }
 
