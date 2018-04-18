@@ -8,6 +8,7 @@ set(SOURCES
   images/image__transfer.cpp
   images/line_maker.cpp
   images/icon.cpp
+  images/drawing_recorder.cpp
   texts/text.cpp
   texts/unicode.cpp
   texts/character_queue.cpp

@@ -33,11 +33,15 @@ change_state() noexcept
     if(is_checked())
     {
       new_state &= ~m_bit_id;
+
+      m_icons->set_current(0);
     }
 
   else
     {
       new_state |= m_bit_id;
+
+      m_icons->set_current(1);
     }
 
 

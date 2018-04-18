@@ -152,23 +152,24 @@ set_state(uint32_t  st) noexcept
 
         while(cur)
         {
-            if(cur->is_checked())
+            if(cur->m_bit_id&st)
             {
-              cur->m_icons->set_current(0);
-
-              cur->need_to_redraw();
+              cur->m_icons->set_current(1);
             }
 
+          else
+            {
+              cur->m_icons->set_current(0);
+            }
+
+
+          cur->need_to_redraw();
 
           cur = cur->m_next;
         }
 
 
-      m_icons->set_current(1);
-
-      need_to_redraw();
-
-      call(m_bit_id);
+      call(st);
     }
 }
 

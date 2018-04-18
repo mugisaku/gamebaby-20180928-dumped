@@ -26,6 +26,9 @@ create_radio_menu(std::initializer_list<widget*>  ls, radio_button::callback_pro
 
           col->container::append_child(btn);
         }
+
+
+      first_btn->set_state(initial_state);
     }
 
 
@@ -53,6 +56,9 @@ create_check_menu(std::initializer_list<widget*>  ls, radio_button::callback_pro
 
           col->container::append_child(btn);
         }
+
+
+      first_btn->set_state(initial_state);
     }
 
 

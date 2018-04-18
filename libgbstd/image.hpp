@@ -224,6 +224,42 @@ void  transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const i
 
 
 
+
+class
+drawing_recorder
+{
+  struct dot{
+    images::color  color;
+    uint16_t  x;
+    uint16_t  y;
+
+    dot(images::color  color_=images::color(), int  x_=0, int  y_=0) noexcept:
+    color(color_), x(x_), y(y_){}
+
+  };
+
+
+  std::vector<dot>  m_dot_buffer;
+
+  struct record;
+
+  record*  m_record_list=nullptr;
+
+public:
+  drawing_recorder() noexcept{}
+ ~drawing_recorder(){clear();}
+
+  void  push(images::color  color, int  x, int  y) noexcept{m_dot_buffer.emplace_back(color,x,y);}
+
+  void  rollback(image&  img) noexcept;
+
+  void  clear() noexcept;
+
+  void  commit(bool  solid) noexcept;
+
+};
+
+
 class
 icon
 {
@@ -309,6 +345,7 @@ using images::font_height;
 
 using images::image;
 using images::image_cursor;
+using images::drawing_recorder;
 using images::icon;
 using images::pixel;
 using images::line_maker;

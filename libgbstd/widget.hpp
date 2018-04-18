@@ -336,12 +336,12 @@ private:
 
   shared_data*  m_data;
 
-  icon_selector*  m_icons;
+  radio_button*  m_next=nullptr;
 
 protected:
   uint32_t  m_bit_id;
 
-  radio_button*  m_next=nullptr;
+  icon_selector*  m_icons;
 
   static void  common_callback(wrapper&  wr, event_kind  k, int  x, int  y) noexcept;
 
@@ -533,29 +533,22 @@ canvas: public widget
 
   bool  m_grid=false;
 
-  struct dot{
-    images::color  color;
-    uint16_t  x;
-    uint16_t  y;
+  enum class mode{
+    draw_dot,
+    draw_line,
+    draw_rectangle,
+    fill_rectangle,
+    fill_area,
 
-    dot(images::color  color_=images::color(), int  x_=0, int  y_=0) noexcept:
-    color(color_), x(x_), y(y_){}
-
-  };
+  } m_mode=mode::draw_dot;
 
 
-  std::vector<dot>  m_dot_buffer;
-
-  struct record;
-
-  record*  m_record_list=nullptr;
-
-  void  merge_dot_buffer(bool  solid) noexcept;
+  drawing_recorder  m_recorder;
 
 public:
   canvas(){}
   canvas(image&  img, int  pixel_size) noexcept{reset(img,pixel_size);}
- ~canvas(){clear_record_list();}
+ ~canvas(){}
 
   int  get_pixel_size() const noexcept{return m_pixel_size;}
 
@@ -574,8 +567,6 @@ public:
   void  fill_area(images::color  color, point  pt) noexcept;
 
   void  undo() noexcept;
-
-  void  clear_record_list() noexcept;
 
   void  render(image_cursor  cur) noexcept override;
 
