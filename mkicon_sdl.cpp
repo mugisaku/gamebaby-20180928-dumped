@@ -20,14 +20,8 @@ constexpr int  screen_w = 480;
 constexpr int  screen_h = 400;
 
 
-namespace types{
-class     canvas;
-}
-
-
-namespace ptrs{
-types::canvas*      cv;
-}
+widgets::canvas*
+cv;
 
 
 gbstd::image
@@ -36,6 +30,10 @@ image(screen_w,screen_h);
 
 widgets::root
 root;
+
+
+widgets::widget*
+radio_menu;
 
 
 gbstd::widget*
@@ -82,69 +80,6 @@ namespace types{
 
 
 class
-canvas: public widgets::widget
-{
-  static constexpr int  pixel_size = 12;
-
-
-public:
-  canvas() noexcept: widget(pixel_size*cv_w,pixel_size*cv_h){}
-
-  void  do_when_mouse_acted(int  x, int  y) noexcept override
-  {
-    auto&  dst = cv_image.get_pixel(x/pixel_size,y/pixel_size);
-
-      if(gbstd::ctrl.is_mouse_lbutton_pressed())
-      {
-        dst.color = current_color;
-
-        need_to_redraw();
-      }
-
-    else
-      if(gbstd::ctrl.is_mouse_rbutton_pressed())
-      {
-        dst.color = color();
-
-        need_to_redraw();
-      }
-  }
-
-  void  render(gbstd::image_cursor  cur) noexcept override
-  {
-    cur.fill_rectangle(gbstd::images::predefined::blue,0,0,pixel_size*cv_w,pixel_size*cv_h);
-
-      for(int  y = 0;  y < cv_h;  ++y){
-      for(int  x = 0;  x < cv_w;  ++x){
-        auto&  pix = cv_image.get_pixel(x,y);
-
-          if(pix.color)
-          {
-            cur.fill_rectangle(pix.color,pixel_size*x,pixel_size*y,pixel_size,pixel_size);
-          }
-      }}
-
-
-      for(int  y = 0;  y < cv_h;  ++y)
-      {
-        cur.draw_hline(gbstd::images::predefined::gray,0,pixel_size*y,pixel_size*cv_w);
-      }
-
-
-      for(int  x = 0;  x < cv_w;  ++x)
-      {
-        cur.draw_vline(gbstd::images::predefined::gray,pixel_size*x,0,pixel_size*cv_h);
-      }
-
-
-    cur.draw_hline(gbstd::images::predefined::light_gray,0,pixel_size*(cv_h/2),pixel_size*cv_w);
-    cur.draw_vline(gbstd::images::predefined::light_gray,pixel_size*(cv_w/2),0,pixel_size*cv_h);
-  }
-
-};
-
-
-class
 color_sample: public gbstd::widget
 {
   static constexpr int   size = 32;
@@ -173,7 +108,7 @@ clear_all(widgets::button&  btn) noexcept
       cv_image.fill(pixel());
 
 
-      ptrs::cv->need_to_redraw();
+      cv->need_to_redraw();
     }
 }
 
@@ -188,7 +123,7 @@ fill_all(widgets::button&  btn) noexcept
       cv_image.fill(current_color);
 
 
-      ptrs::cv->need_to_redraw();
+      cv->need_to_redraw();
     }
 }
 
@@ -231,7 +166,7 @@ save(widgets::button&  btn) noexcept
         {
             for(int  x = 0;  x < cv_w;  ++x)
             {
-              image.get_pixel(x,y).color.print();
+              cv_image.get_pixel(x,y).color.print();
 
               printf(",");
             }
@@ -239,6 +174,9 @@ save(widgets::button&  btn) noexcept
 
           printf("\n");
         }
+
+
+      printf("\n");
 #endif
     }
 }
@@ -251,13 +189,21 @@ main_loop()
 
   root.react();
 
-    if(root->is_needed_to_redraw())
+    if(root->is_needed_to_redraw() || ctrl.is_needed_to_redraw())
     {
       root->redraw(image);
 
       sdl::update_screen(image);
     }
 }
+
+
+void
+change_tool_state(widgets::radio_button&  btn, uint32_t  old_state, uint32_t  new_state)
+{
+}
+
+
 
 
 }
@@ -267,6 +213,11 @@ int
 main(int  argc, char**  argv)
 {
   sdl::init(screen_w,screen_h);
+
+
+  cv = new widgets::canvas(cv_image,12);
+
+  cv->set_grid();
 
   r_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
   g_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
@@ -282,23 +233,20 @@ main(int  argc, char**  argv)
   });
 
 
-  ptrs::cv   = new types::canvas;
-
   auto  clra_btn = new widgets::button(new widgets::label(u"CLEAR ALL"),clear_all);;
   auto  fila_btn = new widgets::button(new widgets::label(u" FILL ALL"),fill_all);;
   auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);;
 
   auto  mcol = new widgets::table_column({pal,clra_btn,fila_btn,save_btn});
 
-  auto  rad_mnu = widgets::create_check_menu({new widgets::label(u"draw dot"),
-                                              new widgets::label(u"draw line"),
-                                              new widgets::label(u"draw circle"),
-                                              new widgets::label(u"draw rectangle"),
-                                              new widgets::label(u"fill rectangle"),
-                                              new widgets::label(u"fill area"),
-                                              });
+  radio_menu = widgets::create_radio_menu({new widgets::label(u"draw dot"),
+                                           new widgets::label(u"draw line"),
+                                           new widgets::label(u"draw rectangle"),
+                                           new widgets::label(u"fill rectangle"),
+                                           new widgets::label(u"fill area"),
+                                           },change_tool_state,1);
 
-  auto  row = new widgets::table_row({ptrs::cv,mcol,rad_mnu});
+  auto  row = new widgets::table_row({cv,mcol,radio_menu});
 
   root->append_child(row,0,0);
 

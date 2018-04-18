@@ -30,6 +30,9 @@ color
 
   constexpr operator bool() const noexcept{return code>>15;}
 
+  constexpr bool  operator==(const color&  rhs) const noexcept{return code == rhs.code;}
+  constexpr bool  operator!=(const color&  rhs) const noexcept{return code != rhs.code;}
+
   constexpr int  get_r7() const noexcept{return masked(((code>>10)>>2));}
   constexpr int  get_g7() const noexcept{return masked(((code>> 5)>>2));}
   constexpr int  get_b7() const noexcept{return masked(((code    )>>2));}
@@ -110,6 +113,9 @@ public:
 
   int   get_width() const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
+
+  pixel*  begin() noexcept{return &m_pixels.front();}
+  pixel*    end() noexcept{return &m_pixels.back()+1;}
 
         pixel&        get_pixel(int  x, int  y)       noexcept{return m_pixels[m_width*y+x];}
   const pixel&  get_const_pixel(int  x, int  y) const noexcept{return m_pixels[m_width*y+x];}

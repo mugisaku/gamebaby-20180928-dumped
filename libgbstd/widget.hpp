@@ -168,7 +168,7 @@ public:
   void              set_window(windows::window*  w)       noexcept{m_window = w;}
   windows::window*  get_window(                   ) const noexcept override{return m_window? m_window:widget::get_window();}
 
-  void  append_child(widget*  child, int  x, int  y) noexcept;
+  void  append_child(widget*  child, int  x=0, int  y=0) noexcept;
 
   void  show_all() noexcept override;
 
@@ -362,6 +362,8 @@ private:
 
   shared_data*  m_data;
 
+  icon_selector*  m_icons;
+
 protected:
   uint32_t  m_bit_id;
 
@@ -386,8 +388,6 @@ public:
 
   uint32_t  get_state() const noexcept;
 
-  void  render(image_cursor  cur) noexcept override;
-
 };
 
 
@@ -410,14 +410,13 @@ class
 table_column: public container
 {
 public:
-  table_column(std::initializer_list<widget*>  ls={}) noexcept{append(ls);}
+  table_column(std::initializer_list<widget*>  ls={}) noexcept{append_child(ls);}
 
   const char*  get_widget_name() const noexcept override{return "table_column";}
 
   void  reform(point  base_pt) noexcept override;
 
-  void  append(widget*  w) noexcept;
-  void  append(std::initializer_list<widget*>  ls) noexcept;
+  void  append_child(std::initializer_list<widget*>  ls) noexcept;
 
 };
 
@@ -426,14 +425,13 @@ class
 table_row: public container
 {
 public:
-  table_row(std::initializer_list<widget*>  ls={}) noexcept{append(ls);}
+  table_row(std::initializer_list<widget*>  ls={}) noexcept{append_child(ls);}
 
   const char*  get_widget_name() const noexcept override{return "table_row";}
 
   void  reform(point  base_pt) noexcept override;
 
-  void  append(widget*  w) noexcept;
-  void  append(std::initializer_list<widget*>  ls) noexcept;
+  void  append_child(std::initializer_list<widget*>  ls) noexcept;
 
 };
 
@@ -545,8 +543,70 @@ public:
 };
 
 
-widget*  create_radio_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state=0) noexcept;
-widget*  create_check_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state=0) noexcept;
+
+
+class
+canvas: public widget
+{
+  image*  m_image=nullptr;
+
+  int  m_pixel_size=1;
+
+  bool  m_grid=false;
+
+  struct dot{
+    images::color  color;
+    uint16_t  x;
+    uint16_t  y;
+
+    dot(images::color  color_=images::color(), int  x_=0, int  y_=0) noexcept:
+    color(color_), x(x_), y(y_){}
+
+  };
+
+
+  std::vector<dot>  m_dot_buffer;
+
+  struct record;
+
+  record*  m_record_list=nullptr;
+
+  void  merge_dot_buffer(bool  solid) noexcept;
+
+public:
+  canvas(){}
+  canvas(image&  img, int  pixel_size) noexcept{reset(img,pixel_size);}
+ ~canvas(){clear_record_list();}
+
+  int  get_pixel_size() const noexcept{return m_pixel_size;}
+
+  void    set_grid() noexcept;
+  void  unset_grid() noexcept;
+
+  void  reset(image&  img, int  pixel_size) noexcept;
+
+  void  reform(point  base_pt) noexcept override;
+
+  void  modify_dot(color  new_color, int  x, int  y) noexcept;
+
+  void  draw_line(images::color  color, point  a, point  b) noexcept;
+  void  draw_rect(images::color  color, point  a, point  b) noexcept;
+  void  fill_rect(images::color  color, point  a, point  b) noexcept;
+  void  fill_area(images::color  color, point  pt) noexcept;
+
+  void  undo() noexcept;
+
+  void  clear_record_list() noexcept;
+
+  void  render(image_cursor  cur) noexcept override;
+
+};
+
+
+
+
+widget*  create_radio_menu(std::initializer_list<widget*>  ls, radio_button::callback_prototype  cb, uint32_t  initial_state=0) noexcept;
+widget*  create_check_menu(std::initializer_list<widget*>  ls, radio_button::callback_prototype  cb, uint32_t  initial_state=0) noexcept;
 
 
 }

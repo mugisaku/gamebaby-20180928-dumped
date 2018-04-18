@@ -7,7 +7,7 @@ namespace widgets{
 
 
 widget*
-create_radio_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state) noexcept
+create_radio_menu(std::initializer_list<widget*>  ls, radio_button::callback_prototype  cb, uint32_t  initial_state) noexcept
 {
   auto  col = new table_column;
 
@@ -16,15 +16,15 @@ create_radio_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state) n
 
     if(it != end)
     {
-      auto  first_btn = new radio_button(*it++,nullptr);
+      auto  first_btn = new radio_button(*it++,cb);
 
-      col->append(first_btn);
+      col->container::append_child(first_btn);
 
         while(it != end)
         {
           auto  btn = new radio_button(*it++,*first_btn);
 
-          col->append(btn);
+          col->container::append_child(btn);
         }
     }
 
@@ -34,7 +34,7 @@ create_radio_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state) n
 
 
 widget*
-create_check_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state) noexcept
+create_check_menu(std::initializer_list<widget*>  ls, radio_button::callback_prototype  cb, uint32_t  initial_state) noexcept
 {
   auto  col = new table_column;
 
@@ -43,15 +43,15 @@ create_check_menu(std::initializer_list<widget*>  ls, uint32_t  initial_state) n
 
     if(it != end)
     {
-      auto  first_btn = new check_button(*it++,nullptr);
+      auto  first_btn = new check_button(*it++,cb);
 
-      col->append(first_btn);
+      col->container::append_child(first_btn);
 
         while(it != end)
         {
           auto  btn = new check_button(*it++,*first_btn);
 
-          col->append(btn);
+          col->container::append_child(btn);
         }
     }
 

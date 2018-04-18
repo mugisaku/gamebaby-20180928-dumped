@@ -26,6 +26,7 @@ set(SOURCES
   widgets/radio_button.cpp
   widgets/check_button.cpp
   widgets/create_button_menu.cpp
+  widgets/canvas.cpp
   windows/window.cpp
   windows/window__draw_frame.cpp
   windows/window_manager.cpp

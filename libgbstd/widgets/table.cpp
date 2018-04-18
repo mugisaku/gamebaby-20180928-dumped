@@ -41,19 +41,11 @@ reform(point  base_pt) noexcept
 
 void
 table_column::
-append(widget*  w) noexcept
-{
-  container::append_child(w,0,0);
-}
-
-
-void
-table_column::
-append(std::initializer_list<widget*>  ls) noexcept
+append_child(std::initializer_list<widget*>  ls) noexcept
 {
     for(auto  w: ls)
     {
-      append(w);
+      container::append_child(w);
     }
 }
 
@@ -94,19 +86,11 @@ reform(point  base_pt) noexcept
 
 void
 table_row::
-append(widget*  w) noexcept
-{
-  container::append_child(w,0,0);
-}
-
-
-void
-table_row::
-append(std::initializer_list<widget*>  ls) noexcept
+append_child(std::initializer_list<widget*>  ls) noexcept
 {
     for(auto  w: ls)
     {
-      append(w);
+      container::append_child(w);
     }
 }
 

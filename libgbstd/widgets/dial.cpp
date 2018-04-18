@@ -118,7 +118,7 @@ m_callback(callback)
 
   m_label = new label(fs(format,min,max));
 
-  append({m_down_button,m_up_button,m_label});
+  append_child({m_down_button,m_up_button,m_label});
 }
 
 
