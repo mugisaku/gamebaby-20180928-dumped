@@ -1,4 +1,5 @@
 #include"libgbstd/image.hpp"
+#include"libgbstd/utility.hpp"
 
 
 

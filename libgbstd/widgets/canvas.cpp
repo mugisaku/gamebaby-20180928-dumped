@@ -58,7 +58,7 @@ modify_dot(color  new_color, int  x, int  y) noexcept
 
     if(pix.color != new_color)
     {
-      m_recorder.push(new_color,x,y);
+      m_recorder.push(pix.color,x,y);
 
       pix.color = new_color;
     }
@@ -69,15 +69,15 @@ modify_dot(color  new_color, int  x, int  y) noexcept
 
 void
 canvas::
-draw_line(images::color  color, point  a, point  b) noexcept
+draw_line(point  a, point  b) noexcept
 {
-  m_recorder.commit(false);
-
   line_maker  l(a.x,a.y,b.x,b.y);
+
+  m_preview_points.resize(0);
 
     for(;;)
     {
-      modify_dot(color,l.get_x(),l.get_y());
+      m_preview_points.emplace_back(l.get_x(),l.get_y());
 
         if(!l.get_distance())
         {
@@ -87,69 +87,66 @@ draw_line(images::color  color, point  a, point  b) noexcept
 
       l.step();
     }
-
-
-  m_recorder.commit(true);
 }
 
 
 void
 canvas::
-draw_rect(images::color  color, point  a, point  b) noexcept
+draw_rect(point  a, point  b) noexcept
 {
-  m_recorder.commit(false);
-
   int  x = std::min(a.x,b.x);
   int  y = std::min(a.y,b.y);
   int  w = std::abs(a.x-b.x);
   int  h = std::abs(a.y-b.y);
 
+  m_preview_points.resize(0);
+
     for(int  yy = 0;  yy <= h;  ++yy)
     {
-      modify_dot(color,x  ,y+yy);
-      modify_dot(color,x+w,y+yy);
+      m_preview_points.emplace_back(x  ,y+yy);
+      m_preview_points.emplace_back(x+w,y+yy);
     }
 
 
     for(int  xx = 0;  xx <= w;  ++xx)
     {
-      modify_dot(color,x   ,y+h);
-      modify_dot(color,x+xx,y+h);
+      m_preview_points.emplace_back(x+xx,y  );
+      m_preview_points.emplace_back(x+xx,y+h);
     }
-
-
-  m_recorder.commit(true);
 }
 
 
 void
 canvas::
-fill_rect(images::color  color, point  a, point  b) noexcept
+fill_rect(point  a, point  b) noexcept
 {
-  m_recorder.commit(false);
-
   int  x = std::min(a.x,b.x);
   int  y = std::min(a.y,b.y);
   int  w = std::abs(a.x-b.x);
   int  h = std::abs(a.y-b.y);
 
+  m_preview_points.resize(0);
+
     for(int  yy = 0;  yy <= h;  ++yy){
     for(int  xx = 0;  xx <= w;  ++xx){
-      modify_dot(color,x+xx,y+yy);
+      m_preview_points.emplace_back(x+xx,y+yy);
     }}
-
-
-  m_recorder.commit(true);
 }
 
 
 void
 canvas::
-fill_area(images::color  color, point  pt) noexcept
+fill_area(point  pt) noexcept
 {
-  m_recorder.commit(false);
-
   auto&  img = *m_image;
+
+  auto  target_color = img.get_pixel(pt.x,pt.y).color;
+
+    if(target_color == m_drawing_color)
+    {
+      return;
+    }
+
 
   const int  w = m_image->get_width();
   const int  h = m_image->get_height();
@@ -159,6 +156,8 @@ fill_area(images::color  color, point  pt) noexcept
       pix.z = 0;
     }
 
+
+  m_recorder.commit(false);
 
   std::vector<point>  stack;
 
@@ -176,11 +175,11 @@ fill_area(images::color  color, point  pt) noexcept
         {
           pix.z = 1;
 
-            if(pix.color != color)
+            if(pix.color == target_color)
             {
-              m_recorder.push(color,pt.x,pt.y);
+              m_recorder.push(pix.color,pt.x,pt.y);
 
-              pix.color = color;
+              pix.color = m_drawing_color;
 
                 if(pt.x      ){stack.emplace_back(point(pt.x-1,pt.y  ));}
                 if(pt.y      ){stack.emplace_back(point(pt.x  ,pt.y-1));}
@@ -199,11 +198,149 @@ fill_area(images::color  color, point  pt) noexcept
 
 void
 canvas::
+apply() noexcept
+{
+  m_pointing_count = 0;
+
+    if(m_preview_points.size())
+    {
+      m_recorder.commit(false);
+
+        for(auto&  pt: m_preview_points)
+        {
+          modify_dot(m_drawing_color,pt.x,pt.y);
+        }
+
+
+      m_preview_points.resize(0);
+
+      m_recorder.commit(true);
+
+      need_to_redraw();
+    }
+}
+
+
+void
+canvas::
 undo() noexcept
 {
   m_recorder.rollback(*m_image);
 
   need_to_redraw();
+}
+
+
+void
+canvas::
+do_when_mouse_acted(int  x, int  y) noexcept
+{
+  x /= m_pixel_size;
+  y /= m_pixel_size;
+
+    switch(m_mode)
+    {
+  case(mode::draw_dot):
+        if(ctrl.is_mouse_lbutton_pressed())
+        {
+          modify_dot(m_drawing_color,x,y);
+          need_to_redraw();
+        }
+
+      else
+        if(ctrl.is_mouse_rbutton_pressed())
+        {
+          modify_dot(color(),x,y);
+          need_to_redraw();
+        }
+      break;
+  case(mode::draw_line):
+        if(m_pointing_count)
+        {
+            if(ctrl.is_mouse_lbutton_pressed())
+            {
+              draw_line(m_a_point,point(x,y));
+
+              need_to_redraw();
+            }
+
+          else
+            {
+              apply();
+            }
+        }
+
+      else
+        {
+            if(ctrl.is_mouse_lbutton_pressed())
+            {
+              m_a_point = point(x,y);
+
+              m_pointing_count = 1;
+            }
+        }
+      break;
+  case(mode::draw_rectangle):
+        if(m_pointing_count)
+        {
+            if(ctrl.is_mouse_lbutton_pressed())
+            {
+              draw_rect(m_a_point,point(x,y));
+
+              need_to_redraw();
+            }
+
+          else
+            {
+              apply();
+            }
+        }
+
+      else
+        {
+            if(ctrl.is_mouse_lbutton_pressed())
+            {
+              m_a_point = point(x,y);
+
+              m_pointing_count = 1;
+            }
+        }
+      break;
+  case(mode::fill_rectangle):
+        if(m_pointing_count)
+        {
+            if(ctrl.is_mouse_lbutton_pressed())
+            {
+              fill_rect(m_a_point,point(x,y));
+
+              need_to_redraw();
+            }
+
+          else
+            {
+              apply();
+            }
+        }
+
+      else
+        {
+            if(ctrl.is_mouse_lbutton_pressed())
+            {
+              m_a_point = point(x,y);
+
+              m_pointing_count = 1;
+            }
+        }
+      break;
+  case(mode::fill_area):
+        if(ctrl.is_mouse_lbutton_pressed())
+        {
+          fill_area(point(x,y));
+
+          need_to_redraw();
+        }
+      break;
+    }
 }
 
 
@@ -227,6 +364,12 @@ render(image_cursor  cur) noexcept
           cur.fill_rectangle(pix.color,m_pixel_size*x,m_pixel_size*y,m_pixel_size,m_pixel_size);
         }
     }}
+
+
+    for(auto&  pt: m_preview_points)
+    {
+      cur.fill_rectangle(m_drawing_color,m_pixel_size*pt.x,m_pixel_size*pt.y,m_pixel_size,m_pixel_size);
+    }
 
 
     if(m_grid)

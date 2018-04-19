@@ -40,10 +40,6 @@ gbstd::widget*
 color_sample;
 
 
-gbstd::images::color
-current_color;
-
-
 bool
 need_to_hide_cursors;
 
@@ -60,9 +56,11 @@ widgets::dial*  b_dial;
 void
 update_color() noexcept
 {
-  current_color = gbstd::images::color(r_dial->get_current(),
-                                       g_dial->get_current(),
-                                       b_dial->get_current());
+  auto  col = gbstd::images::color(r_dial->get_current(),
+                                   g_dial->get_current(),
+                                   b_dial->get_current());
+
+  cv->set_drawing_color(col);
 
   color_sample->need_to_redraw();
 }
@@ -89,7 +87,7 @@ public:
 
   void  render(gbstd::image_cursor  cur) noexcept override
   {
-    cur.fill_rectangle(current_color,0,0,size,size);
+    cur.fill_rectangle(cv->get_drawing_color(),0,0,size,size);
   }
 
 };
@@ -99,31 +97,13 @@ public:
 
 
 void
-clear_all(widgets::button&  btn) noexcept
+undo(widgets::button&  btn) noexcept
 {
     if(btn.get_count())
     {
       btn.reset_count();
 
-      cv_image.fill(pixel());
-
-
-      cv->need_to_redraw();
-    }
-}
-
-
-void
-fill_all(widgets::button&  btn) noexcept
-{
-    if(btn.get_count())
-    {
-      btn.reset_count();
-
-      cv_image.fill(current_color);
-
-
-      cv->need_to_redraw();
+      cv->undo();
     }
 }
 
@@ -199,8 +179,16 @@ main_loop()
 
 
 void
-change_tool_state(widgets::radio_button&  btn, uint32_t  old_state, uint32_t  new_state)
+change_mode(widgets::radio_button&  btn, uint32_t  old_state, uint32_t  new_state)
 {
+    switch(new_state)
+    {
+  case(0x01): cv->change_mode_to_draw_dot();break;
+  case(0x02): cv->change_mode_to_draw_line();break;
+  case(0x04): cv->change_mode_to_draw_rectangle();break;
+  case(0x08): cv->change_mode_to_fill_rectangle();break;
+  case(0x10): cv->change_mode_to_fill_area();break;
+    }
 }
 
 
@@ -233,18 +221,17 @@ main(int  argc, char**  argv)
   });
 
 
-  auto  clra_btn = new widgets::button(new widgets::label(u"CLEAR ALL"),clear_all);;
-  auto  fila_btn = new widgets::button(new widgets::label(u" FILL ALL"),fill_all);;
-  auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);;
+  auto  undo_btn = new widgets::button(new widgets::label(u"UNDO"),undo);
+  auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);
 
-  auto  mcol = new widgets::table_column({pal,clra_btn,fila_btn,save_btn});
+  auto  mcol = new widgets::table_column({pal,undo_btn,save_btn});
 
   radio_menu = widgets::create_radio_menu({new widgets::label(u"draw dot"),
                                            new widgets::label(u"draw line"),
                                            new widgets::label(u"draw rectangle"),
                                            new widgets::label(u"fill rectangle"),
                                            new widgets::label(u"fill area"),
-                                           },change_tool_state,1);
+                                           },change_mode,1);
 
   auto  row = new widgets::table_row({cv,mcol,radio_menu});
 

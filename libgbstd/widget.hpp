@@ -543,7 +543,16 @@ canvas: public widget
   } m_mode=mode::draw_dot;
 
 
+  std::vector<point>  m_preview_points;
+
   drawing_recorder  m_recorder;
+
+  color  m_drawing_color;
+
+  int  m_pointing_count=0;
+
+  point  m_a_point;
+  point  m_b_point;
 
 public:
   canvas(){}
@@ -552,21 +561,36 @@ public:
 
   int  get_pixel_size() const noexcept{return m_pixel_size;}
 
+  void   set_drawing_color(images::color  color)       noexcept{       m_drawing_color = color;}
+  color  get_drawing_color(                    ) const noexcept{return m_drawing_color        ;}
+
   void    set_grid() noexcept;
   void  unset_grid() noexcept;
+
+  void  change_mode_to_draw_dot()       noexcept{m_mode = mode::draw_dot;}
+  void  change_mode_to_draw_line()      noexcept{m_mode = mode::draw_line;}
+  void  change_mode_to_draw_rectangle() noexcept{m_mode = mode::draw_rectangle;}
+  void  change_mode_to_fill_rectangle() noexcept{m_mode = mode::fill_rectangle;}
+  void  change_mode_to_fill_area()      noexcept{m_mode = mode::fill_area;}
 
   void  reset(image&  img, int  pixel_size) noexcept;
 
   void  reform(point  base_pt) noexcept override;
 
-  void  modify_dot(color  new_color, int  x, int  y) noexcept;
+  void  modify_dot(images::color  new_color, int  x, int  y) noexcept;
 
-  void  draw_line(images::color  color, point  a, point  b) noexcept;
-  void  draw_rect(images::color  color, point  a, point  b) noexcept;
-  void  fill_rect(images::color  color, point  a, point  b) noexcept;
-  void  fill_area(images::color  color, point  pt) noexcept;
+  void  draw_line(point  a, point  b) noexcept;
+  void  draw_rect(point  a, point  b) noexcept;
+  void  fill_rect(point  a, point  b) noexcept;
+  void  fill_area(point  pt) noexcept;
+
+  void  apply() noexcept;
 
   void  undo() noexcept;
+
+  void  do_when_cursor_got_out() noexcept override{apply();}
+
+  void  do_when_mouse_acted(int  x, int  y) noexcept override;
 
   void  render(image_cursor  cur) noexcept override;
 
