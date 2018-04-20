@@ -24,6 +24,25 @@ record
 
 
 
+drawing_recorder&
+drawing_recorder::
+operator=(drawing_recorder&&  rhs) noexcept
+{
+    if(this != &rhs)
+    {
+      clear();
+
+      std::swap( m_dot_buffer, rhs.m_dot_buffer);
+      std::swap(m_record_list,rhs.m_record_list);
+    }
+
+
+  return *this;
+}
+
+
+
+
 void
 drawing_recorder::
 rollback(image&  img) noexcept

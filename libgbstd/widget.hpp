@@ -491,11 +491,8 @@ using menu_item_renderer = void  (*)(image_cursor  cur, point  index);
 
 
 struct
-menu_parameter
+menu_item_parameter
 {
-  int  table_width =0;
-  int  table_height=0;
-
   int  item_width =0;
   int  item_height=0;
 
@@ -508,10 +505,14 @@ menu_parameter
 class
 menu: public widget
 {
-  menu_parameter  m_parameter;
+  menu_item_parameter  m_parameter;
+
+  int  m_table_width ;
+  int  m_table_height;
 
 public:
-  menu(const menu_parameter&  para) noexcept: m_parameter(para){}
+  menu(const menu_item_parameter&  para, int  table_width, int  table_height) noexcept:
+  m_parameter(para), m_table_width(table_width), m_table_height(table_height){}
 
   void  do_when_mouse_acted(int  x, int  y) noexcept override;
 
@@ -554,15 +555,20 @@ canvas: public widget
   point  m_a_point;
   point  m_b_point;
 
+  void  (*m_callback)(canvas&  cv)=nullptr;
+
 public:
   canvas(){}
-  canvas(image&  img, int  pixel_size) noexcept{reset(img,pixel_size);}
+  canvas(image&  img, void  (*callback)(canvas&  cv)) noexcept: m_callback(callback){set_image(img);}
  ~canvas(){}
 
-  int  get_pixel_size() const noexcept{return m_pixel_size;}
+  int   get_pixel_size(      ) const noexcept{return m_pixel_size;}
+  void  set_pixel_size(int  n)       noexcept;
 
   void   set_drawing_color(images::color  color)       noexcept{       m_drawing_color = color;}
   color  get_drawing_color(                    ) const noexcept{return m_drawing_color        ;}
+
+  drawing_recorder&  get_drawing_recorder() noexcept{return m_recorder;}
 
   void    set_grid() noexcept;
   void  unset_grid() noexcept;
@@ -573,7 +579,8 @@ public:
   void  change_mode_to_fill_rectangle() noexcept{m_mode = mode::fill_rectangle;}
   void  change_mode_to_fill_area()      noexcept{m_mode = mode::fill_area;}
 
-  void  reset(image&  img, int  pixel_size) noexcept;
+  void    set_image(image&  img)       noexcept;
+  image*  get_image(           ) const noexcept{return m_image;}
 
   void  reform(point  base_pt) noexcept override;
 

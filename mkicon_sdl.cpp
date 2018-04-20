@@ -203,9 +203,10 @@ main(int  argc, char**  argv)
   sdl::init(screen_w,screen_h);
 
 
-  cv = new widgets::canvas(cv_image,12);
+  cv = new widgets::canvas(cv_image,nullptr);
 
   cv->set_grid();
+  cv->set_pixel_size(12);
 
   r_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
   g_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});

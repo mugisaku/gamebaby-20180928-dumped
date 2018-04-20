@@ -247,7 +247,12 @@ drawing_recorder
 
 public:
   drawing_recorder() noexcept{}
+  drawing_recorder(const drawing_recorder&   rhs) noexcept=delete;
+  drawing_recorder(      drawing_recorder&&  rhs) noexcept{*this = std::move(rhs);}
  ~drawing_recorder(){clear();}
+
+  drawing_recorder&  operator=(const drawing_recorder&   rhs) noexcept=delete;
+  drawing_recorder&  operator=(      drawing_recorder&&  rhs) noexcept;
 
   void  push(images::color  color, int  x, int  y) noexcept{m_dot_buffer.emplace_back(color,x,y);}
 

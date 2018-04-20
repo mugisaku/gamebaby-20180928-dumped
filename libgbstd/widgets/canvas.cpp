@@ -6,6 +6,18 @@ namespace gbstd{
 namespace widgets{
 
 
+
+
+void
+canvas::
+set_pixel_size(int  n) noexcept
+{
+  m_pixel_size = n;
+
+  need_to_reform();
+}
+
+
 void
 canvas::
 set_grid() noexcept
@@ -30,10 +42,9 @@ unset_grid() noexcept
 
 void
 canvas::
-reset(image&  img, int  pixel_size) noexcept
+set_image(image&  img) noexcept
 {
-  m_image      =       &img;
-  m_pixel_size = pixel_size;
+  m_image = &img;
 
   need_to_reform();
 }
@@ -217,6 +228,11 @@ apply() noexcept
       m_recorder.commit(true);
 
       need_to_redraw();
+
+        if(m_callback)
+        {
+          m_callback(*this);
+        }
     }
 }
 
@@ -228,6 +244,11 @@ undo() noexcept
   m_recorder.rollback(*m_image);
 
   need_to_redraw();
+
+    if(m_callback)
+    {
+      m_callback(*this);
+    }
 }
 
 
@@ -245,6 +266,11 @@ do_when_mouse_acted(int  x, int  y) noexcept
         {
           modify_dot(m_drawing_color,x,y);
           need_to_redraw();
+
+            if(m_callback)
+            {
+              m_callback(*this);
+            }
         }
 
       else
@@ -252,6 +278,11 @@ do_when_mouse_acted(int  x, int  y) noexcept
         {
           modify_dot(color(),x,y);
           need_to_redraw();
+
+            if(m_callback)
+            {
+              m_callback(*this);
+            }
         }
       break;
   case(mode::draw_line):
@@ -338,6 +369,11 @@ do_when_mouse_acted(int  x, int  y) noexcept
           fill_area(point(x,y));
 
           need_to_redraw();
+
+            if(m_callback)
+            {
+              m_callback(*this);
+            }
         }
       break;
     }
@@ -353,7 +389,15 @@ render(image_cursor  cur) noexcept
   const int  w = m_image->get_width();
   const int  h = m_image->get_height();
 
-  cur.fill_rectangle(predefined_color::blue,0,0,m_pixel_size*w,m_pixel_size*h);
+  int           pitch = m_pixel_size*w;
+  int  number_of_rows = m_pixel_size*h;
+
+    for(int  y = 0;  y < number_of_rows;  y += 2)
+    {
+      cur.draw_hline(color(01005),0,y  ,pitch);
+      cur.draw_hline(color(01337),0,y+1,pitch);
+    }
+
 
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
@@ -376,18 +420,18 @@ render(image_cursor  cur) noexcept
     {
         for(int  y = 0;  y < h;  ++y)
         {
-          cur.draw_hline(predefined_color::gray,0,m_pixel_size*y,m_pixel_size*w);
+          cur.draw_hline(predefined_color::gray,0,m_pixel_size*y,pitch);
         }
 
 
         for(int  x = 0;  x < w;  ++x)
         {
-          cur.draw_vline(predefined_color::gray,m_pixel_size*x,0,m_pixel_size*h);
+          cur.draw_vline(predefined_color::gray,m_pixel_size*x,0,number_of_rows);
         }
 
 
-      cur.draw_hline(predefined_color::light_gray,0,m_pixel_size*(h/2),m_pixel_size*w);
-      cur.draw_vline(predefined_color::light_gray,m_pixel_size*(w/2),0,m_pixel_size*h);
+      cur.draw_hline(predefined_color::light_gray,0,m_pixel_size*(h/2),pitch);
+      cur.draw_vline(predefined_color::light_gray,m_pixel_size*(w/2),0,number_of_rows);
     }
 }
 

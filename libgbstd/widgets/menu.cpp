@@ -26,8 +26,8 @@ void
 menu::
 reform(point  base_pt) noexcept
 {
-  m_width  = m_parameter.item_width *m_parameter.table_width ;
-  m_height = m_parameter.item_height*m_parameter.table_height;
+  m_width  = m_parameter.item_width *m_table_width ;
+  m_height = m_parameter.item_height*m_table_height;
 
   widget::reform(base_pt);
 }
@@ -37,8 +37,8 @@ void
 menu::
 render(image_cursor  cur) noexcept
 {
-    for(int  y = 0;  y < m_parameter.table_height;  ++y){
-    for(int  x = 0;  x < m_parameter.table_width ;  ++x){
+    for(int  y = 0;  y < m_table_height;  ++y){
+    for(int  x = 0;  x < m_table_width ;  ++x){
       auto  pt = point(m_parameter.item_width*x,m_parameter.item_height*y);
 
       m_parameter.item_renderer(cur+pt,point(x,y));
