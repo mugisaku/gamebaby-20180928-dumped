@@ -10,11 +10,11 @@ namespace widgets{
 
 void
 root::
-react() noexcept
+react(point  offset) noexcept
 {
   m_container.reform_if_needed(point());
 
-  auto  pt = ctrl.get_point();
+  auto  pt = ctrl.get_point()-offset;
 
     if(!m_current)
     {

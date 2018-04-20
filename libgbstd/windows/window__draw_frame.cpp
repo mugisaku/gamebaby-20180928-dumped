@@ -196,7 +196,7 @@ draw_frame() noexcept
 
   draw_frame_bottom(get_image(),0,h-8,w,m_colors);
 
-  draw_frame_body(get_image(),0,hdr? 16:8,w,m_container.get_height(),m_colors);
+  draw_frame_body(get_image(),0,hdr? 16:8,w,m_root->get_height(),m_colors);
 }
 
 

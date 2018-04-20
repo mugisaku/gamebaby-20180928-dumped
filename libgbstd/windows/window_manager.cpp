@@ -110,13 +110,16 @@ void
 window_manager::
 touch(window&  win) noexcept
 {
-  win.react();
-
-    if(win.is_movable() && ctrl.is_mouse_lbutton_pressed() && !win.get_current())
+    if(win.is_movable() && ctrl.is_mouse_lbutton_pressed() && (ctrl.get_point().y < (win.get_point().y+16)))
     {
       m_moving_flag = true;
 
       m_gripping_point = ctrl.get_point();
+    }
+
+  else
+    {
+      win.react();
     }
 }
 

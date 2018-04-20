@@ -221,11 +221,13 @@ root
   widget*  m_current=nullptr;
 
 public:
+  container&  get_container() noexcept{return m_container;}
+
   container*  operator->() noexcept{return &m_container;}
 
   const widget*  get_current() const noexcept{return m_current;}
 
-  void   react() noexcept;
+  void   react(point  offset=point()) noexcept;
   bool  update() noexcept;
 
 };
@@ -625,7 +627,6 @@ widget*  create_check_menu(std::initializer_list<widget*>  ls, radio_button::cal
 
 
 using widgets::widget;
-using widgets::container;
 
 
 }

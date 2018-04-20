@@ -11,9 +11,9 @@ namespace windows{
 window::
 window() noexcept
 {
-  m_container.set_relative_point(point(8,8));
+  m_root->set_relative_point(point(8,8));
 
-  m_container.set_window(this);
+  m_root->set_window(this);
 }
 
 
@@ -36,9 +36,9 @@ change_state(uint32_t  st) noexcept
 {
   m_state = st;
 
-  m_container.set_relative_point(point(8,(m_state&flags::header)? 16:8));
+  m_root->set_relative_point(point(8,(m_state&flags::header)? 16:8));
 
-  m_container.need_to_reform();
+  m_root->need_to_reform();
 }
 
 
@@ -46,46 +46,7 @@ void
 window::
 react() noexcept
 {
-  m_container.reform_if_needed(point());
-
-  auto  pt = ctrl.get_point()-m_point;
-
-    if(!m_current)
-    {
-      m_current = m_container.scan_by_point(pt.x,pt.y);
-
-        if(m_current)
-        {
-          m_current->do_when_cursor_got_in();
-        }
-    }
-
-  else
-    if(ctrl.did_mouse_moved())
-    {
-        if(!m_current->test_by_point(pt.x,pt.y))
-        {
-          m_current->do_when_cursor_got_out();
-
-          m_current = m_container.scan_by_point(pt.x,pt.y);
-
-            if(m_current)
-            {
-              m_current->do_when_cursor_got_in();
-            }
-        }
-    }
-
-
-    if(m_current && ctrl.did_mouse_acted())
-    {
-      pt -= m_current->get_absolute_point();
-
-      m_current->do_when_mouse_acted(pt.x,pt.y);
-    }
-
-
-  update();
+  m_root.react(m_point);
 }
 
 
@@ -93,12 +54,12 @@ bool
 window::
 update() noexcept
 {
-    if(m_container.is_needed_to_redraw())
+    if(m_root->is_needed_to_redraw())
     {
-      m_container.reform_if_needed(point());
+      m_root->reform_if_needed(point());
 
-      int  w = m_container.get_width() +16;
-      int  h = m_container.get_height()+((m_state&flags::header)? 24:16);
+      int  w = m_root->get_width() +16;
+      int  h = m_root->get_height()+((m_state&flags::header)? 24:16);
 
         if((w != get_width()) ||
            (h != get_height()))
@@ -109,7 +70,7 @@ update() noexcept
         }
 
 
-      m_container.redraw(get_image());
+      m_root->redraw(get_image());
 
       return true;
     }

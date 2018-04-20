@@ -21,7 +21,7 @@ protected:
 
   image  m_image;
 
-  container  m_container;
+  widgets::root  m_root;
 
   widget*  m_current=nullptr;
 
@@ -54,9 +54,9 @@ public:
   window() noexcept;
   virtual ~window() noexcept{}
 
-  container*  operator->() noexcept{return &m_container;}
+  widgets::container*  operator->() noexcept{return &m_root.get_container();}
 
-  container&  get_container() noexcept{return m_container;}
+  widgets::root&  get_root() noexcept{return m_root;}
 
   void             set_manager(window_manager*  man)       noexcept{       m_manager = man;}
   window_manager*  get_manager(                    ) const noexcept{return m_manager      ;}
