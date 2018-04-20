@@ -94,7 +94,7 @@ START:
 
 void
 drawing_recorder::
-commit(bool  solid) noexcept
+push(bool  solid) noexcept
 {
   int  n = m_dot_buffer.size();
 

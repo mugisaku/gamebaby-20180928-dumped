@@ -28,6 +28,8 @@ set(SOURCES
   widgets/check_button.cpp
   widgets/create_button_menu.cpp
   widgets/canvas.cpp
+  widgets/canvas__draw.cpp
+  widgets/canvas__operate.cpp
   windows/window.cpp
   windows/window__draw_frame.cpp
   windows/window_manager.cpp

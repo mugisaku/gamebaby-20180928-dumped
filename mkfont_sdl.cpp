@@ -232,10 +232,6 @@ send() noexcept
         {
           cv_image.set_pixel((code&0x80)? images::predefined_color::white:images::color(),x,y);
 
-          cv->get_drawing_recorder().clear();
-
-          cv->need_to_redraw();
-
           code <<= 1;
         }
     }
@@ -247,18 +243,16 @@ receive() noexcept
 {
     for(int  y = 0;  y < character::size;  ++y)
     {
-      uint8_t  code = 0;
+      auto&  dst = current->data[y];
+
+      dst = 0;
 
         for(int  x = 0;  x < character::size;  ++x)
         {
-          code |= cv_image.get_pixel(x,y).color? 1:0;
+          dst <<= 1;
 
-          code <<= 1;
+          dst |= cv_image.get_pixel(x,y).color? 1:0;
         }
-
-
-
-      current->data[y] = code;
     }
 }
 
@@ -444,7 +438,31 @@ render(image_cursor  cur) noexcept
 
 
 void
-main_loop()
+save() noexcept
+{
+#ifdef EMSCRIPTEN
+#else
+  auto  f = fopen("characters.txt","wb");
+
+    if(f)
+    {
+      print_characters(f);
+
+      fclose(f)                             ;
+             f = fopen("font_data.txt","wb");
+
+      print_combineds(f);
+
+      fclose(f)                             ;
+    }
+#endif
+}
+
+
+
+
+void
+main_loop() noexcept
 {
   sdl::update_controller();
 
@@ -488,6 +506,38 @@ main(int  argc, char**  argv)
           cv->undo();
         }
     }),
+    new widgets::button(new widgets::label(u"Shift ↑"),[](widgets::button&  btn){
+        if(btn.get_count())
+        {
+          btn.reset_count();
+
+          cv->shift_up(false);
+        }
+    }),
+    new widgets::button(new widgets::label(u"Shift ←"),[](widgets::button&  btn){
+        if(btn.get_count())
+        {
+          btn.reset_count();
+
+          cv->shift_left(false);
+        }
+    }),
+    new widgets::button(new widgets::label(u"Shift →"),[](widgets::button&  btn){
+        if(btn.get_count())
+        {
+          btn.reset_count();
+
+          cv->shift_right(false);
+        }
+    }),
+    new widgets::button(new widgets::label(u"Shift ↓"),[](widgets::button&  btn){
+        if(btn.get_count())
+        {
+          btn.reset_count();
+
+          cv->shift_down(false);
+        }
+    }),
   });
 
 
@@ -504,6 +554,10 @@ main(int  argc, char**  argv)
               character_table::current = ptr;
 
               character_table::send();
+
+              cv->get_drawing_recorder().clear();
+
+              cv->need_to_redraw();
 
               return true;
             }
@@ -561,6 +615,14 @@ main(int  argc, char**  argv)
           ++character_table::offset;
 
           mnu->need_to_redraw();
+        }
+    }),
+    new widgets::button(new widgets::label(u"Save"),[](widgets::button&  btn){
+        if(btn.get_count())
+        {
+          btn.reset_count();
+
+          save();
         }
     }),
   });

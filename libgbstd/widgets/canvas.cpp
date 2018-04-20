@@ -46,6 +46,8 @@ set_image(image&  img) noexcept
 {
   m_image = &img;
 
+  m_operation_rect = rectangle(0,0,img.get_width(),img.get_height());
+
   need_to_reform();
 }
 
@@ -69,139 +71,10 @@ modify_dot(color  new_color, int  x, int  y) noexcept
 
     if(pix.color != new_color)
     {
-      m_recorder.push(pix.color,x,y);
+      m_recorder.put(pix.color,x,y);
 
       pix.color = new_color;
     }
-}
-
-
-
-
-void
-canvas::
-draw_line(point  a, point  b) noexcept
-{
-  line_maker  l(a.x,a.y,b.x,b.y);
-
-  m_preview_points.resize(0);
-
-    for(;;)
-    {
-      m_preview_points.emplace_back(l.get_x(),l.get_y());
-
-        if(!l.get_distance())
-        {
-          break;
-        }
-
-
-      l.step();
-    }
-}
-
-
-void
-canvas::
-draw_rect(point  a, point  b) noexcept
-{
-  int  x = std::min(a.x,b.x);
-  int  y = std::min(a.y,b.y);
-  int  w = std::abs(a.x-b.x);
-  int  h = std::abs(a.y-b.y);
-
-  m_preview_points.resize(0);
-
-    for(int  yy = 0;  yy <= h;  ++yy)
-    {
-      m_preview_points.emplace_back(x  ,y+yy);
-      m_preview_points.emplace_back(x+w,y+yy);
-    }
-
-
-    for(int  xx = 0;  xx <= w;  ++xx)
-    {
-      m_preview_points.emplace_back(x+xx,y  );
-      m_preview_points.emplace_back(x+xx,y+h);
-    }
-}
-
-
-void
-canvas::
-fill_rect(point  a, point  b) noexcept
-{
-  int  x = std::min(a.x,b.x);
-  int  y = std::min(a.y,b.y);
-  int  w = std::abs(a.x-b.x);
-  int  h = std::abs(a.y-b.y);
-
-  m_preview_points.resize(0);
-
-    for(int  yy = 0;  yy <= h;  ++yy){
-    for(int  xx = 0;  xx <= w;  ++xx){
-      m_preview_points.emplace_back(x+xx,y+yy);
-    }}
-}
-
-
-void
-canvas::
-fill_area(point  pt) noexcept
-{
-  auto&  img = *m_image;
-
-  auto  target_color = img.get_pixel(pt.x,pt.y).color;
-
-    if(target_color == m_drawing_color)
-    {
-      return;
-    }
-
-
-  const int  w = m_image->get_width();
-  const int  h = m_image->get_height();
-
-    for(auto&  pix: img)
-    {
-      pix.z = 0;
-    }
-
-
-  m_recorder.commit(false);
-
-  std::vector<point>  stack;
-
-  int  i = 0;
-
-  stack.emplace_back(pt);
-
-    while(i < stack.size())
-    {
-      auto  pt = stack[i++];
-
-      auto&  pix = img.get_pixel(pt.x,pt.y);
-
-        if(!pix.z)
-        {
-          pix.z = 1;
-
-            if(pix.color == target_color)
-            {
-              m_recorder.push(pix.color,pt.x,pt.y);
-
-              pix.color = m_drawing_color;
-
-                if(pt.x      ){stack.emplace_back(point(pt.x-1,pt.y  ));}
-                if(pt.y      ){stack.emplace_back(point(pt.x  ,pt.y-1));}
-                if(pt.x < w-1){stack.emplace_back(point(pt.x+1,pt.y  ));}
-                if(pt.y < h-1){stack.emplace_back(point(pt.x  ,pt.y+1));}
-            }
-        }
-    }
-
-
-  m_recorder.commit(true);
 }
 
 
@@ -215,7 +88,7 @@ apply() noexcept
 
     if(m_preview_points.size())
     {
-      m_recorder.commit(false);
+      m_recorder.push(false);
 
         for(auto&  pt: m_preview_points)
         {
@@ -225,7 +98,7 @@ apply() noexcept
 
       m_preview_points.resize(0);
 
-      m_recorder.commit(true);
+      m_recorder.push(true);
 
       need_to_redraw();
 
@@ -316,7 +189,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
         {
             if(ctrl.is_mouse_lbutton_pressed())
             {
-              draw_rect(m_a_point,point(x,y));
+              draw_rect(make_rectangle(m_a_point,point(x,y)));
 
               need_to_redraw();
             }
@@ -342,7 +215,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
         {
             if(ctrl.is_mouse_lbutton_pressed())
             {
-              fill_rect(m_a_point,point(x,y));
+              fill_rect(make_rectangle(m_a_point,point(x,y)));
 
               need_to_redraw();
             }

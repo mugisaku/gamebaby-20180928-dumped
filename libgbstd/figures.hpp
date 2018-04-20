@@ -3,6 +3,8 @@
 
 
 #include<cstdio>
+#include<cstdlib>
+#include<algorithm>
 
 
 namespace gbstd{
@@ -150,6 +152,18 @@ rectangle: public point
   h(h_){}
 
 };
+
+
+constexpr rectangle
+make_rectangle(point  a, point  b) noexcept
+{
+  int  x =   std::min(a.x,b.x);
+  int  y =   std::min(a.y,b.y);
+  int  w = 1+std::abs(a.x-b.x);
+  int  h = 1+std::abs(a.y-b.y);
+
+  return rectangle(x,y,w,h);
+}
 
 
 struct

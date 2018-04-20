@@ -71,6 +71,8 @@ pixel
   constexpr pixel(images::color  i=images::color(), uint16_t  z_=0) noexcept:
   color(i), z(z_){}
 
+  constexpr operator images::color() const noexcept{return color;}
+
 };
 
 
@@ -254,13 +256,13 @@ public:
   drawing_recorder&  operator=(const drawing_recorder&   rhs) noexcept=delete;
   drawing_recorder&  operator=(      drawing_recorder&&  rhs) noexcept;
 
-  void  push(images::color  color, int  x, int  y) noexcept{m_dot_buffer.emplace_back(color,x,y);}
+  void  put(images::color  color, int  x, int  y) noexcept{m_dot_buffer.emplace_back(color,x,y);}
 
   void  rollback(image&  img) noexcept;
 
   void  clear() noexcept;
 
-  void  commit(bool  solid) noexcept;
+  void  push(bool  solid) noexcept;
 
 };
 

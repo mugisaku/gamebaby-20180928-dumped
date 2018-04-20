@@ -555,6 +555,8 @@ canvas: public widget
   point  m_a_point;
   point  m_b_point;
 
+  rectangle  m_operation_rect;
+
   void  (*m_callback)(canvas&  cv)=nullptr;
 
 public:
@@ -586,9 +588,18 @@ public:
 
   void  modify_dot(images::color  new_color, int  x, int  y) noexcept;
 
+  void  revolve() noexcept;
+  void  reverse_horizontally() noexcept;
+  void  reverse_vertically() noexcept;
+  void  mirror_vertically() noexcept;
+  void  shift_up(bool  rotate) noexcept;
+  void  shift_left(bool  rotate) noexcept;
+  void  shift_right(bool  rotate) noexcept;
+  void  shift_down(bool  rotate) noexcept;
+
   void  draw_line(point  a, point  b) noexcept;
-  void  draw_rect(point  a, point  b) noexcept;
-  void  fill_rect(point  a, point  b) noexcept;
+  void  draw_rect(rectangle  rect) noexcept;
+  void  fill_rect(rectangle  rect) noexcept;
   void  fill_area(point  pt) noexcept;
 
   void  apply() noexcept;
