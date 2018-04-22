@@ -46,8 +46,6 @@ set_image(image&  img) noexcept
 {
   m_image = &img;
 
-  m_operation_rect = rectangle(0,0,img.get_width(),img.get_height());
-
   need_to_reform();
 }
 
@@ -57,6 +55,10 @@ canvas::
 reform(point  base_pt) noexcept
 {
   widget::reform(base_pt);
+
+  m_pointing_count = 0;
+
+  m_operation_rect = rectangle(0,0,m_image->get_width(),m_image->get_height());
 
   m_width  = m_pixel_size*m_image->get_width() ;
   m_height = m_pixel_size*m_image->get_height();

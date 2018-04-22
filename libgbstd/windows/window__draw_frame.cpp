@@ -183,20 +183,20 @@ draw_frame_bottom(image&  dst, int  x, int  y, int  w, const color*  colors) noe
 
 void
 window::
-draw_frame() noexcept
+draw_frame(const window_style&  style) noexcept
 {
   int  w = get_width() ;
   int  h = get_height();
 
   bool  hdr = m_state&flags::header;
 
-    if(hdr){draw_frame_top_with_header(get_image(),0,0,w,m_colors);}
-  else     {draw_frame_top(            get_image(),0,0,w,m_colors);}
+    if(hdr){draw_frame_top_with_header(get_image(),0,0,w,style.colors);}
+  else     {draw_frame_top(            get_image(),0,0,w,style.colors);}
 
 
-  draw_frame_bottom(get_image(),0,h-8,w,m_colors);
+  draw_frame_bottom(get_image(),0,h-8,w,style.colors);
 
-  draw_frame_body(get_image(),0,hdr? 16:8,w,m_root->get_height(),m_colors);
+  draw_frame_body(get_image(),0,hdr? 16:8,w,m_root->get_height(),style.colors);
 }
 
 

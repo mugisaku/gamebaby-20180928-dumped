@@ -227,6 +227,8 @@ public:
 
   const widget*  get_current() const noexcept{return m_current;}
 
+  void  cancel() noexcept;
+
   void   react(point  offset=point()) noexcept;
   bool  update() noexcept;
 
@@ -495,11 +497,11 @@ using menu_item_renderer = void  (*)(image_cursor  cur, point  index);
 struct
 menu_item_parameter
 {
-  int  item_width =0;
-  int  item_height=0;
+  int  width =0;
+  int  height=0;
 
-  menu_item_reactor   item_reactor =nullptr;
-  menu_item_renderer  item_renderer=nullptr;
+  menu_item_reactor   reactor =nullptr;
+  menu_item_renderer  renderer=nullptr;
 
 };
 
@@ -515,6 +517,8 @@ menu: public widget
 public:
   menu(const menu_item_parameter&  para, int  table_width, int  table_height) noexcept:
   m_parameter(para), m_table_width(table_width), m_table_height(table_height){}
+
+  void  set_item_size(int  w, int  h) noexcept;
 
   void  do_when_mouse_acted(int  x, int  y) noexcept override;
 

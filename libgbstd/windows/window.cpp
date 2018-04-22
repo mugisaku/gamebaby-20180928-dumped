@@ -9,7 +9,8 @@ namespace windows{
 
 
 window::
-window() noexcept
+window(gbstd::string_view  name) noexcept:
+m_name(name)
 {
   m_root->set_relative_point(point(8,8));
 
@@ -47,17 +48,30 @@ window::
 react() noexcept
 {
   m_root.react(m_point);
+
+  reform();
+}
+
+
+void
+window::
+reform() noexcept
+{
+  m_root->reform_if_needed(point());
+
+    if(m_root->is_needed_to_redraw())
+    {
+      m_state |= flags::needed_to_update_image;
+    }
 }
 
 
 bool
 window::
-update() noexcept
+update_image(const window_style&  style) noexcept
 {
-    if(m_root->is_needed_to_redraw())
+    if(m_state&flags::needed_to_update_image)
     {
-      m_root->reform_if_needed(point());
-
       int  w = m_root->get_width() +16;
       int  h = m_root->get_height()+((m_state&flags::header)? 24:16);
 
@@ -65,12 +79,15 @@ update() noexcept
            (h != get_height()))
         {
           get_image().resize(w,h);
-
-          draw_frame();
         }
 
 
+      draw_frame(style);
+
       m_root->redraw(get_image());
+
+
+      m_state &= ~flags::needed_to_update_image;
 
       return true;
     }

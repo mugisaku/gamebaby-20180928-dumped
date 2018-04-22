@@ -13,10 +13,23 @@ namespace windows{
 class window_manager;
 
 
+struct
+window_style
+{
+  color  colors[4] = {color()                     ,
+                      predefined_color::blue      ,
+                      predefined_color::white     ,
+                      predefined_color::light_gray,};
+
+};
+
+
 class
 window
 {
 protected:
+  gbstd::string  m_name;
+
   window_manager*  m_manager=nullptr;
 
   image  m_image;
@@ -24,11 +37,6 @@ protected:
   widgets::root  m_root;
 
   widget*  m_current=nullptr;
-
-  color  m_colors[4] = {color()               ,
-                        predefined_color::blue      ,
-                        predefined_color::white     ,
-                        predefined_color::light_gray,};
 
   point  m_point;
 
@@ -39,24 +47,29 @@ protected:
 
   window*  m_child=nullptr;
 
-  void  draw_frame() noexcept;
+  void  draw_frame(const window_style&  style) noexcept;
 
   struct flags{
     static constexpr uint32_t  transparent = 0x01;
     static constexpr uint32_t       header = 0x02;
     static constexpr uint32_t      movable = 0x04;
+    static constexpr uint32_t       active = 0x08;
+
+    static constexpr uint32_t  needed_to_update_image = 0x10;
 
   };
 
   void  change_state(uint32_t  st) noexcept;
 
 public:
-  window() noexcept;
-  virtual ~window() noexcept{}
+  window(gbstd::string_view  name="") noexcept;
+  virtual ~window(){}
 
   widgets::container*  operator->() noexcept{return &m_root.get_container();}
 
   widgets::root&  get_root() noexcept{return m_root;}
+
+  const gbstd::string&  get_name() const noexcept{return m_name;}
 
   void             set_manager(window_manager*  man)       noexcept{       m_manager = man;}
   window_manager*  get_manager(                    ) const noexcept{return m_manager      ;}
@@ -75,6 +88,11 @@ public:
 
   void    set_transparent_flag() noexcept{change_state(m_state| flags::transparent);}
   void  unset_transparent_flag() noexcept{change_state(m_state&~flags::transparent);}
+
+  bool  is_active() const noexcept{return m_state&flags::active;}
+
+  void    set_active_flag() noexcept{change_state(m_state| flags::active);}
+  void  unset_active_flag() noexcept{change_state(m_state&~flags::active);}
 
   void    set_header_flag() noexcept{change_state(m_state| flags::header);}
   void  unset_header_flag() noexcept{change_state(m_state&~flags::header);}
@@ -96,7 +114,9 @@ public:
   window*  get_child() const noexcept{return m_child;}
 
   void   react() noexcept;
-  bool  update() noexcept;
+  void  reform() noexcept;
+
+  bool  update_image(const window_style&  style) noexcept;
 
 };
 
@@ -107,15 +127,24 @@ window_manager
   window*  m_bottom=nullptr;
   window*  m_top   =nullptr;
 
+  window_style  m_active_window_style={color()                     ,
+                                       predefined_color::blue      ,
+                                       predefined_color::white     ,
+                                       predefined_color::light_gray};
+
+  window_style  m_inactive_window_style={color()                     ,
+                                         color(0,0,5)      ,
+                                         predefined_color::light_gray     ,
+                                         predefined_color::dark_gray};
+
   bool  m_needing_to_refresh=true;
 
-  bool  m_moving_flag=false;
+  bool  m_moving =false;
+  bool  m_touched=false;
 
   point  m_gripping_point;
 
-  void   touch(window&  win) noexcept;
-
-  bool  check_other_windows_than_top() noexcept;
+  window*  scan_other_windows_than_top(point  pt) noexcept;
 
 public:
   window_manager() noexcept{}
@@ -129,6 +158,8 @@ public:
   bool  update() noexcept;
 
   bool  composite(image&  dst) noexcept;
+
+  void  print() const noexcept;
 
 };
 

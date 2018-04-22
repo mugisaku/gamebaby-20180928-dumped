@@ -10,6 +10,21 @@ namespace widgets{
 
 void
 root::
+cancel() noexcept
+{
+    if(m_current)
+    {
+      m_current->do_when_cursor_got_out();
+
+      m_current = nullptr;
+    }
+}
+
+
+
+
+void
+root::
 react(point  offset) noexcept
 {
   m_container.reform_if_needed(point());
@@ -64,7 +79,9 @@ react(point  offset) noexcept
 
     if(m_current && ctrl.did_mouse_acted())
     {
-      pt -= m_current->get_absolute_point();
+      auto  abs_pt = m_current->get_absolute_point();
+
+      pt -= abs_pt;
 
       m_current->do_when_mouse_acted(pt.x,pt.y);
     }

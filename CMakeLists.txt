@@ -2,9 +2,14 @@ cmake_minimum_required(VERSION 2.8)
 project(gmbb)
 
 
+if(SLEEP)
+  set(SEEP_CMD "sleep 1;")
+endif()
+
+
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "CCACHE_DIR=/tmp/ccachedir ccache")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${SLEEP_CMD} CCACHE_DIR=/tmp/ccachedir ccache")
 endif(CCACHE_FOUND)
 
 
