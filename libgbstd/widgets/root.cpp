@@ -10,6 +10,29 @@ namespace widgets{
 
 void
 root::
+push_widget_that_needed_to_redraw(widget&  w) noexcept
+{
+    if(m_redrawing_last)
+    {
+      m_redrawing_last->set_next(&w);
+    }
+
+  else
+    {
+      m_redrawing_first = &w;
+    }
+
+
+  m_redrawing_last = &w;
+
+  w.set_next(nullptr);
+}
+
+
+
+
+void
+root::
 cancel() noexcept
 {
     if(m_current)
@@ -87,17 +110,38 @@ react(point  offset) noexcept
     }
 
 
-  update();
+  m_container.reform_if_needed(point());
+}
+
+
+void
+root::
+redraw(image&  img) noexcept
+{
+  m_container.reform_if_needed(point());
+
+  m_container.redraw(img);
 }
 
 
 bool
 root::
-update() noexcept
+redraw_only_needed_widgets(image&  img) noexcept
 {
-    if(m_container.is_needed_to_redraw())
+  m_container.reform_if_needed(point());
+
+    if(m_redrawing_first)
     {
-      m_container.reform_if_needed(point());
+        while(m_redrawing_first)
+        {
+          m_redrawing_first->redraw(img);
+
+          m_redrawing_first = m_redrawing_first->get_next();
+        }
+
+
+      m_redrawing_first = nullptr;
+      m_redrawing_last  = nullptr;
 
       return true;
     }

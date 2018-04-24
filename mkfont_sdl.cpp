@@ -22,7 +22,7 @@ mnu;
 
 
 images::image
-image(screen_w,screen_h);
+final_image(screen_w,screen_h);
 
 
 widgets::root
@@ -468,11 +468,9 @@ main_loop() noexcept
 
   root.react();
 
-    if(root->is_needed_to_redraw() || ctrl.is_needed_to_redraw())
+    if(root.redraw_only_needed_widgets(final_image) || ctrl.is_needed_to_redraw())
     {
-      root->redraw(image);
-
-      sdl::update_screen(image);
+      sdl::update_screen(final_image);
     }
 }
 
@@ -635,6 +633,8 @@ main(int  argc, char**  argv)
   root->append_child(new widgets::table_column({urow,sample}),0,0);
 
   root->show_all();
+
+  root.redraw(final_image);
 
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop,0,false);

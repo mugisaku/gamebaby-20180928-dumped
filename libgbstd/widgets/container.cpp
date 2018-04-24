@@ -10,6 +10,22 @@ namespace widgets{
 
 void
 container::
+set_root(root*  r) noexcept
+{
+    if(get_root() != r)
+    {
+      widget::set_root(r);
+
+        for(auto&  child: m_children)
+        {
+          child->set_root(r);
+        }
+    }
+}
+
+
+void
+container::
 change_current_by_name(gbstd::string_view  name) noexcept
 {
     for(auto&  child: m_children)
@@ -44,6 +60,9 @@ append_child(widget*  child, int  x, int  y) noexcept
 
 
       child->set_parent(this);
+
+      child->set_root(get_root());
+
 
       m_children.emplace_back(child);
 
@@ -157,7 +176,7 @@ render(image_cursor  cur) noexcept
     {
         if(m_current && m_current->test_flag(flags::shown))
         {
-          m_current->redraw_if_needed(img);
+          m_current->redraw(img);
         }
     }
 
@@ -167,7 +186,7 @@ render(image_cursor  cur) noexcept
         {
             if(child->test_flag(flags::shown))
             {
-              child->redraw_if_needed(img);
+              child->redraw(img);
             }
         }
     }

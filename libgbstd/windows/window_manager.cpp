@@ -12,12 +12,12 @@ void
 window_manager::
 clear() noexcept
 {
-  m_needing_to_refresh =  true;
-  m_moving             = false;
-  m_touched            = false;
-
   m_bottom  = nullptr;
   m_top     = nullptr;
+
+  m_state = 0;
+
+  need_to_refresh();
 }
 
 
@@ -52,8 +52,10 @@ append(window*  w, int  x, int  y) noexcept
 
   m_top->set_high(nullptr);
 
-  m_needing_to_refresh =  true;
-  m_moving             = false;
+  unset_flag(flags::touched_window);
+  unset_flag(flags::moving_window);
+
+  need_to_refresh();
 
   return w;
 }
@@ -105,10 +107,10 @@ remove(window*  w) noexcept
   w->set_high(nullptr);
   w->set_low( nullptr);
 
-  m_moving  = false;
-  m_touched = false;
+  unset_flag(flags::touched_window);
+  unset_flag(flags::moving_window);
 
-  m_needing_to_refresh = true;
+  need_to_refresh();
 
   return w;
 }
@@ -122,7 +124,7 @@ scan_other_windows_than_top(point  pt) noexcept
 
     while(current)
     {
-      current->reform();
+      current->update();
 
         if(current->test_by_point(pt.x,pt.y))
         {
@@ -138,7 +140,7 @@ scan_other_windows_than_top(point  pt) noexcept
 }
 
 
-bool
+void
 window_manager::
 update() noexcept
 {
@@ -146,13 +148,13 @@ update() noexcept
 
     if(!m_top)
     {
-      return false;
+      return;
     }
 
 
-  m_top->reform();
+  m_top->update();
 
-    if(m_moving)
+    if(is_moving_window())
     {
         if(ctrl.did_mouse_moved())
         {
@@ -160,19 +162,17 @@ update() noexcept
 
           m_gripping_point = pt;
 
-          m_needing_to_refresh = true;
-
+          need_to_refresh();
         }
 
 
         if(!ctrl.is_mouse_lbutton_pressed())
         {
-          m_moving  = false;
-          m_touched = false;
+          unset_flag(flags::moving_window);
         }
 
 
-      return true;
+      return;
     }
 
 
@@ -180,13 +180,13 @@ update() noexcept
 
     if(!cursor_is_inside_of_top)
     {
-        if(m_touched && !ctrl.is_mouse_lbutton_pressed())
+        if(is_touched_window() && !ctrl.is_mouse_lbutton_pressed())
         {
           m_top->get_root().cancel();
 
-          m_touched = false;
+          unset_flag(flags::touched_window);
 
-          return true;
+          return;
         }
 
       else
@@ -209,43 +209,45 @@ update() noexcept
 
               new_top->set_low(m_top)         ;
                                m_top = new_top;
+
+              need_to_refresh();
             }
 
           else
             {
-              return false;
+              return;
             }
         }
 
       else
         {
-          return false;
+          return;
         }
     }
 
 
-    if(m_touched)
+    if(is_touched_window())
     {
         if(!ctrl.is_mouse_lbutton_pressed())
         {
-          m_touched = false;
+          unset_flag(flags::touched_window);
         }
 
 
       m_top->react();
 
-      return true;
+      return;
     }
 
   else
     {
         if(ctrl.is_mouse_lbutton_pressed())
         {
-          m_touched = true;
+          set_flag(flags::touched_window);
 
             if(m_top->is_movable() && (pt.y < (m_top->get_point().y+16)))
             {
-              m_moving = true;
+              set_flag(flags::moving_window);
 
               m_gripping_point = pt;
             }
@@ -253,14 +255,9 @@ update() noexcept
           else
             {
               m_top->react();
-
-              return true;
             }
         }
     }
-
-
-  return false;
 }
 
 
@@ -270,39 +267,60 @@ composite(image&  dst) noexcept
 {
   auto  current = m_bottom;
 
-  bool  refreshed = m_needing_to_refresh;
-
-    if(m_needing_to_refresh)
+    if(is_needed_to_refresh())
     {
       dst.fill();
 
-      m_needing_to_refresh = false;
-    }
-
-
-    while(current)
-    {
-      current->reform();
-
-      auto&  style = current->is_active()?   m_active_window_style
-                                         : m_inactive_window_style;
-
-        if(current->update_image(style) || refreshed)
+        while(current)
         {
-          auto  w = current->get_width();
-          auto  h = current->get_height();
+          current->update();
 
-          images::transfer(current->get_image(),point(),w,h,image_cursor(dst,current->get_point()));
+          auto&  style = current->is_active()?   m_active_window_style
+                                             : m_inactive_window_style;
 
-          refreshed = true;
+          current->redraw(style,dst);
+
+          current = current->get_high();
         }
 
 
-      current = current->get_high();
+      unset_flag(flags::needed_to_refresh);
+
+      return true;
+    }
+
+  else
+    {
+      bool  flag = false;
+
+        while(current)
+        {
+            if(current->update())
+            {
+              flag = true;
+            }
+
+
+            if(flag)
+            {
+              auto&  style = current->is_active()?   m_active_window_style
+                                                 : m_inactive_window_style;
+
+              current->redraw(style,dst);
+            }
+
+
+          current = current->get_high();
+        }
+
+
+      unset_flag(flags::needed_to_refresh);
+
+      return flag;
     }
 
 
-  return refreshed;
+  return false;
 }
 
 
@@ -310,7 +328,7 @@ void
 window_manager::
 print() const noexcept
 {
-  printf("%c %c\n",m_touched? 't':' ',m_moving? 'm':' ');
+//  printf("%c %c\n",m_touched? 't':' ',m_moving? 'm':' ');
 }
 
 

@@ -24,6 +24,7 @@ namespace widgets{
 
 class widget;
 class container;
+class root;
 
 
 class
@@ -35,6 +36,9 @@ protected:
   uint32_t  m_flags=0;
 
   widget*  m_parent=nullptr;
+  widget*    m_next=nullptr;
+
+  root*  m_root=nullptr;
 
   point  m_absolute_point;
   point  m_relative_point;
@@ -47,8 +51,8 @@ protected:
 public:
   struct flags{
     static constexpr uint32_t  shown            = 0x0001;
-    static constexpr uint32_t  needed_to_redraw = 0x0002;
-    static constexpr uint32_t  needed_to_reform = 0x0004;
+    static constexpr uint32_t  needed_to_reform = 0x0002;
+    static constexpr uint32_t  needed_to_redraw = 0x0004;
   };
 
 
@@ -61,8 +65,6 @@ public:
   widget&  operator=(      widget&&  rhs) noexcept=delete;
 
   virtual const char*  get_widget_name() const noexcept{return "widget";}
-
-  virtual windows::window*  get_window() const noexcept;
 
   virtual void  reform(point  base_pt) noexcept;
   virtual void  redraw(image&  img) noexcept;
@@ -83,6 +85,14 @@ public:
 
   void     set_parent(widget*  parent)       noexcept{       m_parent = parent;}
   widget*  get_parent(               ) const noexcept{return m_parent         ;}
+
+
+  void     set_next(widget*  w)       noexcept{       m_next = w;}
+  widget*  get_next(          ) const noexcept{return m_next    ;}
+
+
+  virtual void   set_root(root*  r)       noexcept{       m_root = r;}
+  root*          get_root(        ) const noexcept{return m_root    ;}
 
 
   void*  get_userdata() const noexcept{return m_userdata;}
@@ -117,7 +127,6 @@ public:
   void  hide() noexcept{unset_flag(flags::shown);}
 
   void  reform_if_needed(point  base_pt) noexcept;
-  void  redraw_if_needed(image&  img) noexcept;
 
   virtual void  show_all() noexcept{show();}
 
@@ -137,8 +146,6 @@ class
 container: public widget
 {
 protected:
-  windows::window*  m_window=nullptr;
-
   std::vector<std::unique_ptr<widget>>  m_children;
 
   widget*  m_current=nullptr;
@@ -150,6 +157,8 @@ public:
 
   const char*  get_widget_name() const noexcept override{return "container";}
 
+  void   set_root(root*  r) noexcept override;
+
   bool  is_unique() const noexcept{return m_unique;}
 
   void  change_current_by_name(gbstd::string_view  name) noexcept;
@@ -159,9 +168,6 @@ public:
   void  render(image_cursor  cur) noexcept override;
 
   widget*  scan_by_point(int  x, int  y) noexcept override;
-
-  void              set_window(windows::window*  w)       noexcept{m_window = w;}
-  windows::window*  get_window(                   ) const noexcept override{return m_window? m_window:widget::get_window();}
 
   void  append_child(widget*  child, int  x=0, int  y=0) noexcept;
 
@@ -216,21 +222,33 @@ public:
 class
 root
 {
+  windows::window*  m_window=nullptr;
+
   container  m_container;
 
   widget*  m_current=nullptr;
 
+  widget*  m_redrawing_first=nullptr;
+  widget*  m_redrawing_last =nullptr;
+
 public:
+  root(                   ) noexcept{m_container.set_root(this);}
+  root(windows::window&  w) noexcept: m_window(&w){m_container.set_root(this);}
+
   container&  get_container() noexcept{return m_container;}
 
   container*  operator->() noexcept{return &m_container;}
 
   const widget*  get_current() const noexcept{return m_current;}
 
+  void  push_widget_that_needed_to_redraw(widget&  w) noexcept;
+
   void  cancel() noexcept;
 
   void   react(point  offset=point()) noexcept;
-  bool  update() noexcept;
+
+  void  redraw(image&  img) noexcept;
+  bool  redraw_only_needed_widgets(image&  img) noexcept;
 
 };
 

@@ -10,11 +10,9 @@ namespace windows{
 
 window::
 window(gbstd::string_view  name) noexcept:
-m_name(name)
+m_name(name),
+m_root(*this)
 {
-  m_root->set_relative_point(point(8,8));
-
-  m_root->set_window(this);
 }
 
 
@@ -37,9 +35,9 @@ change_state(uint32_t  st) noexcept
 {
   m_state = st;
 
-  m_root->set_relative_point(point(8,(m_state&flags::header)? 16:8));
-
   m_root->need_to_reform();
+
+  need_to_redraw_frame();
 }
 
 
@@ -49,31 +47,21 @@ react() noexcept
 {
   m_root.react(m_point);
 
-  reform();
-}
-
-
-void
-window::
-reform() noexcept
-{
-  m_root->reform_if_needed(point());
-
-    if(m_root->is_needed_to_redraw())
-    {
-      m_state |= flags::needed_to_update_image;
-    }
+  update();
 }
 
 
 bool
 window::
-update_image(const window_style&  style) noexcept
+update() noexcept
 {
-    if(m_state&flags::needed_to_update_image)
+    if(m_root->is_needed_to_reform())
     {
-      int  w = m_root->get_width() +16;
-      int  h = m_root->get_height()+((m_state&flags::header)? 24:16);
+      m_root->reform(point());
+
+
+      int  w = m_root->get_width() ;
+      int  h = m_root->get_height();
 
         if((w != get_width()) ||
            (h != get_height()))
@@ -82,18 +70,28 @@ update_image(const window_style&  style) noexcept
         }
 
 
-      draw_frame(style);
-
-      m_root->redraw(get_image());
-
-
-      m_state &= ~flags::needed_to_update_image;
+      m_root.redraw(m_image);
 
       return true;
     }
 
+  else
+    {
+      return m_root.redraw_only_needed_widgets(m_image);
+    }
+}
 
-  return false;
+
+void
+window::
+redraw(const window_style&  style, image&  dst) noexcept
+{
+    if(test_flag(flags::needed_to_redraw_frame))
+    {
+      draw_frame(style,image_cursor(dst,m_point));
+
+      images::transfer(m_image,point(),0,0,image_cursor(dst,m_point));
+    }
 }
 
 

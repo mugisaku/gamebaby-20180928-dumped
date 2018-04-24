@@ -169,10 +169,8 @@ main_loop()
 
   root.react();
 
-    if(root->is_needed_to_redraw() || ctrl.is_needed_to_redraw())
+    if(root.redraw_only_needed_widgets(image) || ctrl.is_needed_to_redraw())
     {
-      root->redraw(image);
-
       sdl::update_screen(image);
     }
 }

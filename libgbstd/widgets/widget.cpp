@@ -25,7 +25,12 @@ void
 widget::
 need_to_redraw() noexcept
 {
-  notify_flag(flags::needed_to_redraw);
+    if(m_root && !is_needed_to_redraw())
+    {
+      set_flag(flags::needed_to_redraw);
+
+      m_root->push_widget_that_needed_to_redraw(*this);
+    }
 }
 
 
@@ -34,7 +39,6 @@ widget::
 need_to_reform() noexcept
 {
   notify_flag(flags::needed_to_reform);
-  notify_flag(flags::needed_to_redraw);
 }
 
 
@@ -46,14 +50,6 @@ test_by_point(int  x, int  y) const noexcept
          (y >= m_absolute_point.y) &&
          (x <  (m_absolute_point.x+m_width )) &&
          (y <  (m_absolute_point.y+m_height)));
-}
-
-
-windows::window*
-widget::
-get_window() const noexcept
-{
-  return m_parent? m_parent->get_window():nullptr;
 }
 
 
@@ -84,17 +80,6 @@ reform_if_needed(point  base_pt) noexcept
     if(test_flag(flags::needed_to_reform))
     {
       reform(base_pt);
-    }
-}
-
-
-void
-widget::
-redraw_if_needed(image&  img) noexcept
-{
-    if(test_flag(flags::needed_to_redraw))
-    {
-      redraw(img);
     }
 }
 
