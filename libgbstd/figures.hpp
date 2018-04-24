@@ -151,6 +151,11 @@ rectangle: public point
   w(w_),
   h(h_){}
 
+  constexpr rectangle(point  pt, int  w_=0, int  h_=0) noexcept:
+  point(pt),
+  w(w_),
+  h(h_){}
+
 };
 
 

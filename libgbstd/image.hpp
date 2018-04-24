@@ -116,6 +116,8 @@ public:
   int   get_width() const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
 
+  rectangle  get_rectangle() const noexcept{return rectangle(0,0,m_width,m_height);}
+
   pixel*  begin() noexcept{return &m_pixels.front();}
   pixel*    end() noexcept{return &m_pixels.back()+1;}
 
@@ -158,33 +160,34 @@ public:
 class
 image_cursor
 {
-protected:
   image*  m_image;
 
-  int  m_x_offset;
-  int  m_y_offset;
+  rectangle  m_rectangle;
 
-  int  get_x(int  x) const noexcept{return m_x_offset+x;}
-  int  get_y(int  y) const noexcept{return m_y_offset+y;}
+  int  z_value=0;
+
+  int  get_x(int  x) const noexcept{return m_rectangle.x+x;}
+  int  get_y(int  y) const noexcept{return m_rectangle.y+y;}
 
 public:
   image_cursor(image&  image) noexcept:
   m_image(&image),
-  m_x_offset(0),
-  m_y_offset(0){}
+  m_rectangle(0,0,image.get_width(),image.get_height()){}
 
   image_cursor(image&  image, point  pt) noexcept:
   m_image(&image),
-  m_x_offset(pt.x),
-  m_y_offset(pt.y){}
+  m_rectangle(pt,image.get_width(),image.get_height()){}
 
 
   image_cursor  operator+(point  offset) const noexcept;
 
   image&  get_image() const noexcept{return *m_image;}
 
-  int  get_x_offset() const noexcept{return m_x_offset;}
-  int  get_y_offset() const noexcept{return m_y_offset;}
+  void  set_rectangle(int  x, int  y, int  w, int  h) noexcept{m_rectangle = rectangle(x,y,w,h);}
+  rectangle&  get_rectangle() noexcept{return m_rectangle;}
+
+  int  get_x_offset() const noexcept{return m_rectangle.x;}
+  int  get_y_offset() const noexcept{return m_rectangle.y;}
 
   void  set_offset(int  x, int  y) noexcept;
   void  add_offset(int  x, int  y) noexcept;
@@ -220,8 +223,7 @@ public:
 };
 
 
-void  transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_cursor&  dst        ) noexcept;
-void  transfer(const image&  src, point  src_pt, int  src_w, int  src_h, const image_cursor&  dst, int  z) noexcept;
+void  transfer(const image&  src, rectangle  src_rect, image_cursor&  dst) noexcept;
 
 
 

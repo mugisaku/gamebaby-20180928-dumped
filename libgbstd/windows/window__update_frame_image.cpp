@@ -126,7 +126,6 @@ draw_frame_body(const window_style&  style, image_cursor  cur, int  x, int  y, i
   cur.draw_vline(style.colors[2],x+w-1-1,y,h);
   cur.draw_vline(style.colors[3],x+w-1-2,y,h);
 
-
     while(h--)
     {
       cur.draw_hline(style.colors[1],x+3,y++,w-6);
@@ -183,12 +182,17 @@ draw_frame_bottom(const window_style&  style, image_cursor  cur, int  x, int  y,
 
 void
 window::
-draw_frame(const window_style&  style, image_cursor  cur) noexcept
+update_frame_image() noexcept
 {
+  const window_style&  style = is_active()? m_manager->get_active_window_style()
+                                          : m_manager->get_inactive_window_style();
+
   int  w = get_width() ;
   int  h = get_height();
 
   bool  hdr = m_state&flags::header;
+
+  image_cursor  cur(m_frame_image);
 
     if(hdr){draw_frame_top_with_header(style,cur,0,0,w);}
   else     {draw_frame_top(            style,cur,0,0,w);}
@@ -196,10 +200,10 @@ draw_frame(const window_style&  style, image_cursor  cur) noexcept
 
   draw_frame_bottom(style,cur,0,h-8,w);
 
-  draw_frame_body(style,cur,0,hdr? 16:8,w,m_root->get_height());
 
+  int  hdr_h = (hdr? 16:8);
 
-  unset_flag(flags::needed_to_redraw_frame);
+  draw_frame_body(style,cur,0,hdr_h,w,h-(hdr_h+8));
 }
 
 

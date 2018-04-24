@@ -275,10 +275,8 @@ composite(image&  dst) noexcept
         {
           current->update();
 
-          auto&  style = current->is_active()?   m_active_window_style
-                                             : m_inactive_window_style;
-
-          current->redraw(style,dst);
+          current->redraw_frame(dst);
+          current->redraw_content(dst);
 
           current = current->get_high();
         }
@@ -303,10 +301,7 @@ composite(image&  dst) noexcept
 
             if(flag)
             {
-              auto&  style = current->is_active()?   m_active_window_style
-                                                 : m_inactive_window_style;
-
-              current->redraw(style,dst);
+              current->redraw_content(dst);
             }
 
 

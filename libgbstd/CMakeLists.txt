@@ -31,7 +31,7 @@ set(SOURCES
   widgets/canvas__draw.cpp
   widgets/canvas__operate.cpp
   windows/window.cpp
-  windows/window__draw_frame.cpp
+  windows/window__update_frame_image.cpp
   windows/window_manager.cpp
   ios/binary_stream.cpp
   ios/binary_stream_reader.cpp

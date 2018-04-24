@@ -32,13 +32,19 @@ protected:
 
   window_manager*  m_manager=nullptr;
 
-  image  m_image;
+  image  m_frame_image;
+  image  m_content_image;
 
   widgets::root  m_root;
 
   widget*  m_current=nullptr;
 
   point  m_point;
+
+  int  m_width;
+  int  m_height;
+
+  point  m_content_point;
 
   uint32_t  m_state=0;
 
@@ -47,24 +53,26 @@ protected:
 
   window*  m_child=nullptr;
 
-  void  draw_frame(const window_style&  style, image_cursor  cur) noexcept;
-
   struct flags{
-    static constexpr uint32_t       header = 0x01;
-    static constexpr uint32_t      movable = 0x02;
-    static constexpr uint32_t       active = 0x04;
+    static constexpr uint32_t   header = 0x01;
+    static constexpr uint32_t  movable = 0x02;
+    static constexpr uint32_t   active = 0x04;
 
-    static constexpr uint32_t  needed_to_redraw_frame   = 0x10;
-    static constexpr uint32_t  needed_to_redraw_content = 0x20;
+    static constexpr uint32_t  needed_to_update_frame = 0x08;
 
   };
 
 
   void    set_flag(uint32_t  v) noexcept{m_state |=  v;}
   void  unset_flag(uint32_t  v) noexcept{m_state &= ~v;}
-  bool   test_flag(uint32_t  v) const noexcept{return m_state&v;}
 
-  void  change_state(uint32_t  st) noexcept;
+  void  modify_flag(uint32_t  v1, uint32_t  v2) noexcept
+  {
+    m_state &= ~v1;
+    m_state |=  v2;
+  }
+
+  bool   test_flag(uint32_t  v) const noexcept{return m_state&v;}
 
 public:
   window(gbstd::string_view  name="") noexcept;
@@ -83,27 +91,29 @@ public:
 
   bool  test_by_point(int  x, int  y) const noexcept;
 
-  bool  is_movable() const noexcept{return m_state&flags::movable;}
+  bool  is_movable() const noexcept{return test_flag(flags::movable);}
 
-  void    set_movable_flag() noexcept{change_state(m_state| flags::movable);}
-  void  unset_movable_flag() noexcept{change_state(m_state&~flags::movable);}
+  void    set_movable_flag() noexcept{  set_flag(flags::movable);}
+  void  unset_movable_flag() noexcept{unset_flag(flags::movable);}
 
-  bool  is_active() const noexcept{return m_state&flags::active;}
+  bool  is_active() const noexcept{return test_flag(flags::active);}
 
-  void    set_active_flag() noexcept{change_state(m_state| flags::active);}
-  void  unset_active_flag() noexcept{change_state(m_state&~flags::active);}
+  void    set_active_flag() noexcept{   set_flag(flags::active|flags::needed_to_update_frame);}
+  void  unset_active_flag() noexcept{modify_flag(flags::active,flags::needed_to_update_frame);}
 
-  void    set_header_flag() noexcept{change_state(m_state| flags::header);}
-  void  unset_header_flag() noexcept{change_state(m_state&~flags::header);}
+  bool  has_header() const noexcept{return test_flag(flags::header);}
 
-  void  need_to_redraw_frame()   noexcept{m_state |= flags::needed_to_redraw_frame;}
-  void  need_to_redraw_content() noexcept{m_state |= flags::needed_to_redraw_content;}
+  void    set_header_flag() noexcept{   set_flag(flags::header|flags::needed_to_update_frame);}
+  void  unset_header_flag() noexcept{modify_flag(flags::header,flags::needed_to_update_frame);}
 
-        image&  get_image()             noexcept{return m_image;}
-  const image&  get_const_image() const noexcept{return m_image;}
+        image&  get_frame_image()             noexcept{return m_frame_image;}
+  const image&  get_const_frame_image() const noexcept{return m_frame_image;}
 
-  int  get_width()  const noexcept{return get_const_image().get_width() ;}
-  int  get_height() const noexcept{return get_const_image().get_height();}
+        image&  get_content_image()             noexcept{return m_content_image;}
+  const image&  get_const_content_image() const noexcept{return m_content_image;}
+
+  int  get_width()  const noexcept{return m_width ;}
+  int  get_height() const noexcept{return m_height;}
 
   const widget*  get_current() const noexcept{return m_current;}
 
@@ -119,7 +129,10 @@ public:
 
   bool  update() noexcept;
 
-  void  redraw(const window_style&  style, image&  dst) noexcept;
+  void  update_frame_image() noexcept;
+
+  void  redraw_content(image&  dst) const noexcept;
+  void  redraw_frame(image&  dst) noexcept;
 
 };
 
@@ -161,6 +174,9 @@ public:
  ~window_manager(){clear();}
 
   void  clear()  noexcept;
+
+  const window_style&  get_active_window_style() const noexcept{return m_active_window_style;}
+  const window_style&  get_inactive_window_style() const noexcept{return m_inactive_window_style;}
 
   window*  append(window*  w, int  x, int  y) noexcept;
   window*  remove(window*  w) noexcept;
