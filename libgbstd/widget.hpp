@@ -97,6 +97,11 @@ public:
 
   void*  get_userdata() const noexcept{return m_userdata;}
 
+  void  set_userdata(void*  ptr) noexcept
+  {
+    m_userdata = ptr;
+  }
+
   template<typename  T>  void  set_userdata(T*  ptr) noexcept
   {
     m_userdata = ptr;
@@ -651,6 +656,10 @@ public:
   void  fill_rect(rectangle  rect) noexcept;
   void  fill_area(point  pt) noexcept;
 
+  widget*  create_color_maker() noexcept;
+  widget*  create_tool_widget() noexcept;
+  widget*  create_operation_widget() noexcept;
+
   void  apply() noexcept;
 
   void  undo() noexcept;
@@ -664,10 +673,11 @@ public:
 };
 
 
+using rbcb = radio_button::callback_prototype;
+using wls = std::initializer_list<widget*>;
 
-
-widget*  create_radio_menu(std::initializer_list<widget*>  ls, radio_button::callback_prototype  cb, uint32_t  initial_state=0) noexcept;
-widget*  create_check_menu(std::initializer_list<widget*>  ls, radio_button::callback_prototype  cb, uint32_t  initial_state=0) noexcept;
+widget*  create_radio_menu(wls  ls, rbcb  cb, uint32_t  initial_state=0, void*  userdata=nullptr) noexcept;
+widget*  create_check_menu(wls  ls, rbcb  cb, uint32_t  initial_state=0, void*  userdata=nullptr) noexcept;
 
 
 }

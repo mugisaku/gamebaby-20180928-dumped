@@ -36,10 +36,6 @@ widgets::widget*
 radio_menu;
 
 
-widgets::color_maker*
-color_maker;
-
-
 bool
 need_to_hide_cursors;
 
@@ -50,18 +46,6 @@ constexpr int  cv_h = 16;
 
 gbstd::image
 cv_image(cv_w,cv_h);
-
-
-void
-undo(widgets::button&  btn) noexcept
-{
-    if(btn.get_count())
-    {
-      btn.reset_count();
-
-      cv->undo();
-    }
-}
 
 
 void
@@ -132,20 +116,6 @@ main_loop()
 }
 
 
-void
-change_mode(widgets::radio_button&  btn, uint32_t  old_state, uint32_t  new_state)
-{
-    switch(new_state)
-    {
-  case(0x01): cv->change_mode_to_draw_dot();break;
-  case(0x02): cv->change_mode_to_draw_line();break;
-  case(0x04): cv->change_mode_to_draw_rectangle();break;
-  case(0x08): cv->change_mode_to_fill_rectangle();break;
-  case(0x10): cv->change_mode_to_fill_area();break;
-    }
-}
-
-
 
 
 }
@@ -162,20 +132,10 @@ main(int  argc, char**  argv)
   cv->set_grid();
   cv->set_pixel_size(12);
 
-  color_sample = new widgets::color_maker([](widgets::color_maker&  cm,images::color  color){cv->set_drawing_color(color);});
 
-
-  auto  undo_btn = new widgets::button(new widgets::label(u"UNDO"),undo);
   auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);
 
-  auto  mcol = new widgets::table_column({color_sample,undo_btn,save_btn});
-
-  radio_menu = widgets::create_radio_menu({new widgets::label(u"draw dot"),
-                                           new widgets::label(u"draw line"),
-                                           new widgets::label(u"draw rectangle"),
-                                           new widgets::label(u"fill rectangle"),
-                                           new widgets::label(u"fill area"),
-                                           },change_mode,1);
+  auto  mcol = new widgets::table_column({cv->create_color_maker(),save_btn});
 
   auto  row = new widgets::table_row({cv,mcol,radio_menu});
 

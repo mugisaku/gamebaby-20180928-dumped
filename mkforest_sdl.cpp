@@ -49,29 +49,6 @@ bool
 need_to_hide_cursors;
 
 
-gbstd::widget*
-color_sample;
-
-
-void
-update_color() noexcept;
-
-
-
-
-void
-update_color() noexcept
-{
-  auto  color = gbstd::images::color(r_dial->get_current(),
-                                     g_dial->get_current(),
-                                     b_dial->get_current());
-
-  cv->set_drawing_color(color);
-
-  color_sample->need_to_redraw();
-}
-
-
 constexpr int  cv_w = 12;
 constexpr int  cv_h = 24;
 
@@ -358,14 +335,6 @@ int
 main(int  argc, char**  argv)
 {
   sdl::init(screen_w,screen_h);
-
-  auto  pal = new widgets::table_column({
-    color_sample,
-    new widgets::table_row({new widgets::label(u"[ R ]"),r_dial}),
-    new widgets::table_row({new widgets::label(u"[ G ]"),g_dial}),
-    new widgets::table_row({new widgets::label(u"[ B ]"),b_dial}),
-  });
-
 
   cv = new widgets::canvas(cv_image,[](widgets::canvas&  cv){
     make_farm();

@@ -495,50 +495,6 @@ main(int  argc, char**  argv)
   cv->set_pixel_size(12);
   cv->set_drawing_color(predefined_color::white);
 
-  auto  cv_tool_col = new widgets::table_column({
-    new widgets::button(new widgets::label(u"Undo"),[](widgets::button&  btn){
-        if(btn.get_count())
-        {
-          btn.reset_count();
-
-          cv->undo();
-        }
-    }),
-    new widgets::button(new widgets::label(u"Shift ↑"),[](widgets::button&  btn){
-        if(btn.get_count())
-        {
-          btn.reset_count();
-
-          cv->shift_up(false);
-        }
-    }),
-    new widgets::button(new widgets::label(u"Shift ←"),[](widgets::button&  btn){
-        if(btn.get_count())
-        {
-          btn.reset_count();
-
-          cv->shift_left(false);
-        }
-    }),
-    new widgets::button(new widgets::label(u"Shift →"),[](widgets::button&  btn){
-        if(btn.get_count())
-        {
-          btn.reset_count();
-
-          cv->shift_right(false);
-        }
-    }),
-    new widgets::button(new widgets::label(u"Shift ↓"),[](widgets::button&  btn){
-        if(btn.get_count())
-        {
-          btn.reset_count();
-
-          cv->shift_down(false);
-        }
-    }),
-  });
-
-
   widgets::menu_item_parameter  mip = {character_table::pixel_size*character::size,
                                        character_table::pixel_size*character::size,
     [](point  index)->bool
