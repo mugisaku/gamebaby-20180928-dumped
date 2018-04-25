@@ -81,9 +81,10 @@ update() noexcept
 
   else
     {
-//      return m_root.redraw_only_needed_widgets(m_content_image);
+ m_root.redraw_only_needed_widgets(m_content_image);
+/*
       m_root.redraw(m_content_image);
-
+*/
       return true;
     }
 }

@@ -36,34 +36,12 @@ widgets::widget*
 radio_menu;
 
 
-gbstd::widget*
-color_sample;
+widgets::color_maker*
+color_maker;
 
 
 bool
 need_to_hide_cursors;
-
-
-void
-update_color() noexcept;
-
-
-widgets::dial*  r_dial;
-widgets::dial*  g_dial;
-widgets::dial*  b_dial;
-
-
-void
-update_color() noexcept
-{
-  auto  col = gbstd::images::color(r_dial->get_current(),
-                                   g_dial->get_current(),
-                                   b_dial->get_current());
-
-  cv->set_drawing_color(col);
-
-  color_sample->need_to_redraw();
-}
 
 
 constexpr int  cv_w = 16;
@@ -72,28 +50,6 @@ constexpr int  cv_h = 16;
 
 gbstd::image
 cv_image(cv_w,cv_h);
-
-
-namespace types{
-
-
-class
-color_sample: public gbstd::widget
-{
-  static constexpr int   size = 32;
-
-public:
-  color_sample() noexcept: widget(size,size){}
-
-  void  render(gbstd::image_cursor  cur) noexcept override
-  {
-    cur.fill_rectangle(cv->get_drawing_color(),0,0,size,size);
-  }
-
-};
-}
-
-
 
 
 void
@@ -206,24 +162,13 @@ main(int  argc, char**  argv)
   cv->set_grid();
   cv->set_pixel_size(12);
 
-  r_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
-  g_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
-  b_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
-
-  color_sample = new types::color_sample;
-
-  auto  pal = new widgets::table_column({
-    color_sample,
-    new widgets::table_row({new widgets::label(u"[ R ]"),r_dial}),
-    new widgets::table_row({new widgets::label(u"[ G ]"),g_dial}),
-    new widgets::table_row({new widgets::label(u"[ B ]"),b_dial}),
-  });
+  color_sample = new widgets::color_maker([](widgets::color_maker&  cm,images::color  color){cv->set_drawing_color(color);});
 
 
   auto  undo_btn = new widgets::button(new widgets::label(u"UNDO"),undo);
   auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);
 
-  auto  mcol = new widgets::table_column({pal,undo_btn,save_btn});
+  auto  mcol = new widgets::table_column({color_sample,undo_btn,save_btn});
 
   radio_menu = widgets::create_radio_menu({new widgets::label(u"draw dot"),
                                            new widgets::label(u"draw line"),

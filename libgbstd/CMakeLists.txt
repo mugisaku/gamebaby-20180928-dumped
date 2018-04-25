@@ -30,6 +30,7 @@ set(SOURCES
   widgets/canvas.cpp
   widgets/canvas__draw.cpp
   widgets/canvas__operate.cpp
+  widgets/color_maker.cpp
   windows/window.cpp
   windows/window__update_frame_image.cpp
   windows/window_manager.cpp

@@ -469,6 +469,31 @@ public:
 
 
 class
+color_maker: public table_column
+{
+  dial*  m_r_dial;
+  dial*  m_g_dial;
+  dial*  m_b_dial;
+
+  widget*  m_sample;
+
+  void  (*m_callback)(color_maker&  cm, color  new_color)=nullptr;
+
+  color  m_color;
+
+  static void  update_color(dial&  dial, int  old_value, int  new_value) noexcept;
+
+public:
+  color_maker(void  (*callback)(color_maker&,color)) noexcept;
+
+  color  get_color() const noexcept{return m_color;}
+
+  void  update() noexcept;
+
+};
+
+
+class
 text_roll: public widget
 {
   character_queue  m_queue;
@@ -572,7 +597,7 @@ canvas: public widget
 
   drawing_recorder  m_recorder;
 
-  color  m_drawing_color;
+  color  m_drawing_color=color(0,0,0);
 
   int  m_pointing_count=0;
 

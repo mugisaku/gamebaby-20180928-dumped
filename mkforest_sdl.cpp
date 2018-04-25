@@ -43,21 +43,20 @@ root;
 widgets::canvas*
 cv;
 
-gbstd::widget*
-color_sample;
 
 
 bool
 need_to_hide_cursors;
 
 
+gbstd::widget*
+color_sample;
+
+
 void
 update_color() noexcept;
 
 
-widgets::dial*  r_dial;
-widgets::dial*  g_dial;
-widgets::dial*  b_dial;
 
 
 void
@@ -282,20 +281,6 @@ public:
 };
 
 
-class
-color_sample: public gbstd::widget
-{
-  static constexpr int  size = 32;
-
-public:
-  color_sample() noexcept: widget(size,size){}
-
-  void  render(gbstd::image_cursor  cur) noexcept override
-  {
-    cur.fill_rectangle(cv->get_drawing_color(),0,0,size,size);
-  }
-
-};
 }
 
 
@@ -373,12 +358,6 @@ int
 main(int  argc, char**  argv)
 {
   sdl::init(screen_w,screen_h);
-
-  r_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
-  g_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
-  b_dial = new widgets::dial(0,7,[](widgets::dial&  d, int  old_value, int  new_value){update_color();});
-
-  color_sample = new types::color_sample;
 
   auto  pal = new widgets::table_column({
     color_sample,
