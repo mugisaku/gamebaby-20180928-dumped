@@ -235,8 +235,6 @@ update() noexcept
 
 
       m_top->react();
-
-      return;
     }
 
   else
@@ -250,13 +248,13 @@ update() noexcept
               set_flag(flags::moving_window);
 
               m_gripping_point = pt;
-            }
 
-          else
-            {
-              m_top->react();
+              return;
             }
         }
+
+
+      m_top->react();
     }
 }
 
@@ -289,19 +287,20 @@ composite(image&  dst) noexcept
 
   else
     {
-      bool  flag = false;
-
-        while(current)
+        while(current != m_top)
         {
             if(current->update())
             {
-              flag = true;
-            }
+                while(current)
+                {
+                  current->redraw_frame(dst);
+                  current->redraw_content(dst);
+
+                  current = current->get_high();
+                }
 
 
-            if(flag)
-            {
-              current->redraw_content(dst);
+              return true;
             }
 
 
@@ -309,9 +308,12 @@ composite(image&  dst) noexcept
         }
 
 
-      unset_flag(flags::needed_to_refresh);
+        if(m_top->update())
+        {
+          m_top->redraw_content(dst);
 
-      return flag;
+          return true;
+        }
     }
 
 

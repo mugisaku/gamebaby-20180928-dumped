@@ -206,6 +206,13 @@ line
 }
 
 
+inline void
+print(const images::point&  pt) noexcept
+{
+  printf("%3d,%3d\n",pt.x,pt.y);
+}
+
+
 using images::point;
 using images::real_point;
 using images::rectangle;
