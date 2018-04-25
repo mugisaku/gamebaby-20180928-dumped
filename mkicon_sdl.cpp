@@ -25,15 +25,11 @@ cv;
 
 
 gbstd::image
-image(screen_w,screen_h);
+final_image(screen_w,screen_h);
 
 
 widgets::root
 root;
-
-
-widgets::widget*
-radio_menu;
 
 
 bool
@@ -109,9 +105,9 @@ main_loop()
 
   root.react();
 
-    if(root.redraw_only_needed_widgets(image) || ctrl.is_needed_to_redraw())
+    if(root.redraw_only_needed_widgets(final_image) || ctrl.is_needed_to_redraw())
     {
-      sdl::update_screen(image);
+      sdl::update_screen(final_image);
     }
 }
 
@@ -135,16 +131,17 @@ main(int  argc, char**  argv)
 
   auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);
 
-  auto  mcol = new widgets::table_column({cv->create_color_maker(),save_btn});
+  auto  mcol = new widgets::table_column({cv->create_color_maker(),cv->create_operation_widget(),save_btn});
 
-  auto  row = new widgets::table_row({cv,mcol,radio_menu});
+  auto  row = new widgets::table_row({cv,mcol,cv->create_tool_widget()});
 
   root->append_child(row,0,0);
 
   root->show_all();
 
-  update_color();
+  root.redraw(final_image);
 
+  sdl::update_screen(final_image);
 
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop,0,false);

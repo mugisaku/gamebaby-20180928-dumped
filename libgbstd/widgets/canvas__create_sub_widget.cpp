@@ -25,7 +25,7 @@ create_color_maker() noexcept
 
 widget*
 canvas::
-create_tool_widget() noexcept
+create_operation_widget() noexcept
 {
   auto  undo_btn = new button(new label(u"Undo"),[](widgets::button&  btn){
       if(btn.get_count())
@@ -89,7 +89,7 @@ create_tool_widget() noexcept
 
 widget*
 canvas::
-create_operation_widget() noexcept
+create_tool_widget() noexcept
 {
   auto  cb = [](radio_button&  btn, uint32_t  old_state, uint32_t  new_state){
     auto  cv = reinterpret_cast<canvas*>(btn.get_userdata());

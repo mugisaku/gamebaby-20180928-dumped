@@ -33,7 +33,7 @@ types::table_view*  tv;
 
 
 gbstd::image
-image(screen_w,screen_h);
+final_image(screen_w,screen_h);
 
 
 widgets::root
@@ -159,7 +159,7 @@ make_farm() noexcept
 
         for(int  n = 0;  n < row.number;  ++n)
         {
-          images::transfer(cv_image,point(),0,0,dst_cur);
+          images::transfer(cv_image,cv_image.get_rectangle(),dst_cur);
 
           dst_cur.add_offset(cv_w,0);
         }
@@ -198,7 +198,7 @@ public:
 
   void  render(gbstd::image_cursor  cur) noexcept override
   {
-    images::transfer(farm_image,point(),0,0,cur);
+    images::transfer(farm_image,farm_image.get_rectangle(),cur);
 
       if(!need_to_hide_cursors)
       {
@@ -248,7 +248,9 @@ public:
       for(int  x = 0;  x < table_width;  ++x){
         auto  pt = table[y][x];
 
-        images::transfer(farm_image,pt,cv_w*2,cv_h,cur+point(cv_w*2*x,cv_h*y));
+        auto  new_cur = cur+point(cv_w*2*x,cv_h*y);
+
+        images::transfer(farm_image,rectangle(pt,cv_w*2,cv_h),new_cur);
       }}
 
 
@@ -321,9 +323,9 @@ main_loop()
 
   root.react();
 
-    if(root.redraw_only_needed_widgets(image))
+    if(root.redraw_only_needed_widgets(final_image))
     {
-      sdl::update_screen(image);
+      sdl::update_screen(final_image);
     }
 }
 
@@ -351,18 +353,21 @@ main(int  argc, char**  argv)
 
   auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);;
 
-  auto  mcol = new widgets::table_column({pal,save_btn});
-  auto  lcol = new widgets::table_column({ptrs::farm,ptrs::tv});
+  auto  a_col = new widgets::table_column({cv->create_color_maker(),cv->create_operation_widget(),save_btn});
+  auto  b_col = cv->create_tool_widget();
+  auto  c_col = new widgets::table_column({ptrs::farm,ptrs::tv});
 
-  auto  row = new widgets::table_row({cv,mcol,lcol});
+  auto  row = new widgets::table_row({cv,a_col,b_col,c_col});
 
   root->append_child(row,0,0);
 
   root->show_all();
 
-  update_color();
-
   make_farm();
+
+  root.redraw(final_image);
+
+  sdl::update_screen(final_image);
 
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop,0,false);

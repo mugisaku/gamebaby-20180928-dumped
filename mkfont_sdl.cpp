@@ -584,7 +584,7 @@ main(int  argc, char**  argv)
 
   sample = new types::sample;
 
-  auto  urow = new widgets::table_row({cv,cv_tool_col,mnu,mnu_tool_col});
+  auto  urow = new widgets::table_row({cv,cv->create_operation_widget(),mnu,mnu_tool_col});
 
   root->append_child(new widgets::table_column({urow,sample}),0,0);
 
