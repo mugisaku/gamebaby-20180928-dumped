@@ -82,16 +82,16 @@ append_child(widget*  child, int  x, int  y) noexcept
 
 widget*
 container::
-scan_by_point(int  x, int  y) noexcept
+scan_by_absolute_point(int  x, int  y) noexcept
 {
-    if(test_by_point(x,y))
+    if(test_by_absolute_point(x,y))
     {
         if(m_unique)
         {
             if(m_current &&
                m_current->test_flag(flags::shown))
             {
-              auto  w = m_current->scan_by_point(x,y);
+              auto  w = m_current->scan_by_absolute_point(x,y);
 
                 if(w)
                 {
@@ -106,7 +106,7 @@ scan_by_point(int  x, int  y) noexcept
             {
                 if(child->test_flag(flags::shown))
                 {
-                  auto  w = child->scan_by_point(x,y);
+                  auto  w = child->scan_by_absolute_point(x,y);
 
                     if(w)
                     {

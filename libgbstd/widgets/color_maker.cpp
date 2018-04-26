@@ -39,7 +39,9 @@ m_color(0,0,0)
 
   m_sample = new sample(*this);
 
-  append_child({m_r_dial,m_g_dial,m_b_dial,m_sample});
+  append_child({new table_row({new label(u"[R]"),m_r_dial}),
+                new table_row({new label(u"[G]"),m_g_dial}),
+                new table_row({new label(u"[B]"),m_b_dial}),m_sample});
 }
 
 

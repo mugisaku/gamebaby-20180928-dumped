@@ -44,12 +44,23 @@ need_to_reform() noexcept
 
 bool
 widget::
-test_by_point(int  x, int  y) const noexcept
+test_by_absolute_point(int  x, int  y) const noexcept
 {
   return((x >= m_absolute_point.x) &&
          (y >= m_absolute_point.y) &&
          (x <  (m_absolute_point.x+m_width )) &&
          (y <  (m_absolute_point.y+m_height)));
+}
+
+
+bool
+widget::
+test_by_relative_point(int  x, int  y) const noexcept
+{
+  return((x >= m_relative_point.x) &&
+         (y >= m_relative_point.y) &&
+         (x <  (m_relative_point.x+m_width )) &&
+         (y <  (m_relative_point.y+m_height)));
 }
 
 

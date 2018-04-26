@@ -14,12 +14,6 @@ do_when_cursor_got_in() noexcept
 {
     if(m_target)
     {
-        if(m_callback)
-        {
-          m_callback(*this,event_kind::cursor_got_in,0,0);
-        }
-
-
       m_target->do_when_cursor_got_in();
     }
 }
@@ -31,12 +25,6 @@ do_when_cursor_got_out() noexcept
 {
     if(m_target)
     {
-        if(m_callback)
-        {
-          m_callback(*this,event_kind::cursor_got_out,0,0);
-        }
-
-
       m_target->do_when_cursor_got_out();
     }
 }
@@ -46,13 +34,12 @@ void
 wrapper::
 do_when_mouse_acted(int  x, int  y) noexcept
 {
-    if(m_target)
+    if(m_target && m_target->test_by_relative_point(x,y))
     {
-        if(m_callback)
-        {
-          m_callback(*this,event_kind::mouse_acted,x,y);
-        }
+      auto  rel_pt = m_target->get_relative_point();
 
+      x -= rel_pt.x;
+      y -= rel_pt.y;
 
       m_target->do_when_mouse_acted(x,y);
     }
@@ -77,10 +64,18 @@ set_target(widget*  target) noexcept
 
       target->set_parent(this);
 
-      m_target.reset(target);
+      auto  r = get_root();
 
-      need_to_reform();
+        if(r)
+        {
+          target->set_root(r);
+        }
     }
+
+
+  m_target.reset(target);
+
+  need_to_reform();
 }
 
 
@@ -115,7 +110,7 @@ render(image_cursor  cur) noexcept
 {
     if(m_target)
     {
-      m_target->render(cur);
+      m_target->render(cur+m_target->get_relative_point());
     }
 }
 

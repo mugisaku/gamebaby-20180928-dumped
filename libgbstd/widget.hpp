@@ -108,9 +108,10 @@ public:
   }
 
 
-  bool  test_by_point(int  x, int  y) const noexcept;
+  bool  test_by_relative_point(int  x, int  y) const noexcept;
+  bool  test_by_absolute_point(int  x, int  y) const noexcept;
 
-  virtual widget*  scan_by_point(int  x, int  y) noexcept{return test_by_point(x,y)? this:nullptr;}
+  virtual widget*  scan_by_absolute_point(int  x, int  y) noexcept{return test_by_absolute_point(x,y)? this:nullptr;}
 
   const point&  get_absolute_point() const noexcept{return m_absolute_point;}
   const point&  get_relative_point() const noexcept{return m_relative_point;}
@@ -172,7 +173,7 @@ public:
   void  reform(point  base_pt) noexcept override;
   void  render(image_cursor  cur) noexcept override;
 
-  widget*  scan_by_point(int  x, int  y) noexcept override;
+  widget*  scan_by_absolute_point(int  x, int  y) noexcept override;
 
   void  append_child(widget*  child, int  x=0, int  y=0) noexcept;
 
@@ -183,25 +184,15 @@ public:
 };
 
 
-enum class
-event_kind
-{
-  cursor_got_in,
-  cursor_got_out,
-  mouse_acted,
-};
-
-
 class
 wrapper: public widget
 {
+protected:
   std::unique_ptr<widget>  m_target;
 
-  void  (*m_callback)(wrapper&,event_kind,int,int)=nullptr;
-
 public:
-  wrapper(widget*  target, void  (*callback)(wrapper&,event_kind,int,int)) noexcept:
-  m_target(target), m_callback(callback){}
+  wrapper(widget*  target) noexcept:
+  m_target(target){}
 
   const char*  get_widget_name() const noexcept override{return "wrapper";}
 
@@ -218,6 +209,24 @@ public:
   void  show_all() noexcept override;
 
   void  print(int  indent=0) const noexcept override;
+
+};
+
+
+class
+frame: public wrapper
+{
+  gbstd::string  m_text;
+
+public:
+  frame(widget*  target, gbstd::string_view  text) noexcept:
+  wrapper(target), m_text(text){}
+
+  const char*  get_widget_name() const noexcept override{return "frame";}
+
+  void  reform(point  base_pt) noexcept override;
+
+  void  render(image_cursor  cur) noexcept override;
 
 };
 
@@ -370,8 +379,6 @@ protected:
 
   icon_selector*  m_icons;
 
-  static void  common_callback(wrapper&  wr, event_kind  k, int  x, int  y) noexcept;
-
   virtual const icon**  get_icons() const noexcept;
 
   void  call(uint32_t  new_state) noexcept;
@@ -382,6 +389,8 @@ public:
  ~radio_button();
 
   const char*  get_widget_name() const noexcept override{return "radio_button";}
+
+  void  do_when_mouse_acted(int  x, int  y) noexcept override;
 
   bool  is_checked() const noexcept;
 

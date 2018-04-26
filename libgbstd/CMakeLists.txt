@@ -16,6 +16,7 @@ set(SOURCES
   widgets/widget.cpp
   widgets/container.cpp
   widgets/wrapper.cpp
+  widgets/frame.cpp
   widgets/root.cpp
   widgets/label.cpp
   widgets/button.cpp

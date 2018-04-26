@@ -56,7 +56,7 @@ react(point  offset) noexcept
 
     if(!m_current)
     {
-      m_current = m_container.scan_by_point(pt.x,pt.y);
+      m_current = m_container.scan_by_absolute_point(pt.x,pt.y);
 
         if(m_current)
         {
@@ -67,7 +67,7 @@ react(point  offset) noexcept
   else
     if(ctrl.did_mouse_moved())
     {
-        if(!m_current->test_by_point(pt.x,pt.y))
+        if(!m_current->test_by_absolute_point(pt.x,pt.y))
         {
             if(ctrl.is_mouse_lbutton_pressed())
             {
@@ -89,7 +89,7 @@ react(point  offset) noexcept
             {
               m_current->do_when_cursor_got_out();
 
-              m_current = m_container.scan_by_point(pt.x,pt.y);
+              m_current = m_container.scan_by_absolute_point(pt.x,pt.y);
 
                 if(m_current)
                 {

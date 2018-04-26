@@ -24,42 +24,11 @@ shared_data
 };
 
 
-void
-radio_button::
-common_callback(wrapper&  wr, event_kind  k, int  x, int  y) noexcept
-{
-  auto&  radbtn = *reinterpret_cast<radio_button*>(&wr);
-
-    if(k == event_kind::mouse_acted)
-    {
-      auto&  dat = *radbtn.m_data;
-
-        if(dat.touched)
-        {
-            if(!ctrl.is_mouse_lbutton_pressed())
-            {
-              dat.touched = false;
-
-              radbtn.change_state();
-            }
-        }
-
-      else
-        {
-            if(ctrl.is_mouse_lbutton_pressed())
-            {
-              dat.touched = true;
-            }
-        }
-    }
-}
-
-
 
 
 radio_button::
 radio_button(widget*  target, callback_prototype  cb) noexcept:
-wrapper(new container,common_callback),
+wrapper(new container),
 m_data(new shared_data),
 m_bit_id(1)
 {
@@ -81,7 +50,7 @@ m_bit_id(1)
 
 radio_button::
 radio_button(widget*  target, radio_button&  first) noexcept:
-wrapper(new container,common_callback),
+wrapper(new container),
 m_data(first.m_data),
 m_bit_id(first.m_data->last->m_bit_id<<1)
 {
@@ -108,6 +77,30 @@ radio_button::
 }
 
 
+
+
+void
+radio_button::
+do_when_mouse_acted(int  x, int  y) noexcept
+{
+    if(m_data->touched)
+    {
+        if(!ctrl.is_mouse_lbutton_pressed())
+        {
+          m_data->touched = false;
+
+          change_state();
+        }
+    }
+
+  else
+    {
+        if(ctrl.is_mouse_lbutton_pressed())
+        {
+          m_data->touched = true;
+        }
+    }
+}
 
 
 const icon**
