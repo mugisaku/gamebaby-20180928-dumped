@@ -59,6 +59,7 @@ protected:
     static constexpr uint32_t   active = 0x04;
 
     static constexpr uint32_t  needed_to_update_frame = 0x08;
+    static constexpr uint32_t  needed_to_redraw       = 0x10;
 
   };
 
@@ -106,6 +107,10 @@ public:
   void    set_header_flag() noexcept{   set_flag(flags::header|flags::needed_to_update_frame);}
   void  unset_header_flag() noexcept{modify_flag(flags::header,flags::needed_to_update_frame);}
 
+  bool  is_needed_to_redraw() const noexcept{return test_flag(flags::needed_to_redraw);}
+
+  void  need_to_redraw() noexcept{set_flag(flags::header|flags::needed_to_redraw);}
+
         image&  get_frame_image()             noexcept{return m_frame_image;}
   const image&  get_const_frame_image() const noexcept{return m_frame_image;}
 
@@ -127,12 +132,14 @@ public:
 
   void   react() noexcept;
 
-  bool  update() noexcept;
+  void  update() noexcept;
 
   void  update_frame_image() noexcept;
 
-  void  redraw_content(image&  dst) const noexcept;
+  void  redraw_content(image&  dst) noexcept;
   void  redraw_frame(image&  dst) noexcept;
+
+  void  print() const noexcept;
 
 };
 

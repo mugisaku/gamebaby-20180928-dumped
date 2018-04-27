@@ -10,6 +10,17 @@ namespace widgets{
 
 void
 wrapper::
+set_root(root*  r) noexcept
+{
+    if(m_target)
+    {
+      m_target->set_root(r);
+    }
+}
+
+
+void
+wrapper::
 do_when_cursor_got_in() noexcept
 {
     if(m_target)
@@ -110,7 +121,7 @@ render(image_cursor  cur) noexcept
 {
     if(m_target)
     {
-      m_target->render(cur+m_target->get_relative_point());
+      m_target->redraw(cur.get_image());
     }
 }
 

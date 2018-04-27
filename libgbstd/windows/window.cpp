@@ -41,7 +41,7 @@ react() noexcept
 }
 
 
-bool
+void
 window::
 update() noexcept
 {
@@ -76,27 +76,28 @@ update() noexcept
 
       m_root.redraw(m_content_image);
 
-      return true;
+      need_to_redraw();
     }
 
   else
     {
- m_root.redraw_only_needed_widgets(m_content_image);
-/*
-      m_root.redraw(m_content_image);
-*/
-      return true;
+        if(m_root.redraw_only_needed_widgets(m_content_image))
+        {
+          need_to_redraw();
+        }
     }
 }
 
 
 void
 window::
-redraw_content(image&  dst) const noexcept
+redraw_content(image&  dst) noexcept
 {
   auto  cur = image_cursor(dst,m_content_point);
 
   images::transfer(m_content_image,m_content_image.get_rectangle(),cur);
+
+  unset_flag(flags::needed_to_redraw);
 }
 
 
@@ -122,6 +123,14 @@ redraw_frame(image&  dst) noexcept
   auto  cur = image_cursor(dst,m_point);
 
   images::transfer(m_frame_image,m_frame_image.get_rectangle(),cur);
+}
+
+
+void
+window::
+print() const noexcept
+{
+  printf("window %s{...}\n",m_name.data());
 }
 
 

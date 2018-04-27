@@ -25,7 +25,15 @@ void
 widget::
 need_to_redraw() noexcept
 {
-    if(m_root && !is_needed_to_redraw())
+    if(!m_root)
+    {
+      printf("widget::need_to_redraw error: rootがない\n");
+
+      return;
+    }
+
+
+    if(!is_needed_to_redraw())
     {
       set_flag(flags::needed_to_redraw);
 

@@ -67,7 +67,8 @@ public:
   virtual const char*  get_widget_name() const noexcept{return "widget";}
 
   virtual void  reform(point  base_pt) noexcept;
-  virtual void  redraw(image&  img) noexcept;
+
+  void  redraw(image&  img) noexcept;
 
   virtual void  do_when_cursor_got_in()             noexcept{}
   virtual void  do_when_cursor_got_out()            noexcept{}
@@ -163,7 +164,7 @@ public:
 
   const char*  get_widget_name() const noexcept override{return "container";}
 
-  void   set_root(root*  r) noexcept override;
+  void  set_root(root*  r) noexcept override;
 
   bool  is_unique() const noexcept{return m_unique;}
 
@@ -195,6 +196,8 @@ public:
   m_target(target){}
 
   const char*  get_widget_name() const noexcept override{return "wrapper";}
+
+  void  set_root(root*  r) noexcept override;
 
   void  do_when_cursor_got_in()             noexcept override;
   void  do_when_cursor_got_out()            noexcept override;

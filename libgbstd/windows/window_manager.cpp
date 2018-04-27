@@ -289,7 +289,9 @@ composite(image&  dst) noexcept
     {
         while(current != m_top)
         {
-            if(current->update())
+          current->update();
+
+            if(current->is_needed_to_redraw())
             {
                 while(current)
                 {
@@ -308,7 +310,9 @@ composite(image&  dst) noexcept
         }
 
 
-        if(m_top->update())
+      m_top->update();
+
+        if(m_top->is_needed_to_redraw())
         {
           m_top->redraw_content(dst);
 
