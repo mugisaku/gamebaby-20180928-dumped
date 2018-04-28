@@ -1,5 +1,5 @@
 #include"libgbstd/playwork.hpp"
-#include"libgbstd/controller.hpp"
+#include"libgbstd/control_device.hpp"
 #include<new>
 
 
@@ -61,8 +61,8 @@ public:
 };
 
 
-constexpr uint32_t  key_flags = (controller::flags::pressed_p_button|
-                                 controller::flags::pressed_n_button);
+//constexpr uint32_t  key_flags = (controller::flags::pressed_p_button|
+//                                 controller::flags::pressed_n_button);
 
 
 uint32_t
@@ -203,9 +203,9 @@ call() noexcept
     }
 
 
-  flags &= ctrl.get();
+//  flags &= ctrl.get_flags();
 
-    if(!(flags&key_flags))
+//    if(!(flags&key_flags))
     {
       pushed = false;
 

@@ -3,7 +3,7 @@
 
 
 #include"libgbstd/image.hpp"
-#include"libgbstd/controller.hpp"
+#include"libgbstd/control_device.hpp"
 #include"libgbstd/string.hpp"
 #include"libgbstd/text.hpp"
 #include"libgbstd/utility.hpp"
@@ -70,11 +70,13 @@ public:
 
   void  redraw(image&  img) noexcept;
 
-  virtual void  do_when_cursor_got_in()             noexcept{}
-  virtual void  do_when_cursor_got_out()            noexcept{}
-  virtual void  do_when_mouse_acted(int  x, int  y) noexcept{}
+  virtual void  do_when_cursor_got_in() noexcept{}
+  virtual void  do_when_cursor_got_out() noexcept{}
+  virtual void  update() noexcept{}
 
   virtual void  render(image_cursor  cur) noexcept{}
+
+  mouse  get_mouse() const noexcept;
 
   void  need_to_redraw() noexcept;
   void  need_to_reform() noexcept;
@@ -109,10 +111,11 @@ public:
   }
 
 
-  bool  test_by_relative_point(int  x, int  y) const noexcept;
-  bool  test_by_absolute_point(int  x, int  y) const noexcept;
+  bool  test_by_relative_point(point  pt) const noexcept;
+  bool  test_by_absolute_point(point  pt) const noexcept;
 
-  virtual widget*  scan_by_absolute_point(int  x, int  y) noexcept{return test_by_absolute_point(x,y)? this:nullptr;}
+  virtual widget*  scan_by_absolute_point(point  pt) noexcept{return test_by_absolute_point(pt)? this:nullptr;}
+  virtual widget*  scan_by_relative_point(point  pt) noexcept{return test_by_relative_point(pt)? this:nullptr;}
 
   const point&  get_absolute_point() const noexcept{return m_absolute_point;}
   const point&  get_relative_point() const noexcept{return m_relative_point;}
@@ -171,10 +174,16 @@ public:
   void  change_current_by_name(gbstd::string_view  name) noexcept;
   widget*  get_current() const noexcept{return m_current;}
 
+  void  do_when_cursor_got_in()  noexcept override;
+  void  do_when_cursor_got_out() noexcept override;
+
+  void  update() noexcept override;
+
   void  reform(point  base_pt) noexcept override;
   void  render(image_cursor  cur) noexcept override;
 
-  widget*  scan_by_absolute_point(int  x, int  y) noexcept override;
+  widget*  scan_by_absolute_point(point  pt) noexcept override;
+  widget*  scan_by_relative_point(point  pt) noexcept override;
 
   void  append_child(widget*  child, int  x=0, int  y=0) noexcept;
 
@@ -199,9 +208,9 @@ public:
 
   void  set_root(root*  r) noexcept override;
 
-  void  do_when_cursor_got_in()             noexcept override;
-  void  do_when_cursor_got_out()            noexcept override;
-  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+  void  do_when_cursor_got_in()  noexcept override;
+  void  do_when_cursor_got_out() noexcept override;
+  void  update() noexcept override;
 
   void  reform(point  base_pt) noexcept override;
   void  render(image_cursor  cur) noexcept override;
@@ -243,6 +252,11 @@ root
 
   container  m_container;
 
+  point  m_offset;
+
+  mouse  m_old_mouse;
+  mouse  m_mouse;
+
   widget*  m_current=nullptr;
 
   widget*  m_redrawing_first=nullptr;
@@ -256,13 +270,20 @@ public:
 
   container*  operator->() noexcept{return &m_container;}
 
+  void          set_offset(point  pt)       noexcept{       m_offset = pt;}
+  const point&  get_offset(         ) const noexcept{return m_offset     ;}
+
+  const mouse&  get_mouse() const noexcept{return m_mouse;}
+
   const widget*  get_current() const noexcept{return m_current;}
 
   void  push_widget_that_needed_to_redraw(widget&  w) noexcept;
 
+  void  put_down() noexcept{m_container.set_root(this);}
+
   void  cancel() noexcept;
 
-  void   react(point  offset=point()) noexcept;
+  void  react(const control_device&  condev) noexcept;
 
   void  redraw(image&  img) noexcept;
   bool  redraw_only_needed_widgets(image&  img) noexcept;
@@ -352,8 +373,9 @@ public:
 
   void  reform(point  base_pt) noexcept override;
 
-  void  do_when_cursor_got_out()            noexcept override;
-  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+  void  do_when_cursor_got_out() noexcept override;
+
+  void  update() noexcept override;
 
   void  render(image_cursor  cur) noexcept override;
 
@@ -393,7 +415,7 @@ public:
 
   const char*  get_widget_name() const noexcept override{return "radio_button";}
 
-  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+  void  update() noexcept override;
 
   bool  is_checked() const noexcept;
 
@@ -498,14 +520,14 @@ color_maker: public table_column
 
   color  m_color;
 
-  static void  update_color(dial&  dial, int  old_value, int  new_value) noexcept;
+  static void  update_color_internal(dial&  dial, int  old_value, int  new_value) noexcept;
 
 public:
   color_maker(void  (*callback)(color_maker&,color)) noexcept;
 
   color  get_color() const noexcept{return m_color;}
 
-  void  update() noexcept;
+  void  update_color() noexcept;
 
 };
 
@@ -580,7 +602,7 @@ public:
 
   void  set_item_size(int  w, int  h) noexcept;
 
-  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+  void  update() noexcept override;
 
   void  reform(point  base_pt) noexcept override;
 
@@ -678,7 +700,7 @@ public:
 
   void  do_when_cursor_got_out() noexcept override{apply();}
 
-  void  do_when_mouse_acted(int  x, int  y) noexcept override;
+  void  update() noexcept override;
 
   void  render(image_cursor  cur) noexcept override;
 

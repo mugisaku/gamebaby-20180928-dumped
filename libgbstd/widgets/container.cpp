@@ -12,14 +12,11 @@ void
 container::
 set_root(root*  r) noexcept
 {
-    if(get_root() != r)
-    {
-      widget::set_root(r);
+  widget::set_root(r);
 
-        for(auto&  child: m_children)
-        {
-          child->set_root(r);
-        }
+    for(auto&  child: m_children)
+    {
+      child->set_root(r);
     }
 }
 
@@ -61,9 +58,6 @@ append_child(widget*  child, int  x, int  y) noexcept
 
       child->set_parent(this);
 
-      child->set_root(get_root());
-
-
       m_children.emplace_back(child);
 
       child->set_relative_point(point(x,y));
@@ -82,16 +76,16 @@ append_child(widget*  child, int  x, int  y) noexcept
 
 widget*
 container::
-scan_by_absolute_point(int  x, int  y) noexcept
+scan_by_absolute_point(point  pt) noexcept
 {
-    if(test_by_absolute_point(x,y))
+    if(test_by_absolute_point(pt))
     {
         if(m_unique)
         {
             if(m_current &&
                m_current->test_flag(flags::shown))
             {
-              auto  w = m_current->scan_by_absolute_point(x,y);
+              auto  w = m_current->scan_by_absolute_point(pt);
 
                 if(w)
                 {
@@ -106,7 +100,7 @@ scan_by_absolute_point(int  x, int  y) noexcept
             {
                 if(child->test_flag(flags::shown))
                 {
-                  auto  w = child->scan_by_absolute_point(x,y);
+                  auto  w = child->scan_by_absolute_point(pt);
 
                     if(w)
                     {
@@ -119,6 +113,93 @@ scan_by_absolute_point(int  x, int  y) noexcept
 
 
   return nullptr;
+}
+
+
+widget*
+container::
+scan_by_relative_point(point  pt) noexcept
+{
+    if(test_by_relative_point(pt))
+    {
+        if(m_unique)
+        {
+            if(m_current &&
+               m_current->test_flag(flags::shown))
+            {
+              auto  w = m_current->scan_by_relative_point(pt);
+
+                if(w)
+                {
+                  return w;
+                }
+            }
+        }
+
+      else
+        {
+            for(auto&  child: m_children)
+            {
+                if(child->test_flag(flags::shown))
+                {
+                  auto  w = child->scan_by_relative_point(pt);
+
+                    if(w)
+                    {
+                      return w;
+                    }
+                }
+            }
+        }
+    }
+
+
+  return nullptr;
+}
+
+
+void
+container::
+do_when_cursor_got_in() noexcept
+{
+  auto  mouse = get_mouse();
+
+  auto  target = scan_by_relative_point(mouse.point);
+
+    if(target)
+    {
+      target->do_when_cursor_got_in();
+    }
+}
+
+
+void
+container::
+do_when_cursor_got_out() noexcept
+{
+  auto  mouse = get_mouse();
+
+  auto  target = scan_by_relative_point(mouse.point);
+
+    if(target)
+    {
+      target->do_when_cursor_got_out();
+    }
+}
+
+
+void
+container::
+update() noexcept
+{
+  auto  mouse = get_mouse();
+
+  auto  target = scan_by_relative_point(mouse.point);
+
+    if(target)
+    {
+      target->update();
+    }
 }
 
 

@@ -129,15 +129,17 @@ undo() noexcept
 
 void
 canvas::
-do_when_mouse_acted(int  x, int  y) noexcept
+update() noexcept
 {
-  x /= m_pixel_size;
-  y /= m_pixel_size;
+  auto  mouse = get_mouse();
+
+  int  x = mouse.point.x/m_pixel_size;
+  int  y = mouse.point.y/m_pixel_size;
 
     switch(m_mode)
     {
   case(mode::draw_dot):
-        if(ctrl.is_mouse_lbutton_pressed())
+        if(mouse.left_button)
         {
           modify_dot(m_drawing_color,x,y);
           need_to_redraw();
@@ -149,7 +151,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
         }
 
       else
-        if(ctrl.is_mouse_rbutton_pressed())
+        if(mouse.left_button)
         {
           modify_dot(color(),x,y);
           need_to_redraw();
@@ -163,7 +165,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
   case(mode::draw_line):
         if(m_pointing_count)
         {
-            if(ctrl.is_mouse_lbutton_pressed())
+            if(mouse.left_button)
             {
               draw_line(m_a_point,point(x,y));
 
@@ -178,7 +180,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
 
       else
         {
-            if(ctrl.is_mouse_lbutton_pressed())
+            if(mouse.left_button)
             {
               m_a_point = point(x,y);
 
@@ -189,7 +191,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
   case(mode::draw_rectangle):
         if(m_pointing_count)
         {
-            if(ctrl.is_mouse_lbutton_pressed())
+            if(mouse.left_button)
             {
               draw_rect(make_rectangle(m_a_point,point(x,y)));
 
@@ -204,7 +206,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
 
       else
         {
-            if(ctrl.is_mouse_lbutton_pressed())
+            if(mouse.left_button)
             {
               m_a_point = point(x,y);
 
@@ -215,7 +217,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
   case(mode::fill_rectangle):
         if(m_pointing_count)
         {
-            if(ctrl.is_mouse_lbutton_pressed())
+            if(mouse.left_button)
             {
               fill_rect(make_rectangle(m_a_point,point(x,y)));
 
@@ -230,7 +232,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
 
       else
         {
-            if(ctrl.is_mouse_lbutton_pressed())
+            if(mouse.left_button)
             {
               m_a_point = point(x,y);
 
@@ -239,7 +241,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
         }
       break;
   case(mode::fill_area):
-        if(ctrl.is_mouse_lbutton_pressed())
+        if(mouse.left_button)
         {
           fill_area(point(x,y));
 

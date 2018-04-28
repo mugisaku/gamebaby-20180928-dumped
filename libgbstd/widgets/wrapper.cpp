@@ -12,6 +12,8 @@ void
 wrapper::
 set_root(root*  r) noexcept
 {
+  widget::set_root(r);
+
     if(m_target)
     {
       m_target->set_root(r);
@@ -43,16 +45,13 @@ do_when_cursor_got_out() noexcept
 
 void
 wrapper::
-do_when_mouse_acted(int  x, int  y) noexcept
+update() noexcept
 {
-    if(m_target && m_target->test_by_relative_point(x,y))
+  auto  mouse = get_mouse();
+
+    if(m_target && m_target->test_by_relative_point(mouse.point))
     {
-      auto  rel_pt = m_target->get_relative_point();
-
-      x -= rel_pt.x;
-      y -= rel_pt.y;
-
-      m_target->do_when_mouse_acted(x,y);
+      m_target->update();
     }
 }
 
@@ -74,13 +73,6 @@ set_target(widget*  target) noexcept
 
 
       target->set_parent(this);
-
-      auto  r = get_root();
-
-        if(r)
-        {
-          target->set_root(r);
-        }
     }
 
 

@@ -1,5 +1,4 @@
 #include"libgbstd/image.hpp"
-#include"libgbstd/controller.hpp"
 #include"libgbstd/widget.hpp"
 #include"sdl.hpp"
 
@@ -181,12 +180,14 @@ public:
 
   const gbstd::point&  get_fixed_point() const noexcept{return m_fixed_point;}
 
-  void  do_when_mouse_acted(int  x, int  y) noexcept override
+  void  update() noexcept override
   {
-    m_float_point.x = x/(cv_w*2);
-    m_float_point.y = y/(cv_h  );
+    auto  mouse = get_mouse();
 
-      if(gbstd::ctrl.is_mouse_lbutton_pressed())
+    m_float_point.x = mouse->x/(cv_w*2);
+    m_float_point.y = mouse->y/(cv_h  );
+
+      if(mouse.left_button)
       {
         m_fixed_point = m_float_point;
       }
@@ -225,12 +226,14 @@ table_view: public gbstd::widget
 public:
   table_view() noexcept: widget(cv_w*2*table_width,cv_h*table_width){}
 
-  void  do_when_mouse_acted(int  x, int  y) noexcept override
+  void  update() noexcept override
   {
-    m_point.x = x/(cv_w*2);
-    m_point.y = y/(cv_h  );
+    auto  mouse = get_mouse();
 
-      if(gbstd::ctrl.is_mouse_lbutton_pressed())
+    m_point.x = mouse->x/(cv_w*2);
+    m_point.y = mouse->y/(cv_h  );
+
+      if(mouse.left_button)
       {
         auto&  pt = table[m_point.y][m_point.x];
 
@@ -319,9 +322,9 @@ save(widgets::button&  btn) noexcept
 void
 main_loop()
 {
-  sdl::update_controller();
+  auto&  condev = sdl::update_control_device();
 
-  root.react();
+  root.react(condev);
 
     if(root.redraw_only_needed_widgets(final_image))
     {
@@ -362,6 +365,8 @@ main(int  argc, char**  argv)
   root->append_child(row,0,0);
 
   root->show_all();
+
+  root.put_down();
 
   make_farm();
 

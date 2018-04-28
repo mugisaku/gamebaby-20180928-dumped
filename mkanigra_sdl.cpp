@@ -1,6 +1,5 @@
 #include"libgbstd/widget.hpp"
 #include"libgbstd/window.hpp"
-#include"libgbstd/controller.hpp"
 #include"sdl.hpp"
 
 
@@ -201,12 +200,10 @@ view;
 
 
 void
-check_time() noexcept
+check_time(uint32_t  now) noexcept
 {
     if(stack.size())
     {
-      auto  now = ctrl.get_time();
-
         if(now >= (last_time+interval_time))
         {
           last_time = now;
@@ -235,13 +232,13 @@ save() noexcept
 void
 main_loop() noexcept
 {
-  sdl::update_controller();
+  auto&  condev = sdl::update_control_device();
 
-  animator::check_time();
+  animator::check_time(condev.time);
 
-  winman.update();
+  winman.update(condev);
 
-    if(winman.composite(image) || ctrl.is_needed_to_redraw())
+    if(winman.composite(image) || condev.needed_to_redraw)
     {
       sdl::update_screen(image);
     }
@@ -324,7 +321,9 @@ main(int  argc, char**  argv)
   widgets::menu_item_parameter  mip = {0,0,
     [](point  index)->bool
     {
-        if(ctrl.is_mouse_lbutton_pressed())
+      auto&  mouse = winman.get_mouse();
+
+        if(mouse.left_button)
         {
           auto  ptr = cell_table::get_pointer(index);
 

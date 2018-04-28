@@ -81,11 +81,13 @@ radio_button::
 
 void
 radio_button::
-do_when_mouse_acted(int  x, int  y) noexcept
+update() noexcept
 {
+  auto  mouse = get_mouse();
+
     if(m_data->touched)
     {
-        if(!ctrl.is_mouse_lbutton_pressed())
+        if(!mouse.left_button)
         {
           m_data->touched = false;
 
@@ -95,7 +97,7 @@ do_when_mouse_acted(int  x, int  y) noexcept
 
   else
     {
-        if(ctrl.is_mouse_lbutton_pressed())
+        if(mouse.left_button)
         {
           m_data->touched = true;
         }

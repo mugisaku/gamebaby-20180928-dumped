@@ -21,13 +21,35 @@ notify_flag(uint32_t  v) noexcept
 }
 
 
+mouse
+widget::
+get_mouse() const noexcept
+{
+    if(!m_root)
+    {
+      printf("widget::get_mouse error\n");
+
+      static mouse  dummy;
+
+      return dummy;
+    }
+
+
+  auto  m = m_root->get_mouse();
+
+  m.point -= m_absolute_point;
+
+  return m;
+}
+
+
 void
 widget::
 need_to_redraw() noexcept
 {
     if(!m_root)
     {
-      printf("widget::need_to_redraw error: rootがない\n");
+//      printf("widget::need_to_redraw error: %s::%s rootがない\n",get_widget_name(),m_name.data());
 
       return;
     }
@@ -52,23 +74,23 @@ need_to_reform() noexcept
 
 bool
 widget::
-test_by_absolute_point(int  x, int  y) const noexcept
+test_by_absolute_point(point  pt) const noexcept
 {
-  return((x >= m_absolute_point.x) &&
-         (y >= m_absolute_point.y) &&
-         (x <  (m_absolute_point.x+m_width )) &&
-         (y <  (m_absolute_point.y+m_height)));
+  return((pt.x >= m_absolute_point.x) &&
+         (pt.y >= m_absolute_point.y) &&
+         (pt.x <  (m_absolute_point.x+m_width )) &&
+         (pt.y <  (m_absolute_point.y+m_height)));
 }
 
 
 bool
 widget::
-test_by_relative_point(int  x, int  y) const noexcept
+test_by_relative_point(point  pt) const noexcept
 {
-  return((x >= m_relative_point.x) &&
-         (y >= m_relative_point.y) &&
-         (x <  (m_relative_point.x+m_width )) &&
-         (y <  (m_relative_point.y+m_height)));
+  return((pt.x >= m_relative_point.x) &&
+         (pt.y >= m_relative_point.y) &&
+         (pt.x <  (m_relative_point.x+m_width )) &&
+         (pt.y <  (m_relative_point.y+m_height)));
 }
 
 

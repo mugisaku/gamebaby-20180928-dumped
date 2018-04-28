@@ -29,9 +29,9 @@ color_maker(void  (*callback)(color_maker&,color)) noexcept:
 m_callback(callback),
 m_color(0,0,0)
 {
-  m_r_dial = new dial(0,7,update_color);
-  m_g_dial = new dial(0,7,update_color);
-  m_b_dial = new dial(0,7,update_color);
+  m_r_dial = new dial(0,7,update_color_internal);
+  m_g_dial = new dial(0,7,update_color_internal);
+  m_b_dial = new dial(0,7,update_color_internal);
 
   m_r_dial->set_userdata(this);
   m_g_dial->set_userdata(this);
@@ -49,17 +49,17 @@ m_color(0,0,0)
 
 void
 color_maker::
-update_color(dial&  dial, int  old_value, int  new_value) noexcept
+update_color_internal(dial&  dial, int  old_value, int  new_value) noexcept
 {
   auto&  cm = *reinterpret_cast<color_maker*>(dial.get_userdata());
 
-  cm.update();
+  cm.update_color();
 }
 
 
 void
 color_maker::
-update() noexcept
+update_color() noexcept
 {
   m_color = color(m_r_dial->get_current(),
                   m_g_dial->get_current(),

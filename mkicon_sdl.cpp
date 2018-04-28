@@ -1,5 +1,4 @@
 #include"libgbstd/image.hpp"
-#include"libgbstd/controller.hpp"
 #include"libgbstd/widget.hpp"
 #include"sdl.hpp"
 
@@ -101,11 +100,11 @@ save(widgets::button&  btn) noexcept
 void
 main_loop()
 {
-  sdl::update_controller();
+  auto&  condev = sdl::update_control_device();
 
-  root.react();
+  root.react(condev);
 
-    if(root.redraw_only_needed_widgets(final_image) || ctrl.is_needed_to_redraw())
+    if(root.redraw_only_needed_widgets(final_image) || condev.needed_to_redraw)
     {
       sdl::update_screen(final_image);
     }
@@ -138,6 +137,8 @@ main(int  argc, char**  argv)
   root->append_child(row,0,0);
 
   root->show_all();
+
+  root.put_down();
 
   root.redraw(final_image);
 

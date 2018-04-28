@@ -3,7 +3,7 @@
 
 
 #include"libgbstd/image.hpp"
-#include"libgbstd/controller.hpp"
+#include"libgbstd/control_device.hpp"
 #include<SDL.h>
 
 
@@ -18,7 +18,7 @@ void  quit() noexcept;
 
 void  init(int  w, int  h) noexcept;
 
-void  update_controller() noexcept;
+gbstd::control_device&  update_control_device() noexcept;
 
 
 }

@@ -1,5 +1,4 @@
 #include"libgbstd/widget.hpp"
-#include"libgbstd/controller.hpp"
 #include"sdl.hpp"
 
 
@@ -464,11 +463,11 @@ save() noexcept
 void
 main_loop() noexcept
 {
-  sdl::update_controller();
+  auto&  condev = sdl::update_control_device();
 
-  root.react();
+  root.react(condev);
 
-    if(root.redraw_only_needed_widgets(final_image) || ctrl.is_needed_to_redraw())
+    if(root.redraw_only_needed_widgets(final_image) || condev.needed_to_redraw)
     {
       sdl::update_screen(final_image);
     }
@@ -499,7 +498,9 @@ main(int  argc, char**  argv)
                                        character_table::pixel_size*character::size,
     [](point  index)->bool
     {
-        if(ctrl.is_mouse_lbutton_pressed())
+      auto&  mouse = root.get_mouse();
+
+        if(mouse.left_button)
         {
           auto  ptr = character_table::get_pointer(index);
 
@@ -589,6 +590,8 @@ main(int  argc, char**  argv)
   root->append_child(new widgets::table_column({urow,sample}),0,0);
 
   root->show_all();
+
+  root.put_down();
 
   root.redraw(final_image);
 

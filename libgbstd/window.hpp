@@ -39,12 +39,10 @@ protected:
 
   widget*  m_current=nullptr;
 
-  point  m_point;
-
   int  m_width;
   int  m_height;
 
-  point  m_content_point;
+  point  m_point;
 
   uint32_t  m_state=0;
 
@@ -130,8 +128,7 @@ public:
 
   window*  get_child() const noexcept{return m_child;}
 
-  void   react() noexcept;
-
+  void   react(const control_device&  condev) noexcept;
   void  update() noexcept;
 
   void  update_frame_image() noexcept;
@@ -169,6 +166,11 @@ window_manager
                                          predefined_color::light_gray     ,
                                          predefined_color::dark_gray};
 
+  uint32_t  m_time=0;
+
+  mouse  m_old_mouse;
+  mouse  m_mouse;
+
   point  m_gripping_point;
 
   window*  scan_other_windows_than_top(point  pt) noexcept;
@@ -188,13 +190,19 @@ public:
   window*  append(window*  w, int  x, int  y) noexcept;
   window*  remove(window*  w) noexcept;
 
+  uint32_t  get_time() const noexcept{return m_time;}
+
+  const mouse&  get_mouse() const noexcept{return m_mouse;}
+
   bool  is_needed_to_refresh() const noexcept{return m_state&flags::needed_to_refresh;}
   bool  is_moving_window()     const noexcept{return m_state&flags::moving_window;}
   bool  is_touched_window()    const noexcept{return m_state&flags::touched_window;}
 
   void  need_to_refresh() noexcept{set_flag(flags::needed_to_refresh);}
 
-  void  update() noexcept;
+  void  put_down_window_all() const noexcept;
+
+  void  update(const control_device&  condev) noexcept;
 
   bool  composite(image&  dst) noexcept;
 

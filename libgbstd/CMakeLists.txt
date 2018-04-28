@@ -48,7 +48,6 @@ set(SOURCES
   utility.cpp
   garden.cpp
   environment.cpp
-  controller.cpp
   menu_base.cpp
   roll_menu.cpp
   column_menu.cpp

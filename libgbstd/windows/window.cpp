@@ -31,11 +31,11 @@ test_by_point(int  x, int  y) const noexcept
 
 void
 window::
-react() noexcept
+react(const control_device&  condev) noexcept
 {
   update();
 
-  m_root.react(m_content_point);
+  m_root.react(condev);
 
   update();
 }
@@ -45,11 +45,14 @@ void
 window::
 update() noexcept
 {
-  m_content_point = m_point;
-
     if(has_header())
     {
-      m_content_point += point(8,16);
+      m_root.set_offset(m_point+point(8,16));
+    }
+
+  else
+    {
+      m_root.set_offset(m_point);
     }
 
 
@@ -93,7 +96,7 @@ void
 window::
 redraw_content(image&  dst) noexcept
 {
-  auto  cur = image_cursor(dst,m_content_point);
+  auto  cur = image_cursor(dst,m_root.get_offset());
 
   images::transfer(m_content_image,m_content_image.get_rectangle(),cur);
 

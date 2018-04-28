@@ -8,33 +8,30 @@ namespace sdl{
 namespace{
 
 
-using flags = gbstd::controller::flags;
-
-
 void
-process_key_down(const SDL_KeyboardEvent&  evt)
+process_key_down(const SDL_KeyboardEvent&  evt, gbstd::keyboard&  kbd, bool&  flag) noexcept
 {
   if(!evt.repeat)
   {
       switch(evt.keysym.sym)
       {
-    case(SDLK_UP   ): gbstd::ctrl.set(flags::pressed_up_button);break;
-    case(SDLK_LEFT ): gbstd::ctrl.set(flags::pressed_left_button);break;
-    case(SDLK_RIGHT): gbstd::ctrl.set(flags::pressed_right_button);break;
-    case(SDLK_DOWN ): gbstd::ctrl.set(flags::pressed_down_button);break;
+    case(SDLK_UP   ): kbd.up_button.press(flag);break;
+    case(SDLK_LEFT ): kbd.left_button.press(flag);break;
+    case(SDLK_RIGHT): kbd.right_button.press(flag);break;
+    case(SDLK_DOWN ): kbd.down_button.press(flag);break;
 
-    case(SDLK_SPACE ): gbstd::ctrl.set(flags::pressed_start_button);break;
+    case(SDLK_SPACE ): kbd.start_button.press(flag);break;
     case(SDLK_LSHIFT):
-    case(SDLK_RSHIFT): gbstd::ctrl.set(flags::pressed_shift_button);break;
+    case(SDLK_RSHIFT): kbd.shift_button.press(flag);break;
 
     case(SDLK_RETURN):
     case(SDLK_z):
-        gbstd::ctrl.set(flags::pressed_p_button);
+        kbd.p_button.press(flag);
         break;
     case(SDLK_RCTRL):
     case(SDLK_LCTRL):
     case(SDLK_x    ):
-        gbstd::ctrl.set(flags::pressed_n_button);
+        kbd.n_button.press(flag);
         break;
     case(SDLK_F1):
 //        SDL_SaveBMP(surface,"__SCREEN.bmp");
@@ -45,91 +42,96 @@ process_key_down(const SDL_KeyboardEvent&  evt)
 
 
 void
-process_key_up(const SDL_KeyboardEvent&  evt)
+process_key_up(const SDL_KeyboardEvent&  evt, gbstd::keyboard&  kbd, bool&  flag) noexcept
 {
     switch(evt.keysym.sym)
     {
-  case(SDLK_UP   ): gbstd::ctrl.unset(   flags::pressed_up_button);break;
-  case(SDLK_LEFT ): gbstd::ctrl.unset( flags::pressed_left_button);break;
-  case(SDLK_RIGHT): gbstd::ctrl.unset(flags::pressed_right_button);break;
-  case(SDLK_DOWN ): gbstd::ctrl.unset( flags::pressed_down_button);break;
+  case(SDLK_UP   ): kbd.up_button.release(flag);break;
+  case(SDLK_LEFT ): kbd.left_button.release(flag);break;
+  case(SDLK_RIGHT): kbd.right_button.release(flag);break;
+  case(SDLK_DOWN ): kbd.down_button.release(flag);break;
 
-  case(SDLK_SPACE ): gbstd::ctrl.unset(flags::pressed_start_button);break;
+  case(SDLK_SPACE ): kbd.start_button.release(flag);break;
   case(SDLK_LSHIFT):
-  case(SDLK_RSHIFT): gbstd::ctrl.unset(flags::pressed_shift_button);break;
+  case(SDLK_RSHIFT): kbd.shift_button.release(flag);break;
 
   case(SDLK_RETURN):
   case(SDLK_z     ):
-      gbstd::ctrl.unset(flags::pressed_p_button);
+      kbd.p_button.release(flag);
       break;
   case(SDLK_RCTRL):
   case(SDLK_LCTRL):
   case(SDLK_x    ):
-      gbstd::ctrl.unset(flags::pressed_n_button);
+      kbd.n_button.release(flag);
       break;
     }
 }
 
 
 void
-process_mouse_button(const SDL_MouseButtonEvent&  evt)
+process_mouse_button(const SDL_MouseButtonEvent&  evt, gbstd::mouse&  m, bool&  flag) noexcept
 {
-  gbstd::ctrl.set_point(evt.x,evt.y);
+  m.point = gbstd::point(evt.x,evt.y);
 
     if(evt.state == SDL_PRESSED)
     {
-           if(evt.button == SDL_BUTTON_LEFT ){gbstd::ctrl.press_mouse_lbutton();}
-      else if(evt.button == SDL_BUTTON_RIGHT){gbstd::ctrl.press_mouse_rbutton();}
+           if(evt.button == SDL_BUTTON_LEFT ){ m.left_button.press(flag);}
+      else if(evt.button == SDL_BUTTON_RIGHT){m.right_button.press(flag);}
     }
 
   else
     {
-           if(evt.button == SDL_BUTTON_LEFT ){gbstd::ctrl.release_mouse_lbutton();}
-      else if(evt.button == SDL_BUTTON_RIGHT){gbstd::ctrl.release_mouse_rbutton();}
+           if(evt.button == SDL_BUTTON_LEFT ){ m.left_button.release(flag);}
+      else if(evt.button == SDL_BUTTON_RIGHT){m.right_button.release(flag);}
     }
 }
 
 
 void
-process_mouse_motion(const SDL_MouseMotionEvent&  evt)
+process_mouse_motion(const SDL_MouseMotionEvent&  evt, gbstd::mouse&  m, bool&  flag) noexcept
 {
-  gbstd::ctrl.set_point(evt.x,evt.y);
+  m.point = gbstd::point(evt.x,evt.y);
 
-    if(evt.state&SDL_BUTTON_LMASK){gbstd::ctrl.press_mouse_lbutton();}
-  else                            {gbstd::ctrl.release_mouse_lbutton();}
+    if(evt.state&SDL_BUTTON_LMASK){m.left_button.press(flag);}
+  else                            {m.left_button.release(flag);}
 
-    if(evt.state&SDL_BUTTON_RMASK){gbstd::ctrl.press_mouse_rbutton();}
-  else                            {gbstd::ctrl.release_mouse_rbutton();}
+    if(evt.state&SDL_BUTTON_RMASK){m.right_button.press(flag);}
+  else                            {m.right_button.release(flag);}
 }
 
 
 }
 
 
-void
-update_controller() noexcept
+gbstd::control_device&
+update_control_device() noexcept
 {
+  static gbstd::control_device  dev;
+
   static SDL_Event  evt;
 
-  gbstd::ctrl.set_time(SDL_GetTicks());
-  gbstd::ctrl.save_point();
-  gbstd::ctrl.unset(flags::modified_mouse_button);
-  gbstd::ctrl.unset(flags::needed_to_redraw);
+  dev.time                       = SDL_GetTicks();
+  dev.needed_to_redraw           = false;
+  dev.mouse_state_modify_flag    = false;
+  dev.keyboard_state_modify_flag = false;
+
+  auto&  mf = dev.mouse_state_modify_flag   ;
+  auto&  kf = dev.keyboard_state_modify_flag;
 
     while(SDL_PollEvent(&evt))
     {
         switch(evt.type)
         {
-      case(SDL_KEYDOWN): process_key_down(evt.key);break;
-      case(SDL_KEYUP  ): process_key_up(  evt.key);break;
-      case(SDL_MOUSEBUTTONUP  ): process_mouse_button(evt.button);break;
-      case(SDL_MOUSEBUTTONDOWN): process_mouse_button(evt.button);break;
-      case(SDL_MOUSEMOTION): process_mouse_motion(evt.motion);break;
+      case(SDL_KEYDOWN): process_key_down(evt.key,dev.keyboard,kf);break;
+      case(SDL_KEYUP  ): process_key_up(  evt.key,dev.keyboard,kf);break;
+      case(SDL_MOUSEBUTTONUP  ): process_mouse_button(evt.button,dev.mouse,mf);break;
+      case(SDL_MOUSEBUTTONDOWN): process_mouse_button(evt.button,dev.mouse,mf);break;
+      case(SDL_MOUSEMOTION): process_mouse_motion(evt.motion,dev.mouse,mf);break;
       case(SDL_WINDOWEVENT):
              switch(evt.window.event)
              {
            case(SDL_WINDOWEVENT_EXPOSED):
-               gbstd::ctrl.set(flags::needed_to_redraw);
+               dev.needed_to_redraw = true;
                break;
              }
            break;
@@ -138,6 +140,9 @@ update_controller() noexcept
            break;
         }
     }
+
+
+  return dev;
 }
 
 

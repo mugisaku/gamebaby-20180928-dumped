@@ -25,6 +25,8 @@ window*
 window_manager::
 append(window*  w, int  x, int  y) noexcept
 {
+  w->get_root().put_down();
+
   w->set_point(point(x,y));
 
   w->set_manager(this);
@@ -142,9 +144,24 @@ scan_other_windows_than_top(point  pt) noexcept
 
 void
 window_manager::
-update() noexcept
+put_down_window_all() const noexcept
 {
-  auto  pt = ctrl.get_point();
+  auto  current = m_bottom;
+
+    while(current)
+    {
+      current->get_root().put_down();
+
+      current = current->get_high();
+    }
+}
+
+
+void
+window_manager::
+update(const control_device&  condev) noexcept
+{
+  m_time = condev.time;
 
     if(!m_top)
     {
@@ -154,33 +171,39 @@ update() noexcept
 
   m_top->update();
 
+
+  m_old_mouse = m_mouse               ;
+                m_mouse = condev.mouse;
+
     if(is_moving_window())
     {
-        if(ctrl.did_mouse_moved())
+        if(m_old_mouse.point != m_mouse.point)
         {
-          m_top->set_point(m_top->get_point()-(m_gripping_point-pt));
+          m_top->set_point(m_top->get_point()-(m_gripping_point-m_mouse.point));
 
-          m_gripping_point = pt;
+          m_gripping_point = m_mouse.point;
 
           need_to_refresh();
         }
 
 
-        if(!ctrl.is_mouse_lbutton_pressed())
+        if(!m_mouse.left_button)
         {
           unset_flag(flags::moving_window);
         }
+
+
 
 
       return;
     }
 
 
-  auto  cursor_is_inside_of_top = m_top->test_by_point(pt.x,pt.y);
+  auto  cursor_is_inside_of_top = m_top->test_by_point(m_mouse->x,m_mouse->y);
 
     if(!cursor_is_inside_of_top)
     {
-        if(is_touched_window() && !ctrl.is_mouse_lbutton_pressed())
+        if(is_touched_window() && !m_mouse.left_button)
         {
           m_top->get_root().cancel();
 
@@ -190,9 +213,9 @@ update() noexcept
         }
 
       else
-        if(ctrl.is_mouse_lbutton_pressed())
+        if(m_mouse.left_button)
         {
-          auto  new_top = scan_other_windows_than_top(pt);
+          auto  new_top = scan_other_windows_than_top(m_mouse.point);
 
             if(new_top)
             {
@@ -228,33 +251,33 @@ update() noexcept
 
     if(is_touched_window())
     {
-        if(!ctrl.is_mouse_lbutton_pressed())
+        if(!m_mouse.left_button)
         {
           unset_flag(flags::touched_window);
         }
 
 
-      m_top->react();
+      m_top->react(condev);
     }
 
   else
     {
-        if(ctrl.is_mouse_lbutton_pressed())
+        if(m_mouse.left_button)
         {
           set_flag(flags::touched_window);
 
-            if(m_top->is_movable() && (pt.y < (m_top->get_point().y+16)))
+            if(m_top->is_movable() && (m_mouse->y < (m_top->get_point().y+16)))
             {
               set_flag(flags::moving_window);
 
-              m_gripping_point = pt;
+              m_gripping_point = m_mouse.point;
 
               return;
             }
         }
 
 
-      m_top->react();
+      m_top->react(condev);
     }
 }
 

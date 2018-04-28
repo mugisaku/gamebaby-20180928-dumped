@@ -21,12 +21,14 @@ set_item_size(int  w, int  h) noexcept
 
 void
 menu::
-do_when_mouse_acted(int  x, int  y) noexcept
+update() noexcept
 {
-  x /= m_parameter.width ;
-  y /= m_parameter.height;
+  auto  mouse = get_mouse();
 
-    if(m_parameter.reactor(point(x,y)))
+  mouse->x /= m_parameter.width ;
+  mouse->y /= m_parameter.height;
+
+    if(m_parameter.reactor(mouse.point))
     {
       need_to_redraw();
     }

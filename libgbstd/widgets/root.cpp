@@ -48,15 +48,18 @@ cancel() noexcept
 
 void
 root::
-react(point  offset) noexcept
+react(const control_device&  condev) noexcept
 {
   m_container.reform_if_needed(point());
 
-  auto  pt = ctrl.get_point()-offset;
+  m_old_mouse = m_mouse               ;
+                m_mouse = condev.mouse;
+
+  m_mouse.point -= m_offset;
 
     if(!m_current)
     {
-      m_current = m_container.scan_by_absolute_point(pt.x,pt.y);
+      m_current = m_container.scan_by_absolute_point(m_mouse.point);
 
         if(m_current)
         {
@@ -65,11 +68,11 @@ react(point  offset) noexcept
     }
 
   else
-    if(ctrl.did_mouse_moved())
+    if(m_old_mouse.point != m_mouse.point)
     {
-        if(!m_current->test_by_absolute_point(pt.x,pt.y))
+        if(!m_current->test_by_absolute_point(m_mouse.point))
         {
-            if(ctrl.is_mouse_lbutton_pressed())
+            if(m_mouse.left_button)
             {
               auto  abs_pt = m_current->get_absolute_point();
 
@@ -78,18 +81,18 @@ react(point  offset) noexcept
               int     top = abs_pt.y                        ;
               int  bottom = abs_pt.y+m_current->get_height();
 
-                   if(pt.x <   left){pt.x =  left  ;}
-              else if(pt.x >= right){pt.x = right-1;}
+                   if(m_mouse.point.x <   left){m_mouse.point.x =  left  ;}
+              else if(m_mouse.point.x >= right){m_mouse.point.x = right-1;}
 
-                   if(pt.y <     top){pt.y =    top  ;}
-              else if(pt.y >= bottom){pt.y = bottom-1;}
+                   if(m_mouse.point.y <     top){m_mouse.point.y =    top  ;}
+              else if(m_mouse.point.y >= bottom){m_mouse.point.y = bottom-1;}
             }
 
           else
             {
               m_current->do_when_cursor_got_out();
 
-              m_current = m_container.scan_by_absolute_point(pt.x,pt.y);
+              m_current = m_container.scan_by_absolute_point(m_mouse.point);
 
                 if(m_current)
                 {
@@ -100,13 +103,9 @@ react(point  offset) noexcept
     }
 
 
-    if(m_current && ctrl.did_mouse_acted())
+    if(m_current)
     {
-      auto  abs_pt = m_current->get_absolute_point();
-
-      pt -= abs_pt;
-
-      m_current->do_when_mouse_acted(pt.x,pt.y);
+      m_current->update();
     }
 
 
