@@ -15,7 +15,7 @@ set(SOURCES
   texts/string_form.cpp
   widgets/widget.cpp
   widgets/container.cpp
-  widgets/wrapper.cpp
+  widgets/node.cpp
   widgets/frame.cpp
   widgets/root.cpp
   widgets/label.cpp

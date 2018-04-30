@@ -269,13 +269,6 @@ render(image_cursor  cur) noexcept
   int           pitch = m_pixel_size*w;
   int  number_of_rows = m_pixel_size*h;
 
-    for(int  y = 0;  y < number_of_rows;  y += 2)
-    {
-      cur.draw_hline(color(01005),0,y  ,pitch);
-      cur.draw_hline(color(01337),0,y+1,pitch);
-    }
-
-
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
       auto&  pix = img.get_pixel(x,y);
@@ -297,18 +290,18 @@ render(image_cursor  cur) noexcept
     {
         for(int  y = 0;  y < h;  ++y)
         {
-          cur.draw_hline(predefined_color::gray,0,m_pixel_size*y,pitch);
+          cur.draw_hline(predefined_color::light_gray,0,m_pixel_size*y,pitch);
         }
 
 
         for(int  x = 0;  x < w;  ++x)
         {
-          cur.draw_vline(predefined_color::gray,m_pixel_size*x,0,number_of_rows);
+          cur.draw_vline(predefined_color::light_gray,m_pixel_size*x,0,number_of_rows);
         }
 
 
-      cur.draw_hline(predefined_color::light_gray,0,m_pixel_size*(h/2),pitch);
-      cur.draw_vline(predefined_color::light_gray,m_pixel_size*(w/2),0,number_of_rows);
+      cur.draw_hline(predefined_color::white,0,m_pixel_size*(h/2),pitch);
+      cur.draw_vline(predefined_color::white,m_pixel_size*(w/2),0,number_of_rows);
     }
 }
 

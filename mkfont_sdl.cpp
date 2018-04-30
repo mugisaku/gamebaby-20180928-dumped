@@ -587,9 +587,11 @@ main(int  argc, char**  argv)
 
   auto  urow = new widgets::table_row({cv,cv->create_operation_widget(),mnu,mnu_tool_col});
 
-  root->append_child(new widgets::table_column({urow,sample}),0,0);
+  auto&  root_node = root.get_node();
 
-  root->show_all();
+  root_node.set_target(new widgets::table_column({urow,sample}));
+
+  root_node.show_all();
 
   root.put_down();
 

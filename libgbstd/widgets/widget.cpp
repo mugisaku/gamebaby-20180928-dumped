@@ -83,17 +83,6 @@ test_by_absolute_point(point  pt) const noexcept
 }
 
 
-bool
-widget::
-test_by_relative_point(point  pt) const noexcept
-{
-  return((pt.x >= m_relative_point.x) &&
-         (pt.y >= m_relative_point.y) &&
-         (pt.x <  (m_relative_point.x+m_width )) &&
-         (pt.y <  (m_relative_point.y+m_height)));
-}
-
-
 void
 widget::
 reform(point  base_pt) noexcept

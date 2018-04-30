@@ -28,7 +28,7 @@ shared_data
 
 radio_button::
 radio_button(widget*  target, callback_prototype  cb) noexcept:
-wrapper(new container),
+node(new container),
 m_data(new shared_data),
 m_bit_id(1)
 {
@@ -50,7 +50,7 @@ m_bit_id(1)
 
 radio_button::
 radio_button(widget*  target, radio_button&  first) noexcept:
-wrapper(new container),
+node(new container),
 m_data(first.m_data),
 m_bit_id(first.m_data->last->m_bit_id<<1)
 {

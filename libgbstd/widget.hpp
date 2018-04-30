@@ -111,11 +111,9 @@ public:
   }
 
 
-  bool  test_by_relative_point(point  pt) const noexcept;
   bool  test_by_absolute_point(point  pt) const noexcept;
 
   virtual widget*  scan_by_absolute_point(point  pt) noexcept{return test_by_absolute_point(pt)? this:nullptr;}
-  virtual widget*  scan_by_relative_point(point  pt) noexcept{return test_by_relative_point(pt)? this:nullptr;}
 
   const point&  get_absolute_point() const noexcept{return m_absolute_point;}
   const point&  get_relative_point() const noexcept{return m_relative_point;}
@@ -183,7 +181,6 @@ public:
   void  render(image_cursor  cur) noexcept override;
 
   widget*  scan_by_absolute_point(point  pt) noexcept override;
-  widget*  scan_by_relative_point(point  pt) noexcept override;
 
   void  append_child(widget*  child, int  x=0, int  y=0) noexcept;
 
@@ -195,25 +192,29 @@ public:
 
 
 class
-wrapper: public widget
+node: public widget
 {
 protected:
   std::unique_ptr<widget>  m_target;
 
+  widget*  m_current=nullptr;
+
 public:
-  wrapper(widget*  target) noexcept:
+  node(widget*  target=nullptr) noexcept:
   m_target(target){}
 
-  const char*  get_widget_name() const noexcept override{return "wrapper";}
+  const char*  get_widget_name() const noexcept override{return "node";}
 
   void  set_root(root*  r) noexcept override;
 
-  void  do_when_cursor_got_in()  noexcept override;
-  void  do_when_cursor_got_out() noexcept override;
+  const widget*  get_current() const noexcept{return m_current;}
+
   void  update() noexcept override;
 
   void  reform(point  base_pt) noexcept override;
   void  render(image_cursor  cur) noexcept override;
+
+  void  cancel_current() noexcept;
 
   void     set_target(widget*  target) noexcept;
   widget*  get_target(               ) const noexcept{return m_target.get();}
@@ -226,19 +227,58 @@ public:
 
 
 class
-frame: public wrapper
+background_style
+{
+  color   m_first_color=color(1,1,1);
+  color  m_second_color=color(2,2,2);
+
+  int  m_interval=4;
+
+public:
+  background_style() noexcept{}
+  background_style(color  color1, color  color2, int  interval=1) noexcept:
+  m_first_color(color1), m_second_color(color2), m_interval(interval){}
+
+  int  get_interval() const noexcept{return m_interval;}
+
+  color   get_first_color() const noexcept{return  m_first_color;}
+  color  get_second_color() const noexcept{return m_second_color;}
+
+};
+
+
+class
+frame: public node
 {
   gbstd::string  m_text;
 
+  text_style        m_text_style;
+  background_style  m_background_style;
+
+  color  m_line_color;
+
+  static color           m_default_line_color;
+  static background_style  m_default_background_style;
+
 public:
   frame(widget*  target, gbstd::string_view  text) noexcept:
-  wrapper(target), m_text(text){}
+  node(target), m_text(text),
+  m_line_color(m_default_line_color),
+  m_background_style(m_default_background_style)
+  {}
 
   const char*  get_widget_name() const noexcept override{return "frame";}
 
   void  reform(point  base_pt) noexcept override;
 
+  void  set_line_color(color  new_color) noexcept;
+  void  set_background_style(background_style  new_style) noexcept;
+
   void  render(image_cursor  cur) noexcept override;
+
+
+  static void  set_default_line_color(      color  new_color) noexcept{m_default_line_color                  = new_color;}
+  static void  set_default_background_style(background_style  new_style) noexcept{m_default_background_style = new_style;}
 
 };
 
@@ -250,38 +290,34 @@ root
 {
   windows::window*  m_window=nullptr;
 
-  container  m_container;
+  node  m_node;
 
   point  m_offset;
 
   mouse  m_old_mouse;
   mouse  m_mouse;
 
-  widget*  m_current=nullptr;
-
   widget*  m_redrawing_first=nullptr;
   widget*  m_redrawing_last =nullptr;
 
 public:
-  root(                   ) noexcept{m_container.set_root(this);}
-  root(windows::window&  w) noexcept: m_window(&w){m_container.set_root(this);}
-
-  container&  get_container() noexcept{return m_container;}
-
-  container*  operator->() noexcept{return &m_container;}
+  root() noexcept{}
+  root(windows::window&  win, widget*  wid) noexcept: m_window(&win), m_node(wid){}
 
   void          set_offset(point  pt)       noexcept{       m_offset = pt;}
   const point&  get_offset(         ) const noexcept{return m_offset     ;}
 
-  const mouse&  get_mouse() const noexcept{return m_mouse;}
+  void  set_node_target(widget*  w) noexcept;
 
-  const widget*  get_current() const noexcept{return m_current;}
+  node&  get_node() noexcept{return m_node;}
+
+  mouse&  get_mouse() noexcept{return m_mouse;}
+
+  bool  is_mouse_moved() const noexcept{return m_mouse.point != m_old_mouse.point;}
 
   void  push_widget_that_needed_to_redraw(widget&  w) noexcept;
 
-  void  put_down() noexcept{m_container.set_root(this);}
-
-  void  cancel() noexcept;
+  void  put_down() noexcept{m_node.set_root(this);}
 
   void  react(const control_device&  condev) noexcept;
 
@@ -387,7 +423,7 @@ public:
 
 
 class
-radio_button: public wrapper
+radio_button: public node
 {
 public:
   using callback_prototype = void  (*)(radio_button&  btn, uint32_t  old_state, uint32_t  new_state);

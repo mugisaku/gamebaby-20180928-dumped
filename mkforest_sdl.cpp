@@ -362,9 +362,11 @@ main(int  argc, char**  argv)
 
   auto  row = new widgets::table_row({cv,a_col,b_col,c_col});
 
-  root->append_child(row,0,0);
+  auto&  root_node = root.get_node();
 
-  root->show_all();
+  root_node.set_target(row);
+
+  root_node.show_all();
 
   root.put_down();
 

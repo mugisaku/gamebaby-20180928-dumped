@@ -9,10 +9,13 @@ namespace windows{
 
 
 window::
-window(gbstd::string_view  name) noexcept:
+window(gbstd::string_view  name, widget*  widget) noexcept:
 m_name(name),
-m_root(*this)
+m_root(*this,widget)
 {
+  m_root.put_down();
+
+  m_root.get_node().show_all();
 }
 
 
@@ -56,13 +59,13 @@ update() noexcept
     }
 
 
-    if(m_root->is_needed_to_reform())
+    if(m_root.get_node().is_needed_to_reform())
     {
-      m_root->reform(point());
+      m_root.get_node().reform(point());
 
 
-      int  w = m_root->get_width() ;
-      int  h = m_root->get_height();
+      int  w = m_root.get_node().get_width() ;
+      int  h = m_root.get_node().get_height();
 
         if((w != m_content_image.get_width()) ||
            (h != m_content_image.get_height()))

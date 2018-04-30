@@ -171,7 +171,6 @@ update(const control_device&  condev) noexcept
 
   m_top->update();
 
-
   m_old_mouse = m_mouse               ;
                 m_mouse = condev.mouse;
 
@@ -205,7 +204,7 @@ update(const control_device&  condev) noexcept
     {
         if(is_touched_window() && !m_mouse.left_button)
         {
-          m_top->get_root().cancel();
+          m_top->get_root().get_node().cancel_current();
 
           unset_flag(flags::touched_window);
 

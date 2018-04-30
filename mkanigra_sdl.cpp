@@ -71,28 +71,6 @@ constexpr int  height =  4;
 cell*  current = cells;
 
 
-void
-resize_image(int  w, int  h) noexcept
-{
-  cv_image.resize(w,h);
-
-  cv->need_to_reform();
-
-  cell::width  = w;
-  cell::height = h;
-
-  mnu->set_item_size(w,h);
-
-    for(auto&  cell: cells)
-    {
-      cell.image.resize(w,h);
-    }
-
-
-  mnu->need_to_reform();
-}
-
-
 
 cell*
 get_pointer(point  index) noexcept
@@ -161,7 +139,7 @@ view: public widget
   int  m_index=0;
 
 public:
-  view() noexcept: widget(cell::width,cell::height+font_height){}
+  view() noexcept{}
 
   void  advance() noexcept
   {
@@ -173,6 +151,15 @@ public:
 
     need_to_redraw();
   }
+
+  void  reform(gbstd::point  base_pt) noexcept override
+  {
+    widget::reform(base_pt);
+
+    m_width  = std::max(cell::width,gbstd::font_width*5);
+    m_height = (cell::height+font_height);
+  }
+
 
   void  render(image_cursor  cur) noexcept override
   {
@@ -199,6 +186,8 @@ animator::view
 view;
 
 
+
+
 void
 check_time(uint32_t  now) noexcept
 {
@@ -216,6 +205,32 @@ check_time(uint32_t  now) noexcept
 
 }
 
+
+
+void
+resize_cell_all(int  w, int  h) noexcept
+{
+  cell::width  = w;
+  cell::height = h;
+
+    for(auto&  cell: cells)
+    {
+      cell.image.resize(w,h);
+    }
+
+
+  cv_image.resize(w,h);
+
+  cv->need_to_reform();
+
+
+  mnu->set_item_size(w,h);
+
+  mnu->need_to_reform();
+
+
+  animator::view.need_to_reform();
+}
 
 
 void
@@ -249,7 +264,7 @@ widget*
 create_animation_widget() noexcept
 {
   animator::interval_dial = new widgets::dial(1,8,[](widgets::dial&  d, int  old_value, int  new_value){
-    animator::interval_time = 200*new_value;
+    animator::interval_time = 50*new_value;
   });
 
   auto  psh_btn = new widgets::button(new widgets::label(u"Push"),[](widgets::button&  btn){
@@ -294,7 +309,10 @@ create_animation_widget() noexcept
 
   auto  op_col = new widgets::table_column({psh_btn,pop_btn,clr_btn});
 
-  return new widgets::frame(new widgets::table_row({&animator::view,op_col,animator::interval_dial}),"animation");
+
+  auto  frame = new widgets::frame(new widgets::table_row({&animator::view,op_col,animator::interval_dial}),"animation");
+
+  return frame;
 }
 
 
@@ -366,41 +384,45 @@ main(int  argc, char**  argv)
   };
 
 
-  auto  color_maker = new widgets::frame(cv->create_color_maker(),"color");
-  auto      cv_tool = cv->create_tool_widget();
-  auto        cv_op = cv->create_operation_widget();
-
   mnu = new widgets::menu(mip,cell_table::width,cell_table::height);
 
 
-  auto  urow = new widgets::table_row({new widgets::frame(cv,"canvas"),cv_tool,cv_op,color_maker});
+  resize_cell_all(24,24);
 
 
-  canvas_window = new window("canvas window");
+  auto  color_maker_frame = new widgets::frame(cv->create_color_maker(),"color");
+
+  auto      cv_tool = cv->create_tool_widget();
+  auto        cv_op = cv->create_operation_widget();
+
+
+  auto  cv_frame = new widgets::frame(cv,"canvas");
+
+  cv_frame->set_line_color(predefined_color::black);
+
+
+  auto  urow = new widgets::table_row({cv_tool,cv_op});
+  auto  ucol = new widgets::table_column({urow,color_maker_frame});
+
+
+  canvas_window = new window("canvas window",new widgets::table_row({cv_frame,ucol}));
 
   canvas_window->set_header_flag();
   canvas_window->set_movable_flag();
 
-  (*canvas_window)->append_child(new widgets::table_column({urow}),0,0);
 
-  (*canvas_window)->show_all();
+  auto  celtbl_frame = new widgets::frame(mnu,"cell table");
 
 
-  cell_window = new window("cell window");
+  cell_window = new window("cell window",new widgets::table_column({create_animation_widget(),celtbl_frame}));
 
   cell_window->set_header_flag();
   cell_window->set_movable_flag();
-
-  (*cell_window)->append_child(new widgets::table_column({create_animation_widget(),new widgets::frame(mnu,"cell table")}),0,0);
-
-  (*cell_window)->show_all();
 
 
   winman.append(canvas_window,0,0);
   winman.append(  cell_window,80,80);
 
-
-  cell_table::resize_image(24,24);
 
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop,0,false);

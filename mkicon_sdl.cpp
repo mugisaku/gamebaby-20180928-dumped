@@ -132,13 +132,8 @@ main(int  argc, char**  argv)
 
   auto  mcol = new widgets::table_column({cv->create_color_maker(),cv->create_operation_widget(),save_btn});
 
-  auto  row = new widgets::table_row({cv,mcol,cv->create_tool_widget()});
 
-  root->append_child(row,0,0);
-
-  root->show_all();
-
-  root.put_down();
+  root.set_node_target(new widgets::table_row({cv,mcol,cv->create_tool_widget()}));
 
   root.redraw(final_image);
 

@@ -116,55 +116,13 @@ scan_by_absolute_point(point  pt) noexcept
 }
 
 
-widget*
-container::
-scan_by_relative_point(point  pt) noexcept
-{
-    if(test_by_relative_point(pt))
-    {
-        if(m_unique)
-        {
-            if(m_current &&
-               m_current->test_flag(flags::shown))
-            {
-              auto  w = m_current->scan_by_relative_point(pt);
-
-                if(w)
-                {
-                  return w;
-                }
-            }
-        }
-
-      else
-        {
-            for(auto&  child: m_children)
-            {
-                if(child->test_flag(flags::shown))
-                {
-                  auto  w = child->scan_by_relative_point(pt);
-
-                    if(w)
-                    {
-                      return w;
-                    }
-                }
-            }
-        }
-    }
-
-
-  return nullptr;
-}
-
-
 void
 container::
 do_when_cursor_got_in() noexcept
 {
-  auto  mouse = get_mouse();
+  auto&  mouse = get_root()->get_mouse();
 
-  auto  target = scan_by_relative_point(mouse.point);
+  auto  target = scan_by_absolute_point(mouse.point);
 
     if(target)
     {
@@ -177,9 +135,9 @@ void
 container::
 do_when_cursor_got_out() noexcept
 {
-  auto  mouse = get_mouse();
+  auto&  mouse = get_root()->get_mouse();
 
-  auto  target = scan_by_relative_point(mouse.point);
+  auto  target = scan_by_absolute_point(mouse.point);
 
     if(target)
     {
@@ -192,9 +150,9 @@ void
 container::
 update() noexcept
 {
-  auto  mouse = get_mouse();
+  auto&  mouse = get_root()->get_mouse();
 
-  auto  target = scan_by_relative_point(mouse.point);
+  auto  target = scan_by_absolute_point(mouse.point);
 
     if(target)
     {

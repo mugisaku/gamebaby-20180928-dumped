@@ -74,9 +74,7 @@ protected:
   bool   test_flag(uint32_t  v) const noexcept{return m_state&v;}
 
 public:
-  window(gbstd::string_view  name="") noexcept;
-
-  widgets::container*  operator->() noexcept{return &m_root.get_container();}
+  window(gbstd::string_view  name, widget*  widget) noexcept;
 
   widgets::root&  get_root() noexcept{return m_root;}
 
