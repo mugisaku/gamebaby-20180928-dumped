@@ -8,6 +8,13 @@ namespace widgets{
 
 
 
+background_style
+canvas::
+m_default_background_style = background_style(color(0,0,4),color(0,0,6),4);
+
+
+
+
 void
 canvas::
 set_pixel_size(int  n) noexcept
@@ -266,8 +273,7 @@ render(image_cursor  cur) noexcept
   const int  w = m_image->get_width();
   const int  h = m_image->get_height();
 
-  int           pitch = m_pixel_size*w;
-  int  number_of_rows = m_pixel_size*h;
+  m_background_style.render(0,0,m_width,m_height,cur);
 
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
@@ -290,18 +296,18 @@ render(image_cursor  cur) noexcept
     {
         for(int  y = 0;  y < h;  ++y)
         {
-          cur.draw_hline(predefined_color::light_gray,0,m_pixel_size*y,pitch);
+          cur.draw_hline(predefined_color::light_gray,0,m_pixel_size*y,m_width);
         }
 
 
         for(int  x = 0;  x < w;  ++x)
         {
-          cur.draw_vline(predefined_color::light_gray,m_pixel_size*x,0,number_of_rows);
+          cur.draw_vline(predefined_color::light_gray,m_pixel_size*x,0,m_height);
         }
 
 
-      cur.draw_hline(predefined_color::white,0,m_pixel_size*(h/2),pitch);
-      cur.draw_vline(predefined_color::white,m_pixel_size*(w/2),0,number_of_rows);
+      cur.draw_hline(predefined_color::white,0,m_pixel_size*(h/2),m_width);
+      cur.draw_vline(predefined_color::white,m_pixel_size*(w/2),0,m_height);
     }
 }
 

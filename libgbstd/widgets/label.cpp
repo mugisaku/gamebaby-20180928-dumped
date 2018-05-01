@@ -9,6 +9,18 @@ namespace widgets{
 
 
 
+text_style
+label::
+m_default_text_style(
+  predefined_color::null,
+  predefined_color::white,
+  predefined_color::null,
+  predefined_color::black
+);
+
+
+
+
 label::
 label(gbstd::string_view  sv) noexcept:
 widget(0,16+4)

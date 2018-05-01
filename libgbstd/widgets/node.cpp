@@ -8,6 +8,13 @@ namespace widgets{
 
 
 
+background_style
+node::
+m_default_background_style;
+
+
+
+
 void
 node::
 set_root(root*  r) noexcept
@@ -105,6 +112,16 @@ update() noexcept
 
 void
 node::
+set_background_style(const background_style&  new_style) noexcept
+{
+  m_background_style = &new_style;
+
+  need_to_redraw();
+}
+
+
+void
+node::
 set_target(widget*  target) noexcept
 {
     if(target)
@@ -158,6 +175,8 @@ void
 node::
 render(image_cursor  cur) noexcept
 {
+  m_background_style->render(0,0,m_width,m_height,cur);
+
     if(m_target)
     {
       m_target->redraw(cur.get_image());

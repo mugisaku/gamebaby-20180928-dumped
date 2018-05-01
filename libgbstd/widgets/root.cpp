@@ -17,6 +17,8 @@ set_node_target(widget*  w) noexcept
   m_node.set_root(this);
 
   m_node.show_all();
+
+  m_node.reform(point());
 }
 
 

@@ -191,17 +191,71 @@ public:
 };
 
 
+
+
+class
+background_style
+{
+  enum class kind{
+    single_color,
+    stripe,
+  } m_kind=kind::single_color;
+
+  color   m_first_color;
+  color  m_second_color;
+
+  int  m_interval;
+
+public:
+  background_style() noexcept{}
+  background_style(color  color1) noexcept: m_first_color(color1){}
+
+  background_style(color  color1, color  color2, int  interval) noexcept:
+  m_kind(kind::stripe), m_first_color(color1), m_second_color(color2), m_interval(interval){}
+
+  void  be_single_color() noexcept{m_kind = kind::single_color;}
+  void  be_stripe()       noexcept{m_kind = kind::stripe;}
+
+  bool  is_single_color() const noexcept{return m_kind == kind::single_color;}
+  bool  is_stripe() const noexcept{return m_kind == kind::stripe;}
+
+  void  set_interval(int  v)       noexcept{       m_interval = v;}
+  int   get_interval(      ) const noexcept{return m_interval    ;}
+
+  void    set_first_color(images::color  color)       noexcept{       m_first_color = color;}
+  color   get_first_color(                    ) const noexcept{return m_first_color        ;}
+
+  void   set_second_color(images::color  color)       noexcept{       m_second_color = color;}
+  color  get_second_color(                    ) const noexcept{return m_second_color        ;}
+
+  void  render(int  x, int  y, int  w, int  h, image_cursor&  cur) const noexcept
+  {
+      switch(m_kind)
+      {
+    case(kind::single_color): cur.fill_rectangle(m_first_color,x,y,w,h);break;
+    case(kind::stripe      ): cur.draw_stripe_rectangle(m_first_color,m_second_color,m_interval,x,y,w,h);break;
+      }
+  }
+
+};
+
+
 class
 node: public widget
 {
+  static background_style  m_default_background_style;
+
 protected:
   std::unique_ptr<widget>  m_target;
 
   widget*  m_current=nullptr;
 
+  const background_style*  m_background_style=&m_default_background_style;
+
 public:
   node(widget*  target=nullptr) noexcept:
-  m_target(target){}
+  m_target(target)
+  {}
 
   const char*  get_widget_name() const noexcept override{return "node";}
 
@@ -216,6 +270,8 @@ public:
 
   void  cancel_current() noexcept;
 
+  void  set_background_style(const background_style&  new_style) noexcept;
+
   void     set_target(widget*  target) noexcept;
   widget*  get_target(               ) const noexcept{return m_target.get();}
 
@@ -223,26 +279,7 @@ public:
 
   void  print(int  indent=0) const noexcept override;
 
-};
-
-
-class
-background_style
-{
-  color   m_first_color=color(1,1,1);
-  color  m_second_color=color(2,2,2);
-
-  int  m_interval=4;
-
-public:
-  background_style() noexcept{}
-  background_style(color  color1, color  color2, int  interval=1) noexcept:
-  m_first_color(color1), m_second_color(color2), m_interval(interval){}
-
-  int  get_interval() const noexcept{return m_interval;}
-
-  color   get_first_color() const noexcept{return  m_first_color;}
-  color  get_second_color() const noexcept{return m_second_color;}
+  static void  set_default_background_style(background_style  new_style) noexcept{m_default_background_style = new_style;}
 
 };
 
@@ -250,21 +287,20 @@ public:
 class
 frame: public node
 {
+  static text_style  m_default_text_style;
+
   gbstd::string  m_text;
 
-  text_style        m_text_style;
-  background_style  m_background_style;
+  text_style  m_text_style=m_default_text_style;
 
   color  m_line_color;
 
-  static color           m_default_line_color;
-  static background_style  m_default_background_style;
+  static color  m_default_line_color;
 
 public:
   frame(widget*  target, gbstd::string_view  text) noexcept:
   node(target), m_text(text),
-  m_line_color(m_default_line_color),
-  m_background_style(m_default_background_style)
+  m_line_color(m_default_line_color)
   {}
 
   const char*  get_widget_name() const noexcept override{return "frame";}
@@ -272,13 +308,10 @@ public:
   void  reform(point  base_pt) noexcept override;
 
   void  set_line_color(color  new_color) noexcept;
-  void  set_background_style(background_style  new_style) noexcept;
 
   void  render(image_cursor  cur) noexcept override;
 
-
-  static void  set_default_line_color(      color  new_color) noexcept{m_default_line_color                  = new_color;}
-  static void  set_default_background_style(background_style  new_style) noexcept{m_default_background_style = new_style;}
+  static void  set_default_line_color(color  new_color) noexcept{m_default_line_color = new_color;}
 
 };
 
@@ -332,7 +365,9 @@ public:
 class
 label: public widget
 {
-  text_style  m_text_style=text_style(predefined_color::blue,predefined_color::white,predefined_color::blue,predefined_color::black);
+  static text_style  m_default_text_style;
+
+  text_style  m_text_style=m_default_text_style;
 
   gbstd::u16string  m_text;
 
@@ -652,11 +687,15 @@ public:
 class
 canvas: public widget
 {
+  static background_style  m_default_background_style;
+
   image*  m_image=nullptr;
 
   int  m_pixel_size=1;
 
   bool  m_grid=false;
+
+  background_style  m_background_style=m_default_background_style;
 
   enum class mode{
     draw_dot,

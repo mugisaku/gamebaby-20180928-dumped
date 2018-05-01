@@ -18,6 +18,8 @@ void  quit() noexcept;
 
 void  init(int  w, int  h) noexcept;
 
+gbstd::image  make_screen_image() noexcept;
+
 gbstd::control_device&  update_control_device() noexcept;
 
 

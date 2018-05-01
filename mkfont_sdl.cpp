@@ -8,10 +8,6 @@ using namespace gbstd;
 namespace{
 
 
-constexpr int  screen_w = 480;
-constexpr int  screen_h = 400;
-
-
 widgets::canvas*
 cv;
 
@@ -20,8 +16,12 @@ widgets::menu*
 mnu;
 
 
+widget*
+prv;
+
+
 images::image
-final_image(screen_w,screen_h);
+final_image;
 
 
 widgets::root
@@ -35,7 +35,8 @@ constexpr int  cv_h = 8;
 images::image
 cv_image(cv_w,cv_h);
 
-
+uint8_t
+preview_data[cv_h][cv_w];
 
 
 
@@ -59,7 +60,7 @@ fputc_u32be(uint32_t  c, FILE*  f)
 
 template<typename  T, int  W, int  H>
 void
-process(int  unicode, T  (&bitmap)[H][W], FILE*  f) noexcept
+process(T  (&bitmap)[H][W]) noexcept
 {
     for(int  x = 0;  x < W;  ++x)
     {
@@ -68,15 +69,6 @@ process(int  unicode, T  (&bitmap)[H][W], FILE*  f) noexcept
             if(!bitmap[y][x] && (bitmap[y+1][x] == 1))
             {
               bitmap[y][x] = 2;
-            }
-        }
-
-
-        for(int  y = H-1;  y > 0;  --y)
-        {
-            if(!bitmap[y][x] && (bitmap[y-1][x] == 1))
-            {
-              bitmap[y][x] = 3;
             }
         }
     }
@@ -91,8 +83,23 @@ process(int  unicode, T  (&bitmap)[H][W], FILE*  f) noexcept
               bitmap[y][x] = 2;
             }
         }
+    }
 
 
+    for(int  x = 0;  x < W;  ++x)
+    {
+        for(int  y = H-1;  y > 0;  --y)
+        {
+            if(!bitmap[y][x] && (bitmap[y-1][x] == 1))
+            {
+              bitmap[y][x] = 3;
+            }
+        }
+    }
+
+
+    for(int  y = 0;  y < H;  ++y)
+    {
         for(int  x = W-1;  x > 0;  --x)
         {
             if(!bitmap[y][x] && (bitmap[y][x-1] == 1))
@@ -101,8 +108,13 @@ process(int  unicode, T  (&bitmap)[H][W], FILE*  f) noexcept
             }
         }
     }
+}
 
 
+template<typename  T, int  W, int  H>
+void
+print(int  unicode, const T  (&bitmap)[H][W], FILE*  f) noexcept
+{
   fprintf(f,"{0x%04X,{",unicode);
 
     for(int  y = 0;  y < H;  ++y)
@@ -111,7 +123,8 @@ process(int  unicode, T  (&bitmap)[H][W], FILE*  f) noexcept
 
         for(int  x = 0;  x < W;  ++x)
         {
-          v |= ((bitmap[y][x]<<14)>>(2*x));
+          v <<= 2;
+          v  |= bitmap[y][x];
         }
 
 
@@ -136,6 +149,19 @@ sample: public widget
 
 public:
   sample() noexcept;
+
+  void  render(image_cursor  cur) noexcept override;
+
+};
+
+
+class
+preview: public widget
+{
+  static constexpr int  m_pixel_size = 4;
+
+public:
+  preview() noexcept;
 
   void  render(image_cursor  cur) noexcept override;
 
@@ -355,7 +381,8 @@ print_combineds(FILE*  f) noexcept
         }
 
 
-      process(c.unicode,bitmap,f);
+      process(bitmap);
+      print(c.unicode,bitmap,f);
     }
 }
 
@@ -436,6 +463,60 @@ render(image_cursor  cur) noexcept
 
 
 
+
+
+types::preview::
+preview() noexcept
+{
+  m_width  = (cv_w*m_pixel_size);
+  m_height = (cv_h*m_pixel_size);
+}
+
+
+void
+types::preview::
+render(image_cursor  cur) noexcept
+{
+    for(int  y = 0;  y < cv_h;  ++y){
+    for(int  x = 0;  x < cv_w;  ++x){
+      auto  v = preview_data[y][x];
+
+      auto  color = (v == 0)? images::predefined_color::black
+                   :(v == 1)? images::predefined_color::white
+                   :(v == 2)? images::predefined_color::red
+                   :          images::predefined_color::blue;
+
+      cur.fill_rectangle(color,m_pixel_size*x,m_pixel_size*y,m_pixel_size,m_pixel_size);
+    }}
+}
+
+
+
+
+void
+update_preview_data() noexcept
+{
+    for(int  y = 0;  y < cv_h;  ++y)
+    {
+      auto  v = character_table::current->data[y];
+
+      uint8_t*  dst = preview_data[y];
+
+        for(int  x = 0;  x < cv_w;  ++x)
+        {
+          *dst++ = (v&0x80)? 1:0;
+
+          v <<= 1;
+        }
+    }
+
+
+  process(preview_data);
+}
+
+
+
+
 void
 save() noexcept
 {
@@ -480,13 +561,13 @@ main_loop() noexcept
 int
 main(int  argc, char**  argv)
 {
-  sdl::init(screen_w,screen_h);
-
-
   cv = new widgets::canvas(cv_image,[](widgets::canvas&  cv){
     character_table::receive();
 
+    update_preview_data();
+
        mnu->need_to_redraw();
+       prv->need_to_redraw();
     sample->need_to_redraw();
   });
 
@@ -513,6 +594,10 @@ main(int  argc, char**  argv)
               cv->get_drawing_recorder().clear();
 
               cv->need_to_redraw();
+
+              update_preview_data();
+
+              prv->need_to_redraw();
 
               return true;
             }
@@ -584,16 +669,27 @@ main(int  argc, char**  argv)
 
 
   sample = new types::sample;
+  prv    = new types::preview;
 
-  auto  urow = new widgets::table_row({cv,cv->create_operation_widget(),mnu,mnu_tool_col});
+  auto  chrtbl = new widgets::table_row({mnu,mnu_tool_col});
+
+  auto  urow = new widgets::table_row({new widgets::frame(cv,"canvas"),
+                                       cv->create_operation_widget(),
+                                       new widgets::frame(chrtbl,"character_table")
+                                     });
+
+  auto  drow = new widgets::table_row({new widgets::frame(prv,"preview"),
+                                       new widgets::frame(sample,"sample")
+                                     });
+
+  root.set_node_target(new widgets::table_column({urow,drow}));
+
 
   auto&  root_node = root.get_node();
 
-  root_node.set_target(new widgets::table_column({urow,sample}));
+  sdl::init(root_node.get_width(),root_node.get_height());
 
-  root_node.show_all();
-
-  root.put_down();
+  final_image = sdl::make_screen_image();
 
   root.redraw(final_image);
 

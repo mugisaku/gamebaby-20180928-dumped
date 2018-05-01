@@ -165,11 +165,14 @@ void
 image::
 draw_rectangle(color  i, int  x, int  y, int  w, int  h) noexcept
 {
-  draw_hline(i,x,y    ,w);
-  draw_hline(i,x,y+h-1,w);
+    if(i)
+    {
+      draw_hline(i,x,y    ,w);
+      draw_hline(i,x,y+h-1,w);
 
-  draw_vline(i,x    ,y+1,h-2);
-  draw_vline(i,x+w-1,y+1,h-2);
+      draw_vline(i,x    ,y+1,h-2);
+      draw_vline(i,x+w-1,y+1,h-2);
+    }
 }
 
 
@@ -206,6 +209,41 @@ draw_doubleline_rectangle(color  in, color  out, int  x, int  y, int  w, int  h)
 {
   draw_rectangle(out,x  ,y  ,w  ,h  );
   draw_rectangle( in,x+1,y+1,w-2,h-2);
+}
+
+
+void
+image::
+draw_stripe_rectangle(color  first, color  second, int  interval, int  x, int  y, int  w, int  h) noexcept
+{
+    if(interval)
+    {
+        for(;;)
+        {
+            for(int  n = 0;  n < interval;  ++n)
+            {
+                if(!h--)
+                {
+                  return;
+                }
+
+
+              draw_hline(first,x,y++,w);
+            }
+
+
+            for(int  n = 0;  n < interval;  ++n)
+            {
+                if(!h--)
+                {
+                  return;
+                }
+
+
+              draw_hline(second,x,y++,w);
+            }
+        }
+    }
 }
 
 
@@ -276,10 +314,15 @@ draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
 
             for(int  xx = 0;  xx < w;  xx += 1)
             {
-              auto  i = style.get_color(code>>14);
+              auto  color = style.get_color(code>>14);
 
-              dst++->color = i;
+                if(color)
+                {
+                  dst->color = color;
+                }
 
+
+               dst  += 1;
               code <<= 2;
             }
         }

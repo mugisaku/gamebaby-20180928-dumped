@@ -100,6 +100,20 @@ init(int  w, int  h) noexcept
 }
 
 
+gbstd::image
+make_screen_image() noexcept
+{
+  int  w;
+  int  h;
+
+  SDL_GetWindowSize(window,&w,&h);
+
+  return gbstd::image(w,h);
+}
+
+
+
+
 }
 
 

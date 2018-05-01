@@ -49,6 +49,7 @@ color
 struct
 predefined_color
 {
+  static constexpr color        null = 0;
   static constexpr color       white = color(7,7,7);
   static constexpr color       black = color(0,0,0);
   static constexpr color        gray = color(3,3,3);
@@ -150,6 +151,8 @@ public:
 
   void  draw_doubleline_rectangle(color  in, color  out, int  x, int  y, int  w, int  h) noexcept;
 
+  void  draw_stripe_rectangle(color  first, color  second, int  interval, int  x, int  y, int  w, int  h) noexcept;
+
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) noexcept;
   void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) noexcept;
   void  draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) noexcept;
@@ -215,6 +218,9 @@ public:
 
   void  draw_doubleline_rectangle(color  in, color  out, int  x, int  y, int  w, int  h) const noexcept{
     m_image->draw_doubleline_rectangle(in,out,get_x(x),get_y(y),w,h);}
+
+  void  draw_stripe_rectangle(color  first, color  second, int  interval, int  x, int  y, int  w, int  h) const noexcept{
+    m_image->draw_stripe_rectangle(first,second,interval,get_x(x),get_y(y),w,h);}
 
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_character(c,style,get_x(x),get_y(y));}
   void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_text(sv,style,get_x(x),get_y(y));}

@@ -15,16 +15,12 @@ using namespace gbstd;
 namespace{
 
 
-constexpr int  screen_w = 480;
-constexpr int  screen_h = 400;
-
-
 widgets::canvas*
 cv;
 
 
 gbstd::image
-final_image(screen_w,screen_h);
+final_image;
 
 
 widgets::root
@@ -119,8 +115,7 @@ main_loop()
 int
 main(int  argc, char**  argv)
 {
-  sdl::init(screen_w,screen_h);
-
+  static widgets::background_style  bgstyle(predefined_color::gray);
 
   cv = new widgets::canvas(cv_image,nullptr);
 
@@ -130,10 +125,22 @@ main(int  argc, char**  argv)
 
   auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);
 
-  auto  mcol = new widgets::table_column({cv->create_color_maker(),cv->create_operation_widget(),save_btn});
+  auto  cm_frame = new widgets::frame(cv->create_color_maker(),"color");
 
 
-  root.set_node_target(new widgets::table_row({cv,mcol,cv->create_tool_widget()}));
+  auto  mcol = new widgets::table_column({cm_frame,cv->create_operation_widget(),save_btn});
+
+
+  auto cv_frame = new widgets::frame(cv,"canvas");
+
+  root.set_node_target(new widgets::table_row({cv_frame,mcol,cv->create_tool_widget()}));
+
+
+  auto&  root_node = root.get_node();
+
+  sdl::init(root_node.get_width(),root_node.get_height());
+
+  final_image = sdl::make_screen_image();
 
   root.redraw(final_image);
 
