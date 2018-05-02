@@ -60,6 +60,12 @@ START:
   else
     if(m_record_list)
     {
+        if(m_count)
+        {
+          --m_count;
+        }
+
+
       auto  rec = m_record_list            ;
                   m_record_list = rec->next;
 
@@ -114,6 +120,9 @@ push(bool  solid) noexcept
 
       rec->next = m_record_list      ;
                   m_record_list = rec;
+
+
+      ++m_count;
     }
 }
 
@@ -122,6 +131,8 @@ void
 drawing_recorder::
 clear() noexcept
 {
+  m_count = 0;
+
     while(m_record_list)
     {
       auto  next = m_record_list->next;

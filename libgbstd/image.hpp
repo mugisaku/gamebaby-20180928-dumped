@@ -249,6 +249,8 @@ drawing_recorder
   };
 
 
+  uint32_t  m_count=0;
+
   std::vector<dot>  m_dot_buffer;
 
   struct record;
@@ -271,6 +273,10 @@ public:
   void  clear() noexcept;
 
   void  push(bool  solid) noexcept;
+
+  uint32_t  get_count() const noexcept{return m_count;}
+
+  void  reset_count() noexcept{m_count = 0;}
 
 };
 

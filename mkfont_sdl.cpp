@@ -158,7 +158,7 @@ public:
 class
 preview: public widget
 {
-  static constexpr int  m_pixel_size = 4;
+  static constexpr int  m_pixel_size = 6;
 
 public:
   preview() noexcept;
@@ -590,6 +590,8 @@ main(int  argc, char**  argv)
               character_table::current = ptr;
 
               character_table::send();
+
+              cv->cancel_drawing();
 
               cv->get_drawing_recorder().clear();
 

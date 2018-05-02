@@ -29,6 +29,7 @@ set(SOURCES
   widgets/check_button.cpp
   widgets/create_button_menu.cpp
   widgets/canvas.cpp
+  widgets/canvas__update.cpp
   widgets/canvas__draw.cpp
   widgets/canvas__operate.cpp
   widgets/canvas__create_sub_widget.cpp

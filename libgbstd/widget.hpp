@@ -707,8 +707,6 @@ canvas: public widget
   } m_mode=mode::draw_dot;
 
 
-  std::vector<point>  m_preview_points;
-
   drawing_recorder  m_recorder;
 
   color  m_drawing_color=color(0,0,0);
@@ -760,20 +758,20 @@ public:
   void  shift_right(bool  rotate) noexcept;
   void  shift_down(bool  rotate) noexcept;
 
-  void  draw_line(point  a, point  b) noexcept;
-  void  draw_rect(rectangle  rect) noexcept;
-  void  fill_rect(rectangle  rect) noexcept;
-  void  fill_area(point  pt) noexcept;
+  void  draw_line(images::color  color, point  a, point  b) noexcept;
+  void  draw_rect(images::color  color, rectangle  rect) noexcept;
+  void  fill_rect(images::color  color, rectangle  rect) noexcept;
+  void  fill_area(images::color  color, point  pt) noexcept;
 
   widget*  create_color_maker() noexcept;
   widget*  create_tool_widget() noexcept;
   widget*  create_operation_widget() noexcept;
 
-  void  apply() noexcept;
+  void  cancel_drawing() noexcept;
 
   void  undo() noexcept;
 
-  void  do_when_cursor_got_out() noexcept override{apply();}
+  void  do_when_cursor_got_out() noexcept override{cancel_drawing();}
 
   void  update() noexcept override;
 

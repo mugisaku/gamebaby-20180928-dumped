@@ -10,15 +10,16 @@ namespace widgets{
 
 void
 canvas::
-draw_line(point  a, point  b) noexcept
+draw_line(images::color  color, point  a, point  b) noexcept
 {
   line_maker  l(a.x,a.y,b.x,b.y);
 
-  m_preview_points.resize(0);
+  m_recorder.push(false);
+  m_recorder.reset_count();
 
     for(;;)
     {
-      m_preview_points.emplace_back(l.get_x(),l.get_y());
+      modify_dot(color,l.get_x(),l.get_y());
 
         if(!l.get_distance())
         {
@@ -28,52 +29,75 @@ draw_line(point  a, point  b) noexcept
 
       l.step();
     }
+
+
+  m_recorder.push(true);
+
+    if(m_recorder.get_count())
+    {
+      need_to_redraw();
+    }
 }
 
 
 void
 canvas::
-draw_rect(rectangle  rect) noexcept
+draw_rect(images::color  color, rectangle  rect) noexcept
 {
-  m_preview_points.resize(0);
+  m_recorder.push(false);
+  m_recorder.reset_count();
 
     for(int  yy = 0;  yy < rect.h;  ++yy)
     {
-      m_preview_points.emplace_back(rect.x         ,rect.y+yy);
-      m_preview_points.emplace_back(rect.x+rect.w-1,rect.y+yy);
+      modify_dot(color,rect.x         ,rect.y+yy);
+      modify_dot(color,rect.x+rect.w-1,rect.y+yy);
     }
 
 
     for(int  xx = 0;  xx < rect.w;  ++xx)
     {
-      m_preview_points.emplace_back(rect.x+xx,rect.y         );
-      m_preview_points.emplace_back(rect.x+xx,rect.y+rect.h-1);
+      modify_dot(color,rect.x+xx,rect.y         );
+      modify_dot(color,rect.x+xx,rect.y+rect.h-1);
+    }
+
+
+  m_recorder.push(true);
+
+  need_to_redraw();
+}
+
+
+void
+canvas::
+fill_rect(images::color  color, rectangle  rect) noexcept
+{
+  m_recorder.push(false);
+  m_recorder.reset_count();
+
+    for(int  yy = 0;  yy < rect.h;  ++yy){
+    for(int  xx = 0;  xx < rect.w;  ++xx){
+      modify_dot(color,rect.x+xx,rect.y+yy);
+    }}
+
+
+  m_recorder.push(true);
+
+    if(m_recorder.get_count())
+    {
+      need_to_redraw();
     }
 }
 
 
 void
 canvas::
-fill_rect(rectangle  rect) noexcept
-{
-  m_preview_points.resize(0);
-
-    for(int  yy = 0;  yy < rect.h;  ++yy){
-    for(int  xx = 0;  xx < rect.w;  ++xx){
-      m_preview_points.emplace_back(rect.x+xx,rect.y+yy);
-    }}
-}
-
-
-void
-canvas::
-fill_area(point  pt) noexcept
+fill_area(images::color  color, point  pt) noexcept
 {
   auto&  img = *m_image;
 
   auto  target_color = img.get_pixel(pt.x,pt.y).color;
 
-    if(target_color == m_drawing_color)
+    if(target_color == color)
     {
       return;
     }
@@ -89,6 +113,9 @@ fill_area(point  pt) noexcept
 
 
   m_recorder.push(false);
+
+  m_recorder.reset_count();
+
 
   std::vector<point>  stack;
 
@@ -110,7 +137,7 @@ fill_area(point  pt) noexcept
             {
               m_recorder.put(pix.color,pt.x,pt.y);
 
-              pix.color = m_drawing_color;
+              pix.color = color;
 
                 if(pt.x      ){stack.emplace_back(point(pt.x-1,pt.y  ));}
                 if(pt.y      ){stack.emplace_back(point(pt.x  ,pt.y-1));}
@@ -122,6 +149,13 @@ fill_area(point  pt) noexcept
 
 
   m_recorder.push(true);
+
+    if(m_recorder.get_count())
+    {
+      m_recorder.reset_count();
+
+      need_to_redraw();
+    }
 }
 
 
