@@ -188,6 +188,84 @@ update() noexcept
           fill_area(color(),point(x,y));
         }
       break;
+  case(mode::select):
+        if(m_pointing_count)
+        {
+            if(mouse.left_button)
+            {
+              m_operation_rect = make_rectangle(m_a_point,point(x,y));
+
+              need_to_redraw();
+            }
+
+          else
+            {
+              m_pointing_count = 0;
+
+              need_to_redraw();
+            }
+        }
+
+      else
+        {
+            if(mouse.left_button)
+            {
+              m_a_point = point(x,y);
+
+              m_pointing_count = 1;
+            }
+        }
+      break;
+  case(mode::paste):
+      m_a_point = point(x,y);
+
+        if(mouse.left_button)
+        {
+            if(m_recorder.get_count())
+            {
+              m_recorder.reset_count();
+            }
+        }
+
+      else
+        if(m_a_point != m_b_point)
+        {
+            if(m_recorder.get_count())
+            {
+              m_recorder.rollback(*m_image);
+            }
+
+
+          m_b_point = m_a_point;
+
+          paste(m_a_point,false);
+        }
+      break;
+  case(mode::layer):
+      m_a_point = point(x,y);
+
+        if(mouse.left_button)
+        {
+            if(m_recorder.get_count())
+            {
+              m_recorder.reset_count();
+            }
+        }
+
+      else
+        if(m_a_point != m_b_point)
+        {
+            if(m_recorder.get_count())
+            {
+              m_recorder.rollback(*m_image);
+            }
+
+
+          m_b_point = m_a_point;
+
+          paste(m_a_point,true);
+        }
+      break;
     }
 }
 

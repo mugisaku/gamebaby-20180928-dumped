@@ -229,7 +229,8 @@ public:
 };
 
 
-void  transfer(const image&  src, rectangle  src_rect, image_cursor&  dst) noexcept;
+void  transform(rectangle&  src_rect, rectangle&  dst_rect) noexcept;
+void  transfer(const image&  src, rectangle  src_rect, image_cursor&  dst, bool  layer) noexcept;
 
 
 

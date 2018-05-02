@@ -43,7 +43,7 @@ composite(image&  dst) const noexcept
 
       auto  cur = image_cursor(dst,spr.dst_point);
 
-      images::transfer(*spr.image,src_rect,cur);
+      images::transfer(*spr.image,src_rect,cur,true);
     }
 }
 

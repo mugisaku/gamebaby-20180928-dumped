@@ -170,7 +170,7 @@ public:
       {
         auto&  img = stack[m_index]->image;
 
-        images::transfer(img,img.get_rectangle(),cur);
+        images::transfer(img,img.get_rectangle(),cur,true);
       }
 
 
@@ -372,7 +372,7 @@ main(int  argc, char**  argv)
 
         if(ptr)
         {
-          images::transfer(ptr->image,ptr->image.get_rectangle(),cur);
+          images::transfer(ptr->image,ptr->image.get_rectangle(),cur,true);
 
             if(ptr == cell_table::current)
             {

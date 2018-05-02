@@ -10,29 +10,18 @@ namespace images{
 
 
 void
-transfer(const image&  src, rectangle  src_rect, image_cursor&  dst) noexcept
+transform(rectangle&  src_rect, rectangle&  dst_rect) noexcept
 {
-  bool  reverse_flag = false;
+  auto&  src_x = src_rect.x;
+  auto&  src_y = src_rect.y;
+  auto&  src_w = src_rect.w;
+  auto&  src_h = src_rect.h;
 
-  int&  src_x = src_rect.x;
-  int&  src_y = src_rect.y;
-  int&  src_w = src_rect.w;
-  int&  src_h = src_rect.h;
+  auto&  dst_x = dst_rect.x;
+  auto&  dst_y = dst_rect.y;
+  auto&  dst_w = dst_rect.w;
+  auto&  dst_h = dst_rect.h;
 
-  int  dst_x = dst.get_x_offset();
-  int  dst_y = dst.get_y_offset();
-  int  dst_w = dst.get_image().get_width();
-  int  dst_h = dst.get_image().get_height();
-
-
-    if(src_w < 0)
-    {
-      reverse_flag = true;
-
-      src_w = -src_w;
-    }
-
-  else
     if(src_w > dst_w)
     {
       src_w = dst_w;
@@ -58,6 +47,8 @@ transfer(const image&  src, rectangle  src_rect, image_cursor&  dst) noexcept
 
       else
         {
+          src_w = 0;
+
           return;
         }
     }
@@ -77,6 +68,8 @@ transfer(const image&  src, rectangle  src_rect, image_cursor&  dst) noexcept
 
       else
         {
+          src_h = 0;
+
           return;
         }
     }
@@ -93,6 +86,8 @@ transfer(const image&  src, rectangle  src_rect, image_cursor&  dst) noexcept
 
       else
         {
+          src_w = 0;
+
           return;
         }
     }
@@ -109,46 +104,38 @@ transfer(const image&  src, rectangle  src_rect, image_cursor&  dst) noexcept
 
       else
         {
+          src_h = 0;
+
           return;
         }
     }
+}
 
 
+void
+transfer(const image&  src, rectangle  src_rect, image_cursor&  dst, bool  layer) noexcept
+{
   auto&  dst_img = dst.get_image();
 
-    for(int  yy = 0;  yy < src_h;  yy += 1)
+  rectangle  dst_rect = dst.get_rectangle();
+
+  transform(src_rect,dst_rect);
+
+    if(src_rect.w)
     {
-        if(reverse_flag)
-        {
-          int  x = src_x+src_w-1;
+        for(int  y = 0;  y < src_rect.h;  y += 1){
+        for(int  x = 0;  x < src_rect.w;  x += 1){
+          auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
 
-            for(int  xx = 0;  xx < src_w;  xx += 1)
+            if(!layer || pix.color)
             {
-              auto  pix = src.get_const_pixel(x--,src_y+yy);
-
-                if(pix.color)
-                {
-                  dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
-                }
+              dst_img.set_pixel(pix,dst_rect.x+x,dst_rect.y+y);
             }
-        }
-
-      else
-        {
-            for(int  xx = 0;  xx < src_w;  xx += 1)
-            {
-              auto  pix = src.get_const_pixel(src_x+xx,src_y+yy);
-
-                if(pix.color)
-                {
-                  dst_img.set_pixel(pix,dst_x+xx,dst_y+yy);
-                }
-            }
-        }
+        }}
     }
 
 
-  dst.set_rectangle(dst_x,dst_y,src_w,src_h);
+  dst.set_rectangle(dst_rect.x,dst_rect.y,src_rect.w,src_rect.h);
 }
 
 

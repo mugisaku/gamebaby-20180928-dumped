@@ -30,6 +30,9 @@ canvas: public widget
     draw_rectangle,
     fill_rectangle,
     fill_area,
+    select,
+    paste,
+    layer,
 
   } m_mode=mode::draw_dot;
 
@@ -37,6 +40,11 @@ canvas: public widget
   drawing_recorder  m_recorder;
 
   color  m_drawing_color=color(0,0,0);
+
+  image  m_clipped_image;
+
+  int  m_clipped_width =0;
+  int  m_clipped_height=0;
 
   int  m_pointing_count=0;
 
@@ -68,6 +76,9 @@ public:
   void  change_mode_to_draw_rectangle() noexcept{m_mode = mode::draw_rectangle;}
   void  change_mode_to_fill_rectangle() noexcept{m_mode = mode::fill_rectangle;}
   void  change_mode_to_fill_area()      noexcept{m_mode = mode::fill_area;}
+  void  change_mode_to_select()         noexcept{m_mode = mode::select;}
+  void  change_mode_to_paste()          noexcept{m_mode = mode::paste;}
+  void  change_mode_to_layer()          noexcept{m_mode = mode::layer;}
 
   void    set_image(image&  img)       noexcept;
   image*  get_image(           ) const noexcept{return m_image;}
@@ -95,7 +106,10 @@ public:
   widget*  create_operation_widget() noexcept;
 
   void  cancel_drawing() noexcept;
+  void  cancel_select() noexcept;
 
+  void  take_copy() noexcept;
+  void  paste(point  pt, bool  layer) noexcept;
   void  undo() noexcept;
 
   void  do_when_cursor_got_out() noexcept override{cancel_drawing();}

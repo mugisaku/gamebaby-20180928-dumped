@@ -101,7 +101,7 @@ redraw_content(image&  dst) noexcept
 {
   auto  cur = image_cursor(dst,m_root.get_offset());
 
-  images::transfer(m_content_image,m_content_image.get_rectangle(),cur);
+  images::transfer(m_content_image,m_content_image.get_rectangle(),cur,true);
 
   unset_flag(flags::needed_to_redraw);
 }
@@ -128,7 +128,7 @@ redraw_frame(image&  dst) noexcept
 
   auto  cur = image_cursor(dst,m_point);
 
-  images::transfer(m_frame_image,m_frame_image.get_rectangle(),cur);
+  images::transfer(m_frame_image,m_frame_image.get_rectangle(),cur,true);
 }
 
 

@@ -53,6 +53,8 @@ set_image(image&  img) noexcept
 {
   m_image = &img;
 
+  cancel_select();
+
   need_to_redraw();
 }
 
@@ -107,6 +109,34 @@ cancel_drawing() noexcept
 }
 
 
+void
+canvas::
+cancel_select() noexcept
+{
+  m_operation_rect.x = 0;
+  m_operation_rect.y = 0;
+  m_operation_rect.w = m_image->get_width();
+  m_operation_rect.h = m_image->get_height();
+
+  need_to_redraw();
+}
+
+
+
+
+void
+canvas::
+take_copy() noexcept
+{
+  m_clipped_image.resize(m_operation_rect.w,m_operation_rect.h);
+
+    for(int  y = 0;  y < m_operation_rect.h;  ++y){
+    for(int  x = 0;  x < m_operation_rect.w;  ++x){
+      auto  pix = m_image->get_pixel(m_operation_rect.x+x,m_operation_rect.y+y);
+
+      m_clipped_image.set_pixel(pix,x,y);
+    }}
+}
 
 
 void
@@ -161,6 +191,14 @@ render(image_cursor  cur) noexcept
       cur.draw_hline(predefined_color::white,0,m_pixel_size*(h/2),m_width);
       cur.draw_vline(predefined_color::white,m_pixel_size*(w/2),0,m_height);
     }
+
+
+  cur.draw_doubleline_rectangle(predefined_color::white,predefined_color::black,
+    m_pixel_size*m_operation_rect.x,
+    m_pixel_size*m_operation_rect.y,
+    m_pixel_size*m_operation_rect.w,
+    m_pixel_size*m_operation_rect.h
+  );
 }
 
 
