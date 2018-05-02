@@ -27,9 +27,62 @@ class container;
 class root;
 
 
+
+
+class
+background_style
+{
+  enum class kind{
+    single_color,
+    stripe,
+  } m_kind=kind::single_color;
+
+  color   m_first_color;
+  color  m_second_color;
+
+  int  m_interval;
+
+public:
+  background_style() noexcept{}
+  background_style(color  color1) noexcept: m_first_color(color1){}
+
+  background_style(color  color1, color  color2, int  interval) noexcept:
+  m_kind(kind::stripe), m_first_color(color1), m_second_color(color2), m_interval(interval){}
+
+  void  be_single_color() noexcept{m_kind = kind::single_color;}
+  void  be_stripe()       noexcept{m_kind = kind::stripe;}
+
+  bool  is_single_color() const noexcept{return m_kind == kind::single_color;}
+  bool  is_stripe() const noexcept{return m_kind == kind::stripe;}
+
+  void  set_interval(int  v)       noexcept{       m_interval = v;}
+  int   get_interval(      ) const noexcept{return m_interval    ;}
+
+  void    set_first_color(images::color  color)       noexcept{       m_first_color = color;}
+  color   get_first_color(                    ) const noexcept{return m_first_color        ;}
+
+  void   set_second_color(images::color  color)       noexcept{       m_second_color = color;}
+  color  get_second_color(                    ) const noexcept{return m_second_color        ;}
+
+  void  render(int  x, int  y, int  w, int  h, image_cursor&  cur) const noexcept
+  {
+      switch(m_kind)
+      {
+    case(kind::single_color): cur.fill_rectangle(m_first_color,x,y,w,h);break;
+    case(kind::stripe      ): cur.draw_stripe_rectangle(m_first_color,m_second_color,m_interval,x,y,w,h);break;
+      }
+  }
+
+};
+
+
+
+
 class
 widget
 {
+  static background_style  m_default_background_style;
+
 protected:
   gbstd::string  m_name;
 
@@ -45,6 +98,8 @@ protected:
 
   int  m_width =0;
   int  m_height=0;
+
+  background_style  m_background_style=m_default_background_style;
 
   void*  m_userdata=nullptr;
 
@@ -75,6 +130,7 @@ public:
   virtual void  update() noexcept{}
 
   virtual void  render(image_cursor  cur) noexcept{}
+  virtual void  render_background(image_cursor  cur) noexcept{m_background_style.render(0,0,m_width,m_height,cur);}
 
   mouse  get_mouse() const noexcept;
 
@@ -122,6 +178,11 @@ public:
 
   int  get_width()  const noexcept{return m_width;}
   int  get_height() const noexcept{return m_height;}
+
+
+  void  set_background_style(const background_style&  new_style) noexcept;
+
+  static void  set_default_background_style(background_style  new_style) noexcept{m_default_background_style = new_style;}
 
 
   void    set_flag(uint32_t  v) noexcept{m_flags |=  v;}
@@ -194,63 +255,13 @@ public:
 
 
 class
-background_style
-{
-  enum class kind{
-    single_color,
-    stripe,
-  } m_kind=kind::single_color;
-
-  color   m_first_color;
-  color  m_second_color;
-
-  int  m_interval;
-
-public:
-  background_style() noexcept{}
-  background_style(color  color1) noexcept: m_first_color(color1){}
-
-  background_style(color  color1, color  color2, int  interval) noexcept:
-  m_kind(kind::stripe), m_first_color(color1), m_second_color(color2), m_interval(interval){}
-
-  void  be_single_color() noexcept{m_kind = kind::single_color;}
-  void  be_stripe()       noexcept{m_kind = kind::stripe;}
-
-  bool  is_single_color() const noexcept{return m_kind == kind::single_color;}
-  bool  is_stripe() const noexcept{return m_kind == kind::stripe;}
-
-  void  set_interval(int  v)       noexcept{       m_interval = v;}
-  int   get_interval(      ) const noexcept{return m_interval    ;}
-
-  void    set_first_color(images::color  color)       noexcept{       m_first_color = color;}
-  color   get_first_color(                    ) const noexcept{return m_first_color        ;}
-
-  void   set_second_color(images::color  color)       noexcept{       m_second_color = color;}
-  color  get_second_color(                    ) const noexcept{return m_second_color        ;}
-
-  void  render(int  x, int  y, int  w, int  h, image_cursor&  cur) const noexcept
-  {
-      switch(m_kind)
-      {
-    case(kind::single_color): cur.fill_rectangle(m_first_color,x,y,w,h);break;
-    case(kind::stripe      ): cur.draw_stripe_rectangle(m_first_color,m_second_color,m_interval,x,y,w,h);break;
-      }
-  }
-
-};
-
-
-class
 node: public widget
 {
-  static background_style  m_default_background_style;
 
 protected:
   std::unique_ptr<widget>  m_target;
 
   widget*  m_current=nullptr;
-
-  const background_style*  m_background_style=&m_default_background_style;
 
 public:
   node(widget*  target=nullptr) noexcept:
@@ -270,16 +281,12 @@ public:
 
   void  cancel_current() noexcept;
 
-  void  set_background_style(const background_style&  new_style) noexcept;
-
   void     set_target(widget*  target) noexcept;
   widget*  get_target(               ) const noexcept{return m_target.get();}
 
   void  show_all() noexcept override;
 
   void  print(int  indent=0) const noexcept override;
-
-  static void  set_default_background_style(background_style  new_style) noexcept{m_default_background_style = new_style;}
 
 };
 
@@ -682,104 +689,6 @@ public:
 };
 
 
-
-
-class
-canvas: public widget
-{
-  static background_style  m_default_background_style;
-
-  image*  m_image=nullptr;
-
-  int  m_pixel_size=1;
-
-  bool  m_grid=false;
-
-  background_style  m_background_style=m_default_background_style;
-
-  enum class mode{
-    draw_dot,
-    draw_line,
-    draw_rectangle,
-    fill_rectangle,
-    fill_area,
-
-  } m_mode=mode::draw_dot;
-
-
-  drawing_recorder  m_recorder;
-
-  color  m_drawing_color=color(0,0,0);
-
-  int  m_pointing_count=0;
-
-  point  m_a_point;
-  point  m_b_point;
-
-  rectangle  m_operation_rect;
-
-  void  (*m_callback)(canvas&  cv)=nullptr;
-
-public:
-  canvas(){}
-  canvas(image&  img, void  (*callback)(canvas&  cv)) noexcept: m_callback(callback){set_image(img);}
- ~canvas(){}
-
-  int   get_pixel_size(      ) const noexcept{return m_pixel_size;}
-  void  set_pixel_size(int  n)       noexcept;
-
-  void   set_drawing_color(images::color  color)       noexcept{       m_drawing_color = color;}
-  color  get_drawing_color(                    ) const noexcept{return m_drawing_color        ;}
-
-  drawing_recorder&  get_drawing_recorder() noexcept{return m_recorder;}
-
-  void    set_grid() noexcept;
-  void  unset_grid() noexcept;
-
-  void  change_mode_to_draw_dot()       noexcept{m_mode = mode::draw_dot;}
-  void  change_mode_to_draw_line()      noexcept{m_mode = mode::draw_line;}
-  void  change_mode_to_draw_rectangle() noexcept{m_mode = mode::draw_rectangle;}
-  void  change_mode_to_fill_rectangle() noexcept{m_mode = mode::fill_rectangle;}
-  void  change_mode_to_fill_area()      noexcept{m_mode = mode::fill_area;}
-
-  void    set_image(image&  img)       noexcept;
-  image*  get_image(           ) const noexcept{return m_image;}
-
-  void  reform(point  base_pt) noexcept override;
-
-  void  modify_dot(images::color  new_color, int  x, int  y) noexcept;
-
-  void  revolve() noexcept;
-  void  reverse_horizontally() noexcept;
-  void  reverse_vertically() noexcept;
-  void  mirror_vertically() noexcept;
-  void  shift_up(bool  rotate) noexcept;
-  void  shift_left(bool  rotate) noexcept;
-  void  shift_right(bool  rotate) noexcept;
-  void  shift_down(bool  rotate) noexcept;
-
-  void  draw_line(images::color  color, point  a, point  b) noexcept;
-  void  draw_rect(images::color  color, rectangle  rect) noexcept;
-  void  fill_rect(images::color  color, rectangle  rect) noexcept;
-  void  fill_area(images::color  color, point  pt) noexcept;
-
-  widget*  create_color_maker() noexcept;
-  widget*  create_tool_widget() noexcept;
-  widget*  create_operation_widget() noexcept;
-
-  void  cancel_drawing() noexcept;
-
-  void  undo() noexcept;
-
-  void  do_when_cursor_got_out() noexcept override{cancel_drawing();}
-
-  void  update() noexcept override;
-
-  void  render(image_cursor  cur) noexcept override;
-
-};
-
-
 using rbcb = radio_button::callback_prototype;
 using wls = std::initializer_list<widget*>;
 
@@ -791,6 +700,8 @@ widget*  create_check_menu(wls  ls, rbcb  cb, uint32_t  initial_state=0, void*  
 
 
 using widgets::widget;
+using widgets::create_radio_menu;
+using widgets::create_check_menu;
 
 
 }

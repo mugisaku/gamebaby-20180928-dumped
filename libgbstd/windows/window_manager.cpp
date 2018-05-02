@@ -8,6 +8,22 @@ namespace windows{
 
 
 
+window_manager::
+window_manager() noexcept:
+m_active_window_style{color()     ,
+                      color(5,5,5),
+                      color(7,7,7),
+                      color(5,5,5)},
+m_inactive_window_style{color()     ,
+                        color(3,3,3),
+                        color(5,5,5),
+                        color(3,3,3)}
+{
+}
+
+
+
+
 void
 window_manager::
 clear() noexcept

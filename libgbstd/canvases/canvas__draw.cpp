@@ -1,9 +1,9 @@
-#include"libgbstd/widget.hpp"
+#include"libgbstd/canvas.hpp"
 
 
 
 namespace gbstd{
-namespace widgets{
+namespace canvases{
 
 
 
@@ -35,6 +35,12 @@ draw_line(images::color  color, point  a, point  b) noexcept
 
     if(m_recorder.get_count())
     {
+        if(m_callback)
+        {
+          m_callback(*this);
+        }
+
+
       need_to_redraw();
     }
 }
@@ -63,7 +69,16 @@ draw_rect(images::color  color, rectangle  rect) noexcept
 
   m_recorder.push(true);
 
-  need_to_redraw();
+    if(m_recorder.get_count())
+    {
+        if(m_callback)
+        {
+          m_callback(*this);
+        }
+
+
+      need_to_redraw();
+    }
 }
 
 
@@ -84,6 +99,12 @@ fill_rect(images::color  color, rectangle  rect) noexcept
 
     if(m_recorder.get_count())
     {
+        if(m_callback)
+        {
+          m_callback(*this);
+        }
+
+
       need_to_redraw();
     }
 }
@@ -153,6 +174,12 @@ fill_area(images::color  color, point  pt) noexcept
     if(m_recorder.get_count())
     {
       m_recorder.reset_count();
+
+        if(m_callback)
+        {
+          m_callback(*this);
+        }
+
 
       need_to_redraw();
     }

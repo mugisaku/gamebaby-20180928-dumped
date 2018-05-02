@@ -154,15 +154,8 @@ window_manager
   window*  m_bottom=nullptr;
   window*  m_top   =nullptr;
 
-  window_style  m_active_window_style={color()                     ,
-                                       predefined_color::blue      ,
-                                       predefined_color::white     ,
-                                       predefined_color::light_gray};
-
-  window_style  m_inactive_window_style={color()                     ,
-                                         color(0,0,5)      ,
-                                         predefined_color::light_gray     ,
-                                         predefined_color::dark_gray};
+  window_style    m_active_window_style;
+  window_style  m_inactive_window_style;
 
   uint32_t  m_time=0;
 
@@ -177,7 +170,7 @@ window_manager
   void  unset_flag(uint32_t  flag) noexcept{m_state &= ~flag;}
 
 public:
-  window_manager() noexcept{}
+  window_manager() noexcept;
  ~window_manager(){clear();}
 
   void  clear()  noexcept;

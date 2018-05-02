@@ -39,9 +39,20 @@ m_color(0,0,0)
 
   m_sample = new sample(*this);
 
-  append_child({new table_row({new label(u"[R]"),m_r_dial}),
-                new table_row({new label(u"[G]"),m_g_dial}),
-                new table_row({new label(u"[B]"),m_b_dial}),m_sample});
+
+  auto  r_label = new label(u"[R]");
+  auto  g_label = new label(u"[G]");
+  auto  b_label = new label(u"[B]");
+
+  static const background_style  bgst(color(6,6,6));
+
+  r_label->set_background_style(bgst);
+  g_label->set_background_style(bgst);
+  b_label->set_background_style(bgst);
+
+  append_child({new table_row({r_label,m_r_dial}),
+                new table_row({g_label,m_g_dial}),
+                new table_row({b_label,m_b_dial}),m_sample});
 }
 
 

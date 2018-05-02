@@ -1,11 +1,12 @@
-#include"libgbstd/widget.hpp"
+#include"libgbstd/canvas.hpp"
 
 
 
 namespace gbstd{
-namespace widgets{
+namespace canvases{
 
 
+using namespace widgets;
 
 
 widget*

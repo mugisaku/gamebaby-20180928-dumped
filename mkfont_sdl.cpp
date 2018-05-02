@@ -1,4 +1,4 @@
-#include"libgbstd/widget.hpp"
+#include"libgbstd/canvas.hpp"
 #include"sdl.hpp"
 
 
@@ -8,7 +8,7 @@ using namespace gbstd;
 namespace{
 
 
-widgets::canvas*
+canvas*
 cv;
 
 
@@ -561,7 +561,7 @@ main_loop() noexcept
 int
 main(int  argc, char**  argv)
 {
-  cv = new widgets::canvas(cv_image,[](widgets::canvas&  cv){
+  cv = new canvas(cv_image,[](canvas&  cv){
     character_table::receive();
 
     update_preview_data();

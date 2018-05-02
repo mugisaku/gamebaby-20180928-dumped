@@ -1,9 +1,9 @@
-#include"libgbstd/widget.hpp"
+#include"libgbstd/canvas.hpp"
 
 
 
 namespace gbstd{
-namespace widgets{
+namespace canvases{
 
 
 
@@ -180,22 +180,12 @@ update() noexcept
         if(mouse.left_button)
         {
           fill_area(m_drawing_color,point(x,y));
-
-            if(m_callback)
-            {
-              m_callback(*this);
-            }
         }
 
       else
         if(mouse.right_button)
         {
           fill_area(color(),point(x,y));
-
-            if(m_callback)
-            {
-              m_callback(*this);
-            }
         }
       break;
     }

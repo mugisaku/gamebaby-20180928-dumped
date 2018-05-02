@@ -28,12 +28,12 @@ set(SOURCES
   widgets/radio_button.cpp
   widgets/check_button.cpp
   widgets/create_button_menu.cpp
-  widgets/canvas.cpp
-  widgets/canvas__update.cpp
-  widgets/canvas__draw.cpp
-  widgets/canvas__operate.cpp
-  widgets/canvas__create_sub_widget.cpp
   widgets/color_maker.cpp
+  canvases/canvas.cpp
+  canvases/canvas__update.cpp
+  canvases/canvas__draw.cpp
+  canvases/canvas__operate.cpp
+  canvases/canvas__create_sub_widget.cpp
   windows/window.cpp
   windows/window__update_frame_image.cpp
   windows/window_manager.cpp

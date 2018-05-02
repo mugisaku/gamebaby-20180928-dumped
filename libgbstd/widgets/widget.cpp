@@ -8,6 +8,23 @@ namespace widgets{
 
 
 
+background_style
+widget::
+m_default_background_style;
+
+
+
+
+void
+widget::
+set_background_style(const background_style&  new_style) noexcept
+{
+  m_background_style = new_style;
+
+  need_to_redraw();
+}
+
+
 void
 widget::
 notify_flag(uint32_t  v) noexcept

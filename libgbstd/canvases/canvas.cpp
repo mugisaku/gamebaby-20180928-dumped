@@ -1,14 +1,14 @@
-#include"libgbstd/widget.hpp"
+#include"libgbstd/canvas.hpp"
 
 
 
 namespace gbstd{
-namespace widgets{
+namespace canvases{
 
 
 
 
-background_style
+canvas::background_style
 canvas::
 m_default_background_style = background_style(color(0,0,4),color(0,0,6),4);
 

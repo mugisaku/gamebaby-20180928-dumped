@@ -1,5 +1,6 @@
 #include"libgbstd/image.hpp"
 #include"libgbstd/widget.hpp"
+#include"libgbstd/canvas.hpp"
 #include"sdl.hpp"
 
 
@@ -15,10 +16,6 @@ using namespace gbstd;
 namespace{
 
 
-constexpr int  screen_w = 480;
-constexpr int  screen_h = 400;
-
-
 namespace types{
 class       farm;
 class table_view;
@@ -32,14 +29,14 @@ types::table_view*  tv;
 
 
 gbstd::image
-final_image(screen_w,screen_h);
+final_image;
 
 
 widgets::root
 root;
 
 
-widgets::canvas*
+canvas*
 cv;
 
 
@@ -339,9 +336,7 @@ main_loop()
 int
 main(int  argc, char**  argv)
 {
-  sdl::init(screen_w,screen_h);
-
-  cv = new widgets::canvas(cv_image,[](widgets::canvas&  cv){
+  cv = new canvas(cv_image,[](canvas&  cv){
     make_farm();
 
     ptrs::farm->need_to_redraw();
@@ -362,13 +357,14 @@ main(int  argc, char**  argv)
 
   auto  row = new widgets::table_row({cv,a_col,b_col,c_col});
 
+  root.set_node_target(row);
+
+
   auto&  root_node = root.get_node();
 
-  root_node.set_target(row);
+  sdl::init(root_node.get_width(),root_node.get_height());
 
-  root_node.show_all();
-
-  root.put_down();
+  final_image = sdl::make_screen_image();
 
   make_farm();
 

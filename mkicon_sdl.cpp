@@ -1,5 +1,4 @@
-#include"libgbstd/image.hpp"
-#include"libgbstd/widget.hpp"
+#include"libgbstd/canvas.hpp"
 #include"sdl.hpp"
 
 
@@ -15,7 +14,7 @@ using namespace gbstd;
 namespace{
 
 
-widgets::canvas*
+canvas*
 cv;
 
 
@@ -117,7 +116,7 @@ main(int  argc, char**  argv)
 {
   static widgets::background_style  bgstyle(predefined_color::gray);
 
-  cv = new widgets::canvas(cv_image,nullptr);
+  cv = new canvas(cv_image,nullptr);
 
   cv->set_grid();
   cv->set_pixel_size(12);

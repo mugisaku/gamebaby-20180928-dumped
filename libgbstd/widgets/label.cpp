@@ -13,9 +13,9 @@ text_style
 label::
 m_default_text_style(
   predefined_color::null,
-  predefined_color::white,
-  predefined_color::null,
-  predefined_color::black
+  predefined_color::black,
+  predefined_color::light_gray,
+  predefined_color::gray
 );
 
 
@@ -91,6 +91,8 @@ void
 label::
 render(image_cursor  cur) noexcept
 {
+  render_background(cur);
+
   cur.draw_text(m_text,m_text_style,2,2);
 }
 

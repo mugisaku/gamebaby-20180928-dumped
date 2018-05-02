@@ -50,6 +50,10 @@ m_callback(callback)
 
   m_label = new label(fs(format,min,max));
 
+  static const background_style  bgst(color(6,6,6));
+
+  m_label->set_background_style(bgst);
+
   append_child({m_down_button,m_up_button,m_label});
 }
 

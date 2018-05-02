@@ -1,4 +1,4 @@
-#include"libgbstd/widget.hpp"
+#include"libgbstd/canvas.hpp"
 #include"libgbstd/window.hpp"
 #include"sdl.hpp"
 
@@ -10,10 +10,10 @@ namespace{
 
 
 constexpr int  screen_w = 600;
-constexpr int  screen_h = 400;
+constexpr int  screen_h = 600;
 
 
-widgets::canvas*
+canvas*
 cv;
 
 
@@ -325,7 +325,7 @@ main(int  argc, char**  argv)
   sdl::init(screen_w,screen_h);
 
 
-  cv = new widgets::canvas(cv_image,[](widgets::canvas&  cv){
+  cv = new canvas(cv_image,[](canvas&  cv){
     cell_table::receive();
 
     mnu->need_to_redraw();
