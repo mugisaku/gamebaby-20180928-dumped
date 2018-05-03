@@ -26,7 +26,7 @@ create_radio_menu(wls  ls, rbcb cb, uint32_t  initial_state, void*  userdata) no
     {
       auto  first_btn = new radio_button(*it++,cb);
 
-      first_btn->set_background_style(bgst);
+      first_btn->set_style(bgst);
 
       first_btn->set_userdata(userdata);
 
@@ -36,7 +36,7 @@ create_radio_menu(wls  ls, rbcb cb, uint32_t  initial_state, void*  userdata) no
         {
           auto  btn = new radio_button(*it++,*first_btn);
 
-          btn->set_background_style(bgst);
+          btn->set_style(bgst);
 
           btn->set_userdata(userdata);
 
@@ -64,7 +64,7 @@ create_check_menu(wls  ls, rbcb  cb, uint32_t  initial_state, void*  userdata) n
     {
       auto  first_btn = new check_button(*it++,cb);
 
-      first_btn->set_background_style(bgst);
+      first_btn->set_style(bgst);
 
       first_btn->set_userdata(userdata);
 
@@ -74,7 +74,7 @@ create_check_menu(wls  ls, rbcb  cb, uint32_t  initial_state, void*  userdata) n
         {
           auto  btn = new check_button(*it++,*first_btn);
 
-          btn->set_background_style(bgst);
+          btn->set_style(bgst);
 
           btn->set_userdata(userdata);
 

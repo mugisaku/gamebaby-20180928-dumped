@@ -17,7 +17,7 @@ m_default_background_style;
 
 void
 widget::
-set_background_style(const background_style&  new_style) noexcept
+set_style(const background_style&  new_style) noexcept
 {
   m_background_style = new_style;
 

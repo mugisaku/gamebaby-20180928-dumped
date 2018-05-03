@@ -103,7 +103,7 @@ render(image_cursor  cur) noexcept
       cur.draw_vline(colors::black,        0,0,m_height);
       cur.draw_vline(colors::white,m_width-1,0,m_height);
 
-      cur.fill_rectangle(colors::gray,1,1,m_width-2,m_height-2);
+      cur.fill_rectangle(color(5,5,5),1,1,m_width-2,m_height-2);
     }
 
   else
@@ -113,7 +113,7 @@ render(image_cursor  cur) noexcept
       cur.draw_vline(colors::white,        0,0,m_height);
       cur.draw_vline(colors::black,m_width-1,0,m_height);
 
-      cur.fill_rectangle(colors::light_gray,1,1,m_width-2,m_height-2);
+      cur.fill_rectangle(color(6,6,6),1,1,m_width-2,m_height-2);
     }
 
 

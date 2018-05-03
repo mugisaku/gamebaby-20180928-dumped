@@ -9,29 +9,19 @@ namespace widgets{
 
 
 
-text_style
 label::
-m_default_text_style(
-  colors::null,
-  colors::black,
-  colors::light_gray,
-  colors::gray
-);
-
-
-
-
-label::
-label(gbstd::string_view  sv) noexcept:
-widget(0,16+4)
+label(gbstd::string_view  sv, const text_style&  ts) noexcept:
+widget(0,16+4),
+m_text_style(ts)
 {
   set_text(sv);
 }
 
 
 label::
-label(gbstd::u16string_view  sv) noexcept:
-widget(0,16+4)
+label(gbstd::u16string_view  sv, const text_style&  ts) noexcept:
+widget(0,16+4),
+m_text_style(ts)
 {
   set_text(sv);
 }
@@ -79,7 +69,7 @@ set_text(gbstd::string_view  sv) noexcept
 
 void
 label::
-set_text_sytle(const text_style&  style) noexcept
+set_style(const text_style&  style) noexcept
 {
   m_text_style = style;
 

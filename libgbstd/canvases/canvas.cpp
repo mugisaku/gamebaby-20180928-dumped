@@ -8,9 +8,28 @@ namespace canvases{
 
 
 
-background_style
+namespace{
+auto
+canvas_background_style = background_style(color(0,0,4),color(0,0,6),4);
+}
+
+
+
 canvas::
-m_default_background_style = background_style(color(0,0,4),color(0,0,6),4);
+canvas() noexcept
+{
+  set_style(canvas_background_style);
+}
+
+
+canvas::
+canvas(image&  img, void  (*callback)(canvas&  cv)) noexcept:
+m_callback(callback)
+{
+  set_style(canvas_background_style);
+
+  set_image(img);
+}
 
 
 

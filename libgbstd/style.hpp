@@ -28,8 +28,10 @@ public:
 };
 
 
-constexpr text_style  black_base(colors::null,colors::black,colors::light_gray,colors::gray);
-constexpr text_style  white_base(colors::null,colors::white,colors::light_gray,colors::gray);
+constexpr text_style  a_black_based_text_style(colors::white,colors::black,colors::light_gray,colors::gray);
+constexpr text_style  b_black_based_text_style(colors::null ,colors::black,colors::light_gray,colors::gray);
+constexpr text_style  a_white_based_text_style(colors::black,colors::white,colors::light_gray,colors::gray);
+constexpr text_style  b_white_based_text_style(colors::null ,colors::white,colors::light_gray,colors::gray);
 
 
 class

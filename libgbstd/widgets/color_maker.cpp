@@ -46,9 +46,9 @@ m_color(0,0,0)
 
   static const background_style  bgst(color(6,6,6));
 
-  r_label->set_background_style(bgst);
-  g_label->set_background_style(bgst);
-  b_label->set_background_style(bgst);
+  r_label->widget::set_style(bgst);
+  g_label->widget::set_style(bgst);
+  b_label->widget::set_style(bgst);
 
   append_child({new table_row({r_label,m_r_dial}),
                 new table_row({g_label,m_g_dial}),

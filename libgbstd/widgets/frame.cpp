@@ -12,16 +12,6 @@ constexpr int     margin = 16;
 constexpr int  thickness =  4;
 
 
-text_style
-frame::
-m_default_text_style(
-  colors::null,
-  colors::white,
-  colors::null,
-  colors::black
-);
-
-
 color  frame::m_default_line_color = colors::yellow;
 
 

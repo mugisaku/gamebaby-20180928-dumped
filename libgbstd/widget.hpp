@@ -132,7 +132,7 @@ public:
   int  get_height() const noexcept{return m_height;}
 
 
-  void  set_background_style(const background_style&  new_style) noexcept;
+  void  set_style(const background_style&  new_style) noexcept;
 
   static void  set_default_background_style(background_style  new_style) noexcept{m_default_background_style = new_style;}
 
@@ -246,19 +246,17 @@ public:
 class
 frame: public node
 {
-  static text_style  m_default_text_style;
-
   gbstd::string  m_text;
 
-  text_style  m_text_style=m_default_text_style;
+  text_style  m_text_style;
 
   color  m_line_color;
 
   static color  m_default_line_color;
 
 public:
-  frame(widget*  target, gbstd::string_view  text) noexcept:
-  node(target), m_text(text),
+  frame(widget*  target, gbstd::string_view  text, const text_style&  style=styles::b_white_based_text_style) noexcept:
+  node(target), m_text(text), m_text_style(style),
   m_line_color(m_default_line_color)
   {}
 
@@ -324,22 +322,20 @@ public:
 class
 label: public widget
 {
-  static text_style  m_default_text_style;
-
-  text_style  m_text_style=m_default_text_style;
+  text_style  m_text_style;
 
   gbstd::u16string  m_text;
 
 public:
-  label(gbstd::string_view     sv) noexcept;
-  label(gbstd::u16string_view  sv) noexcept;
+  label(gbstd::string_view     sv, const text_style&  ts=styles::b_black_based_text_style) noexcept;
+  label(gbstd::u16string_view  sv, const text_style&  ts=styles::b_black_based_text_style) noexcept;
 
   const char*  get_widget_name() const noexcept override{return "label";}
 
   void  set_text(gbstd::u16string_view  sv) noexcept;
   void  set_text(gbstd::string_view     sv) noexcept;
 
-  void  set_text_sytle(const text_style&  style) noexcept;
+  void  set_style(const text_style&  style) noexcept;
 
   void  reform(point  base_pt) noexcept override;
 

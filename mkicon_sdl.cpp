@@ -114,8 +114,6 @@ main_loop()
 int
 main(int  argc, char**  argv)
 {
-  static background_style  bgstyle(colors::gray);
-
   cv = new canvas(cv_image,nullptr);
 
   cv->set_grid();

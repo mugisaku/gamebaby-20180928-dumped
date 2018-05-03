@@ -112,6 +112,10 @@ std::vector<const cell*>
 stack;
 
 
+int
+index;
+
+
 widgets::dial*
 interval_dial;
 
@@ -128,25 +132,38 @@ uint32_t
 last_time;
 
 
+void
+update_state_label() noexcept
+{
+    if(stack.empty())
+    {
+      state_label->set_text("  / 0");
+    }
+
+  else
+    {
+      string_form  sf;
+
+      state_label->set_text(sf("%2d/%2d",index+1,stack.size()));
+    }
+}
+
+
 class
 view: public widget
 {
-  int  m_index=0;
-
 public:
   view() noexcept{}
 
   void  advance() noexcept
   {
-      if(++m_index >= stack.size())
+      if(++index >= stack.size())
       {
-        m_index = 0;
+        index = 0;
       }
 
 
-    string_form  sf;
-
-    state_label->set_text(sf("%2d/%2d",m_index,stack.size()));
+    update_state_label();
 
     need_to_redraw();
   }
@@ -165,9 +182,9 @@ public:
     cur.fill_rectangle(colors::black,0,0,cell::width,cell::height+font_height);
     cur.draw_rectangle(colors::white,0,0,cell::width,cell::height);
 
-      if(m_index < stack.size())
+      if(index < stack.size())
       {
-        auto&  img = stack[m_index]->image;
+        auto&  img = stack[index]->image;
 
         images::transfer(img,img.get_rectangle(),cur,true);
       }
@@ -283,6 +300,8 @@ create_animation_widget() noexcept
           {
             animator::stack.pop_back();
 
+            animator::update_state_label();
+
             animator::view.need_to_redraw();
           }
       }
@@ -291,7 +310,7 @@ create_animation_widget() noexcept
 
   auto  op_col = new widgets::table_column({psh_btn,pop_btn});
 
-  animator::state_label = new widgets::label(u"xx/xx");
+  animator::state_label = new widgets::label(u"  / 0",styles::a_white_based_text_style);
 
   auto  speed_frame = new widgets::frame(animator::interval_dial,"speed");
 
@@ -300,10 +319,6 @@ create_animation_widget() noexcept
   auto  urow = new widgets::table_row({frm_col,op_col});
 
   auto  frame = new widgets::frame(new widgets::table_column({urow,speed_frame}),"animation");
-
-  static const background_style  bgst(color(7,7,7));
-
-  frame->set_background_style(bgst);
 
   return frame;
 }

@@ -12,15 +12,11 @@ namespace canvases{
 class
 canvas: public widget
 {
-  static background_style  m_default_background_style;
-
   image*  m_image=nullptr;
 
   int  m_pixel_size=1;
 
   bool  m_grid=false;
-
-  background_style  m_background_style=m_default_background_style;
 
   enum class mode{
     draw_dot,
@@ -54,9 +50,8 @@ canvas: public widget
   void  (*m_callback)(canvas&  cv)=nullptr;
 
 public:
-  canvas(){}
-  canvas(image&  img, void  (*callback)(canvas&  cv)) noexcept: m_callback(callback){set_image(img);}
- ~canvas(){}
+  canvas() noexcept;
+  canvas(image&  img, void  (*callback)(canvas&  cv)) noexcept;
 
   int   get_pixel_size(      ) const noexcept{return m_pixel_size;}
   void  set_pixel_size(int  n)       noexcept;
