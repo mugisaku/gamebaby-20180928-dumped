@@ -140,7 +140,7 @@ make_farm() noexcept
   };
 
 
-  farm_image.fill(gbstd::images::predefined_color::blue);
+  farm_image.fill(colors::blue);
 
   image_cursor  dst_base_cur(farm_image);
 
@@ -155,7 +155,7 @@ make_farm() noexcept
 
         for(int  n = 0;  n < row.number;  ++n)
         {
-          images::transfer(cv_image,cv_image.get_rectangle(),dst_cur);
+          images::transfer(cv_image,cv_image.get_rectangle(),dst_cur,true);
 
           dst_cur.add_offset(cv_w,0);
         }
@@ -196,17 +196,15 @@ public:
 
   void  render(gbstd::image_cursor  cur) noexcept override
   {
-    images::transfer(farm_image,farm_image.get_rectangle(),cur);
+    images::transfer(farm_image,farm_image.get_rectangle(),cur,true);
 
       if(!need_to_hide_cursors)
       {
         constexpr int  w = cv_w*2;
         constexpr int  h = cv_h;
 
-        using gbstd::images::predefined_color;
-
-        cur.draw_doubleline_rectangle(predefined_color::black,predefined_color::white,w*m_fixed_point.x,h*m_fixed_point.y,w,h);
-        cur.draw_doubleline_rectangle(predefined_color::red  ,predefined_color::white,w*m_float_point.x,h*m_float_point.y,w,h);
+        cur.draw_doubleline_rectangle(colors::black,colors::white,w*m_fixed_point.x,h*m_fixed_point.y,w,h);
+        cur.draw_doubleline_rectangle(colors::red  ,colors::white,w*m_float_point.x,h*m_float_point.y,w,h);
       }
   }
 
@@ -250,11 +248,11 @@ public:
 
         auto  new_cur = cur+point(cv_w*2*x,cv_h*y);
 
-        images::transfer(farm_image,rectangle(pt,cv_w*2,cv_h),new_cur);
+        images::transfer(farm_image,rectangle(pt,cv_w*2,cv_h),new_cur,true);
       }}
 
 
-    cur.draw_rectangle(gbstd::images::predefined_color::white,(cv_w*2)*m_point.x,cv_h*m_point.y,cv_w*2,cv_h);
+    cur.draw_rectangle(colors::white,(cv_w*2)*m_point.x,cv_h*m_point.y,cv_w*2,cv_h);
   }
 
 };

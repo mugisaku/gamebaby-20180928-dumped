@@ -114,7 +114,7 @@ main_loop()
 int
 main(int  argc, char**  argv)
 {
-  static widgets::background_style  bgstyle(predefined_color::gray);
+  static background_style  bgstyle(colors::gray);
 
   cv = new canvas(cv_image,nullptr);
 

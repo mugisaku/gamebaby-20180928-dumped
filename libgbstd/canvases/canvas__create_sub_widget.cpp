@@ -13,7 +13,7 @@ widget*
 canvas::
 create_color_maker() noexcept
 {
-  auto  cm = new color_maker([](color_maker&  cm, images::color  color){
+  auto  cm = new color_maker([](color_maker&  cm, colors::color  color){
     reinterpret_cast<canvas*>(cm.get_userdata())->set_drawing_color(color);
   });
 
@@ -48,6 +48,7 @@ create_operation_widget() noexcept
   });
 
 
+/*
   auto  shu_btn = new button(new label(u"Shift ↑"),[](button&  btn){
       if(btn.get_count())
       {
@@ -86,8 +87,7 @@ create_operation_widget() noexcept
         reinterpret_cast<canvas*>(btn.get_userdata())->shift_down(false);
       }
   });
-
-
+*/
 
 
   auto  rou_btn = new button(new label(u"Rotate ↑"),[](button&  btn){
@@ -130,24 +130,73 @@ create_operation_widget() noexcept
   });
 
 
+
+
+  auto  rvl_btn = new button(new label(u"Revolve →"),[](button&  btn){
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+        reinterpret_cast<canvas*>(btn.get_userdata())->revolve();
+      }
+  });
+
+  auto  rvh_btn = new button(new label(u"Reverse -"),[](button&  btn){
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+        reinterpret_cast<canvas*>(btn.get_userdata())->reverse_horizontally();
+      }
+  });
+
+  auto  rvv_btn = new button(new label(u"Reverse |"),[](button&  btn){
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+        reinterpret_cast<canvas*>(btn.get_userdata())->reverse_vertically();
+      }
+  });
+
+  auto  mir_btn = new button(new label(u"Mirror |"),[](button&  btn){
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+        reinterpret_cast<canvas*>(btn.get_userdata())->mirror_vertically();
+      }
+  });
+
+
+
+
+
+/*
   shu_btn->set_userdata(this);
   shl_btn->set_userdata(this);
   shr_btn->set_userdata(this);
   shd_btn->set_userdata(this);
+*/
   rou_btn->set_userdata(this);
   rol_btn->set_userdata(this);
   ror_btn->set_userdata(this);
   rod_btn->set_userdata(this);
   undo_btn->set_userdata(this);
   copy_btn->set_userdata(this);
+  rvl_btn->set_userdata(this);
+  rvh_btn->set_userdata(this);
+  rvv_btn->set_userdata(this);
+  mir_btn->set_userdata(this);
 
-  auto  sh_col = new table_column({shu_btn,shl_btn,shr_btn,shd_btn});
+//  auto  sh_col = new table_column({shu_btn,shl_btn,shr_btn,shd_btn});
   auto  ro_col = new table_column({rou_btn,rol_btn,ror_btn,rod_btn});
-  auto  ed_col = new table_column({undo_btn,copy_btn});
+  auto  ed_row = new table_row({undo_btn,copy_btn});
+  auto  tr_col = new table_column({rvl_btn,rvh_btn,rvv_btn,mir_btn});
 
-  auto  row = new table_row({sh_col,ro_col});
+  auto  row = new table_row({/*sh_col,*/ro_col,tr_col});
 
-  return new widgets::table_column({row,ed_col});
+  return new widgets::table_column({row,ed_row});
 }
 
 

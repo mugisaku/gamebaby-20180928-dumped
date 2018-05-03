@@ -99,6 +99,8 @@ control_device
 using control_devices::control_device;
 using control_devices::mouse;
 using control_devices::keyboard;
+using   key_button = control_devices::button;
+using mouse_button = control_devices::button;
 
 
 }

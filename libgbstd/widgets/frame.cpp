@@ -15,14 +15,14 @@ constexpr int  thickness =  4;
 text_style
 frame::
 m_default_text_style(
-  predefined_color::null,
-  predefined_color::white,
-  predefined_color::null,
-  predefined_color::black
+  colors::null,
+  colors::white,
+  colors::null,
+  colors::black
 );
 
 
-color  frame::m_default_line_color = predefined_color::yellow;
+color  frame::m_default_line_color = colors::yellow;
 
 
 void

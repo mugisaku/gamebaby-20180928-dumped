@@ -255,7 +255,7 @@ send() noexcept
 
         for(int  x = 0;  x < character::size;  ++x)
         {
-          cv_image.set_pixel((code&0x80)? images::predefined_color::white:images::color(),x,y);
+          cv_image.set_pixel((code&0x80)? colors::white:color(),x,y);
 
           code <<= 1;
         }
@@ -398,8 +398,8 @@ render_character(image_cursor  cur, const types::character&  c, int  pixel_size,
 
         for(int  xx = 0;  xx < types::character::size;  ++xx)
         {
-          auto&  white = images::predefined_color::white;
-          auto&  black = images::predefined_color::black;
+          auto&  white = colors::white;
+          auto&  black = colors::black;
 
           cur.fill_rectangle((code&0x80)? white:black,pixel_size*(x+xx),pixel_size*(y+yy),pixel_size,pixel_size);
 
@@ -481,10 +481,10 @@ render(image_cursor  cur) noexcept
     for(int  x = 0;  x < cv_w;  ++x){
       auto  v = preview_data[y][x];
 
-      auto  color = (v == 0)? images::predefined_color::black
-                   :(v == 1)? images::predefined_color::white
-                   :(v == 2)? images::predefined_color::red
-                   :          images::predefined_color::blue;
+      auto  color = (v == 0)? colors::black
+                   :(v == 1)? colors::white
+                   :(v == 2)? colors::red
+                   :          colors::blue;
 
       cur.fill_rectangle(color,m_pixel_size*x,m_pixel_size*y,m_pixel_size,m_pixel_size);
     }}
@@ -573,15 +573,13 @@ main(int  argc, char**  argv)
 
   cv->set_grid();
   cv->set_pixel_size(12);
-  cv->set_drawing_color(predefined_color::white);
+  cv->set_drawing_color(colors::white);
 
   widgets::menu_item_parameter  mip = {character_table::pixel_size*character::size,
                                        character_table::pixel_size*character::size,
-    [](point  index)->bool
+    [](widgets::menu&  menu, point  index, mouse_button  left, mouse_button  right)
     {
-      auto&  mouse = root.get_mouse();
-
-        if(mouse.left_button)
+        if(left)
         {
           auto  ptr = character_table::get_pointer(index);
 
@@ -601,15 +599,12 @@ main(int  argc, char**  argv)
 
               prv->need_to_redraw();
 
-              return true;
+              menu.need_to_redraw();
             }
         }
-
-
-      return false;
     },
 
-    [](image_cursor  cur, point  index)
+    [](widgets::menu&  menu, point  index, image_cursor  cur)
     {
       auto  ptr = character_table::get_pointer(index);
 
@@ -619,15 +614,15 @@ main(int  argc, char**  argv)
 
             if(ptr == character_table::current)
             {
-              cur.draw_rectangle(images::predefined_color::white,0,0,character_table::pixel_size*character::size,
-                                                                     character_table::pixel_size*character::size);
+              cur.draw_rectangle(colors::white,0,0,character_table::pixel_size*character::size,
+                                                   character_table::pixel_size*character::size);
             }
         }
 
       else
         {
-          cur.fill_rectangle(images::predefined_color::black,0,0,character_table::pixel_size*character::size,
-                                                                 character_table::pixel_size*character::size);
+          cur.fill_rectangle(colors::black,0,0,character_table::pixel_size*character::size,
+                                               character_table::pixel_size*character::size);
         }
     }
   };

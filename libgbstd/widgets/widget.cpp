@@ -131,6 +131,29 @@ reform_if_needed(point  base_pt) noexcept
 }
 
 
+
+void
+widget::
+render_background(image_cursor  cur) const noexcept
+{
+  int  w = m_width;
+  int  h = m_height;
+
+  auto&  bgst = m_background_style;
+
+    if(bgst.is_single_color())
+    {
+      cur.fill_rectangle(bgst.get_first_color(),0,0,w,h);
+    }
+
+  else
+    if(bgst.is_stripe())
+    {
+      cur.draw_stripe_rectangle(bgst.get_first_color(),bgst.get_second_color(),bgst.get_interval(),0,0,w,h);
+    }
+}
+
+
 void
 widget::
 print(int  indent) const noexcept

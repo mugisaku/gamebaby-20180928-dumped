@@ -12,10 +12,10 @@ namespace widgets{
 text_style
 label::
 m_default_text_style(
-  predefined_color::null,
-  predefined_color::black,
-  predefined_color::light_gray,
-  predefined_color::gray
+  colors::null,
+  colors::black,
+  colors::light_gray,
+  colors::gray
 );
 
 

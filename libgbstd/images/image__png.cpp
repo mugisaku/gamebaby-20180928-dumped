@@ -102,7 +102,7 @@ load_png(binary_stream_reader&  r) noexcept
         {
           auto&  color = *dst++;
 
-          color = images::color();
+          color = colors::color();
 
           uint8_t  r = *src++;
           uint8_t  g = *src++;
@@ -129,7 +129,7 @@ load_png(binary_stream_reader&  r) noexcept
 
             if(a && ((r != first_r) || (g != first_g) || (b != first_b)))
             {
-              color = images::color(r>>5,g>>5,b>>5);
+              color = colors::color(r>>5,g>>5,b>>5);
             }
         }
     }

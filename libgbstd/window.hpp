@@ -17,9 +17,9 @@ struct
 window_style
 {
   color  colors[4] = {color()                     ,
-                      predefined_color::blue      ,
-                      predefined_color::white     ,
-                      predefined_color::light_gray,};
+                      colors::blue      ,
+                      colors::white     ,
+                      colors::light_gray,};
 
 };
 

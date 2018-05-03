@@ -8,6 +8,8 @@
 #include"libgbstd/figures.hpp"
 #include"libgbstd/ios/binary_stream.hpp"
 #include"libgbstd/ro_ptr.hpp"
+#include"libgbstd/color.hpp"
+#include"libgbstd/style.hpp"
 
 
 
@@ -17,83 +19,22 @@ namespace images{
 
 
 struct
-color
-{
-  uint16_t  code;
-
-  static constexpr int  masked(int  v) noexcept{return v&7;}
-
-  constexpr color(int  v=0) noexcept: code((v&01000)? color(v>>6,v>>3,v).code:0){}
-  constexpr color(int  r7, int  g7, int  b7) noexcept: code(0x8000|((masked(r7)<<2)<<10)|
-                                                                   ((masked(g7)<<2)<< 5)|
-                                                                   ((masked(b7)<<2)    )){}
-
-  constexpr operator bool() const noexcept{return code>>15;}
-
-  constexpr bool  operator==(const color&  rhs) const noexcept{return code == rhs.code;}
-  constexpr bool  operator!=(const color&  rhs) const noexcept{return code != rhs.code;}
-
-  constexpr int  get_r7() const noexcept{return masked(((code>>10)>>2));}
-  constexpr int  get_g7() const noexcept{return masked(((code>> 5)>>2));}
-  constexpr int  get_b7() const noexcept{return masked(((code    )>>2));}
-
-  constexpr int  get_r255() const noexcept{return (get_r7()<<5)|0b11111;}
-  constexpr int  get_g255() const noexcept{return (get_g7()<<5)|0b11111;}
-  constexpr int  get_b255() const noexcept{return (get_b7()<<5)|0b11111;}
-
-  void  print() const noexcept{printf("0%d%d%d%d",(*this? 1:0),get_r7(),get_g7(),get_b7());}
-
-};
-
-
-struct
-predefined_color
-{
-  static constexpr color        null = 0;
-  static constexpr color       white = color(7,7,7);
-  static constexpr color       black = color(0,0,0);
-  static constexpr color        gray = color(3,3,3);
-  static constexpr color  light_gray = color(5,5,5);
-  static constexpr color   dark_gray = color(1,1,1);
-  static constexpr color         red = color(7,0,0);
-  static constexpr color       green = color(0,7,0);
-  static constexpr color        blue = color(0,0,7);
-  static constexpr color      yellow = color(7,7,0);
-};
-
-
-struct
 pixel
 {
-  images::color  color=0;
+  colors::color  color=0;
 
   uint16_t  z=0;
 
-  constexpr pixel(images::color  i=images::color(), uint16_t  z_=0) noexcept:
+  constexpr pixel(colors::color  i=colors::color(), uint16_t  z_=0) noexcept:
   color(i), z(z_){}
 
-  constexpr operator images::color() const noexcept{return color;}
+  constexpr operator colors::color() const noexcept{return color;}
 
 };
 
 
 constexpr int  font_width  =  8;
 constexpr int  font_height = 16;
-
-class
-text_style
-{
-  color  m_colors[4];
-
-public:
-  text_style(color  c0=0, color  c1=predefined_color::white, color  c2=0, color  c3=0) noexcept:
-  m_colors{c0,c1,c2,c3}{}
-
-  void   set_color(int  i, color  ci)       noexcept{       m_colors[i] = ci;}
-  color  get_color(int  i           ) const noexcept{return m_colors[i]     ;}
-
-};
-
 
 
 class
@@ -240,11 +181,11 @@ class
 drawing_recorder
 {
   struct dot{
-    images::color  color;
+    colors::color  color;
     uint16_t  x;
     uint16_t  y;
 
-    dot(images::color  color_=images::color(), int  x_=0, int  y_=0) noexcept:
+    dot(colors::color  color_=colors::color(), int  x_=0, int  y_=0) noexcept:
     color(color_), x(x_), y(y_){}
 
   };
@@ -267,7 +208,7 @@ public:
   drawing_recorder&  operator=(const drawing_recorder&   rhs) noexcept=delete;
   drawing_recorder&  operator=(      drawing_recorder&&  rhs) noexcept;
 
-  void  put(images::color  color, int  x, int  y) noexcept{m_dot_buffer.emplace_back(color,x,y);}
+  void  put(colors::color  color, int  x, int  y) noexcept{m_dot_buffer.emplace_back(color,x,y);}
 
   void  rollback(image&  img) noexcept;
 
@@ -278,53 +219,6 @@ public:
   uint32_t  get_count() const noexcept{return m_count;}
 
   void  reset_count() noexcept{m_count = 0;}
-
-};
-
-
-class
-icon
-{
-public:
-  static constexpr int  size = 16;
-
-private:
-  color  m_data[size][size]={0};
-
-public:
-  icon(std::initializer_list<int>  ls) noexcept;
-  icon(std::initializer_list<color>  ls) noexcept;
-
-  void   set_color(int  x, int  y, color  i)       noexcept{       m_data[y][x] = i;}
-  color  get_color(int  x, int  y          ) const noexcept{return m_data[y][x]    ;}
-
-  void  print() const noexcept;
-
-};
-
-
-
-
-struct
-predefined_icon
-{
-  static const icon    checked;
-  static const icon  unchecked;
-
-  static const icon    radio_checked;
-  static const icon  radio_unchecked;
-
-//  static const icon         up;
-//  static const icon  sunken_up;
-
-  static const icon         left;
-  static const icon  sunken_left;
-
-  static const icon         right;
-  static const icon  sunken_right;
-
-//  static const icon         down;
-//  static const icon  sunken_down;
 
 };
 
@@ -358,17 +252,12 @@ public:
 }
 
 
-using images::color;
-using images::text_style;
-using images::predefined_color;
-using images::predefined_icon;
 using images::font_width;
 using images::font_height;
 
 using images::image;
 using images::image_cursor;
 using images::drawing_recorder;
-using images::icon;
 using images::pixel;
 using images::line_maker;
 

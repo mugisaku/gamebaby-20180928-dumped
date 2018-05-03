@@ -1,5 +1,4 @@
 #include"libgbstd/canvas.hpp"
-#include"libgbstd/window.hpp"
 #include"sdl.hpp"
 
 
@@ -7,10 +6,6 @@ using namespace gbstd;
 
 
 namespace{
-
-
-constexpr int  screen_w = 600;
-constexpr int  screen_h = 600;
 
 
 canvas*
@@ -22,15 +17,11 @@ mnu;
 
 
 images::image
-image(screen_w,screen_h);
+final_image;
 
 
-windows::window_manager
-winman;
-
-
-windows::window*  canvas_window;
-windows::window*    cell_window;
+widgets::root
+root;
 
 
 images::image
@@ -125,8 +116,12 @@ widgets::dial*
 interval_dial;
 
 
+widgets::label*
+state_label;
+
+
 uint32_t
-interval_time;
+interval_time = 1000;
 
 
 uint32_t
@@ -149,6 +144,10 @@ public:
       }
 
 
+    string_form  sf;
+
+    state_label->set_text(sf("%2d/%2d",m_index,stack.size()));
+
     need_to_redraw();
   }
 
@@ -163,8 +162,8 @@ public:
 
   void  render(image_cursor  cur) noexcept override
   {
-    cur.fill_rectangle(predefined_color::black,0,0,cell::width,cell::height+font_height);
-    cur.draw_rectangle(predefined_color::white,0,0,cell::width,cell::height);
+    cur.fill_rectangle(colors::black,0,0,cell::width,cell::height+font_height);
+    cur.draw_rectangle(colors::white,0,0,cell::width,cell::height);
 
       if(m_index < stack.size())
       {
@@ -172,11 +171,6 @@ public:
 
         images::transfer(img,img.get_rectangle(),cur,true);
       }
-
-
-    string_form  sf;
-
-    cur.draw_text(sf("%2d/%2d",m_index,stack.size()),text_style(),0,cell::height);
   }
 
 };
@@ -251,11 +245,11 @@ main_loop() noexcept
 
   animator::check_time(condev.time);
 
-  winman.update(condev);
+  root.react(condev);
 
-    if(winman.composite(image) || condev.needed_to_redraw)
+    if(root.redraw_only_needed_widgets(final_image) || condev.needed_to_redraw)
     {
-      sdl::update_screen(image);
+      sdl::update_screen(final_image);
     }
 }
 
@@ -263,8 +257,10 @@ main_loop() noexcept
 widget*
 create_animation_widget() noexcept
 {
-  animator::interval_dial = new widgets::dial(1,8,[](widgets::dial&  d, int  old_value, int  new_value){
-    animator::interval_time = 50*new_value;
+  animator::interval_dial = new widgets::dial(1,4,[](widgets::dial&  d, int  old_value, int  new_value){
+    static const uint32_t  table[] = {1000,600,200,80};
+
+    animator::interval_time = table[new_value-1];
   });
 
   auto  psh_btn = new widgets::button(new widgets::label(u"Push"),[](widgets::button&  btn){
@@ -292,25 +288,22 @@ create_animation_widget() noexcept
       }
   });
 
-  auto  clr_btn = new widgets::button(new widgets::label(u"Clear"),[](widgets::button&  btn){
-      if(btn.get_count())
-      {
-        btn.reset_count();
 
-          if(animator::stack.size())
-          {
-            animator::stack.resize(0);
+  auto  op_col = new widgets::table_column({psh_btn,pop_btn});
 
-            animator::view.need_to_redraw();
-          }
-      }
-  });
+  animator::state_label = new widgets::label(u"xx/xx");
 
+  auto  speed_frame = new widgets::frame(animator::interval_dial,"speed");
 
-  auto  op_col = new widgets::table_column({psh_btn,pop_btn,clr_btn});
+  auto  frm_col = new widgets::table_column({&animator::view,animator::state_label});
 
+  auto  urow = new widgets::table_row({frm_col,op_col});
 
-  auto  frame = new widgets::frame(new widgets::table_row({&animator::view,op_col,animator::interval_dial}),"animation");
+  auto  frame = new widgets::frame(new widgets::table_column({urow,speed_frame}),"animation");
+
+  static const background_style  bgst(color(7,7,7));
+
+  frame->set_background_style(bgst);
 
   return frame;
 }
@@ -322,9 +315,6 @@ create_animation_widget() noexcept
 int
 main(int  argc, char**  argv)
 {
-  sdl::init(screen_w,screen_h);
-
-
   cv = new canvas(cv_image,[](canvas&  cv){
     cell_table::receive();
 
@@ -337,11 +327,9 @@ main(int  argc, char**  argv)
 
 
   widgets::menu_item_parameter  mip = {0,0,
-    [](point  index)->bool
+    [](widgets::menu&  menu, point  index, mouse_button  left, mouse_button  right)
     {
-      auto&  mouse = winman.get_mouse();
-
-        if(mouse.left_button)
+        if(left)
         {
           auto  ptr = cell_table::get_pointer(index);
 
@@ -355,18 +343,15 @@ main(int  argc, char**  argv)
 
               cv->need_to_redraw();
 
-              return true;
+              menu.need_to_redraw();
             }
         }
-
-
-      return false;
     },
 
-    [](image_cursor  cur, point  index)
+    [](widgets::menu&  menu, point  index, image_cursor  cur)
     {
-      cur.fill_rectangle(images::predefined_color::blue,0,0,cell::width,
-                                                            cell::height);
+      cur.fill_rectangle(colors::blue,0,0,cell::width,
+                                          cell::height);
 
       auto  ptr = cell_table::get_pointer(index);
 
@@ -376,8 +361,8 @@ main(int  argc, char**  argv)
 
             if(ptr == cell_table::current)
             {
-              cur.draw_rectangle(images::predefined_color::white,0,0,cell::width,
-                                                                     cell::height);
+              cur.draw_rectangle(colors::white,0,0,cell::width,
+                                                   cell::height);
             }
         }
     }
@@ -398,30 +383,29 @@ main(int  argc, char**  argv)
 
   auto  cv_frame = new widgets::frame(cv,"canvas");
 
-  cv_frame->set_line_color(predefined_color::black);
+  cv_frame->set_line_color(colors::black);
 
 
   auto  urow = new widgets::table_row({cv_tool,cv_op});
-  auto  ucol = new widgets::table_column({urow,color_maker_frame});
+  auto  mrow = new widgets::table_row({color_maker_frame,create_animation_widget()});
+  auto  ucol = new widgets::table_column({urow,mrow});
 
 
-  canvas_window = new window("canvas window",new widgets::table_row({cv_frame,ucol}));
-
-  canvas_window->set_header_flag();
-  canvas_window->set_movable_flag();
-
-
+  auto  canvas_frame = new widgets::table_row({cv_frame,ucol});
   auto  celtbl_frame = new widgets::frame(mnu,"cell table");
 
 
-  cell_window = new window("cell window",new widgets::table_column({create_animation_widget(),celtbl_frame}));
+  root.set_node_target(new widgets::table_column({canvas_frame,celtbl_frame}));
 
-  cell_window->set_header_flag();
-  cell_window->set_movable_flag();
+  auto&  root_node = root.get_node();
 
+  sdl::init(root_node.get_width(),root_node.get_height());
 
-  winman.append(canvas_window,0,0);
-  winman.append(  cell_window,80,80);
+  final_image = sdl::make_screen_image();
+
+  root.redraw(final_image);
+
+  sdl::update_screen(final_image);
 
 
 #ifdef EMSCRIPTEN

@@ -1,9 +1,9 @@
-#include"libgbstd/image.hpp"
+#include"libgbstd/icon.hpp"
 
 
 
 namespace gbstd{
-namespace images{
+namespace icons{
 
 
 
@@ -56,66 +56,58 @@ print() const noexcept
 
 
 const icon
-predefined_icon::
 left
 {
-#include"libgbstd/images/icon_data__left.txt"
+#include"libgbstd/icons/icon_data__left.txt"
 };
 
 
 const icon
-predefined_icon::
 sunken_left
 {
-#include"libgbstd/images/icon_data__sunken_left.txt"
+#include"libgbstd/icons/icon_data__sunken_left.txt"
 };
 
 
 const icon
-predefined_icon::
 right
 {
-#include"libgbstd/images/icon_data__right.txt"
+#include"libgbstd/icons/icon_data__right.txt"
 };
 
 
 const icon
-predefined_icon::
 sunken_right
 {
-#include"libgbstd/images/icon_data__sunken_right.txt"
+#include"libgbstd/icons/icon_data__sunken_right.txt"
 };
 
 
 const icon
-predefined_icon::
 checked
 {
-#include"libgbstd/images/icon_data__checked.txt"
+#include"libgbstd/icons/icon_data__checked.txt"
 };
 
 
 const icon
-predefined_icon::
 unchecked
 {
-#include"libgbstd/images/icon_data__unchecked.txt"
+#include"libgbstd/icons/icon_data__unchecked.txt"
 };
 
 
 const icon
-predefined_icon::
 radio_checked
 {
-#include"libgbstd/images/icon_data__radio_checked.txt"
+#include"libgbstd/icons/icon_data__radio_checked.txt"
 };
 
 
 const icon
-predefined_icon::
 radio_unchecked
 {
-#include"libgbstd/images/icon_data__radio_unchecked.txt"
+#include"libgbstd/icons/icon_data__radio_unchecked.txt"
 };
 
 

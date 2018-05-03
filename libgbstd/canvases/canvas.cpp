@@ -8,7 +8,7 @@ namespace canvases{
 
 
 
-canvas::background_style
+background_style
 canvas::
 m_default_background_style = background_style(color(0,0,4),color(0,0,6),4);
 
@@ -161,7 +161,7 @@ render(image_cursor  cur) noexcept
   const int  w = m_image->get_width();
   const int  h = m_image->get_height();
 
-  m_background_style.render(0,0,m_width,m_height,cur);
+  render_background(cur);
 
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
@@ -178,22 +178,22 @@ render(image_cursor  cur) noexcept
     {
         for(int  y = 0;  y < h;  ++y)
         {
-          cur.draw_hline(predefined_color::light_gray,0,m_pixel_size*y,m_width);
+          cur.draw_hline(colors::light_gray,0,m_pixel_size*y,m_width);
         }
 
 
         for(int  x = 0;  x < w;  ++x)
         {
-          cur.draw_vline(predefined_color::light_gray,m_pixel_size*x,0,m_height);
+          cur.draw_vline(colors::light_gray,m_pixel_size*x,0,m_height);
         }
 
 
-      cur.draw_hline(predefined_color::white,0,m_pixel_size*(h/2),m_width);
-      cur.draw_vline(predefined_color::white,m_pixel_size*(w/2),0,m_height);
+      cur.draw_hline(colors::white,0,m_pixel_size*(h/2),m_width);
+      cur.draw_vline(colors::white,m_pixel_size*(w/2),0,m_height);
     }
 
 
-  cur.draw_doubleline_rectangle(predefined_color::white,predefined_color::black,
+  cur.draw_doubleline_rectangle(colors::white,colors::black,
     m_pixel_size*m_operation_rect.x,
     m_pixel_size*m_operation_rect.y,
     m_pixel_size*m_operation_rect.w,

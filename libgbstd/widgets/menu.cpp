@@ -28,10 +28,7 @@ update() noexcept
   mouse->x /= m_parameter.width ;
   mouse->y /= m_parameter.height;
 
-    if(m_parameter.reactor(mouse.point))
-    {
-      need_to_redraw();
-    }
+  m_parameter.reactor(*this,mouse.point,mouse.left_button,mouse.right_button);
 }
 
 
@@ -54,7 +51,7 @@ render(image_cursor  cur) noexcept
     for(int  x = 0;  x < m_table_width ;  ++x){
       auto  pt = point(m_parameter.width*x,m_parameter.height*y);
 
-      m_parameter.renderer(cur+pt,point(x,y));
+      m_parameter.renderer(*this,point(x,y),cur+pt);
     }}
 }
 

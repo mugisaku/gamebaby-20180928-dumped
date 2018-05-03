@@ -6,6 +6,7 @@
 #include"libgbstd/control_device.hpp"
 #include"libgbstd/string.hpp"
 #include"libgbstd/text.hpp"
+#include"libgbstd/icon.hpp"
 #include"libgbstd/utility.hpp"
 #include<initializer_list>
 #include<memory>
@@ -25,55 +26,6 @@ namespace widgets{
 class widget;
 class container;
 class root;
-
-
-
-
-class
-background_style
-{
-  enum class kind{
-    single_color,
-    stripe,
-  } m_kind=kind::single_color;
-
-  color   m_first_color;
-  color  m_second_color;
-
-  int  m_interval;
-
-public:
-  background_style() noexcept{}
-  background_style(color  color1) noexcept: m_first_color(color1){}
-
-  background_style(color  color1, color  color2, int  interval) noexcept:
-  m_kind(kind::stripe), m_first_color(color1), m_second_color(color2), m_interval(interval){}
-
-  void  be_single_color() noexcept{m_kind = kind::single_color;}
-  void  be_stripe()       noexcept{m_kind = kind::stripe;}
-
-  bool  is_single_color() const noexcept{return m_kind == kind::single_color;}
-  bool  is_stripe() const noexcept{return m_kind == kind::stripe;}
-
-  void  set_interval(int  v)       noexcept{       m_interval = v;}
-  int   get_interval(      ) const noexcept{return m_interval    ;}
-
-  void    set_first_color(images::color  color)       noexcept{       m_first_color = color;}
-  color   get_first_color(                    ) const noexcept{return m_first_color        ;}
-
-  void   set_second_color(images::color  color)       noexcept{       m_second_color = color;}
-  color  get_second_color(                    ) const noexcept{return m_second_color        ;}
-
-  void  render(int  x, int  y, int  w, int  h, image_cursor&  cur) const noexcept
-  {
-      switch(m_kind)
-      {
-    case(kind::single_color): cur.fill_rectangle(m_first_color,x,y,w,h);break;
-    case(kind::stripe      ): cur.draw_stripe_rectangle(m_first_color,m_second_color,m_interval,x,y,w,h);break;
-      }
-  }
-
-};
 
 
 
@@ -130,7 +82,7 @@ public:
   virtual void  update() noexcept{}
 
   virtual void  render(image_cursor  cur) noexcept{}
-  virtual void  render_background(image_cursor  cur) noexcept{m_background_style.render(0,0,m_width,m_height,cur);}
+  virtual void  render_background(image_cursor  cur) const noexcept;
 
   mouse  get_mouse() const noexcept;
 
@@ -650,8 +602,10 @@ public:
 
 
 
-using menu_item_reactor  = bool  (*)(                   point  index);
-using menu_item_renderer = void  (*)(image_cursor  cur, point  index);
+class menu;
+
+using menu_item_reactor  = void  (*)(widgets::menu&  menu, point  index, mouse_button  left, mouse_button  right);
+using menu_item_renderer = void  (*)(widgets::menu&  menu, point  index, image_cursor  cur);
 
 
 struct

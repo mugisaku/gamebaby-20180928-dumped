@@ -98,22 +98,22 @@ render(image_cursor  cur) noexcept
 {
     if(is_pressed())
     {
-      cur.draw_hline(predefined_color::black,0,         0,m_width);
-      cur.draw_hline(predefined_color::white,0,m_height-1,m_width);
-      cur.draw_vline(predefined_color::black,        0,0,m_height);
-      cur.draw_vline(predefined_color::white,m_width-1,0,m_height);
+      cur.draw_hline(colors::black,0,         0,m_width);
+      cur.draw_hline(colors::white,0,m_height-1,m_width);
+      cur.draw_vline(colors::black,        0,0,m_height);
+      cur.draw_vline(colors::white,m_width-1,0,m_height);
 
-      cur.fill_rectangle(predefined_color::gray,1,1,m_width-2,m_height-2);
+      cur.fill_rectangle(colors::gray,1,1,m_width-2,m_height-2);
     }
 
   else
     {
-      cur.draw_hline(predefined_color::white,0,         0,m_width);
-      cur.draw_hline(predefined_color::black,0,m_height-1,m_width);
-      cur.draw_vline(predefined_color::white,        0,0,m_height);
-      cur.draw_vline(predefined_color::black,m_width-1,0,m_height);
+      cur.draw_hline(colors::white,0,         0,m_width);
+      cur.draw_hline(colors::black,0,m_height-1,m_width);
+      cur.draw_vline(colors::white,        0,0,m_height);
+      cur.draw_vline(colors::black,m_width-1,0,m_height);
 
-      cur.fill_rectangle(predefined_color::light_gray,1,1,m_width-2,m_height-2);
+      cur.fill_rectangle(colors::light_gray,1,1,m_width-2,m_height-2);
     }
 
 

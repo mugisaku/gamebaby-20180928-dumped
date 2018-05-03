@@ -10,7 +10,7 @@ namespace canvases{
 
 void
 canvas::
-draw_line(images::color  color, point  a, point  b) noexcept
+draw_line(colors::color  color, point  a, point  b) noexcept
 {
   line_maker  l(a.x,a.y,b.x,b.y);
 
@@ -48,7 +48,7 @@ draw_line(images::color  color, point  a, point  b) noexcept
 
 void
 canvas::
-draw_rect(images::color  color, rectangle  rect) noexcept
+draw_rect(colors::color  color, rectangle  rect) noexcept
 {
   m_recorder.push(false);
   m_recorder.reset_count();
@@ -84,7 +84,7 @@ draw_rect(images::color  color, rectangle  rect) noexcept
 
 void
 canvas::
-fill_rect(images::color  color, rectangle  rect) noexcept
+fill_rect(colors::color  color, rectangle  rect) noexcept
 {
   m_recorder.push(false);
   m_recorder.reset_count();
@@ -112,7 +112,7 @@ fill_rect(images::color  color, rectangle  rect) noexcept
 
 void
 canvas::
-fill_area(images::color  color, point  pt) noexcept
+fill_area(colors::color  color, point  pt) noexcept
 {
   auto&  img = *m_image;
 

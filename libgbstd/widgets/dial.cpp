@@ -11,8 +11,8 @@ namespace widgets{
 const icon*
 up_icons[] =
 {
-  &predefined_icon::right,
-  &predefined_icon::sunken_right,
+  &icons::right,
+  &icons::sunken_right,
 
 };
 
@@ -20,8 +20,8 @@ up_icons[] =
 const icon*
 down_icons[] =
 {
-  &predefined_icon::left,
-  &predefined_icon::sunken_left,
+  &icons::left,
+  &icons::sunken_left,
 
 };
 

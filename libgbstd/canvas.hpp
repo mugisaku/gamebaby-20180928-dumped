@@ -12,8 +12,6 @@ namespace canvases{
 class
 canvas: public widget
 {
-  using background_style = widgets::background_style;
-
   static background_style  m_default_background_style;
 
   image*  m_image=nullptr;
@@ -63,7 +61,7 @@ public:
   int   get_pixel_size(      ) const noexcept{return m_pixel_size;}
   void  set_pixel_size(int  n)       noexcept;
 
-  void   set_drawing_color(images::color  color)       noexcept{       m_drawing_color = color;}
+  void   set_drawing_color(colors::color  color)       noexcept{       m_drawing_color = color;}
   color  get_drawing_color(                    ) const noexcept{return m_drawing_color        ;}
 
   drawing_recorder&  get_drawing_recorder() noexcept{return m_recorder;}
@@ -85,7 +83,7 @@ public:
 
   void  reform(point  base_pt) noexcept override;
 
-  void  modify_dot(images::color  new_color, int  x, int  y) noexcept;
+  void  modify_dot(colors::color  new_color, int  x, int  y) noexcept;
 
   void  revolve() noexcept;
   void  reverse_horizontally() noexcept;
@@ -96,10 +94,10 @@ public:
   void  shift_right(bool  rotate) noexcept;
   void  shift_down(bool  rotate) noexcept;
 
-  void  draw_line(images::color  color, point  a, point  b) noexcept;
-  void  draw_rect(images::color  color, rectangle  rect) noexcept;
-  void  fill_rect(images::color  color, rectangle  rect) noexcept;
-  void  fill_area(images::color  color, point  pt) noexcept;
+  void  draw_line(colors::color  color, point  a, point  b) noexcept;
+  void  draw_rect(colors::color  color, rectangle  rect) noexcept;
+  void  fill_rect(colors::color  color, rectangle  rect) noexcept;
+  void  fill_area(colors::color  color, point  pt) noexcept;
 
   widget*  create_color_maker() noexcept;
   widget*  create_tool_widget() noexcept;

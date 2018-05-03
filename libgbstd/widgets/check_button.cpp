@@ -15,8 +15,8 @@ get_icons() const noexcept
   static const icon*
   icons[] =
   {
-    &predefined_icon::radio_checked,
-    &predefined_icon::radio_unchecked,
+    &icons::radio_checked,
+    &icons::radio_unchecked,
   };
 
 
