@@ -45,6 +45,8 @@
       }
 
     </style>
+<script type="text/javascript">
+</script>
   </head>
   <body>
     <hr/>
@@ -54,6 +56,9 @@
       <progress value="0" max="100" id="progress" hidden=1></progress>  
     </div>
 <table>
+    <tr>
+    <td><div id="caption">no caption</div></td>
+    </tr>
 <tr>
 <td>
     <div class="emscripten_border">
@@ -68,22 +73,13 @@
       <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
       -->
     </div>
-<!--
-操作はキーボードを使って行います<p>
-使用するキーには、概ね以下のような役割を持たせています<p>
--->
-<table align="left">
-<!--
-<tr><td>上下左右キー: 移動・方向の指示</td></tr>
-<tr><td>Zキー、またはENTERキー: 進める・弱い決定</td></tr>
-<tr><td>Xキー、またはCTRLキー : 戻る・取り消し</td></tr>
-<tr><td>SHIFTキー: 切り替え</td></tr>
-<tr><td>SPACEキー: 強い決定</td></tr>
--->
-<!--tr><td><textarea class="emscripten" id="output" cols="80" rows="8"></textarea></td></tr-->
-<tr><td><img id="img"></img></td></tr>
-<tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby">こちら</a></td></tr>
-</table>
+</td>
+<td>
+    <table align="left">
+    <tr><td><div id="description">no description</div></td></tr>
+    <tr><td><a href="" id="link_of_saved_image"></a></td></tr>
+    <tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby">こちら</a></td></tr>
+    </table>
 </td>
 </tr>
 </table>

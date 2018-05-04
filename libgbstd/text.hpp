@@ -118,7 +118,7 @@ public:
 class
 string_form
 {
-  char  buf[256];
+  char  buf[1024];
 
 public:
   string_form() noexcept: buf{0}{}

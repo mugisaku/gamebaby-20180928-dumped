@@ -14,7 +14,13 @@ string_form(const char*  fmt, ...) noexcept
   va_list  ap;
   va_start(ap,fmt);
 
-  vsnprintf(buf,sizeof(buf),fmt,ap);
+  auto  res = vsnprintf(buf,sizeof(buf),fmt,ap);
+
+    if((res < -1) || (res >= sizeof(buf)))
+    {
+      report;
+    }
+
 
   va_end(ap);
 }
@@ -27,7 +33,13 @@ operator()(const char*  fmt, ...) noexcept
   va_list  ap;
   va_start(ap,fmt);
 
-  vsnprintf(buf,sizeof(buf),fmt,ap);
+  auto  res = vsnprintf(buf,sizeof(buf),fmt,ap);
+
+    if((res < -1) || (res >= sizeof(buf)))
+    {
+      report;
+    }
+
 
   va_end(ap);
 

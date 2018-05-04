@@ -2,6 +2,11 @@
 #include"sdl.hpp"
 
 
+#ifdef EMSCRIPTEN
+#include<emscripten.h>
+#endif
+
+
 using namespace gbstd;
 
 
@@ -248,12 +253,15 @@ void
 save() noexcept
 {
 #ifdef EMSCRIPTEN
+  root.redraw(final_image);
+
+  sdl::update_screen(final_image);
+
+  generate_saved_image_link(0,0,200,200);
 #else
   final_image.save_to_webp("__test.webp");
 #endif
 }
-
-
 
 
 void
@@ -331,6 +339,9 @@ create_animation_widget() noexcept
 int
 main(int  argc, char**  argv)
 {
+  set_caption("mkanigra - " __DATE__);
+  set_description("マウスの左ボタンで、任意色を置き、右ボタンで透明色を置く");
+
   cv = new canvas(cv_image,[](canvas&  cv){
     cell_table::receive();
 

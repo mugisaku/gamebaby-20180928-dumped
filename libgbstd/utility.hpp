@@ -63,6 +63,11 @@ duplicate(const T*  src, size_t  n) noexcept
 void  printf_with_indent(int  indent, const char*  fmt, ...) noexcept;
 
 
+void      set_caption(const char*  s) noexcept;
+void  set_description(const char*  s) noexcept;
+void  generate_saved_image_link(int  x, int  y, int  w, int  h) noexcept;
+
+
 extern std::random_device
 random_device;
 

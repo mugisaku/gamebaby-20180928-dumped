@@ -4,7 +4,6 @@
 
 #ifdef EMSCRIPTEN
 #include<emscripten.h>
-#include<SDL.h>
 #endif
 
 

@@ -6,7 +6,6 @@
 
 #ifdef EMSCRIPTEN
 #include<emscripten.h>
-#include<SDL.h>
 #endif
 
 
@@ -273,11 +272,11 @@ save(widgets::button&  btn) noexcept
 #ifdef EMSCRIPTEN
       need_to_hide_cursors = true;
 
-      ptrs::farm->redraw(image);
+      ptrs::farm->redraw(final_image);
 
       need_to_hide_cursors = false;
 
-      sdl::update_screen(image);
+      sdl::update_screen(final_image);
 
 
       char  buf[256];

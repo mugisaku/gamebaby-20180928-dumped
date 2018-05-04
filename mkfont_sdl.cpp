@@ -2,6 +2,11 @@
 #include"sdl.hpp"
 
 
+#ifdef EMSCRIPTEN
+#include<emscripten.h>
+#endif
+
+
 using namespace gbstd;
 
 

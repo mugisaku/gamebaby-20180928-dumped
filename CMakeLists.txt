@@ -97,8 +97,7 @@ target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbstd" "webp" "pthr
 if(EMSC)
 #add_custom_target(bincopy ALL COMMAND cp ../bin/image.png ../battle.gb.txt /usr/local/share/gmbb/large_font.gz /usr/local/share/gmbb/small_font.gz ./)
 #add_dependencies("testBattle${EXECUTABLE_EXTENSION}" bincopy)
-#set_target_properties("testBattle${EXECUTABLE_EXTENSION}"  PROPERTIES LINK_FLAGS "--shell-file ../shell.html")
-#set_target_properties("test_gbscr${EXECUTABLE_EXTENSION}" PROPERTIES LINK_FLAGS [[--shell-file ../shell.html -s EXPORTED_FUNCTIONS='["_fn"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]']])
+set_target_properties("mkanigra_sdl${EXECUTABLE_EXTENSION}"  PROPERTIES LINK_FLAGS "--shell-file ../shell.html")
 endif()
 
 
