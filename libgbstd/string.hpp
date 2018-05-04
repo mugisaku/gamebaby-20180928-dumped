@@ -202,6 +202,9 @@ using    string = basic_string<char>;
 using u16string = basic_string<char16_t>;
 
 
+string  make_string_from_file(const char*  filepath) noexcept;
+
+
 }
 
 

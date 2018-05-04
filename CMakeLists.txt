@@ -25,7 +25,7 @@ set(CMAKE_C_COMPILER  "/usr/local/bin/gcc")
 set(CMAKE_C_FLAGS   "-std=c1z -Werror")
 set(CMAKE_CXX_COMPILER  "/usr/local/bin/g++")
 set(CMAKE_CXX_FLAGS "-std=c++1z -Werror")
-set(CMAKE_CXX_LINK_FLAGS  "-lstdc++ -lz -lpng -lSDL2 -lSDL2main")
+set(CMAKE_CXX_LINK_FLAGS  "-lstdc++ -lSDL2 -lSDL2main")
 
 
 set(CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS}   -O2 -march=core2 -fomit-frame-pointer")
@@ -82,7 +82,7 @@ add_executable("mkanigra_sdl${EXECUTABLE_EXTENSION}" mkanigra_sdl.cpp ${SDL_SOUR
 target_link_libraries("mkfont_sdl${EXECUTABLE_EXTENSION}" "gbstd")
 target_link_libraries("mkicon_sdl${EXECUTABLE_EXTENSION}" "gbstd")
 target_link_libraries("mkforest_sdl${EXECUTABLE_EXTENSION}" "gbstd")
-target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbstd")
+target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbstd" "webp" "pthread")
 #target_link_libraries("markit_sdl${EXECUTABLE_EXTENSION}" "gbstd" "markit")
 #target_link_libraries("winmantester${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("growin${EXECUTABLE_EXTENSION}" "gbstd")

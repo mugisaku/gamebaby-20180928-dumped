@@ -4,7 +4,6 @@
 
 #include"libgbstd/ios/riff.hpp"
 #include"libgbstd/ios/wave.hpp"
-#include"libgbstd/ios/binary_stream.hpp"
 
 
 #endif

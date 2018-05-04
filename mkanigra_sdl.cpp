@@ -249,6 +249,7 @@ save() noexcept
 {
 #ifdef EMSCRIPTEN
 #else
+  final_image.save_to_webp("__test.webp");
 #endif
 }
 
@@ -401,6 +402,15 @@ main(int  argc, char**  argv)
   cv_frame->set_line_color(colors::black);
 
 
+  auto  save_btn = new widgets::button(new widgets::label(u"Save"),[](widgets::button&  btn){
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+        save();
+      }
+  });
+
   auto  urow = new widgets::table_row({cv_tool,cv_op});
   auto  mrow = new widgets::table_row({color_maker_frame,create_animation_widget()});
   auto  ucol = new widgets::table_column({urow,mrow});
@@ -409,8 +419,9 @@ main(int  argc, char**  argv)
   auto  canvas_frame = new widgets::table_row({cv_frame,ucol});
   auto  celtbl_frame = new widgets::frame(mnu,"cell table");
 
+  auto  lrow = new widgets::table_row({celtbl_frame,save_btn});
 
-  root.set_node_target(new widgets::table_column({canvas_frame,celtbl_frame}));
+  root.set_node_target(new widgets::table_column({canvas_frame,lrow}));
 
   auto&  root_node = root.get_node();
 

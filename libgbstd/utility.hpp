@@ -63,8 +63,6 @@ duplicate(const T*  src, size_t  n) noexcept
 void  printf_with_indent(int  indent, const char*  fmt, ...) noexcept;
 
 
-
-
 extern std::random_device
 random_device;
 

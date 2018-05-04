@@ -3,7 +3,7 @@
 set(SOURCES
   images/image.cpp
   images/image_cursor.cpp
-  images/image__png.cpp
+  images/image__webp.cpp
   images/image__draw.cpp
   images/image__transfer.cpp
   images/line_maker.cpp
@@ -37,9 +37,6 @@ set(SOURCES
   windows/window.cpp
   windows/window__update_frame_image.cpp
   windows/window_manager.cpp
-  ios/binary_stream.cpp
-  ios/binary_stream_reader.cpp
-  ios/binary_stream_writer.cpp
   ios/riff_chunk.cpp
   ios/riff_subchunk_view.cpp
   ios/wave.cpp
@@ -55,7 +52,6 @@ set(SOURCES
 include_directories(./)
 include_directories(../)
 add_library("gbstd" ${SOURCES})
-target_link_libraries("gbstd")
 
 
 

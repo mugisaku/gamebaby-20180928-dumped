@@ -6,10 +6,9 @@
 #include<vector>
 #include<string>
 #include"libgbstd/figures.hpp"
-#include"libgbstd/ios/binary_stream.hpp"
-#include"libgbstd/ro_ptr.hpp"
 #include"libgbstd/color.hpp"
 #include"libgbstd/style.hpp"
+#include"libgbstd/string.hpp"
 
 
 
@@ -53,7 +52,8 @@ public:
 
   void  resize(int  w, int  h) noexcept;
 
-  void  load_png(binary_stream_reader&  r) noexcept;
+  void  load_from_webp(const char*  filepath)       noexcept;
+  void    save_to_webp(const char*  filepath) const noexcept;
 
   int   get_width() const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
