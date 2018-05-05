@@ -41,9 +41,7 @@ composite(image&  dst) const noexcept
 
       auto  src_rect = rectangle(spr.src_point,spr.width,spr.height);
 
-      auto  cur = image_cursor(dst,spr.dst_point);
-
-      images::transfer(*spr.image,src_rect,cur,true);
+      images::overlay(*spr.image,src_rect,dst,spr.dst_point);
     }
 }
 

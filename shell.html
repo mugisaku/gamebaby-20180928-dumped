@@ -46,6 +46,30 @@
 
     </style>
 <script type="text/javascript">
+var  clip_image;
+
+
+function
+download_image(w,h)
+{
+  var  src = document.getElementById("canvas");
+
+  clip_image = document.createElement("canvas");
+
+  var  ctx = clip_image.getContext("2d");
+
+  ctx.drawImage(src,0,0,w,h,0,0,w,h);
+
+  var  a = document.createElement("a");
+
+  a.download = "new.png";
+
+  a.href = clip_image.toDataURL();
+
+  a.click();
+}
+
+
 </script>
   </head>
   <body>
@@ -77,7 +101,6 @@
 <td>
     <table align="left">
     <tr><td><div id="description">no description</div></td></tr>
-    <tr><td><a href="" id="link_of_saved_image"></a></td></tr>
     <tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby">こちら</a></td></tr>
     </table>
 </td>

@@ -112,12 +112,11 @@ transform(rectangle&  src_rect, rectangle&  dst_rect) noexcept
 }
 
 
+namespace{
 void
-transfer(const image&  src, rectangle  src_rect, image_cursor&  dst, bool  layer) noexcept
+transfer(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt, rectangle*  result, bool  layer) noexcept
 {
-  auto&  dst_img = dst.get_image();
-
-  rectangle  dst_rect = dst.get_rectangle();
+  rectangle  dst_rect(dst_pt,dst.get_width(),dst.get_height());
 
   transform(src_rect,dst_rect);
 
@@ -129,13 +128,45 @@ transfer(const image&  src, rectangle  src_rect, image_cursor&  dst, bool  layer
 
             if(!layer || pix.color)
             {
-              dst_img.set_pixel(pix,dst_rect.x+x,dst_rect.y+y);
+              dst.set_pixel(pix,dst_rect.x+x,dst_rect.y+y);
             }
         }}
     }
 
 
-  dst.set_rectangle(dst_rect.x,dst_rect.y,src_rect.w,src_rect.h);
+    if(result)
+    {
+      *result = rectangle(dst_rect.x,dst_rect.y,src_rect.w,src_rect.h);
+    }
+}
+}
+
+
+void
+paste(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt, rectangle*  result) noexcept
+{
+  transfer(src,src_rect,dst,dst_pt,result,false);
+}
+
+
+void
+paste(const image&  src, rectangle  src_rect, image_cursor  dst, rectangle*  result) noexcept
+{
+  transfer(src,src_rect,dst.get_image(),dst.get_offset(),result,false);
+}
+
+
+void
+overlay(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt, rectangle*  result) noexcept
+{
+  transfer(src,src_rect,dst,dst_pt,result,true);
+}
+
+
+void
+overlay(const image&  src, rectangle  src_rect, image_cursor  dst, rectangle*  result) noexcept
+{
+  transfer(src,src_rect,dst.get_image(),dst.get_offset(),result,true);
 }
 
 

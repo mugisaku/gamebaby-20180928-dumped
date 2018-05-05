@@ -191,7 +191,7 @@ public:
       {
         auto&  img = stack[index]->image;
 
-        images::transfer(img,img.get_rectangle(),cur,true);
+        images::paste(img,img.get_rectangle(),cur.get_image(),cur.get_offset());
       }
   }
 
@@ -257,7 +257,7 @@ save() noexcept
 
   sdl::update_screen(final_image);
 
-  generate_saved_image_link(0,0,200,200);
+  generate_saved_image_link(200,200);
 #else
   final_image.save_to_webp("__test.webp");
 #endif
@@ -384,7 +384,7 @@ main(int  argc, char**  argv)
 
         if(ptr)
         {
-          images::transfer(ptr->image,ptr->image.get_rectangle(),cur,true);
+          images::paste(ptr->image,ptr->image.get_rectangle(),cur);
 
             if(ptr == cell_table::current)
             {

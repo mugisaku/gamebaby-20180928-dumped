@@ -106,35 +106,33 @@ image_cursor
 {
   image*  m_image;
 
-  rectangle  m_rectangle;
+  point  m_offset;
 
   int  z_value=0;
 
-  int  get_x(int  x) const noexcept{return m_rectangle.x+x;}
-  int  get_y(int  y) const noexcept{return m_rectangle.y+y;}
+  bool  m_layer=false;
+
+  int  get_x(int  x) const noexcept{return m_offset.x+x;}
+  int  get_y(int  y) const noexcept{return m_offset.y+y;}
 
 public:
   image_cursor(image&  image) noexcept:
   m_image(&image),
-  m_rectangle(0,0,image.get_width(),image.get_height()){}
+  m_offset(0,0){}
 
-  image_cursor(image&  image, point  pt) noexcept:
+  image_cursor(image&  image, point  offset) noexcept:
   m_image(&image),
-  m_rectangle(pt,image.get_width(),image.get_height()){}
+  m_offset(offset){}
 
 
-  image_cursor  operator+(point  offset) const noexcept;
+  image_cursor  operator+(point  offset) const noexcept{return image_cursor(*m_image,m_offset+offset);}
 
   image&  get_image() const noexcept{return *m_image;}
 
-  void  set_rectangle(int  x, int  y, int  w, int  h) noexcept{m_rectangle = rectangle(x,y,w,h);}
-  rectangle&  get_rectangle() noexcept{return m_rectangle;}
+  void  set_offset(int  x, int  y) noexcept{m_offset  = point(x,y);}
+  void  add_offset(int  x, int  y) noexcept{m_offset += point(x,y);}
 
-  int  get_x_offset() const noexcept{return m_rectangle.x;}
-  int  get_y_offset() const noexcept{return m_rectangle.y;}
-
-  void  set_offset(int  x, int  y) noexcept;
-  void  add_offset(int  x, int  y) noexcept;
+  const point&  get_offset() const noexcept{return m_offset;}
 
         pixel&        get_pixel(int  x, int  y) const noexcept{return m_image->get_pixel(get_x(x),get_y(y));}
   const pixel&  get_const_pixel(int  x, int  y) const noexcept{return m_image->get_const_pixel(get_x(x),get_y(y));}
@@ -171,7 +169,10 @@ public:
 
 
 void  transform(rectangle&  src_rect, rectangle&  dst_rect) noexcept;
-void  transfer(const image&  src, rectangle  src_rect, image_cursor&  dst, bool  layer) noexcept;
+void    paste(const image&  src, rectangle  src_rect, image&        dst, point  dst_pt, rectangle*  result=nullptr) noexcept;
+void    paste(const image&  src, rectangle  src_rect, image_cursor  dst,                rectangle*  result=nullptr) noexcept;
+void  overlay(const image&  src, rectangle  src_rect, image&        dst, point  dst_pt, rectangle*  result=nullptr) noexcept;
+void  overlay(const image&  src, rectangle  src_rect, image_cursor  dst,                rectangle*  result=nullptr) noexcept;
 
 
 

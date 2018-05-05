@@ -108,21 +108,12 @@ set_description(const char*  s) noexcept
 
 
 void
-generate_saved_image_link(int  x, int  y, int  w, int  h) noexcept
+generate_saved_image_link(int  w, int  h) noexcept
 {
 #ifdef EMSCRIPTEN
   string_form  sf;
 
-  emscripten_run_script(sf(
-    "  var  src = document.getElementById(\"canvas\");"
-    "  var  clp = document.createElement(\"canvas\");"
-    "  var  ctx = clp.getContext(\"2d\");"
-    "  ctx.drawImage(src,%d,%d,%d,%d,0,0,%d,%d);"
-    "  var  ln = document.getElementById(\"link_of_saved_image\");"
-    "  ln.href = clp.toDataURL();"
-    "  ln.download = \"new_image.png\";"
-    "  ln.text = \"ここから画像を保存してください\";"
-  ,x,y,w,h,w,h));
+  emscripten_run_script(sf("download_image(%d,%d);",w,h));
 #endif
 }
 

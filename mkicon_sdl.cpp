@@ -45,31 +45,13 @@ save(widgets::button&  btn) noexcept
       btn.reset_count();
 
 #ifdef EMSCRIPTEN
-      need_to_hide_cursors = true;
+      image_cursor  cur(final_image);
 
-      ptrs::farm->redraw(image);
+      images::transfer(cv_image,cv_image.get_rectangle(),cur,false);
 
-      need_to_hide_cursors = false;
+      sdl::update_screen(final_image);
 
-      sdl::update_screen(image);
-
-
-      char  buf[256];
-
-      auto&  pt = ptrs::farm->get_absolute_point();
-      auto    w = ptrs::farm->get_width();
-      auto    h = ptrs::farm->get_height();
-
-      snprintf(buf,sizeof(buf),
-        "  var  src = document.getElementById(\"canvas\");"
-        "  var  clp = document.createElement(\"canvas\");"
-        "  var  ctx = clp.getContext(\"2d\");"
-        "  ctx.drawImage(src,%d,%d,%d,%d,0,0,%d,%d);"
-        "  var  img = document.getElementById(\"img\");"
-        "  img.src = clp.toDataURL();",pt.x,pt.y,w,h,w,h);
-
-
-      emscripten_run_script(buf);
+      generate_saved_image_link(cv_w,cv_h);
 #else
         for(int  y = 0;  y < cv_h;  ++y)
         {

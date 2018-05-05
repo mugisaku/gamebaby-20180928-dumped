@@ -141,22 +141,22 @@ make_farm() noexcept
 
   farm_image.fill(colors::blue);
 
-  image_cursor  dst_base_cur(farm_image);
+  point  base_offset;
 
     for(int  y = 0;  y < farm_h;  ++y)
     {
       auto&  row = rows[y];
 
-      image_cursor  dst_cur(dst_base_cur)                    ;
-                            dst_base_cur.add_offset(0,cv_h/4);
+      auto  offset = base_offset                   ;
+                     base_offset += point(0,cv_h/4);
 
-      dst_cur.add_offset((cv_w/2)*row.offset,0);
+      offset += point((cv_w/2)*row.offset,0);
 
         for(int  n = 0;  n < row.number;  ++n)
         {
-          images::transfer(cv_image,cv_image.get_rectangle(),dst_cur,true);
+          images::overlay(cv_image,cv_image.get_rectangle(),farm_image,offset);
 
-          dst_cur.add_offset(cv_w,0);
+          offset += point(cv_w,0);
         }
     }
 }
@@ -195,7 +195,7 @@ public:
 
   void  render(gbstd::image_cursor  cur) noexcept override
   {
-    images::transfer(farm_image,farm_image.get_rectangle(),cur,true);
+    images::overlay(farm_image,farm_image.get_rectangle(),cur.get_image(),cur.get_offset());
 
       if(!need_to_hide_cursors)
       {
@@ -245,9 +245,7 @@ public:
       for(int  x = 0;  x < table_width;  ++x){
         auto  pt = table[y][x];
 
-        auto  new_cur = cur+point(cv_w*2*x,cv_h*y);
-
-        images::transfer(farm_image,rectangle(pt,cv_w*2,cv_h),new_cur,true);
+        images::overlay(farm_image,rectangle(pt,cv_w*2,cv_h),cur.get_image(),cur.get_offset()+point(cv_w*2*x,cv_h*y));
       }}
 
 
@@ -272,29 +270,17 @@ save(widgets::button&  btn) noexcept
 #ifdef EMSCRIPTEN
       need_to_hide_cursors = true;
 
-      ptrs::farm->redraw(final_image);
+      ptrs::farm->render(image_cursor(final_image));
 
       need_to_hide_cursors = false;
 
       sdl::update_screen(final_image);
 
+      generate_saved_image_link(ptrs::farm->get_width(),ptrs::farm->get_height());
 
-      char  buf[256];
+      root.redraw(final_image);
 
-      auto&  pt = ptrs::farm->get_absolute_point();
-      auto    w = ptrs::farm->get_width();
-      auto    h = ptrs::farm->get_height();
-
-      snprintf(buf,sizeof(buf),
-        "  var  src = document.getElementById(\"canvas\");"
-        "  var  clp = document.createElement(\"canvas\");"
-        "  var  ctx = clp.getContext(\"2d\");"
-        "  ctx.drawImage(src,%d,%d,%d,%d,0,0,%d,%d);"
-        "  var  img = document.getElementById(\"img\");"
-        "  img.src = clp.toDataURL();",pt.x,pt.y,w,h,w,h);
-
-
-      emscripten_run_script(buf);
+      sdl::update_screen(final_image);
 #else
         for(int  y = 0;  y < cv_h;  ++y)
         {
