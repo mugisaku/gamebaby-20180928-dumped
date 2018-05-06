@@ -49,6 +49,8 @@ update() noexcept
                 if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
+
+                  need_to_redraw();
                 }
 
 
@@ -61,6 +63,8 @@ update() noexcept
                 if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
+
+                  need_to_redraw();
                 }
 
 
@@ -94,6 +98,8 @@ update() noexcept
                 if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
+
+                  need_to_redraw();
                 }
 
 
@@ -106,6 +112,8 @@ update() noexcept
                 if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
+
+                  need_to_redraw();
                 }
 
 
@@ -139,6 +147,8 @@ update() noexcept
                 if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
+
+                  need_to_redraw();
                 }
 
 
@@ -151,6 +161,8 @@ update() noexcept
                 if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
+
+                  need_to_redraw();
                 }
 
 
@@ -230,6 +242,8 @@ update() noexcept
             if(!m_drawing_is_fixed)
             {
               m_recorder.rollback(*m_image);
+
+              need_to_redraw();
             }
 
 
@@ -252,6 +266,8 @@ update() noexcept
             if(!m_drawing_is_fixed)
             {
               m_recorder.rollback(*m_image);
+
+              need_to_redraw();
             }
 
 
