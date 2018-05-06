@@ -33,6 +33,8 @@ canvas: public widget
 
   drawing_recorder  m_recorder;
 
+  bool  m_drawing_is_fixed=true;
+
   color  m_drawing_color=color(0,0,0);
 
   image  m_clipped_image;
@@ -48,6 +50,9 @@ canvas: public widget
   rectangle  m_operation_rect;
 
   void  (*m_callback)(canvas&  cv)=nullptr;
+
+  void  try_to_push_solid_record()    noexcept;
+  void  try_to_push_nonsolid_record() noexcept;
 
 public:
   canvas() noexcept;
@@ -105,7 +110,7 @@ public:
   void  paste(point  pt, bool  layer) noexcept;
   void  undo() noexcept;
 
-  void  do_when_cursor_got_out() noexcept override{cancel_drawing();}
+  void  do_when_cursor_got_out() noexcept override;
 
   void  update() noexcept override;
 

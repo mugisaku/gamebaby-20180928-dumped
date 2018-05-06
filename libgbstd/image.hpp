@@ -192,13 +192,13 @@ drawing_recorder
   };
 
 
-  uint32_t  m_count=0;
-
   std::vector<dot>  m_dot_buffer;
 
   struct record;
 
   record*  m_record_list=nullptr;
+
+  uint32_t  m_number_of_records=0;
 
 public:
   drawing_recorder() noexcept{}
@@ -211,15 +211,13 @@ public:
 
   void  put(colors::color  color, int  x, int  y) noexcept{m_dot_buffer.emplace_back(color,x,y);}
 
-  void  rollback(image&  img) noexcept;
+  bool  rollback(image&  img) noexcept;
 
   void  clear() noexcept;
 
-  void  push(bool  solid) noexcept;
+  bool  push(bool  solid) noexcept;
 
-  uint32_t  get_count() const noexcept{return m_count;}
-
-  void  reset_count() noexcept{m_count = 0;}
+  uint32_t  get_number_of_records() const noexcept{return m_number_of_records;}
 
 };
 

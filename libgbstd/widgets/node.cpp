@@ -34,6 +34,66 @@ cancel_current() noexcept
 }
 
 
+
+
+void
+node::
+do_when_cursor_got_in()  noexcept
+{
+}
+
+
+void
+node::
+check_by_mouse(control_devices::mouse&  mouse) noexcept
+{
+    if(!m_current->test_by_absolute_point(mouse.point))
+    {
+        if(mouse.left_button ||
+           mouse.right_button)
+        {
+          auto  abs_pt = m_current->get_absolute_point();
+
+          int    left = abs_pt.x                        ;
+          int   right = abs_pt.x+m_current->get_width() ;
+          int     top = abs_pt.y                        ;
+          int  bottom = abs_pt.y+m_current->get_height();
+
+               if(mouse.point.x <   left){mouse.point.x =  left  ;}
+          else if(mouse.point.x >= right){mouse.point.x = right-1;}
+
+               if(mouse.point.y <     top){mouse.point.y =    top  ;}
+          else if(mouse.point.y >= bottom){mouse.point.y = bottom-1;}
+        }
+
+      else
+        {
+          m_current->do_when_cursor_got_out();
+
+          m_current = m_target->scan_by_absolute_point(mouse.point);
+
+            if(m_current)
+            {
+              m_current->do_when_cursor_got_in();
+            }
+        }
+    }
+}
+
+
+void
+node::
+do_when_cursor_got_out() noexcept
+{
+    if(m_current)
+    {
+      auto  root = get_root();
+
+      check_by_mouse(root->get_mouse());
+    }
+}
+
+
 void
 node::
 update() noexcept
@@ -61,36 +121,7 @@ update() noexcept
   else
     if(root->is_mouse_moved())
     {
-        if(!m_current->test_by_absolute_point(mouse.point))
-        {
-            if(mouse.left_button)
-            {
-              auto  abs_pt = m_current->get_absolute_point();
-
-              int    left = abs_pt.x                        ;
-              int   right = abs_pt.x+m_current->get_width() ;
-              int     top = abs_pt.y                        ;
-              int  bottom = abs_pt.y+m_current->get_height();
-
-                   if(mouse.point.x <   left){mouse.point.x =  left  ;}
-              else if(mouse.point.x >= right){mouse.point.x = right-1;}
-
-                   if(mouse.point.y <     top){mouse.point.y =    top  ;}
-              else if(mouse.point.y >= bottom){mouse.point.y = bottom-1;}
-            }
-
-          else
-            {
-              m_current->do_when_cursor_got_out();
-
-              m_current = m_target->scan_by_absolute_point(mouse.point);
-
-                if(m_current)
-                {
-                  m_current->do_when_cursor_got_in();
-                }
-            }
-        }
+      check_by_mouse(mouse);
     }
 
 

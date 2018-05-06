@@ -46,7 +46,7 @@ update() noexcept
         {
             if(mouse.left_button)
             {
-                if(m_recorder.get_count())
+                if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
                 }
@@ -58,7 +58,7 @@ update() noexcept
           else
             if(mouse.right_button)
             {
-                if(m_recorder.get_count())
+                if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
                 }
@@ -69,7 +69,7 @@ update() noexcept
 
           else
             {
-              m_recorder.reset_count();
+              m_drawing_is_fixed = true;
 
               m_pointing_count = 0;
             }
@@ -91,7 +91,7 @@ update() noexcept
         {
             if(mouse.left_button)
             {
-                if(m_recorder.get_count())
+                if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
                 }
@@ -103,7 +103,7 @@ update() noexcept
           else
             if(mouse.right_button)
             {
-                if(m_recorder.get_count())
+                if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
                 }
@@ -114,7 +114,7 @@ update() noexcept
 
           else
             {
-              m_recorder.reset_count();
+              m_drawing_is_fixed = true;
 
               m_pointing_count = 0;
             }
@@ -136,7 +136,7 @@ update() noexcept
         {
             if(mouse.left_button)
             {
-                if(m_recorder.get_count())
+                if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
                 }
@@ -148,7 +148,7 @@ update() noexcept
           else
             if(mouse.right_button)
             {
-                if(m_recorder.get_count())
+                if(!m_drawing_is_fixed)
                 {
                   m_recorder.rollback(*m_image);
                 }
@@ -159,7 +159,7 @@ update() noexcept
 
           else
             {
-              m_recorder.reset_count();
+              m_drawing_is_fixed = true;
 
               m_pointing_count = 0;
             }
@@ -221,16 +221,13 @@ update() noexcept
 
         if(mouse.left_button)
         {
-            if(m_recorder.get_count())
-            {
-              m_recorder.reset_count();
-            }
+          m_drawing_is_fixed = true;
         }
 
       else
         if(m_a_point != m_b_point)
         {
-            if(m_recorder.get_count())
+            if(!m_drawing_is_fixed)
             {
               m_recorder.rollback(*m_image);
             }
@@ -246,16 +243,13 @@ update() noexcept
 
         if(mouse.left_button)
         {
-            if(m_recorder.get_count())
-            {
-              m_recorder.reset_count();
-            }
+          m_drawing_is_fixed = true;
         }
 
       else
         if(m_a_point != m_b_point)
         {
-            if(m_recorder.get_count())
+            if(!m_drawing_is_fixed)
             {
               m_recorder.rollback(*m_image);
             }

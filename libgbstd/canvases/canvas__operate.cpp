@@ -14,8 +14,8 @@ void
 canvas::
 paste(point  pt, bool  layer) noexcept
 {
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
+
 
   rectangle  src_rect = m_clipped_image.get_rectangle();
   rectangle  dst_rect(pt,m_image->get_width(),m_image->get_height());
@@ -36,17 +36,7 @@ paste(point  pt, bool  layer) noexcept
     }
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -60,8 +50,7 @@ revolve() noexcept
 
   const int  w = std::min(m_operation_rect.w,m_operation_rect.h);
 
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < w;  ++yy){
     for(int  xx = 0;  xx < w;  ++xx){
@@ -69,17 +58,7 @@ revolve() noexcept
     }}
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -89,8 +68,7 @@ reverse_horizontally() noexcept
 {
   image  tmp = *m_image;
 
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < m_operation_rect.h;  ++yy){
     for(int  xx = 0;  xx < m_operation_rect.w;  ++xx){
@@ -98,17 +76,7 @@ reverse_horizontally() noexcept
     }}
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -118,8 +86,7 @@ reverse_vertically() noexcept
 {
   image  tmp = *m_image;
 
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < m_operation_rect.h;  ++yy){
     for(int  xx = 0;  xx < m_operation_rect.w;  ++xx){
@@ -127,17 +94,7 @@ reverse_vertically() noexcept
     }}
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -145,8 +102,7 @@ void
 canvas::
 mirror_vertically() noexcept
 {
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < m_operation_rect.h  ;  ++yy){
     for(int  xx = 0;  xx < m_operation_rect.w/2;  ++xx){
@@ -156,17 +112,7 @@ mirror_vertically() noexcept
     }}
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -178,8 +124,7 @@ shift_up(bool  rotate) noexcept
 {
   image  tmp = *m_image;
 
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < m_operation_rect.h-1;  ++yy){
     for(int  xx = 0;  xx < m_operation_rect.w  ;  ++xx){
@@ -196,17 +141,7 @@ shift_up(bool  rotate) noexcept
     }
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -216,8 +151,7 @@ shift_left(bool  rotate) noexcept
 {
   image  tmp = *m_image;
 
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < m_operation_rect.h  ;  ++yy){
     for(int  xx = 0;  xx < m_operation_rect.w-1;  ++xx){
@@ -234,17 +168,7 @@ shift_left(bool  rotate) noexcept
     }
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -254,8 +178,7 @@ shift_right(bool  rotate) noexcept
 {
   image  tmp = *m_image;
 
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < m_operation_rect.h;  ++yy){
     for(int  xx = 1;  xx < m_operation_rect.w;  ++xx){
@@ -272,17 +195,7 @@ shift_right(bool  rotate) noexcept
     }
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -292,8 +205,7 @@ shift_down(bool  rotate) noexcept
 {
   image  tmp = *m_image;
 
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 1;  yy < m_operation_rect.h;  ++yy){
     for(int  xx = 0;  xx < m_operation_rect.w;  ++xx){
@@ -310,17 +222,7 @@ shift_down(bool  rotate) noexcept
     }
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-      need_to_redraw();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-    }
+  try_to_push_solid_record();
 }
 
 

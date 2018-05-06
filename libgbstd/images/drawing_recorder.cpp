@@ -43,7 +43,7 @@ operator=(drawing_recorder&&  rhs) noexcept
 
 
 
-void
+bool
 drawing_recorder::
 rollback(image&  img) noexcept
 {
@@ -55,15 +55,14 @@ START:
       m_dot_buffer.pop_back();
 
       img.set_pixel(dot.color,dot.x,dot.y);
+
+      return true;
     }
 
   else
     if(m_record_list)
     {
-        if(m_count)
-        {
-          --m_count;
-        }
+      --m_number_of_records;
 
 
       auto  rec = m_record_list            ;
@@ -80,6 +79,8 @@ START:
 
 
           free(rec);
+
+          return true;
         }
 
       else
@@ -95,10 +96,13 @@ START:
           goto START;
         }
     }
+
+
+  return false;
 }
 
 
-void
+bool
 drawing_recorder::
 push(bool  solid) noexcept
 {
@@ -122,8 +126,13 @@ push(bool  solid) noexcept
                   m_record_list = rec;
 
 
-      ++m_count;
+      ++m_number_of_records;
+
+      return true;
     }
+
+
+  return false;
 }
 
 
@@ -131,7 +140,7 @@ void
 drawing_recorder::
 clear() noexcept
 {
-  m_count = 0;
+  m_number_of_records = 0;
 
     while(m_record_list)
     {

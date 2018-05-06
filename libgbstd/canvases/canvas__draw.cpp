@@ -14,8 +14,7 @@ draw_line(colors::color  color, point  a, point  b) noexcept
 {
   line_maker  l(a.x,a.y,b.x,b.y);
 
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(;;)
     {
@@ -31,18 +30,7 @@ draw_line(colors::color  color, point  a, point  b) noexcept
     }
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-
-
-      need_to_redraw();
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -50,8 +38,7 @@ void
 canvas::
 draw_rect(colors::color  color, rectangle  rect) noexcept
 {
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < rect.h;  ++yy)
     {
@@ -67,18 +54,7 @@ draw_rect(colors::color  color, rectangle  rect) noexcept
     }
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-
-
-      need_to_redraw();
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -86,8 +62,7 @@ void
 canvas::
 fill_rect(colors::color  color, rectangle  rect) noexcept
 {
-  m_recorder.push(false);
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
     for(int  yy = 0;  yy < rect.h;  ++yy){
     for(int  xx = 0;  xx < rect.w;  ++xx){
@@ -95,18 +70,7 @@ fill_rect(colors::color  color, rectangle  rect) noexcept
     }}
 
 
-  m_recorder.push(true);
-
-    if(m_recorder.get_count())
-    {
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-
-
-      need_to_redraw();
-    }
+  try_to_push_solid_record();
 }
 
 
@@ -133,9 +97,7 @@ fill_area(colors::color  color, point  pt) noexcept
     }
 
 
-  m_recorder.push(false);
-
-  m_recorder.reset_count();
+  try_to_push_nonsolid_record();
 
 
   std::vector<point>  stack;
@@ -169,20 +131,9 @@ fill_area(colors::color  color, point  pt) noexcept
     }
 
 
-  m_recorder.push(true);
+  try_to_push_solid_record();
 
-    if(m_recorder.get_count())
-    {
-      m_recorder.reset_count();
-
-        if(m_callback)
-        {
-          m_callback(*this);
-        }
-
-
-      need_to_redraw();
-    }
+  m_drawing_is_fixed = true;
 }
 
 

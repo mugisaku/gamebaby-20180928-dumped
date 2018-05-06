@@ -70,9 +70,18 @@ void
 canvas::
 set_image(image&  img) noexcept
 {
+    if(m_image)
+    {
+      cancel_select();
+      cancel_drawing();
+    }
+
+
   m_image = &img;
 
-  cancel_select();
+  m_drawing_is_fixed = true;
+
+  m_recorder.clear();
 
   need_to_redraw();
 }
@@ -83,8 +92,6 @@ canvas::
 reform(point  base_pt) noexcept
 {
   widget::reform(base_pt);
-
-  m_pointing_count = 0;
 
   m_operation_rect = rectangle(0,0,m_image->get_width(),m_image->get_height());
 
@@ -119,13 +126,58 @@ cancel_drawing() noexcept
 {
   m_pointing_count = 0;
 
-    if(m_recorder.get_count())
+    if(!m_drawing_is_fixed)
     {
-      m_recorder.reset_count();
+        if((m_mode == mode::paste) ||
+           (m_mode == mode::layer))
+        {
+          m_recorder.rollback(*m_image);
+        }
+
+
+      m_drawing_is_fixed = true;
 
       need_to_redraw();
     }
 }
+
+
+
+
+void
+canvas::
+try_to_push_solid_record() noexcept
+{
+    if(m_recorder.push(true))
+    {
+      m_drawing_is_fixed = false;
+
+      need_to_redraw();
+
+        if(m_callback)
+        {
+          m_callback(*this);
+        }
+    }
+}
+
+
+void
+canvas::
+try_to_push_nonsolid_record() noexcept
+{
+    if(m_drawing_is_fixed)
+    {
+      m_recorder.push(false);
+    }
+
+  else
+    {
+      m_drawing_is_fixed = true;
+    }
+}
+
+
 
 
 void
@@ -141,6 +193,12 @@ cancel_select() noexcept
 }
 
 
+void
+canvas::
+do_when_cursor_got_out() noexcept
+{
+  cancel_drawing();
+}
 
 
 void
@@ -162,13 +220,14 @@ void
 canvas::
 undo() noexcept
 {
-  m_recorder.rollback(*m_image);
-
-  need_to_redraw();
-
-    if(m_callback)
+    if(m_recorder.rollback(*m_image))
     {
-      m_callback(*this);
+      need_to_redraw();
+
+        if(m_callback)
+        {
+          m_callback(*this);
+        }
     }
 }
 

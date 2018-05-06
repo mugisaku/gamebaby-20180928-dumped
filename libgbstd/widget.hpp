@@ -215,6 +215,8 @@ protected:
 
   widget*  m_current=nullptr;
 
+  void  check_by_mouse(control_devices::mouse&  mouse) noexcept;
+
 public:
   node(widget*  target=nullptr) noexcept:
   m_target(target)
@@ -225,6 +227,9 @@ public:
   void  set_root(root*  r) noexcept override;
 
   const widget*  get_current() const noexcept{return m_current;}
+
+  void  do_when_cursor_got_in()  noexcept override;
+  void  do_when_cursor_got_out() noexcept override;
 
   void  update() noexcept override;
 
