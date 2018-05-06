@@ -19,7 +19,7 @@ void
 widget::
 set_style(const background_style&  new_style) noexcept
 {
-  m_background_style = new_style;
+  m_background_style = &new_style;
 
   need_to_redraw();
 }
@@ -139,7 +139,7 @@ render_background(image_cursor  cur) const noexcept
   int  w = m_width;
   int  h = m_height;
 
-  auto&  bgst = m_background_style;
+  auto&  bgst = *m_background_style;
 
     if(bgst.is_single_color())
     {

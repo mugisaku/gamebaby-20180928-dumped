@@ -51,7 +51,7 @@ protected:
   int  m_width =0;
   int  m_height=0;
 
-  background_style  m_background_style=m_default_background_style;
+  const background_style*  m_background_style=&m_default_background_style;
 
   void*  m_userdata=nullptr;
 
@@ -133,6 +133,8 @@ public:
 
 
   void  set_style(const background_style&  new_style) noexcept;
+
+  const background_style&  get_background_style() const noexcept{return *m_background_style;}
 
   static void  set_default_background_style(background_style  new_style) noexcept{m_default_background_style = new_style;}
 

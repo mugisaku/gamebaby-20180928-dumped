@@ -47,6 +47,8 @@ void
 menu::
 render(image_cursor  cur) noexcept
 {
+  widget::render_background(cur);
+
     for(int  y = 0;  y < m_table_height;  ++y){
     for(int  x = 0;  x < m_table_width ;  ++x){
       auto  pt = point(m_parameter.width*x,m_parameter.height*y);

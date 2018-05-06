@@ -29,9 +29,16 @@ widgets::root
 root;
 
 
+widgets::color_maker*
+cm;
+
+
 images::image
 cv_image;
 
+
+background_style
+bg_style(color(0,0,4),color(0,0,6),4);
 
 
 namespace types{
@@ -184,14 +191,13 @@ public:
 
   void  render(image_cursor  cur) noexcept override
   {
-    cur.fill_rectangle(colors::black,0,0,cell::width,cell::height+font_height);
-    cur.draw_rectangle(colors::white,0,0,cell::width,cell::height);
+    widget::render_background(cur);
 
       if(index < stack.size())
       {
         auto&  img = stack[index]->image;
 
-        images::paste(img,img.get_rectangle(),cur.get_image(),cur.get_offset());
+        images::overlay(img,img.get_rectangle(),cur.get_image(),cur.get_offset());
       }
   }
 
@@ -377,14 +383,11 @@ main(int  argc, char**  argv)
 
     [](widgets::menu&  menu, point  index, image_cursor  cur)
     {
-      cur.fill_rectangle(colors::blue,0,0,cell::width,
-                                          cell::height);
-
       auto  ptr = cell_table::get_pointer(index);
 
         if(ptr)
         {
-          images::paste(ptr->image,ptr->image.get_rectangle(),cur);
+          images::overlay(ptr->image,ptr->image.get_rectangle(),cur);
 
             if(ptr == cell_table::current)
             {
@@ -402,7 +405,15 @@ main(int  argc, char**  argv)
   resize_cell_all(24,24);
 
 
-  auto  color_maker_frame = new widgets::frame(cv->create_color_maker(),"color");
+  cm = new widgets::color_maker([](widgets::color_maker&  cm, colors::color  color){
+    reinterpret_cast<canvases::canvas*>(cm.get_userdata())->set_drawing_color(color);
+  });
+
+
+  cm->set_userdata(cv);
+
+
+  auto  color_maker_frame = new widgets::frame(cm,"color");
 
   auto      cv_tool = cv->create_tool_widget();
   auto        cv_op = cv->create_operation_widget();
@@ -422,6 +433,33 @@ main(int  argc, char**  argv)
       }
   });
 
+  auto  ch1bg_btn = new widgets::button(new widgets::label(u"Change 1st bg color"),[](widgets::button&  btn){
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+        bg_style.set_first_color(cm->get_color());
+
+        cv->need_to_redraw();
+        mnu->need_to_redraw();
+        animator::view.need_to_redraw();
+      }
+  });
+
+  auto  ch2bg_btn = new widgets::button(new widgets::label(u"Change 2nd bg color"),[](widgets::button&  btn){
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+        bg_style.set_second_color(cm->get_color());
+
+        cv->need_to_redraw();
+        mnu->need_to_redraw();
+        animator::view.need_to_redraw();
+      }
+  });
+
+
   auto  urow = new widgets::table_row({cv_tool,cv_op});
   auto  mrow = new widgets::table_row({color_maker_frame,create_animation_widget()});
   auto  ucol = new widgets::table_column({urow,mrow});
@@ -430,7 +468,7 @@ main(int  argc, char**  argv)
   auto  canvas_frame = new widgets::table_row({cv_frame,ucol});
   auto  celtbl_frame = new widgets::frame(mnu,"cell table");
 
-  auto  lrow = new widgets::table_row({celtbl_frame,save_btn});
+  auto  lrow = new widgets::table_row({celtbl_frame,new widgets::table_column({ch1bg_btn,ch2bg_btn,save_btn})});
 
   root.set_node_target(new widgets::table_column({canvas_frame,lrow}));
 
@@ -439,6 +477,10 @@ main(int  argc, char**  argv)
   sdl::init(root_node.get_width(),root_node.get_height());
 
   final_image = sdl::make_screen_image();
+
+  cv->set_style(bg_style);
+  mnu->set_style(bg_style);
+  animator::view.set_style(bg_style);
 
   root.redraw(final_image);
 
