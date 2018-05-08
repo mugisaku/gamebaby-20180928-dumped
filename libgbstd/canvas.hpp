@@ -62,6 +62,11 @@ public:
 
   void  set_cursor_offset(int  x, int  y) noexcept;
 
+  void  set_editing_size(int  w, int  h) noexcept;
+
+  int  get_editing_width()  const noexcept{return m_editing_width;}
+  int  get_editing_height() const noexcept{return m_editing_height;}
+
   int   get_pixel_size(      ) const noexcept{return m_pixel_size;}
   void  set_pixel_size(int  n)       noexcept;
 
@@ -103,7 +108,6 @@ public:
   void  fill_rect(colors::color  color, rectangle  rect) noexcept;
   void  fill_area(colors::color  color, point  pt) noexcept;
 
-  widget*  create_color_maker() noexcept;
   widget*  create_tool_widget() noexcept;
   widget*  create_operation_widget() noexcept;
 

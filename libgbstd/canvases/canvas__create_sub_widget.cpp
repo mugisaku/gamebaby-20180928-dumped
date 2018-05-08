@@ -11,21 +11,6 @@ using namespace widgets;
 
 widget*
 canvas::
-create_color_maker() noexcept
-{
-  auto  cm = new color_maker([](color_maker&  cm, colors::color  color){
-    reinterpret_cast<canvas*>(cm.get_userdata())->set_drawing_color(color);
-  });
-
-
-  cm->set_userdata(this);
-
-  return cm;  
-}
-
-
-widget*
-canvas::
 create_operation_widget() noexcept
 {
   auto  undo_btn = new button(new label(u"Undo"),[](widgets::button&  btn){

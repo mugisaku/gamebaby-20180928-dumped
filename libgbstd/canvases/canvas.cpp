@@ -46,6 +46,28 @@ set_cursor_offset(int  x, int  y) noexcept
 
 void
 canvas::
+set_editing_size(int  w, int  h) noexcept
+{
+    if(m_image_cursor)
+    {
+      cancel_select();
+      cancel_drawing();
+    }
+
+
+  m_editing_width  = w;
+  m_editing_height = h;
+
+  m_drawing_is_fixed = true;
+
+  m_recorder.clear();
+
+  need_to_reform();
+}
+
+
+void
+canvas::
 set_pixel_size(int  n) noexcept
 {
   m_pixel_size = n;
@@ -80,23 +102,9 @@ void
 canvas::
 set_image(image&  img, int  w, int  h) noexcept
 {
-    if(m_image_cursor)
-    {
-      cancel_select();
-      cancel_drawing();
-    }
-
+  set_editing_size(w,h);
 
   m_image_cursor = image_cursor(img);
-
-  m_editing_width  = w? w:img.get_width() ;
-  m_editing_height = h? h:img.get_height();
-
-  m_drawing_is_fixed = true;
-
-  m_recorder.clear();
-
-  need_to_redraw();
 }
 
 

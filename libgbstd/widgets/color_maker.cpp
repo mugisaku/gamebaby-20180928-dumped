@@ -60,6 +60,18 @@ m_color(0,0,0)
 
 void
 color_maker::
+set_color(colors::color  color) noexcept
+{
+  m_r_dial->set_current(color.get_r7());
+  m_g_dial->set_current(color.get_g7());
+  m_b_dial->set_current(color.get_b7());
+
+  update_color();
+}
+
+
+void
+color_maker::
 update_color_internal(dial&  dial, int  old_value, int  new_value) noexcept
 {
   auto&  cm = *reinterpret_cast<color_maker*>(dial.get_userdata());

@@ -29,16 +29,19 @@ transfer(const gbstd::image&  src, uint8_t*  p_base, int  pitch) noexcept
 
     for(int  y = 0;  y < h;  ++y)
     {
-      auto  p = reinterpret_cast<uint8_t*>(p_base)        ;
+      auto  p = reinterpret_cast<uint16_t*>(p_base)        ;
                                            p_base += pitch;
 
         for(int  x = 0;  x < w;  ++x)
         {
+          *p++ = src.get_const_pixel(x,y).color.code;
+/*
           auto  c = src.get_const_pixel(x,y).color;
 
           *p++ = c.get_r255();
           *p++ = c.get_g255();
           *p++ = c.get_b255();
+*/
         }
     }
 }
@@ -97,7 +100,23 @@ init(int  w, int  h) noexcept
 
 
   renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
-  texture  = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGB24,SDL_TEXTUREACCESS_STREAMING,w,h);
+//  texture  = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGB24,SDL_TEXTUREACCESS_STREAMING,w,h);
+  texture  = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_ARGB1555,SDL_TEXTUREACCESS_STREAMING,w,h);
+}
+
+
+void
+resize_screen(int  w, int  h) noexcept
+{
+    if(!window)
+    {
+      init(w,h);
+    }
+
+  else
+    {
+      SDL_SetWindowSize(window,w,h);
+    }
 }
 
 

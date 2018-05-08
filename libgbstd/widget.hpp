@@ -533,6 +533,8 @@ dial: public table_row
 public:
   dial(int  min, int  max, void  (*callback)(dial&,int,int)) noexcept;
 
+  void  set_current(int  v) noexcept;
+
   int  get_current() const noexcept{return m_current;}
   int  get_min() const noexcept{return m_min;}
   int  get_max() const noexcept{return m_max;}
@@ -558,9 +560,37 @@ color_maker: public table_column
 public:
   color_maker(void  (*callback)(color_maker&,color)) noexcept;
 
-  color  get_color() const noexcept{return m_color;}
+  void   set_color(colors::color  color)       noexcept;
+  color  get_color(                    ) const noexcept{return m_color;}
 
   void  update_color() noexcept;
+
+};
+
+
+class
+color_holder: public widget
+{
+  int  m_index=0;
+
+  std::vector<color>  m_colors;
+
+  void  (*m_callback)(color_holder&  cm, color  new_color)=nullptr;
+
+public:
+  color_holder(int  size, void  (*callback)(color_holder&,color)) noexcept;
+  color_holder(std::initializer_list<color>  colors, void  (*callback)(color_holder&,color)) noexcept;
+
+  int  get_index() const noexcept{return m_index;}
+
+  void    set_color(colors::color  color) noexcept;
+  color&  get_color(                    ) noexcept{return m_colors[m_index];}
+
+  void  reform(point  base_pt) noexcept override;
+
+  void  render(image_cursor  cur) noexcept override;
+
+  void  update() noexcept override;
 
 };
 

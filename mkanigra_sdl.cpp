@@ -34,7 +34,11 @@ root;
 
 
 widgets::color_maker*
-cm;
+colmak;
+
+
+widgets::color_holder*
+colhol;
 
 
 background_style
@@ -129,8 +133,8 @@ public:
   {
     widget::reform(base_pt);
 
-    m_width  = std::max(cell_width,gbstd::font_width*5);
-    m_height = (cell_height+font_height);
+    m_width  = cell_width ;
+    m_height = cell_height;
   }
 
 
@@ -178,15 +182,15 @@ resize_cell_all(int  w, int  h) noexcept
   cell_width  = w;
   cell_height = h;
 
+  cv->set_cursor_offset(0,0);
+  cv->set_editing_size(w,h);
+
   source_image.resize(cell_width*table_width,cell_height*table_height);
-
-  cv->need_to_reform();
-
 
   mnu->set_item_size(w,h);
 
-  mnu->need_to_reform();
 
+  mnu->need_to_reform();
 
   animator::view.need_to_reform();
 }
@@ -323,21 +327,48 @@ main(int  argc, char**  argv)
   mnu = new widgets::menu(mip,table_width,table_height);
 
 
-  resize_cell_all(24,24);
+  resize_cell_all(32,32);
+
+  auto  color_list = {
+    colors::black,
+    colors::dark_gray,
+    colors::gray,
+    colors::light_gray,
+    colors::white,
+    colors::red,
+    colors::green,
+    colors::blue,
+    colors::yellow,
+    colors::black,
+    colors::black,
+    colors::black,
+    colors::black,
+    colors::black,
+    colors::black,
+    colors::black,
+  };
 
 
-  cm = new widgets::color_maker([](widgets::color_maker&  cm, colors::color  color){
-    reinterpret_cast<canvases::canvas*>(cm.get_userdata())->set_drawing_color(color);
+  colhol = new widgets::color_holder(color_list,[](widgets::color_holder&  holder, colors::color  color){
+    colmak->set_color(color);
+
+    cv->set_drawing_color(color);
   });
 
 
-  cm->set_userdata(cv);
+  colmak = new widgets::color_maker([](widgets::color_maker&  maker, colors::color  color){
+    colhol->set_color(color);
+
+    cv->set_drawing_color(color);
+  });
 
 
-  auto  color_maker_frame = new widgets::frame(cm,"color");
+  auto  color_maker_frame  = new widgets::frame(colmak,"color");
+  auto  color_holder_frame = new widgets::frame(colhol,"palette");
 
-  auto      cv_tool = cv->create_tool_widget();
-  auto        cv_op = cv->create_operation_widget();
+
+  auto  cv_tool = cv->create_tool_widget();
+  auto    cv_op = cv->create_operation_widget();
 
 
   auto  cv_frame = new widgets::frame(cv,"canvas");
@@ -359,7 +390,7 @@ main(int  argc, char**  argv)
       {
         btn.reset_count();
 
-        bg_style.set_first_color(cm->get_color());
+        bg_style.set_first_color(colmak->get_color());
 
         cv->need_to_redraw();
         mnu->need_to_redraw();
@@ -372,7 +403,7 @@ main(int  argc, char**  argv)
       {
         btn.reset_count();
 
-        bg_style.set_second_color(cm->get_color());
+        bg_style.set_second_color(colmak->get_color());
 
         cv->need_to_redraw();
         mnu->need_to_redraw();
@@ -386,7 +417,7 @@ main(int  argc, char**  argv)
   auto  ucol = new widgets::table_column({urow,mrow});
 
 
-  auto  canvas_frame = new widgets::table_row({cv_frame,ucol});
+  auto  canvas_frame = new widgets::table_row({cv_frame,color_holder_frame,ucol});
   auto  celtbl_frame = new widgets::frame(mnu,"cell table");
 
   auto  lrow = new widgets::table_row({celtbl_frame,new widgets::table_column({ch1bg_btn,ch2bg_btn,save_btn})});

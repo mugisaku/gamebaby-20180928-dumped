@@ -62,6 +62,16 @@ m_callback(callback)
 
 void
 dial::
+set_current(int  v) noexcept
+{
+  m_current = std::min(m_max,std::max(m_min,v));
+
+  need_to_redraw();
+}
+
+
+void
+dial::
 up(button&  btn)
 {
   auto&  dial = *static_cast<widgets::dial*>(btn.get_userdata());

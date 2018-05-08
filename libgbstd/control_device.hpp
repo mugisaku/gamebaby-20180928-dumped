@@ -3,6 +3,7 @@
 
 
 #include"libgbstd/figures.hpp"
+#include"libgbstd/string.hpp"
 #include<cstdint>
 #include<cstdio>
 
@@ -87,6 +88,8 @@ control_device
 
   bool     mouse_state_modify_flag;
   bool  keyboard_state_modify_flag;
+
+  gbstd::string  s;
 
   bool  needed_to_redraw;
 

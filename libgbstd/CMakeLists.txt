@@ -28,6 +28,7 @@ set(SOURCES
   widgets/check_button.cpp
   widgets/create_button_menu.cpp
   widgets/color_maker.cpp
+  widgets/color_holder.cpp
   canvases/canvas.cpp
   canvases/canvas__update.cpp
   canvases/canvas__draw.cpp
