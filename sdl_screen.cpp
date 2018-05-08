@@ -16,8 +16,16 @@ SDL_Texture*    texture;
 void
 transfer(const gbstd::image&  src, uint8_t*  p_base, int  pitch) noexcept
 {
-  int  w =  src.get_width();
-  int  h = src.get_height();
+  int  w;
+  int  h;
+
+  SDL_GetWindowSize(window,&w,&h);
+
+  int  src_w = src.get_width() ;
+  int  src_h = src.get_height();
+
+    if(w > src_w){w = src_w;}
+    if(h > src_h){h = src_h;}
 
     for(int  y = 0;  y < h;  ++y)
     {
@@ -59,13 +67,6 @@ update_screen(const gbstd::image&  img) noexcept
 
       SDL_RenderPresent(renderer);
     }
-}
-
-
-void
-save_screen(const char*  path) noexcept
-{
-//  SDL_SaveBMP(surface,path);
 }
 
 

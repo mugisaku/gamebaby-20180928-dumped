@@ -47,7 +47,7 @@ save(widgets::button&  btn) noexcept
 #ifdef EMSCRIPTEN
       image_cursor  cur(final_image);
 
-      images::transfer(cv_image,cv_image.get_rectangle(),cur,false);
+      images::paste(cv_image,cv_image.get_rectangle(),cur);
 
       sdl::update_screen(final_image);
 

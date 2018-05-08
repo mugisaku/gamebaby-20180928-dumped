@@ -196,13 +196,11 @@ void
 save() noexcept
 {
 #ifdef EMSCRIPTEN
-  root.redraw(final_image);
+  sdl::update_screen(source_image);
 
-  sdl::update_screen(final_image);
-
-  generate_saved_image_link(200,200);
+  generate_saved_image_link(source_image.get_width(),source_image.get_height());
 #else
-  final_image.save_to_webp("__test.webp");
+  source_image.save_to_webp("__anigra.webp");
 #endif
 }
 

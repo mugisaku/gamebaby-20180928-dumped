@@ -12,8 +12,6 @@ namespace sdl{
 
 void  update_screen(const gbstd::image&  img) noexcept;
 
-void  save_screen(const char*  path) noexcept;
-
 void  quit() noexcept;
 
 void  init(int  w, int  h) noexcept;
