@@ -8,8 +8,7 @@ namespace widgets{
 
 
 
-constexpr int     margin = 16;
-constexpr int  thickness =  4;
+constexpr int  margin = 16;
 
 
 color  frame::m_default_line_color = colors::yellow;
@@ -31,6 +30,9 @@ reform(point  base_pt) noexcept
 {
   widget::reform(base_pt);
 
+  m_width  = margin;
+  m_height = margin;
+
     if(m_target)
     {
       m_target->set_relative_point(point(margin,margin));
@@ -40,14 +42,16 @@ reform(point  base_pt) noexcept
 
       auto  rel_pt = m_target->get_relative_point();
 
-      m_width  = rel_pt.x+m_target->get_width() +margin;
-      m_height = rel_pt.y+m_target->get_height()+margin;
+      m_width  += rel_pt.x+m_target->get_width() ;
+      m_height += rel_pt.y+m_target->get_height();
     }
 
-  else
+
+  auto  l = font_width*u8slen(m_text);
+
+    if(m_width < l)
     {
-      m_width  = 1;
-      m_height = 1;
+      m_width = l;
     }
 }
 

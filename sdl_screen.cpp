@@ -30,7 +30,7 @@ transfer(const gbstd::image&  src, uint8_t*  p_base, int  pitch) noexcept
     for(int  y = 0;  y < h;  ++y)
     {
       auto  p = reinterpret_cast<uint16_t*>(p_base)        ;
-                                           p_base += pitch;
+                                            p_base += pitch;
 
         for(int  x = 0;  x < w;  ++x)
         {

@@ -39,6 +39,13 @@ canvas*
 cv;
 
 
+widgets::color_maker*
+colmak;
+
+
+widgets::color_holder*
+colhol;
+
 
 bool
 need_to_hide_cursors;
@@ -319,7 +326,7 @@ main_loop()
 int
 main(int  argc, char**  argv)
 {
-  cv = new canvas(cv_image,0,0,[](canvas&  cv){
+  cv = new canvas(cv_image,cv_w,cv_h,[](canvas&  cv){
     make_farm();
 
     ptrs::farm->need_to_redraw();
@@ -334,11 +341,49 @@ main(int  argc, char**  argv)
 
   auto  save_btn = new widgets::button(new widgets::label(u"SAVE"),save);;
 
-  auto  a_col = new widgets::table_column({cv->create_color_maker(),cv->create_operation_widget(),save_btn});
+
+  auto  color_list = {
+    colors::black,
+    colors::dark_gray,
+    colors::gray,
+    colors::light_gray,
+    colors::white,
+    colors::red,
+    colors::green,
+    colors::blue,
+    colors::yellow,
+    colors::black,
+    colors::black,
+    colors::black,
+    colors::black,
+    colors::black,
+    colors::black,
+    colors::black,
+  };
+
+
+  colhol = new widgets::color_holder(color_list,[](widgets::color_holder&  holder, colors::color  color){
+    colmak->set_color(color);
+
+    cv->set_drawing_color(color);
+  });
+
+  colmak = new widgets::color_maker([](widgets::color_maker&  maker, colors::color  color){
+    colhol->set_color(color);
+
+    cv->set_drawing_color(color);
+  });
+
+
+  auto  color_maker_frame  = new widgets::frame(colmak,"color");
+  auto  color_holder_frame = new widgets::frame(colhol,"palette");
+
+
+  auto  a_col = new widgets::table_column({color_maker_frame,cv->create_operation_widget(),save_btn});
   auto  b_col = cv->create_tool_widget();
   auto  c_col = new widgets::table_column({ptrs::farm,ptrs::tv});
 
-  auto  row = new widgets::table_row({cv,a_col,b_col,c_col});
+  auto  row = new widgets::table_row({cv,color_holder_frame,a_col,b_col,c_col});
 
   root.set_node_target(row);
 
