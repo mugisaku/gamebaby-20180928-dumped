@@ -12,7 +12,10 @@ namespace canvases{
 class
 canvas: public widget
 {
-  image*  m_image=nullptr;
+  image_cursor  m_image_cursor;
+
+  int  m_editing_width ;
+  int  m_editing_height;
 
   int  m_pixel_size=1;
 
@@ -39,9 +42,6 @@ canvas: public widget
 
   image  m_clipped_image;
 
-  int  m_clipped_width =0;
-  int  m_clipped_height=0;
-
   int  m_pointing_count=0;
 
   point  m_a_point;
@@ -54,9 +54,13 @@ canvas: public widget
   void  try_to_push_solid_record()    noexcept;
   void  try_to_push_nonsolid_record() noexcept;
 
+  image  get_temporary_image() const noexcept;
+
 public:
   canvas() noexcept;
-  canvas(image&  img, void  (*callback)(canvas&  cv)) noexcept;
+  canvas(image&  img, int  w, int  h, void  (*callback)(canvas&  cv)) noexcept;
+
+  void  set_cursor_offset(int  x, int  y) noexcept;
 
   int   get_pixel_size(      ) const noexcept{return m_pixel_size;}
   void  set_pixel_size(int  n)       noexcept;
@@ -78,8 +82,8 @@ public:
   void  change_mode_to_paste()          noexcept{m_mode = mode::paste;}
   void  change_mode_to_layer()          noexcept{m_mode = mode::layer;}
 
-  void    set_image(image&  img)       noexcept;
-  image*  get_image(           ) const noexcept{return m_image;}
+  void    set_image(image&  img, int  w, int  h)       noexcept;
+  image&  get_image(                           ) const noexcept{return m_image_cursor.get_image();}
 
   void  reform(point  base_pt) noexcept override;
 

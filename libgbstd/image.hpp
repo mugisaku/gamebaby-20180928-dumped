@@ -110,12 +110,14 @@ image_cursor
 
   int  z_value=0;
 
-  bool  m_layer=false;
-
   int  get_x(int  x) const noexcept{return m_offset.x+x;}
   int  get_y(int  y) const noexcept{return m_offset.y+y;}
 
 public:
+  image_cursor() noexcept:
+  m_image(nullptr),
+  m_offset(0,0){}
+
   image_cursor(image&  image) noexcept:
   m_image(&image),
   m_offset(0,0){}
@@ -124,6 +126,8 @@ public:
   m_image(&image),
   m_offset(offset){}
 
+
+  operator bool() const noexcept{return m_image;}
 
   image_cursor  operator+(point  offset) const noexcept{return image_cursor(*m_image,m_offset+offset);}
 

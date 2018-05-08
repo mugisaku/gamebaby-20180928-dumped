@@ -25,6 +25,10 @@ images::image
 final_image;
 
 
+images::image
+source_image;
+
+
 widgets::root
 root;
 
@@ -33,94 +37,35 @@ widgets::color_maker*
 cm;
 
 
-images::image
-cv_image;
-
-
 background_style
 bg_style(color(0,0,4),color(0,0,6),4);
 
 
-namespace types{
-struct
-cell
+int  cell_width  = 16;
+int  cell_height = 16;
+
+
+rectangle
+get_rect(point  index) noexcept
 {
-  static int   width;
-  static int  height;
-
-  images::image  image;
-
-};
-
-
-int  cell::width ;
-int  cell::height;
-
-
+   return rectangle(cell_width *index.x,
+                    cell_height*index.y,
+                    cell_width,
+                    cell_height);
 }
 
 
-using types::cell;
+constexpr int  table_width  = 16;
+constexpr int  table_height =  4;
 
 
-cell  cells[80];
-
-
-namespace cell_table{
-
-constexpr int   width = 16;
-constexpr int  height =  4;
-
-cell*  current = cells;
-
-
-
-cell*
-get_pointer(point  index) noexcept
-{
-  int  i = ((width*index.y)+index.x);
-
-  auto  ptr = &cells[i];
-
-  return (ptr < std::end(cells))? ptr:nullptr;
-}
-
-
-void
-send() noexcept
-{
-  auto  src = current->image.begin();
-  auto  end = current->image.end();
-  auto  dst =       cv_image.begin();
-
-    while(src != end)
-    {
-      *dst++ = *src++;
-    }
-}
-
-
-void
-receive() noexcept
-{
-  auto  dst = current->image.begin();
-  auto  src =       cv_image.begin();
-  auto  end =       cv_image.end();
-
-    while(src != end)
-    {
-      *dst++ = *src++;
-    }
-}
-
-
-}
+images::point  g_current_index;
 
 
 namespace animator{
 
 
-std::vector<const cell*>
+std::vector<images::point>
 stack;
 
 
@@ -184,8 +129,8 @@ public:
   {
     widget::reform(base_pt);
 
-    m_width  = std::max(cell::width,gbstd::font_width*5);
-    m_height = (cell::height+font_height);
+    m_width  = std::max(cell_width,gbstd::font_width*5);
+    m_height = (cell_height+font_height);
   }
 
 
@@ -195,9 +140,7 @@ public:
 
       if(index < stack.size())
       {
-        auto&  img = stack[index]->image;
-
-        images::overlay(img,img.get_rectangle(),cur.get_image(),cur.get_offset());
+        images::overlay(source_image,get_rect(stack[index]),cur);
       }
   }
 
@@ -232,16 +175,10 @@ check_time(uint32_t  now) noexcept
 void
 resize_cell_all(int  w, int  h) noexcept
 {
-  cell::width  = w;
-  cell::height = h;
+  cell_width  = w;
+  cell_height = h;
 
-    for(auto&  cell: cells)
-    {
-      cell.image.resize(w,h);
-    }
-
-
-  cv_image.resize(w,h);
+  source_image.resize(cell_width*table_width,cell_height*table_height);
 
   cv->need_to_reform();
 
@@ -300,7 +237,7 @@ create_animation_widget() noexcept
       {
         btn.reset_count();
 
-        animator::stack.emplace_back(cell_table::current);
+        animator::stack.emplace_back(g_current_index);
 
         animator::view.need_to_redraw();
       }
@@ -348,9 +285,7 @@ main(int  argc, char**  argv)
   set_caption("mkanigra - " __DATE__);
   set_description("マウスの左ボタンで、任意色を置き、右ボタンで透明色を置く");
 
-  cv = new canvas(cv_image,[](canvas&  cv){
-    cell_table::receive();
-
+  cv = new canvas(source_image,cell_width,cell_height,[](canvas&  cv){
     mnu->need_to_redraw();
   });
 
@@ -364,42 +299,30 @@ main(int  argc, char**  argv)
     {
         if(left)
         {
-          auto  ptr = cell_table::get_pointer(index);
+          g_current_index = index;
 
-            if(ptr)
-            {
-              cell_table::current = ptr;
+          cv->set_cursor_offset(cell_width*index.x,cell_height*index.y);
 
-              cell_table::send();
-
-              cv->get_drawing_recorder().clear();
-
-              cv->need_to_redraw();
-
-              menu.need_to_redraw();
-            }
+          menu.need_to_redraw();
         }
     },
 
     [](widgets::menu&  menu, point  index, image_cursor  cur)
     {
-      auto  ptr = cell_table::get_pointer(index);
+      auto  src_rect = get_rect(index);
 
-        if(ptr)
+      images::overlay(source_image,src_rect,cur);
+
+        if(index == g_current_index)
         {
-          images::overlay(ptr->image,ptr->image.get_rectangle(),cur);
-
-            if(ptr == cell_table::current)
-            {
-              cur.draw_rectangle(colors::white,0,0,cell::width,
-                                                   cell::height);
-            }
+          cur.draw_rectangle(colors::white,0,0,cell_width,
+                                               cell_height);
         }
     }
   };
 
 
-  mnu = new widgets::menu(mip,cell_table::width,cell_table::height);
+  mnu = new widgets::menu(mip,table_width,table_height);
 
 
   resize_cell_all(24,24);

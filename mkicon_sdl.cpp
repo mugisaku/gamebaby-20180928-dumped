@@ -95,7 +95,7 @@ main_loop()
 int
 main(int  argc, char**  argv)
 {
-  cv = new canvas(cv_image,nullptr);
+  cv = new canvas(cv_image,0,0,nullptr);
 
   cv->set_grid();
   cv->set_pixel_size(12);

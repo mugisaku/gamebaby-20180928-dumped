@@ -23,15 +23,25 @@ canvas() noexcept
 
 
 canvas::
-canvas(image&  img, void  (*callback)(canvas&  cv)) noexcept:
+canvas(image&  img, int  w, int  h, void  (*callback)(canvas&  cv)) noexcept:
 m_callback(callback)
 {
   set_style(canvas_background_style);
 
-  set_image(img);
+  set_image(img,w,h);
 }
 
 
+
+
+void
+canvas::
+set_cursor_offset(int  x, int  y) noexcept
+{
+  m_image_cursor.set_offset(x,y);
+
+  need_to_redraw();
+}
 
 
 void
@@ -68,16 +78,19 @@ unset_grid() noexcept
 
 void
 canvas::
-set_image(image&  img) noexcept
+set_image(image&  img, int  w, int  h) noexcept
 {
-    if(m_image)
+    if(m_image_cursor)
     {
       cancel_select();
       cancel_drawing();
     }
 
 
-  m_image = &img;
+  m_image_cursor = image_cursor(img);
+
+  m_editing_width  = w? w:img.get_width() ;
+  m_editing_height = h? h:img.get_height();
 
   m_drawing_is_fixed = true;
 
@@ -93,10 +106,10 @@ reform(point  base_pt) noexcept
 {
   widget::reform(base_pt);
 
-  m_operation_rect = rectangle(0,0,m_image->get_width(),m_image->get_height());
+  m_operation_rect = rectangle(0,0,m_editing_width,m_editing_height);
 
-  m_width  = m_pixel_size*m_image->get_width() ;
-  m_height = m_pixel_size*m_image->get_height();
+  m_width  = m_pixel_size*m_editing_width ;
+  m_height = m_pixel_size*m_editing_height;
 }
 
 
@@ -104,11 +117,14 @@ void
 canvas::
 modify_dot(color  new_color, int  x, int  y) noexcept
 {
-  auto&  pix = m_image->get_pixel(x,y);
+  auto&  pix = m_image_cursor.get_pixel(x,y);
 
     if(pix.color != new_color)
     {
-      m_recorder.put(pix.color,x,y);
+      auto&  offset = m_image_cursor.get_offset();
+
+      m_recorder.put(pix.color,offset.x+x,
+                               offset.y+y);
 
       pix.color = new_color;
 
@@ -131,7 +147,7 @@ cancel_drawing() noexcept
         if((m_mode == mode::paste) ||
            (m_mode == mode::layer))
         {
-          m_recorder.rollback(*m_image);
+          m_recorder.rollback(m_image_cursor.get_image());
         }
 
 
@@ -186,8 +202,8 @@ cancel_select() noexcept
 {
   m_operation_rect.x = 0;
   m_operation_rect.y = 0;
-  m_operation_rect.w = m_image->get_width();
-  m_operation_rect.h = m_image->get_height();
+  m_operation_rect.w = m_editing_width ;
+  m_operation_rect.h = m_editing_height;
 
   need_to_redraw();
 }
@@ -209,7 +225,7 @@ take_copy() noexcept
 
     for(int  y = 0;  y < m_operation_rect.h;  ++y){
     for(int  x = 0;  x < m_operation_rect.w;  ++x){
-      auto  pix = m_image->get_pixel(m_operation_rect.x+x,m_operation_rect.y+y);
+      auto  pix = m_image_cursor.get_pixel(m_operation_rect.x+x,m_operation_rect.y+y);
 
       m_clipped_image.set_pixel(pix,x,y);
     }}
@@ -220,7 +236,7 @@ void
 canvas::
 undo() noexcept
 {
-    if(m_recorder.rollback(*m_image))
+    if(m_recorder.rollback(m_image_cursor.get_image()))
     {
       need_to_redraw();
 
@@ -232,18 +248,36 @@ undo() noexcept
 }
 
 
+image
+canvas::
+get_temporary_image() const noexcept
+{
+  image  img(m_editing_width,m_editing_height);
+
+    for(int  y = 0;  y < m_editing_height;  ++y){
+    for(int  x = 0;  x < m_editing_width ;  ++x){
+      auto  pix = m_image_cursor.get_pixel(x,y);
+
+      img.set_pixel(pix,x,y);
+    }}
+
+
+  return std::move(img);
+}
+
+
 void
 canvas::
 render(image_cursor  cur) noexcept
 {
-  const int  w = m_image->get_width();
-  const int  h = m_image->get_height();
+  const int  w = m_editing_width ;
+  const int  h = m_editing_height;
 
   render_background(cur);
 
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
-      auto&  pix = m_image->get_pixel(x,y);
+      auto&  pix = m_image_cursor.get_pixel(x,y);
 
         if(pix.color)
         {

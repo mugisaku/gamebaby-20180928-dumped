@@ -566,7 +566,7 @@ main_loop() noexcept
 int
 main(int  argc, char**  argv)
 {
-  cv = new canvas(cv_image,[](canvas&  cv){
+  cv = new canvases::canvas(cv_image,0,0,[](canvas&  cv){
     character_table::receive();
 
     update_preview_data();

@@ -319,7 +319,7 @@ main_loop()
 int
 main(int  argc, char**  argv)
 {
-  cv = new canvas(cv_image,[](canvas&  cv){
+  cv = new canvas(cv_image,0,0,[](canvas&  cv){
     make_farm();
 
     ptrs::farm->need_to_redraw();

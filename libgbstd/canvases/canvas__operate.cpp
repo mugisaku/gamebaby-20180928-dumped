@@ -18,7 +18,7 @@ paste(point  pt, bool  layer) noexcept
 
 
   rectangle  src_rect = m_clipped_image.get_rectangle();
-  rectangle  dst_rect(pt,m_image->get_width(),m_image->get_height());
+  rectangle  dst_rect(pt,m_editing_width,m_editing_height);
 
   images::transform(src_rect,dst_rect);
 
@@ -46,7 +46,7 @@ void
 canvas::
 revolve() noexcept
 {
-  image  tmp = *m_image;
+  image  tmp = get_temporary_image();
 
   const int  w = std::min(m_operation_rect.w,m_operation_rect.h);
 
@@ -66,7 +66,7 @@ void
 canvas::
 reverse_horizontally() noexcept
 {
-  image  tmp = *m_image;
+  image  tmp = get_temporary_image();
 
   try_to_push_nonsolid_record();
 
@@ -84,7 +84,7 @@ void
 canvas::
 reverse_vertically() noexcept
 {
-  image  tmp = *m_image;
+  image  tmp = get_temporary_image();
 
   try_to_push_nonsolid_record();
 
@@ -106,7 +106,7 @@ mirror_vertically() noexcept
 
     for(int  yy = 0;  yy < m_operation_rect.h  ;  ++yy){
     for(int  xx = 0;  xx < m_operation_rect.w/2;  ++xx){
-      auto  pix = m_image->get_pixel(m_operation_rect.x+xx,m_operation_rect.y+yy);
+      auto  pix = m_image_cursor.get_pixel(m_operation_rect.x+xx,m_operation_rect.y+yy);
 
       modify_dot(pix,m_operation_rect.x+m_operation_rect.w-1-xx,m_operation_rect.y+yy);
     }}
@@ -122,7 +122,7 @@ void
 canvas::
 shift_up(bool  rotate) noexcept
 {
-  image  tmp = *m_image;
+  image  tmp = get_temporary_image();
 
   try_to_push_nonsolid_record();
 
@@ -149,7 +149,7 @@ void
 canvas::
 shift_left(bool  rotate) noexcept
 {
-  image  tmp = *m_image;
+  image  tmp = get_temporary_image();
 
   try_to_push_nonsolid_record();
 
@@ -176,7 +176,7 @@ void
 canvas::
 shift_right(bool  rotate) noexcept
 {
-  image  tmp = *m_image;
+  image  tmp = get_temporary_image();
 
   try_to_push_nonsolid_record();
 
@@ -203,7 +203,7 @@ void
 canvas::
 shift_down(bool  rotate) noexcept
 {
-  image  tmp = *m_image;
+  image  tmp = get_temporary_image();
 
   try_to_push_nonsolid_record();
 

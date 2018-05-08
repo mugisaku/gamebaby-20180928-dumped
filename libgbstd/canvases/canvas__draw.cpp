@@ -78,9 +78,7 @@ void
 canvas::
 fill_area(colors::color  color, point  pt) noexcept
 {
-  auto&  img = *m_image;
-
-  auto  target_color = img.get_pixel(pt.x,pt.y).color;
+  auto  target_color = m_image_cursor.get_pixel(pt.x,pt.y).color;
 
     if(target_color == color)
     {
@@ -88,10 +86,10 @@ fill_area(colors::color  color, point  pt) noexcept
     }
 
 
-  const int  w = m_image->get_width();
-  const int  h = m_image->get_height();
+  const int  w = m_editing_width ;
+  const int  h = m_editing_height;
 
-    for(auto&  pix: img)
+    for(auto&  pix: m_image_cursor.get_image())
     {
       pix.z = 0;
     }
@@ -104,13 +102,15 @@ fill_area(colors::color  color, point  pt) noexcept
 
   int  i = 0;
 
+  auto&  offset = m_image_cursor.get_offset();
+
   stack.emplace_back(pt);
 
     while(i < stack.size())
     {
       auto  pt = stack[i++];
 
-      auto&  pix = img.get_pixel(pt.x,pt.y);
+      auto&  pix = m_image_cursor.get_pixel(pt.x,pt.y);
 
         if(!pix.z)
         {
@@ -118,7 +118,8 @@ fill_area(colors::color  color, point  pt) noexcept
 
             if(pix.color == target_color)
             {
-              m_recorder.put(pix.color,pt.x,pt.y);
+              m_recorder.put(pix.color,offset.x+pt.x,
+                                       offset.y+pt.y);
 
               pix.color = color;
 
