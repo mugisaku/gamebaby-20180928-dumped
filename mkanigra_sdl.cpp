@@ -33,6 +33,10 @@ widgets::root
 root;
 
 
+widgets::label*
+cursor_label;
+
+
 widgets::color_maker*
 colmak;
 
@@ -202,7 +206,7 @@ save() noexcept
 #ifdef EMSCRIPTEN
   sdl::update_screen(source_image);
 
-  generate_saved_image_link(source_image.get_width(),source_image.get_height());
+  download_image(source_image.get_width(),source_image.get_height());
 #else
   source_image.save_to_png("__anigra.png");
 #endif
@@ -311,10 +315,28 @@ int
 main(int  argc, char**  argv)
 {
   set_caption("mkanigra - " __DATE__);
-  set_description("マウスの左ボタンで、任意色を置き、右ボタンで透明色を置く");
+  set_description("マウスの左ボタンで、任意色を置き、右ボタンで透明色を置く\n"
+                  "PNGファイルをドラッグ・アンド・ドロップで読み込む"
+  );
 
-  cv = new canvas(source_image,cell_width,cell_height,[](canvas&  cv){
-    mnu->need_to_redraw();
+
+  cursor_label = new widgets::label(u"[X:   ] [Y:   ]",styles::a_white_based_text_style);
+
+  cv = new canvas(source_image,cell_width,cell_height,[](canvas&  cv, canvas_event  evt){
+      if(evt == canvas_event::painting_cursor_moved)
+      {
+        string_form  sf;
+
+        auto&  pt = cv.get_current_point();
+
+        cursor_label->modify_text(sf("[X: %2d] [Y: %2d]",pt.x,pt.y));
+      }
+
+    else
+      if(evt == canvas_event::image_is_modified)
+      {
+        mnu->need_to_redraw();
+      }
   });
 
 
@@ -353,7 +375,7 @@ main(int  argc, char**  argv)
   mnu = new widgets::menu(mip,table_width,table_height);
 
 
-  resize_cell_all(24,24*1);
+  resize_cell_all(24,24*2);
 
   auto  color_list = {
     colors::black,
@@ -397,7 +419,7 @@ main(int  argc, char**  argv)
   auto    cv_op = cv->create_operation_widget();
 
 
-  auto  cv_frame = new widgets::frame(cv,"canvas");
+  auto  cv_frame = new widgets::frame(new widgets::table_column({cv,cursor_label}),"canvas");
 
   cv_frame->set_line_color(colors::black);
 
@@ -451,6 +473,7 @@ main(int  argc, char**  argv)
   root.set_node_target(new widgets::table_column({canvas_frame,lrow}));
 
   auto&  root_node = root.get_node();
+
 
   sdl::init(root_node.get_width(),root_node.get_height());
 

@@ -195,7 +195,7 @@ update_control_device() noexcept
   dev.keyboard_state_modify_flag = false;
 
 #ifdef EMSCRIPTEN
-  try_read_dropped_file(dev) noexcept;
+  try_read_dropped_file(dev);
 #endif
 
   auto&  mf = dev.mouse_state_modify_flag   ;

@@ -342,6 +342,9 @@ public:
   void  set_text(gbstd::u16string_view  sv) noexcept;
   void  set_text(gbstd::string_view     sv) noexcept;
 
+  void  modify_text(gbstd::u16string_view  sv) noexcept;
+  void  modify_text(gbstd::string_view     sv) noexcept;
+
   void  set_style(const text_style&  style) noexcept;
 
   void  reform(point  base_pt) noexcept override;

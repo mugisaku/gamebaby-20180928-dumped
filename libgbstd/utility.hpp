@@ -14,6 +14,8 @@
 #endif
 
 
+
+
 namespace gbstd{
 
 
@@ -67,9 +69,15 @@ bool  is_webp(const void*  ptr) noexcept;
 void  printf_with_indent(int  indent, const char*  fmt, ...) noexcept;
 
 
-void      set_caption(const char*  s) noexcept;
+
+
+#ifdef EMSCRIPTEN
+void  set_caption(const char*  s) noexcept;
 void  set_description(const char*  s) noexcept;
-void  generate_saved_image_link(int  w, int  h) noexcept;
+void  download_image(int  w, int  h) noexcept;
+#endif
+
+
 
 
 extern std::random_device

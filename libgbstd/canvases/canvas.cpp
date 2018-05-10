@@ -23,7 +23,7 @@ canvas() noexcept
 
 
 canvas::
-canvas(image&  img, int  w, int  h, void  (*callback)(canvas&  cv)) noexcept:
+canvas(image&  img, int  w, int  h, void  (*callback)(canvas&  cv, canvas_event  evt)) noexcept:
 m_callback(callback)
 {
   set_style(canvas_background_style);
@@ -180,7 +180,7 @@ try_to_push_solid_record() noexcept
 
         if(m_callback)
         {
-          m_callback(*this);
+          m_callback(*this,canvas_event::image_is_modified);
         }
     }
 }
@@ -250,7 +250,7 @@ undo() noexcept
 
         if(m_callback)
         {
-          m_callback(*this);
+          m_callback(*this,canvas_event::image_is_modified);
         }
     }
 }

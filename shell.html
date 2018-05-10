@@ -209,7 +209,8 @@ function(e)
 
     if(f)
     {
-        if(f.type == "image/png")
+        if((f.type == "image/png") ||
+           (f.type == "image/webp"))
         {
           var  r = new FileReader();
 

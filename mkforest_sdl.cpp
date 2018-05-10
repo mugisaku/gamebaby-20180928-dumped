@@ -326,11 +326,19 @@ main_loop()
 int
 main(int  argc, char**  argv)
 {
-  cv = new canvas(cv_image,cv_w,cv_h,[](canvas&  cv){
-    make_farm();
+  cv = new canvas(cv_image,cv_w,cv_h,[](canvas&  cv, canvas_event  evt){
+      if(evt == canvas_event::painting_cursor_moved)
+      {
+      }
 
-    ptrs::farm->need_to_redraw();
-    ptrs::tv->need_to_redraw();
+    else
+      if(evt == canvas_event::image_is_modified)
+      {
+        make_farm();
+
+        ptrs::farm->need_to_redraw();
+        ptrs::tv->need_to_redraw();
+      }
   });
 
   cv->set_grid();

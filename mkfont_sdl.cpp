@@ -566,14 +566,23 @@ main_loop() noexcept
 int
 main(int  argc, char**  argv)
 {
-  cv = new canvases::canvas(cv_image,0,0,[](canvas&  cv){
-    character_table::receive();
+  cv = new canvases::canvas(cv_image,0,0,[](canvas&  cv, canvas_event  evt){
 
-    update_preview_data();
+      if(evt == canvas_event::painting_cursor_moved)
+      {
+      }
 
-       mnu->need_to_redraw();
-       prv->need_to_redraw();
-    sample->need_to_redraw();
+    else
+      if(evt == canvas_event::image_is_modified)
+      {
+        character_table::receive();
+
+        update_preview_data();
+
+           mnu->need_to_redraw();
+           prv->need_to_redraw();
+        sample->need_to_redraw();
+      }
   });
 
   cv->set_grid();

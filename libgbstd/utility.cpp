@@ -79,45 +79,37 @@ printf_with_indent(int  indent, const char*  fmt, ...) noexcept
 
 
 
+#ifdef EMSCRIPTEN
+#include<emscripten.h>
+EM_JS(void,js_set_caption,(const char*  s),{
+  var  cap = document.getElementById("caption");
+  cap.innerHTML = UTF8ToString(s);
+});
+EM_JS(void,js_set_description,(const char*  s),{
+  var  desc = document.getElementById("description");
+  desc.innerHTML = UTF8ToString(s);
+});
+EM_JS(void,js_download_image,(int  w, int  h),{
+  download_image(w,h);
+});
+
+
 void
 set_caption(const char*  s) noexcept
 {
-#ifdef EMSCRIPTEN
-  string_form  sf;
-
-  emscripten_run_script(sf(
-    "  var  cap = document.getElementById(\"caption\");"
-    "  cap.innerHTML = \"%s\";"
-  ,s));
-#endif
+  js_set_caption(s);
 }
-
-
 void
 set_description(const char*  s) noexcept
 {
-#ifdef EMSCRIPTEN
-  string_form  sf;
-
-  emscripten_run_script(sf(
-    "  var  desc = document.getElementById(\"description\");"
-    "  desc.innerHTML = \"%s\";"
-  ,s));
-#endif
+  js_set_description(s);
 }
-
-
 void
-generate_saved_image_link(int  w, int  h) noexcept
+download_image(int  w, int  h) noexcept
 {
-#ifdef EMSCRIPTEN
-  string_form  sf;
-
-  emscripten_run_script(sf("download_image(%d,%d);",w,h));
-#endif
+  js_download_image(w,h);
 }
-
-
+#endif
 
 
 bool

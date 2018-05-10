@@ -17,6 +17,17 @@ update() noexcept
   int  x = mouse.point.x/m_pixel_size;
   int  y = mouse.point.y/m_pixel_size;
 
+  bool  cursor_moved = (m_current_point != point(x,y));
+
+  m_current_point.x = x;
+  m_current_point.y = y;
+
+    if(cursor_moved && m_callback)
+    {
+      m_callback(*this,canvas_event::painting_cursor_moved);
+    }
+
+
     switch(m_mode)
     {
   case(mode::draw_dot):
@@ -26,7 +37,7 @@ update() noexcept
 
             if(m_callback)
             {
-              m_callback(*this);
+              m_callback(*this,canvas_event::image_is_modified);
             }
         }
 
@@ -37,7 +48,7 @@ update() noexcept
 
             if(m_callback)
             {
-              m_callback(*this);
+              m_callback(*this,canvas_event::image_is_modified);
             }
         }
       break;

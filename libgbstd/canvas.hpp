@@ -9,6 +9,15 @@ namespace gbstd{
 namespace canvases{
 
 
+enum class
+canvas_event
+{
+  painting_cursor_moved,
+  image_is_modified,
+
+};
+
+
 class
 canvas: public widget
 {
@@ -44,12 +53,14 @@ canvas: public widget
 
   int  m_pointing_count=0;
 
+  point  m_current_point;
+
   point  m_a_point;
   point  m_b_point;
 
   rectangle  m_operation_rect;
 
-  void  (*m_callback)(canvas&  cv)=nullptr;
+  void  (*m_callback)(canvas&  cv, canvas_event  evt)=nullptr;
 
   void  try_to_push_solid_record()    noexcept;
   void  try_to_push_nonsolid_record() noexcept;
@@ -58,7 +69,7 @@ canvas: public widget
 
 public:
   canvas() noexcept;
-  canvas(image&  img, int  w, int  h, void  (*callback)(canvas&  cv)) noexcept;
+  canvas(image&  img, int  w, int  h, void  (*callback)(canvas&  cv, canvas_event  evt)) noexcept;
 
   void  set_cursor_offset(int  x, int  y) noexcept;
 
@@ -69,6 +80,8 @@ public:
 
   int   get_pixel_size(      ) const noexcept{return m_pixel_size;}
   void  set_pixel_size(int  n)       noexcept;
+
+  const point&  get_current_point() const noexcept{return m_current_point;}
 
   void   set_drawing_color(colors::color  color)       noexcept{       m_drawing_color = color;}
   color  get_drawing_color(                    ) const noexcept{return m_drawing_color        ;}
@@ -131,6 +144,7 @@ public:
 
 
 using canvases::canvas;
+using canvases::canvas_event;
 
 
 }

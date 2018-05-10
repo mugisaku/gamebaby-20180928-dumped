@@ -43,7 +43,7 @@ void
 label::
 set_text(gbstd::u16string_view  sv) noexcept
 {
-  m_text = sv;
+  modify_text(sv);
 
   need_to_reform();
 }
@@ -52,6 +52,26 @@ set_text(gbstd::u16string_view  sv) noexcept
 void
 label::
 set_text(gbstd::string_view  sv) noexcept
+{
+  modify_text(sv);
+
+  need_to_redraw();
+}
+
+
+void
+label::
+modify_text(gbstd::u16string_view  sv) noexcept
+{
+  m_text = sv;
+
+  need_to_redraw();
+}
+
+
+void
+label::
+modify_text(gbstd::string_view  sv) noexcept
 {
   utf8_decoder  dec(sv);
 
