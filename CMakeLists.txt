@@ -82,7 +82,7 @@ add_executable("mkanigra_sdl${EXECUTABLE_EXTENSION}" mkanigra_sdl.cpp ${SDL_SOUR
 target_link_libraries("mkfont_sdl${EXECUTABLE_EXTENSION}" "gbstd")
 target_link_libraries("mkicon_sdl${EXECUTABLE_EXTENSION}" "gbstd")
 target_link_libraries("mkforest_sdl${EXECUTABLE_EXTENSION}" "gbstd")
-target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbstd" "webp" "pthread")
+target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbstd" "png" "z" "webp" "pthread")
 #target_link_libraries("markit_sdl${EXECUTABLE_EXTENSION}" "gbstd" "markit")
 #target_link_libraries("winmantester${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("growin${EXECUTABLE_EXTENSION}" "gbstd")
@@ -95,9 +95,6 @@ target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbstd" "webp" "pthr
 
 
 if(EMSC)
-#add_custom_target(bincopy ALL COMMAND cp ../bin/image.png ../battle.gb.txt /usr/local/share/gmbb/large_font.gz /usr/local/share/gmbb/small_font.gz ./)
-#add_dependencies("testBattle${EXECUTABLE_EXTENSION}" bincopy)
-set_target_properties("mkanigra_sdl${EXECUTABLE_EXTENSION}"  PROPERTIES LINK_FLAGS "--shell-file ../shell.html")
 endif()
 
 

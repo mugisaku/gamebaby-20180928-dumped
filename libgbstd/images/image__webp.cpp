@@ -16,36 +16,44 @@ namespace images{
 
 void
 image::
+load_from_webp(const uint8_t*  data, size_t  data_size) noexcept
+{
+  int  w;
+  int  h;
+
+  auto  decoded_data_ptr = WebPDecodeARGB(data,data_size,&w,&h);
+
+    if(decoded_data_ptr)
+    {
+      resize(w,h);
+
+      auto  p = decoded_data_ptr;
+
+        for(auto&  pix: m_pixels)
+        {
+          uint8_t  a = *p++;
+          uint8_t  r = *p++;
+          uint8_t  g = *p++;
+          uint8_t  b = *p++;
+
+          pix.color = a? color(r>>5,g>>5,b>>5):color();
+        }
+
+
+      WebPFree(decoded_data_ptr);
+    }
+}
+
+
+void
+image::
 load_from_webp(const char*  filepath) noexcept
 {
   auto  s = make_string_from_file(filepath);
 
     if(s.size())
     {
-      int  w;
-      int  h;
-
-      auto  decoded_data_ptr = WebPDecodeARGB(reinterpret_cast<const uint8_t*>(s.data()),s.size(),&w,&h);
-
-        if(decoded_data_ptr)
-        {
-          resize(w,h);
-
-          auto  p = decoded_data_ptr;
-
-            for(auto&  pix: m_pixels)
-            {
-              uint8_t  a = *p++;
-              uint8_t  r = *p++;
-              uint8_t  g = *p++;
-              uint8_t  b = *p++;
-
-              pix.color = a? color(r>>5,g>>5,b>>5):color();
-            }
-
-
-          WebPFree(decoded_data_ptr);
-        }
+      load_from_webp(reinterpret_cast<const uint8_t*>(s.data()),s.size());
     }
 }
 

@@ -3,6 +3,7 @@
 set(SOURCES
   images/image.cpp
   images/image__webp.cpp
+  images/image__png.cpp
   images/image__draw.cpp
   images/image__transfer.cpp
   images/line_maker.cpp

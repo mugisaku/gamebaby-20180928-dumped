@@ -204,7 +204,7 @@ save() noexcept
 
   generate_saved_image_link(source_image.get_width(),source_image.get_height());
 #else
-  source_image.save_to_webp("__anigra.webp");
+  source_image.save_to_png("__anigra.png");
 #endif
 }
 
@@ -213,6 +213,33 @@ void
 main_loop() noexcept
 {
   auto&  condev = sdl::update_control_device();
+
+    if(condev.dropped_file_content.size())
+    {
+      auto&  type = condev.dropped_file_type;
+      auto&  cont = condev.dropped_file_content;
+
+        if(type == "image/png")
+        {
+          source_image.load_from_png(cont.data(),cont.size());
+
+           cv->need_to_redraw();
+          mnu->need_to_redraw();
+        }
+
+      else
+        if(type == "image/webp")
+        {
+          source_image.load_from_webp(cont.data(),cont.size());
+
+           cv->need_to_redraw();
+          mnu->need_to_redraw();
+        }
+
+
+      cont.resize(0);
+    }
+
 
   animator::check_time(condev.time);
 

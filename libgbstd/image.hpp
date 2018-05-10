@@ -52,8 +52,13 @@ public:
 
   void  resize(int  w, int  h) noexcept;
 
+  void  load_from_webp(const uint8_t*  data, size_t  data_size) noexcept;
   void  load_from_webp(const char*  filepath)       noexcept;
   void    save_to_webp(const char*  filepath) const noexcept;
+
+  void  load_from_png(const uint8_t*  data, size_t  data_size) noexcept;
+  void  load_from_png(const char*  filepath)       noexcept;
+  void    save_to_png(const char*  filepath) const noexcept;
 
   int   get_width() const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}

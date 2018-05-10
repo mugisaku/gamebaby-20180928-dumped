@@ -1,6 +1,42 @@
 #include"sdl.hpp"
 
 
+#ifdef EMSCRIPTEN
+#include<emscripten.h>
+
+
+EM_JS(bool,test_dropped_file,(),
+{
+  return dropped_file;
+});
+
+
+EM_JS(void,unset_dropped_file,(),
+{
+  dropped_file = null;
+});
+
+
+EM_JS(uint8_t,get_dropped_file_data,(int  i),
+{
+  return dropped_file[i];
+});
+
+
+EM_JS(int,get_dropped_file_size,(),
+{
+  return dropped_file.length;
+});
+
+
+EM_JS(const char*,get_dropped_file_type,(),
+{
+  return dropped_file.type;
+});
+
+
+#endif
+
 
 namespace sdl{
 
@@ -100,6 +136,93 @@ process_mouse_motion(const SDL_MouseMotionEvent&  evt, gbstd::mouse&  m, bool&  
 }
 
 
+#ifdef EMSCRIPTEN
+void
+try_read_dropped_file(gbstd::control_device&  dev) noexcept
+{
+    if(test_dropped_file())
+    {
+      auto  n = get_dropped_file_size();
+
+      dev.dropped_file_type = get_dropped_file_type();
+
+      dev.dropped_file_content.resize(n);
+
+        for(int  i = 0;  i < n;  ++i)
+        {
+          dev.dropped_file_content[i] = get_dropped_file_data(i);
+        }
+
+
+      unset_dropped_file();
+    }
+}
+#else
+const char*
+get_mime(const char*  filepath) noexcept
+{
+  auto  l = std::strlen(filepath);
+
+  auto  p = filepath+l;
+
+    for(;;)
+    {
+        if(p < filepath)
+        {
+          return "unknown";
+        }
+
+
+        if(*p == '.')
+        {
+          break;
+        }
+
+
+      --p;
+    }
+
+
+  ++p;
+
+       if(std::strcmp(p,"png")  == 0){return "image/png";}
+  else if(std::strcmp(p,"webp") == 0){return "image/webp";}
+
+  return "unknown";
+}
+
+
+void
+read_dropped_file(gbstd::control_device&  dev, const char*  filepath) noexcept
+{
+  auto  f = fopen(filepath,"rb");
+
+    if(f)
+    {
+      dev.dropped_file_type = get_mime(filepath);
+
+      dev.dropped_file_content.resize(0);
+
+        for(;;)
+        {
+          auto  c = fgetc(f);
+
+            if(feof(f))
+            {
+              break;
+            }
+
+
+          dev.dropped_file_content.emplace_back(c);
+        }
+
+
+      fclose(f);
+    }
+}
+#endif
+
+
 }
 
 
@@ -114,6 +237,10 @@ update_control_device() noexcept
   dev.needed_to_redraw           = false;
   dev.mouse_state_modify_flag    = false;
   dev.keyboard_state_modify_flag = false;
+
+#ifdef EMSCRIPTEN
+  try_read_dropped_file(dev) noexcept;
+#endif
 
   auto&  mf = dev.mouse_state_modify_flag   ;
   auto&  kf = dev.keyboard_state_modify_flag;
@@ -135,6 +262,13 @@ update_control_device() noexcept
                break;
              }
            break;
+#ifndef EMSCRIPTEN
+      case(SDL_DROPFILE):
+            read_dropped_file(dev,evt.drop.file);
+
+            SDL_free(evt.drop.file);
+            break;
+#endif
       case(SDL_QUIT):
            quit();
            break;

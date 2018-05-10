@@ -46,6 +46,10 @@
 
     </style>
 <script type="text/javascript">
+
+
+var  dropped_file;
+
 var  clip_image;
 
 
@@ -183,6 +187,48 @@ download_image(w,h)
           if (text) Module.printErr('[post-exception status] ' + text);
         };
       };
+
+
+
+
+document.body.ondragover =
+function(e)
+{
+  e.stopPropagation();
+  e.preventDefault();
+};
+
+
+document.body.ondrop =
+function(e)
+{
+  e.stopPropagation();
+  e.preventDefault();
+
+  var  f = e.dataTransfer.files[0];
+
+    if(f)
+    {
+        if(f.type == "image/png")
+        {
+          var  r = new FileReader();
+
+          r.onload = function(e){
+            dropped_file = new Uint8Array(e.target.result);
+          };
+
+
+          r.readAsArrayBuffer(f);
+        }
+
+      else
+        {
+          console.log(f);
+        }
+    }
+};
+
+
 
 
     </script>
