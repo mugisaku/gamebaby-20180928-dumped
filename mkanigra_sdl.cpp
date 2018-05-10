@@ -59,8 +59,8 @@ get_rect(point  index) noexcept
 }
 
 
-constexpr int  table_width  = 16;
-constexpr int  table_height =  4;
+constexpr int  table_width  = 20;
+constexpr int  table_height =  2;
 
 
 images::point  g_current_index;
@@ -216,10 +216,9 @@ main_loop() noexcept
 
     if(condev.dropped_file_content.size())
     {
-      auto&  type = condev.dropped_file_type;
       auto&  cont = condev.dropped_file_content;
 
-        if(type == "image/png")
+        if(is_png(cont.data()))
         {
           source_image.load_from_png(cont.data(),cont.size());
 
@@ -228,7 +227,7 @@ main_loop() noexcept
         }
 
       else
-        if(type == "image/webp")
+        if(is_webp(cont.data()))
         {
           source_image.load_from_webp(cont.data(),cont.size());
 
@@ -354,7 +353,7 @@ main(int  argc, char**  argv)
   mnu = new widgets::menu(mip,table_width,table_height);
 
 
-  resize_cell_all(24,24);
+  resize_cell_all(24,24*1);
 
   auto  color_list = {
     colors::black,

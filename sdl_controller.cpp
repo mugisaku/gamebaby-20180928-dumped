@@ -29,12 +29,6 @@ EM_JS(int,get_dropped_file_size,(),
 });
 
 
-EM_JS(const char*,get_dropped_file_type,(),
-{
-  return dropped_file.type;
-});
-
-
 #endif
 
 
@@ -144,8 +138,6 @@ try_read_dropped_file(gbstd::control_device&  dev) noexcept
     {
       auto  n = get_dropped_file_size();
 
-      dev.dropped_file_type = get_dropped_file_type();
-
       dev.dropped_file_content.resize(n);
 
         for(int  i = 0;  i < n;  ++i)
@@ -158,40 +150,6 @@ try_read_dropped_file(gbstd::control_device&  dev) noexcept
     }
 }
 #else
-const char*
-get_mime(const char*  filepath) noexcept
-{
-  auto  l = std::strlen(filepath);
-
-  auto  p = filepath+l;
-
-    for(;;)
-    {
-        if(p < filepath)
-        {
-          return "unknown";
-        }
-
-
-        if(*p == '.')
-        {
-          break;
-        }
-
-
-      --p;
-    }
-
-
-  ++p;
-
-       if(std::strcmp(p,"png")  == 0){return "image/png";}
-  else if(std::strcmp(p,"webp") == 0){return "image/webp";}
-
-  return "unknown";
-}
-
-
 void
 read_dropped_file(gbstd::control_device&  dev, const char*  filepath) noexcept
 {
@@ -199,8 +157,6 @@ read_dropped_file(gbstd::control_device&  dev, const char*  filepath) noexcept
 
     if(f)
     {
-      dev.dropped_file_type = get_mime(filepath);
-
       dev.dropped_file_content.resize(0);
 
         for(;;)

@@ -89,8 +89,6 @@ control_device
   bool     mouse_state_modify_flag;
   bool  keyboard_state_modify_flag;
 
-  gbstd::string  dropped_file_type;
-
   std::vector<uint8_t>  dropped_file_content;
 
   bool  needed_to_redraw;

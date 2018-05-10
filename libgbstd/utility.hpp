@@ -60,6 +60,10 @@ duplicate(const T*  src, size_t  n) noexcept
 }
 
 
+bool   is_png(const void*  ptr) noexcept;
+bool  is_webp(const void*  ptr) noexcept;
+
+
 void  printf_with_indent(int  indent, const char*  fmt, ...) noexcept;
 
 
