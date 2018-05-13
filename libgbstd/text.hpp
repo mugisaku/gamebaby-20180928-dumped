@@ -118,15 +118,19 @@ public:
 class
 string_form
 {
-  char  buf[1024];
+  char  m_buffer[1024] = {0};
+
+  int  m_length=0;
 
 public:
-  string_form() noexcept: buf{0}{}
+  string_form() noexcept{}
   string_form(const char*  fmt, ...) noexcept;
 
-  const char*  operator*() const noexcept{return buf;}
+  const char*  operator*() const noexcept{return m_buffer;}
 
   const char*  operator()(const char*  fmt, ...) noexcept;
+
+  string_view  view() const noexcept{return string_view(m_buffer,m_length);}
 
 };
 

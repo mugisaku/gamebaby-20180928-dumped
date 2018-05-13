@@ -283,7 +283,7 @@ save(widgets::button&  btn) noexcept
 
       sdl::update_screen(final_image);
 
-      generate_saved_image_link(ptrs::farm->get_width(),ptrs::farm->get_height());
+      download_image(ptrs::farm->get_width(),ptrs::farm->get_height());
 
       root.redraw(final_image);
 

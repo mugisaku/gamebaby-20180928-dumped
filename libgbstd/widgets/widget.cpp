@@ -107,6 +107,8 @@ reform(point  base_pt) noexcept
   m_absolute_point = base_pt+m_relative_point;
 
   unset_flag(flags::needed_to_reform);
+
+  need_to_redraw();
 }
 
 

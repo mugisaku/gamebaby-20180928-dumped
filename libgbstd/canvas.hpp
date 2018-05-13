@@ -103,6 +103,8 @@ public:
   void    set_image(image&  img, int  w, int  h)       noexcept;
   image&  get_image(                           ) const noexcept{return m_image_cursor.get_image();}
 
+  const pixel&  get_pixel(int  x, int  y) const noexcept{return m_image_cursor.get_pixel(x,y);}
+
   void  reform(point  base_pt) noexcept override;
 
   void  modify_dot(colors::color  new_color, int  x, int  y) noexcept;

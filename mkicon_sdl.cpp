@@ -53,13 +53,6 @@ save(widgets::button&  btn) noexcept
       btn.reset_count();
 
 #ifdef EMSCRIPTEN
-      image_cursor  cur(final_image);
-
-      images::paste(cv_image,cv_image.get_rectangle(),cur);
-
-      sdl::update_screen(final_image);
-
-      generate_saved_image_link(cv_w,cv_h);
 #else
         for(int  y = 0;  y < cv_h;  ++y)
         {

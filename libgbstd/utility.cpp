@@ -113,6 +113,15 @@ download_image(int  w, int  h) noexcept
 
 
 bool
+is_image_data(const void*  ptr) noexcept
+{
+  static const uint8_t  sig[] = {'i','m','g'};
+
+  return std::memcmp(ptr,sig,sizeof(sig)) == 0;
+}
+
+
+bool
 is_png(const void*  ptr) noexcept
 {
   static const uint8_t  sig[] = {0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A};

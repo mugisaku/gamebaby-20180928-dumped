@@ -20,21 +20,6 @@ basic_string
   size_t  m_length=0;
   size_t  m_capacity=0;
 
-  void  extend() noexcept
-  {
-    auto  new_pointer = new T[((m_capacity+8)*2)+1];
-
-    std::memcpy(new_pointer,m_data,m_length);
-
-    m_capacity += 8;
-    m_capacity *= 2;
-
-    new_pointer[m_length] = 0;
-
-    delete[] m_data              ;
-             m_data = new_pointer;
-  }
-
 public:
   basic_string() noexcept{}
   basic_string(const T*  s, size_t  l) noexcept{assign(s,l);}
@@ -73,8 +58,8 @@ public:
   }
 
 
-        char&  operator[](int  i)       noexcept{return m_data[i];}
-  const char&  operator[](int  i) const noexcept{return m_data[i];}
+        T&  operator[](int  i)       noexcept{return m_data[i];}
+  const T&  operator[](int  i) const noexcept{return m_data[i];}
 
 
   bool  operator==(const basic_string&  rhs) const noexcept
@@ -153,18 +138,16 @@ public:
 
   void  append(T  c) noexcept
   {
-      while(m_length >= m_capacity)
+      if(m_length == m_capacity)
       {
-        extend();
+        resize((m_capacity+8)*2);
       }
 
 
-    T*  p = &m_data[m_length];
+    T*  p = &m_data[m_length++];
 
     *p++ = c;
     *p   = 0;
-
-    ++m_length;
   }
 
   void  append(const T*  s, size_t  l) noexcept
@@ -186,9 +169,38 @@ public:
   size_t  size() const noexcept{return m_length;}
   size_t  capacity() const noexcept{return m_capacity;}
 
+  void  resize(size_t  n) noexcept
+  {
+      if(m_capacity < n)
+      {
+        auto  new_pointer = new T[n+1];
+
+        std::copy(begin(),end(),new_pointer);
+
+        m_capacity = n;
+
+        delete[] m_data              ;
+                 m_data = new_pointer;
+      }
+
+    else
+      {
+        m_length = n;
+      }
+
+
+      if(m_capacity)
+      {
+        m_data[m_length] = 0;
+      }
+  }
+
   basic_string_view<T>  view() const noexcept{return basic_string_view<T>(data(),size());}
 
   const T*  data() const noexcept{return m_data;}
+
+        T&  back()       noexcept{return m_data[m_length-1];}
+  const T&  back() const noexcept{return m_data[m_length-1];}
 
   using iterator = const T*;
 

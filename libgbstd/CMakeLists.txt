@@ -2,6 +2,7 @@
 
 set(SOURCES
   images/image.cpp
+  images/image__load.cpp
   images/image__webp.cpp
   images/image__png.cpp
   images/image__draw.cpp

@@ -303,6 +303,7 @@ void
 image::
 draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
 {
+START:
   auto  p = table[c];
 
     if(p)
@@ -327,6 +328,14 @@ draw_character(char16_t  c, const text_style&  style, int  x, int  y) noexcept
             }
         }
     }
+
+  else
+    {
+//printf("0x%04X\n",c);
+      c = '!';
+
+      goto START;
+    }
 }
 
 
@@ -340,7 +349,15 @@ draw_text(gbstd::string_view  sv, const text_style&  style, int  x, int  y) noex
 
     while(dec)
     {
-      draw_character(static_cast<char16_t>(dec()),style,x,y);
+      auto  c = static_cast<char16_t>(dec());
+
+        if(!c)
+        {
+          break;
+        }
+
+
+      draw_character(c,style,x,y);
 
       x += w;
     }
@@ -355,7 +372,7 @@ draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) n
 {
     for(auto  c: sv)
     {
-      draw_character(static_cast<char16_t>(c),style,x,y);
+      draw_character(c,style,x,y);
 
       x += w;
     }

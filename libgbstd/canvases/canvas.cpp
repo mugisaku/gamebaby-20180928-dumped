@@ -298,18 +298,24 @@ render(image_cursor  cur) noexcept
     {
         for(int  y = 0;  y < h;  ++y)
         {
-          cur.draw_hline(colors::light_gray,0,m_pixel_size*y,m_width);
+          auto  color = (y%8)? colors::gray
+                             : colors::light_gray;
+
+          cur.draw_hline(color,0,m_pixel_size*y,m_width);
         }
 
 
         for(int  x = 0;  x < w;  ++x)
         {
-          cur.draw_vline(colors::light_gray,m_pixel_size*x,0,m_height);
+          auto  color = (x%8)? colors::gray
+                             : colors::light_gray;
+
+          cur.draw_vline(color,m_pixel_size*x,0,m_height);
         }
 
 
-      cur.draw_hline(colors::white,0,m_pixel_size*(h/2),m_width);
-      cur.draw_vline(colors::white,m_pixel_size*(w/2),0,m_height);
+      cur.draw_hline(colors::white,0,m_pixel_size*(h/2)  ,m_width );
+      cur.draw_vline(colors::white,  m_pixel_size*(w/2),0,m_height);
     }
 
 

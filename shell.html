@@ -48,9 +48,16 @@
 <script type="text/javascript">
 
 
-var  dropped_file;
+var  g_dropped_file = null;
 
-var  clip_image;
+var  g_file_is_dropped = false;
+
+var  g_dropped_file_is_image = false;
+
+var  g_dropped_image = null;
+var  g_tmp_cv = null;
+
+var  g_clip_image;
 
 
 function
@@ -58,7 +65,7 @@ download_image(w,h)
 {
   var  src = document.getElementById("canvas");
 
-  clip_image = document.createElement("canvas");
+  g_clip_image = document.createElement("canvas");
 
   var  ctx = clip_image.getContext("2d");
 
@@ -68,7 +75,7 @@ download_image(w,h)
 
   a.download = "new.png";
 
-  a.href = clip_image.toDataURL();
+  a.href = g_clip_image.toDataURL();
 
   a.click();
 }
@@ -191,7 +198,7 @@ download_image(w,h)
 
 
 
-document.body.ondragover =
+document.ondragover =
 function(e)
 {
   e.stopPropagation();
@@ -199,7 +206,32 @@ function(e)
 };
 
 
-document.body.ondrop =
+function
+finish()
+{
+  g_tmp_cv = document.createElement("canvas");
+
+  var  w = g_dropped_image.naturalWidth ;
+  var  h = g_dropped_image.naturalHeight;
+
+  g_tmp_cv.width         = w ;
+  g_tmp_cv.height        = h;
+  g_dropped_image.width  = w;
+  g_dropped_image.height = h;
+
+
+  var  ctx = g_tmp_cv.getContext("2d");
+
+  ctx.drawImage(g_dropped_image,0,0);
+
+  g_image_data = ctx.getImageData(0,0,w,h);
+
+  g_file_is_dropped       = true;
+  g_dropped_file_is_image = true;
+}
+
+
+document.ondrop =
 function(e)
 {
   e.stopPropagation();
@@ -207,25 +239,26 @@ function(e)
 
   var  f = e.dataTransfer.files[0];
 
-    if(f)
+    if((f.type == "image/png") ||
+       (f.type == "image/webp"))
     {
-        if((f.type == "image/png") ||
-           (f.type == "image/webp"))
-        {
-          var  r = new FileReader();
+      var  r = new FileReader();
 
-          r.onload = function(e){
-            dropped_file = new Uint8Array(e.target.result);
-          };
+      r.onload = function(e){
+        g_dropped_image = new Image(0,0);
+
+        g_dropped_image.addEventListener("load",finish,false);
+
+        g_dropped_image.src = e.target.result;
+      }
 
 
-          r.readAsArrayBuffer(f);
-        }
+      r.readAsDataURL(f);
+    }
 
-      else
-        {
-          console.log(f);
-        }
+  else
+    {
+      console.log(f);
     }
 };
 

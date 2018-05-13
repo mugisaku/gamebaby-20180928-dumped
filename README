@@ -11,10 +11,12 @@ mainプログラムがSDL2を使用する以外は、
  
 
 
-以下を入力して、ビルド
+以下を入力して、ビルドします(-DEMSC=onを付けた場合、emscriptenを使い、javascript版ができる)
 mkdir builddir
 cd builddir
-cmake ..
+cmake .. [-DEMSC=on]
 make
+
+
 
 

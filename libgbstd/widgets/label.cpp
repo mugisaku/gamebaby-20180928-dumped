@@ -55,7 +55,7 @@ set_text(gbstd::string_view  sv) noexcept
 {
   modify_text(sv);
 
-  need_to_redraw();
+  need_to_reform();
 }
 
 
@@ -75,13 +75,25 @@ modify_text(gbstd::string_view  sv) noexcept
 {
   utf8_decoder  dec(sv);
 
-  m_text.clear();
+  m_text.resize(0);
 
     while(dec)
     {
-      m_text.append(static_cast<char16_t>(dec()));
-    }
+      auto  c = static_cast<char16_t>(dec());
 
+        if(!c)
+        {
+          break;
+        }
+
+
+      m_text.append(c);
+    }
+for(auto  c: m_text)
+{
+printf("%c",c);
+}
+printf("\n");
 
   need_to_redraw();
 }

@@ -7,19 +7,46 @@
 
 EM_JS(bool,test_dropped_file,(),
 {
-  return dropped_file;
+  return g_file_is_dropped;
+});
+
+
+EM_JS(bool,dropped_file_is_image,(),
+{
+  return g_dropped_file_is_image;
 });
 
 
 EM_JS(void,unset_dropped_file,(),
 {
-  dropped_file = null;
+  g_file_is_dropped = false;
 });
 
 
-EM_JS(uint8_t,get_dropped_file_data,(int  i),
+EM_JS(int,get_dropped_image_width,(),
 {
-  return dropped_file[i];
+  return g_image_data.width;
+});
+
+
+EM_JS(int,get_dropped_image_height,(),
+{
+  return g_image_data.height;
+});
+
+
+EM_JS(uint32_t,get_dropped_image_data,(int  i),
+{
+  var  v;
+
+  i *= 4;
+
+  v  = g_image_data[i++]<<24;
+  v |= g_image_data[i++]<<16;
+  v |= g_image_data[i++]<< 8;
+  v |= g_image_data[i  ]    ;
+
+  return v;
 });
 
 
@@ -136,13 +163,36 @@ try_read_dropped_file(gbstd::control_device&  dev) noexcept
 {
     if(test_dropped_file())
     {
-      auto  n = get_dropped_file_size();
-
-      dev.dropped_file_content.resize(n);
-
-        for(int  i = 0;  i < n;  ++i)
+        if(dropped_file_is_image())
         {
-          dev.dropped_file_content[i] = get_dropped_file_data(i);
+          auto  w = get_dropped_image_width();
+          auto  h = get_dropped_image_height();
+
+          auto  n = w*h;
+
+          dev.dropped_file_content.resize(3+4+(4*n));
+
+          uint8_t*  p = dev.dropped_file_content.data();
+
+          *p++ = 'i';
+          *p++ = 'm';
+          *p++ = 'g';
+
+          *p++ = w>>8;
+          *p++ = w&0xFF;
+
+          *p++ = h>>8;
+          *p++ = h&0xFF;
+
+            for(int  i = 0;  i < n;  ++i)
+            {
+              auto  v = get_dropped_image_data(i);
+
+              *p++ = (v>>24)&0xFF;
+              *p++ = (v>>16)&0xFF;
+              *p++ = (v>> 8)&0xFF;
+              *p++ = (v    )&0xFF;
+            }
         }
 
 

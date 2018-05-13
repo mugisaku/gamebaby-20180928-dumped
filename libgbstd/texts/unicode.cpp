@@ -75,41 +75,42 @@ char32_t
 utf8_decoder::
 operator()() noexcept
 {
-  char32_t  c = 0;
-
-  const auto  n = utf8_byte_number(*m_pointer);
-
-    if((m_pointer+n) > m_end)
+    if(!*m_pointer)
     {
-      m_pointer = m_end;
-
       return 0;
     }
 
 
+  char32_t  c = 0;
+
+  const auto  n = utf8_byte_number(*m_pointer);
+
+
+  auto  p = reinterpret_cast<const uint8_t*>(m_pointer);
+
     switch(n)
     {
-  case(1): c = ((m_pointer[0]        )    )                                            ;break;
-  case(2): c = ((m_pointer[0]&0b11111)<< 6)|decode(m_pointer[1])                       ;break;
-  case(3): c = ((m_pointer[0]&0b01111)<<12)|decode(m_pointer[1],6)|decode(m_pointer[2]);break;
+  case(1): c = ((p[0]             )            )               ;break;
+  case(2): c = ((p[0]&0b11111)<< 6)|decode(p[1])               ;break;
+  case(3): c = ((p[0]&0b01111)<<12)|decode(p[1],6)|decode(p[2]);break;
 
   case(4):
-    c = ((m_pointer[0]&0b111)<<18)|decode(m_pointer[1],12)|
-                                   decode(m_pointer[2], 6)|
-                                   decode(m_pointer[3]   );
+    c = ((p[0]&0b111)<<18)|decode(p[1],12)|
+                           decode(p[2], 6)|
+                           decode(p[3]   );
     break;
   case(5):
-    c = ((m_pointer[0]&0b11)<<24)|decode(m_pointer[1],18)|
-                                  decode(m_pointer[2],12)|
-                                  decode(m_pointer[3], 6)|
-                                  decode(m_pointer[4]   );
+    c = ((p[0]&0b11)<<24)|decode(p[1],18)|
+                          decode(p[2],12)|
+                          decode(p[3], 6)|
+                          decode(p[4]   );
     break;
   case(6):
-    c = ((m_pointer[0]&0b1)<<30)|decode(m_pointer[1],24)|
-                                 decode(m_pointer[2],18)|
-                                 decode(m_pointer[3],12)|
-                                 decode(m_pointer[4], 6)|
-                                 decode(m_pointer[5]   );
+    c = ((p[0]&0b1)<<30)|decode(p[1],24)|
+                         decode(p[2],18)|
+                         decode(p[3],12)|
+                         decode(p[4], 6)|
+                         decode(p[5]   );
     break;
   default:
       printf("不正なUTF8のバイト数です(%d)\n",n);
