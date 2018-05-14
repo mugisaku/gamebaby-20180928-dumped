@@ -75,7 +75,8 @@ void  printf_with_indent(int  indent, const char*  fmt, ...) noexcept;
 #ifdef EMSCRIPTEN
 void  set_caption(const char*  s) noexcept;
 void  set_description(const char*  s) noexcept;
-void  download_image(int  w, int  h) noexcept;
+void  download_image() noexcept;
+void  transfer_to_javascript(const uint8_t*  data, size_t  data_size) noexcept;
 #endif
 
 

@@ -204,9 +204,11 @@ void
 save() noexcept
 {
 #ifdef EMSCRIPTEN
-  sdl::update_screen(source_image);
+  auto  buf = source_image.make_image_data();
 
-  download_image(source_image.get_width(),source_image.get_height());
+  transfer_to_javascript(buf.data(),buf.size());
+
+  download_image();
 #else
   source_image.save_to_png("__anigra.png");
 #endif

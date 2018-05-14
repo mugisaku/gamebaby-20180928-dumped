@@ -89,11 +89,7 @@ modify_text(gbstd::string_view  sv) noexcept
 
       m_text.append(c);
     }
-for(auto  c: m_text)
-{
-printf("%c",c);
-}
-printf("\n");
+
 
   need_to_redraw();
 }

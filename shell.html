@@ -48,37 +48,13 @@
 <script type="text/javascript">
 
 
-var  g_dropped_file = null;
+var  g_transferred_data = null;
+var      g_dropped_file = null;
+var     g_dropped_image = null;
 
-var  g_file_is_dropped = false;
 
+var        g_file_is_dropped = false;
 var  g_dropped_file_is_image = false;
-
-var  g_dropped_image = null;
-var  g_tmp_cv = null;
-
-var  g_clip_image;
-
-
-function
-download_image(w,h)
-{
-  var  src = document.getElementById("canvas");
-
-  g_clip_image = document.createElement("canvas");
-
-  var  ctx = clip_image.getContext("2d");
-
-  ctx.drawImage(src,0,0,w,h,0,0,w,h);
-
-  var  a = document.createElement("a");
-
-  a.download = "new.png";
-
-  a.href = g_clip_image.toDataURL();
-
-  a.click();
-}
 
 
 </script>
@@ -209,22 +185,23 @@ function(e)
 function
 finish()
 {
-  g_tmp_cv = document.createElement("canvas");
+  cv = document.createElement("canvas");
 
   var  w = g_dropped_image.naturalWidth ;
   var  h = g_dropped_image.naturalHeight;
 
-  g_tmp_cv.width         = w ;
-  g_tmp_cv.height        = h;
+  cv.width               = w;
+  cv.height              = h;
   g_dropped_image.width  = w;
   g_dropped_image.height = h;
 
 
-  var  ctx = g_tmp_cv.getContext("2d");
+  var  ctx = cv.getContext("2d");
 
   ctx.drawImage(g_dropped_image,0,0);
 
   g_image_data = ctx.getImageData(0,0,w,h);
+
 
   g_file_is_dropped       = true;
   g_dropped_file_is_image = true;

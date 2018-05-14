@@ -275,19 +275,6 @@ save(widgets::button&  btn) noexcept
       btn.reset_count();
 
 #ifdef EMSCRIPTEN
-      need_to_hide_cursors = true;
-
-      ptrs::farm->render(image_cursor(final_image));
-
-      need_to_hide_cursors = false;
-
-      sdl::update_screen(final_image);
-
-      download_image(ptrs::farm->get_width(),ptrs::farm->get_height());
-
-      root.redraw(final_image);
-
-      sdl::update_screen(final_image);
 #else
         for(int  y = 0;  y < cv_h;  ++y)
         {

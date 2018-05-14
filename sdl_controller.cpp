@@ -35,18 +35,9 @@ EM_JS(int,get_dropped_image_height,(),
 });
 
 
-EM_JS(uint32_t,get_dropped_image_data,(int  i),
+EM_JS(int,get_dropped_image_data,(int  i),
 {
-  var  v;
-
-  i *= 4;
-
-  v  = g_image_data[i++]<<24;
-  v |= g_image_data[i++]<<16;
-  v |= g_image_data[i++]<< 8;
-  v |= g_image_data[i  ]    ;
-
-  return v;
+  return g_image_data.data[i];
 });
 
 
@@ -186,12 +177,12 @@ try_read_dropped_file(gbstd::control_device&  dev) noexcept
 
             for(int  i = 0;  i < n;  ++i)
             {
-              auto  v = get_dropped_image_data(i);
+              auto  ii = i*4;
 
-              *p++ = (v>>24)&0xFF;
-              *p++ = (v>>16)&0xFF;
-              *p++ = (v>> 8)&0xFF;
-              *p++ = (v    )&0xFF;
+              *p++ = get_dropped_image_data(ii++);
+              *p++ = get_dropped_image_data(ii++);
+              *p++ = get_dropped_image_data(ii++);
+              *p++ = get_dropped_image_data(ii  );
             }
         }
 
