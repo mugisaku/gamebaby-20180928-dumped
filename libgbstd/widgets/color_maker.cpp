@@ -62,11 +62,14 @@ void
 color_maker::
 set_color(colors::color  color) noexcept
 {
-  m_r_dial->set_current(color.get_r7());
-  m_g_dial->set_current(color.get_g7());
-  m_b_dial->set_current(color.get_b7());
+    if(m_color != color)
+    {
+      m_r_dial->set_current(color.get_r7());
+      m_g_dial->set_current(color.get_g7());
+      m_b_dial->set_current(color.get_b7());
 
-  update_color();
+      update_color();
+    }
 }
 
 

@@ -533,6 +533,8 @@ dial: public table_row
   static void    up(button&  btn);
   static void  down(button&  btn);
 
+  void  update_label() noexcept;
+
 public:
   dial(int  min, int  max, void  (*callback)(dial&,int,int)) noexcept;
 

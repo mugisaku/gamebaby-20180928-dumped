@@ -428,8 +428,6 @@ create_right_part_widget() noexcept
 
   colhol = new widgets::color_holder(color_list,[](widgets::color_holder&  holder, colors::color  color){
     colmak->set_color(color);
-
-    cv->set_drawing_color(color);
   });
 
 

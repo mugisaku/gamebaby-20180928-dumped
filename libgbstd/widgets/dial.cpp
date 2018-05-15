@@ -66,7 +66,17 @@ set_current(int  v) noexcept
 {
   m_current = std::min(m_max,std::max(m_min,v));
 
-  need_to_redraw();
+  update_label();
+}
+
+
+void
+dial::
+update_label() noexcept
+{
+  string_form  fs;
+
+  m_label->set_text(fs(format,m_current,m_max));
 }
 
 
@@ -92,9 +102,7 @@ up(button&  btn)
             }
 
 
-          string_form  fs;
-
-          dial.m_label->set_text(fs(format,dial.m_current,dial.m_max));
+          dial.update_label();
         }
     }
 }
@@ -122,9 +130,7 @@ down(button&  btn)
             }
 
 
-          string_form  fs;
-
-          dial.m_label->set_text(fs(format,dial.m_current,dial.m_max));
+          dial.update_label();
         }
     }
 }

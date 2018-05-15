@@ -40,9 +40,14 @@ void
 color_holder::
 set_color(colors::color  color) noexcept
 {
-  m_colors[m_index] = color;
+  auto&  dst = m_colors[m_index];
 
-  need_to_redraw();
+    if(dst != color)
+    {
+      dst = color;
+
+      need_to_redraw();
+    }
 }
 
 
