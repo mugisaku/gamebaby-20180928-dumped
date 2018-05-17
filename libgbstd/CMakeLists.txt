@@ -14,6 +14,9 @@ set(SOURCES
   texts/unicode.cpp
   texts/character_queue.cpp
   texts/string_form.cpp
+  tasks/task_manager.cpp
+  contexts/context.cpp
+  contexts/context_stack.cpp
   widgets/widget.cpp
   widgets/container.cpp
   widgets/node.cpp
@@ -42,11 +45,7 @@ set(SOURCES
   ios/riff_chunk.cpp
   ios/riff_subchunk_view.cpp
   ios/wave.cpp
-  playwork.cpp
-  task.cpp
-  group_task.cpp
   utility.cpp
-  garden.cpp
   environment.cpp
 )
 

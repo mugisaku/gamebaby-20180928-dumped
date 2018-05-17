@@ -237,6 +237,14 @@ update() noexcept
 
               m_pointing_count = 1;
             }
+
+          else
+            if(mouse.right_button)
+            {
+              m_operation_rect = rectangle(0,0,m_editing_width,m_editing_height);
+
+              need_to_redraw();
+            }
         }
       break;
   case(mode::paste):

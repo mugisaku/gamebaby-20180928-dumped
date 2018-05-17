@@ -261,6 +261,30 @@ public:
 };
 
 
+struct
+sprite
+{
+  const images::image*  image=nullptr;
+
+  point  src_point;
+  point  dst_point;
+
+  int  width =0;
+  int  height=0;
+
+  void  render(images::image&  dst) const noexcept
+  {
+      if(image)
+      {
+        auto  src_rect = rectangle(src_point,width,height);
+
+        images::overlay(*image,src_rect,dst,dst_point);
+      }
+  }
+
+};
+
+
 }
 
 
@@ -272,6 +296,7 @@ using images::image_cursor;
 using images::drawing_recorder;
 using images::pixel;
 using images::line_maker;
+using images::sprite;
 
 
 }

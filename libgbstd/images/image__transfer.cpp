@@ -116,21 +116,81 @@ namespace{
 void
 transfer(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt, rectangle*  result, bool  layer) noexcept
 {
+  bool  does_reverse_vertically   = (src_rect.w < 0);
+  bool  does_reverse_horizontally = (src_rect.h < 0);
+
+    if(does_reverse_vertically  ){src_rect.w = -src_rect.w;}
+    if(does_reverse_horizontally){src_rect.h = -src_rect.h;}
+
+
   rectangle  dst_rect(dst_pt,dst.get_width(),dst.get_height());
 
   transform(src_rect,dst_rect);
 
     if(src_rect.w)
     {
-        for(int  y = 0;  y < src_rect.h;  y += 1){
-        for(int  x = 0;  x < src_rect.w;  x += 1){
-          auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
-
-            if(!layer || pix.color)
+        if(does_reverse_vertically)
+        {
+            if(does_reverse_horizontally)
             {
-              dst.set_pixel(pix,dst_rect.x+x,dst_rect.y+y);
+              int  dst_x = dst_rect.x+src_rect.w-1;
+              int  dst_y = dst_rect.y+src_rect.h-1;
+
+                for(int  y = 0;  y < src_rect.h;  y += 1){
+                for(int  x = 0;  x < src_rect.w;  x += 1){
+                  auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
+
+                    if(!layer || pix.color)
+                    {
+                      dst.set_pixel(pix,dst_x-x,dst_y-y);
+                    }
+                }}
             }
-        }}
+
+          else
+            {
+              int  dst_x = dst_rect.x+src_rect.w-1;
+
+                for(int  y = 0;  y < src_rect.h;  y += 1){
+                for(int  x = 0;  x < src_rect.w;  x += 1){
+                  auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
+
+                    if(!layer || pix.color)
+                    {
+                      dst.set_pixel(pix,dst_x-x,dst_rect.y+y);
+                    }
+                }}
+            }
+        }
+
+      else
+        if(does_reverse_horizontally)
+        {
+          int  dst_y = dst_rect.y+src_rect.h-1;
+
+            for(int  y = 0;  y < src_rect.h;  y += 1){
+            for(int  x = 0;  x < src_rect.w;  x += 1){
+              auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
+
+                if(!layer || pix.color)
+                {
+                  dst.set_pixel(pix,dst_rect.x+x,dst_y-y);
+                }
+            }}
+        }
+
+      else
+        {
+            for(int  y = 0;  y < src_rect.h;  y += 1){
+            for(int  x = 0;  x < src_rect.w;  x += 1){
+              auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
+
+                if(!layer || pix.color)
+                {
+                  dst.set_pixel(pix,dst_rect.x+x,dst_rect.y+y);
+                }
+            }}
+        }
     }
 
 
