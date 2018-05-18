@@ -114,119 +114,109 @@ transform(rectangle&  src_rect, rectangle&  dst_rect) noexcept
 
 namespace{
 void
-transfer(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt, rectangle*  result, bool  layer) noexcept
+transfer(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt, bool  layer) noexcept
 {
   bool  does_reverse_vertically   = (src_rect.w < 0);
   bool  does_reverse_horizontally = (src_rect.h < 0);
+
+  constexpr int    vertival_reverse_flag = 1;
+  constexpr int  horizontal_reverse_flag = 2;
+
+  int  mode = (does_reverse_vertically  ?   vertival_reverse_flag:0)|
+              (does_reverse_horizontally? horizontal_reverse_flag:0);
 
     if(does_reverse_vertically  ){src_rect.w = -src_rect.w;}
     if(does_reverse_horizontally){src_rect.h = -src_rect.h;}
 
 
-  rectangle  dst_rect(dst_pt,dst.get_width(),dst.get_height());
+  auto  src_pixptr_base = &src.get_const_pixel(src_rect.x,src_rect.y);
+  auto  dst_pixptr_base = &dst.get_pixel(        dst_pt.x,  dst_pt.y);
 
-  transform(src_rect,dst_rect);
+  int  src_pixptr_add_amount =               1;
+  int  src_w                 = src.get_width();
 
-    if(src_rect.w)
+    if(does_reverse_vertically)
     {
-        if(does_reverse_vertically)
-        {
-            if(does_reverse_horizontally)
-            {
-              int  dst_x = dst_rect.x+src_rect.w-1;
-              int  dst_y = dst_rect.y+src_rect.h-1;
+      src_pixptr_base += (src_rect.w-1);
 
-                for(int  y = 0;  y < src_rect.h;  y += 1){
-                for(int  x = 0;  x < src_rect.w;  x += 1){
-                  auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
-
-                    if(!layer || pix.color)
-                    {
-                      dst.set_pixel(pix,dst_x-x,dst_y-y);
-                    }
-                }}
-            }
-
-          else
-            {
-              int  dst_x = dst_rect.x+src_rect.w-1;
-
-                for(int  y = 0;  y < src_rect.h;  y += 1){
-                for(int  x = 0;  x < src_rect.w;  x += 1){
-                  auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
-
-                    if(!layer || pix.color)
-                    {
-                      dst.set_pixel(pix,dst_x-x,dst_rect.y+y);
-                    }
-                }}
-            }
-        }
-
-      else
-        if(does_reverse_horizontally)
-        {
-          int  dst_y = dst_rect.y+src_rect.h-1;
-
-            for(int  y = 0;  y < src_rect.h;  y += 1){
-            for(int  x = 0;  x < src_rect.w;  x += 1){
-              auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
-
-                if(!layer || pix.color)
-                {
-                  dst.set_pixel(pix,dst_rect.x+x,dst_y-y);
-                }
-            }}
-        }
-
-      else
-        {
-            for(int  y = 0;  y < src_rect.h;  y += 1){
-            for(int  x = 0;  x < src_rect.w;  x += 1){
-              auto  pix = src.get_const_pixel(src_rect.x+x,src_rect.y+y);
-
-                if(!layer || pix.color)
-                {
-                  dst.set_pixel(pix,dst_rect.x+x,dst_rect.y+y);
-                }
-            }}
-        }
+      src_pixptr_add_amount = -src_pixptr_add_amount;
     }
 
 
-    if(result)
+    if(does_reverse_horizontally)
     {
-      *result = rectangle(dst_rect.x,dst_rect.y,src_rect.w,src_rect.h);
+      src_pixptr_base += src_w*(src_rect.h-1);
+
+      src_w = -src_w;
+    }
+
+
+  int  dst_w = dst.get_width() ;
+  int  dst_h = dst.get_height();
+
+    for(int  y = 0;  y < src_rect.h;  ++y)
+    {
+      int  dst_y = dst_pt.y+y;
+
+      auto  dst_pixptr = dst_pixptr_base         ;
+                         dst_pixptr_base += dst_w;
+
+      auto  src_pixptr = src_pixptr_base         ;
+                         src_pixptr_base += src_w;
+
+        if((dst_y >=    0) &&
+           (dst_y < dst_h))
+        {
+            for(int  x = 0;  x < src_rect.w;  ++x)
+            {
+              int  dst_x = dst_pt.x+x;
+
+                if((dst_x >=    0) &&
+                   (dst_x < dst_w))
+                {
+                  auto  pix = *src_pixptr;
+
+                    if(!layer || pix.color)
+                    {
+                      *dst_pixptr = pix;
+                    }
+                }
+
+
+              dst_pixptr += 1;
+              src_pixptr += src_pixptr_add_amount;
+            }
+        }
     }
 }
 }
 
 
 void
-paste(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt, rectangle*  result) noexcept
+paste(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt) noexcept
 {
-  transfer(src,src_rect,dst,dst_pt,result,false);
+  transfer(src,src_rect,dst,dst_pt,false);
 }
 
 
 void
-paste(const image&  src, rectangle  src_rect, image_cursor  dst, rectangle*  result) noexcept
+paste(const image&  src, rectangle  src_rect, image_cursor  dst) noexcept
 {
-  transfer(src,src_rect,dst.get_image(),dst.get_offset(),result,false);
+  transfer(src,src_rect,dst.get_image(),dst.get_offset(),false);
 }
 
 
 void
-overlay(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt, rectangle*  result) noexcept
+overlay(const image&  src, rectangle  src_rect, image&  dst, point  dst_pt) noexcept
 {
-  transfer(src,src_rect,dst,dst_pt,result,true);
+  transfer(src,src_rect,dst,dst_pt,true);
 }
 
 
 void
-overlay(const image&  src, rectangle  src_rect, image_cursor  dst, rectangle*  result) noexcept
+overlay(const image&  src, rectangle  src_rect, image_cursor  dst) noexcept
 {
-  transfer(src,src_rect,dst.get_image(),dst.get_offset(),result,true);
+  transfer(src,src_rect,dst.get_image(),dst.get_offset(),true);
 }
 
 

@@ -29,9 +29,9 @@ set_sleep_timer(uint32_t  ms) noexcept
 
 void
 context_stack::
-touch(control_device&  ctrl) noexcept
+touch(uint32_t  time) noexcept
 {
-  m_current_time = ctrl.time;
+  m_current_time = time;
 
     if(m_sleeping)
     {
@@ -50,7 +50,7 @@ START:
     {
         if(m_top->is_stepping())
         {
-          m_top->step(ctrl);
+          m_top->step();
         }
 
       else

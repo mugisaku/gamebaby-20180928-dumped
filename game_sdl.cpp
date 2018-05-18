@@ -16,6 +16,13 @@ constexpr int  screen_width  = 240;
 constexpr int  screen_height = 240;
 
 
+uint32_t  g_time = 0;
+
+keyboard  g_previous_input;
+keyboard  g_modified_input;
+keyboard           g_input;
+
+
 namespace characters{
 
 
@@ -40,6 +47,7 @@ character
 {
   environment  m_environment;
 
+  real_point  m_previous_point;
   real_point  m_point;
   real_point  m_vector;
 
@@ -47,11 +55,17 @@ character
 
   direction  m_direction=direction::right;
 
-  uint32_t  m_last_update_time=0;
+  direction  m_running_direction=direction::unknown;
+
+  uint32_t  m_running_limit_time=0;
+  uint32_t  m_last_animated_time=0;
+
+  bool  m_ready_to_run=false;
 
   enum class action{
     stand,
     walk,
+    run,
     squat,
   } m_action=action::stand;
 
@@ -61,6 +75,58 @@ character
 
   } m_state=state::floating;
 
+  void  move(direction  d, double  walk_value, double  run_value) noexcept
+  {
+      if(is_landing())
+      {
+          if(does_walk())
+          {
+            m_vector.x = walk_value;
+          }
+
+        else
+          if(does_run())
+          {
+            m_vector.x = run_value;
+          }
+
+        else
+          if(m_ready_to_run)
+          {
+              if((g_time < m_running_limit_time) &&
+                 (m_running_direction == d))
+              {
+                do_run();
+              }
+
+            else
+              {
+                m_ready_to_run = false;
+              }
+          }
+
+        else
+          {
+            do_walk();
+          }
+       }
+
+
+    m_direction = d;
+  }
+
+  void  ready_to_run(direction  d) noexcept
+  {
+      if(is_landing() && !m_ready_to_run)
+      {
+        m_running_direction = d;
+
+        m_running_limit_time = g_time+200;
+
+        m_ready_to_run = true;
+      }
+  }
+
 public:
   character() noexcept
   {
@@ -69,70 +135,58 @@ public:
     m_environment.m_gravitation = 0.2;
   }
 
-  void  update(const control_device&  ctrl) noexcept
+  bool  does_stand()  const noexcept{return m_action == action::stand;}
+  bool  does_walk()   const noexcept{return m_action == action::walk;}
+  bool  does_run()    const noexcept{return m_action == action::run;}
+  bool  does_squat()  const noexcept{return m_action == action::squat;}
+
+  void  do_stand() noexcept{m_action = action::stand;}
+  void  do_walk()  noexcept{m_action = action::walk;}
+  void  do_run()   noexcept{m_action = action::run;}
+  void  do_squat() noexcept{m_action = action::squat;}
+
+  bool  is_landing()  const noexcept{return m_state == state::landing;}
+  bool  is_floating() const noexcept{return m_state == state::floating;}
+
+  void  be_landing()  noexcept{m_state = state::landing;}
+  void  be_floating() noexcept{m_state = state::floating;}
+
+  void  update() noexcept
   {
-    auto&  kbd = ctrl.keyboard;
+          if(g_input.test_right_button()         ){        move(direction::right,2,4 );}
+     else if(g_modified_input.test_right_button()){ready_to_run(direction::right     );}
+     else if(g_input.test_left_button()          ){        move(direction::left,-2,-4);}
+     else if(g_modified_input.test_left_button() ){ready_to_run(direction::left      );}
+     else {do_stand();}
 
-       if(kbd.right_button)
+
+       if(g_input.test_down_button())
        {
-           if(m_state == state::landing)
-           {
-             m_vector.x = 1;
-
-             m_action = action::walk;
-           }
-
-
-         m_direction = direction::right;
-       }
-
-     else
-       if(kbd.left_button)
-       {
-           if(m_state == state::landing)
-           {
-             m_vector.x = -1;
-
-             m_action = action::walk;
-           }
-
-
-         m_direction = direction::left;
-       }
-
-     else
-       {
-         m_action = action::stand;
-       }
-
-
-       if(kbd.down_button)
-       {
-           if(m_state == state::landing)
+           if(is_landing())
            {
              m_vector.x = 0;
 
-             m_action = action::squat;
+             do_squat();
            }
        }
 
      else
-       if(kbd.up_button)
+       if(g_input.test_up_button())
        {
-           if(m_state == state::landing)
+           if(is_landing())
            {
              m_vector.y -= 4;
 
-             m_action = action::stand;
+             do_stand();
 
-             m_state = state::floating;
+             be_floating();
            }
        }
 
 
-       if(ctrl.time >= (m_last_update_time+160))
+       if(g_time >= (m_last_animated_time+160))
        {
-         m_last_update_time = ctrl.time;
+         m_last_animated_time = g_time;
 
            if(++m_phase > 3)
            {
@@ -141,27 +195,53 @@ public:
        }
 
 
-       if(m_state == state::floating)
+       if(is_floating())
        {
          m_vector.y += m_environment.m_gravitation;
        }
 
 
-     m_point += m_vector;
+     m_previous_point = m_point            ;
+                        m_point += m_vector;
 
-       if(m_state == state::landing)
+       if(is_landing())
        {
          m_vector.x /= 2;
        }
 
 
-       if(m_point.y > screen_height)
+       if(m_previous_point.x > m_point.x)
        {
-         m_point.y = screen_height;
+           if(m_point.x < 0)
+           {
+             m_point.x = 0;
 
-         m_state = state::landing;
+             m_vector.x = 0;
+           }
+       }
 
-         m_vector.y = 0;
+     else
+       if(m_previous_point.x < m_point.x)
+       {
+           if(m_point.x > screen_width)
+           {
+             m_point.x = screen_width;
+
+             m_vector.x = 0;
+           }
+       }
+
+
+       if(m_previous_point.y < m_point.y)
+       {
+           if(m_point.y > (screen_height/2))
+           {
+             m_point.y = (screen_height/2);
+
+             m_state = state::landing;
+
+             m_vector.y = 0;
+           }
        }
   }
 
@@ -177,9 +257,11 @@ public:
       switch(m_action)
       {
     case(action::stand):
-        spr.src_point = point( 0,0);
+        spr.src_point = (m_state == state::landing)? point( 0,0)
+                       :                             point(24,0);
         break;
     case(action::walk):
+    case(action::run):
         spr.src_point = (m_phase == 0)? point( 0,0)
                        :(m_phase == 1)? point(24,0)
                        :(m_phase == 2)? point( 0,0)
@@ -233,14 +315,14 @@ class
 player_context: public context
 {
 public:
-  void  step(const control_device&  ctrl) noexcept override;
+  void  step() noexcept override;
 
 } ctx;
 
 
 void
 player_context::
-step(const control_device&  ctrl) noexcept
+step() noexcept
 {
     switch(get_pc())
     {
@@ -262,11 +344,18 @@ main_loop() noexcept
 {
   auto&  condev = sdl::update_control_device();
 
-  stack.touch(condev);
+  g_previous_input = g_input                  ;
+                     g_input = condev.keyboard;
+
+  g_modified_input = g_previous_input^g_input;
+
+  g_time = condev.time;
+
+  stack.touch(condev.time);
 
   garden.clear();
 
-  character.update(condev);
+  character.update();
 
   garden.emplace_back(character.make_sprite());
 
@@ -289,36 +378,33 @@ int
 main(int  argc, char**  argv)
 {
 #ifdef EMSCRIPTEN
-  set_caption("mkanigra - " __DATE__);
+  set_caption("game - " __DATE__);
   set_description("<pre>"
-                  "*マウスの左ボタンで、任意色を置き、\n"
-                  " 右ボタンで透明色を置く\n"
-                  "*PNGファイルをドラッグ・アンド・ドロップで読み込む"
+                  "*キーボードで操作\n"
+                  "*左右で移動、上でジャンプ、下でしゃがむ\n"
                   "</pre>"
   );
 #endif
 
 
-#ifdef EMSCRIPTEN
-  emscripten_set_main_loop(main_loop,0,false);
-#else
   sdl::init(screen_width,screen_height);
 
-  characters::image.load_from_png("../bin/__anigra.png");
+  characters::image.load_from_png("__resources/__anigra.png");
 
   final_image = sdl::make_screen_image();
 
   stack.push(ctx);
 
+
+#ifdef EMSCRIPTEN
+  emscripten_set_main_loop(main_loop,0,false);
+#else
     for(;;)
     {
       main_loop();
 
       SDL_Delay(20);
     }
-
-
-  sdl::quit();
 #endif
 
 

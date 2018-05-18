@@ -23,8 +23,8 @@ get_node() noexcept
 {
     if(m_trash)
     {
-      auto  nd = m_trash      ;
-                 m_trash->next;
+      auto  nd = m_trash                ;
+                 m_trash = m_trash->next;
 
       return nd;
     }

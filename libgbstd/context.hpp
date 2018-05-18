@@ -3,7 +3,6 @@
 
 
 #include"libgbstd/string.hpp"
-#include"libgbstd/control_device.hpp"
 #include<cstdint>
 
 
@@ -63,7 +62,7 @@ public:
 
   virtual void  do_when_be_popped() noexcept{}
 
-  virtual void  step(const control_device&  ctrl) noexcept{}
+  virtual void  step() noexcept{}
 
 };
 
@@ -85,7 +84,7 @@ public:
 
   void  set_sleep_timer(uint32_t  ms) noexcept;
 
-  void  touch(control_device&  ctrl) noexcept;
+  void  touch(uint32_t  time) noexcept;
 
 };
 

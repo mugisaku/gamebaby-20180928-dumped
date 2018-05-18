@@ -39,7 +39,8 @@ if(EMSC)
   set(CMAKE_CXX_COMPILER  em++)
   set(CMAKE_CXX_FLAGS "-Werror -std=c++1z -Wno-switch -Os")
   set(CMAKE_CXX_FLAGS_DEBUG "")
-  set(CMAKE_CXX_LINK_FLAGS  "${CMAKE_CXX_LINK_FLAGS} --shell-file ../shell.html -s USE_SDL=2")
+  set(EMSC_PORTS "-s USE_SDL=2 -s USE_LIBPNG=1")
+  set(CMAKE_CXX_LINK_FLAGS  "${CMAKE_CXX_LINK_FLAGS} --shell-file ../shell.html --preload-file __resources/__anigra.png ${EMSC_PORTS}")
 endif()
 
 

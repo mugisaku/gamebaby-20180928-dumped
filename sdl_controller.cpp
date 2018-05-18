@@ -57,29 +57,29 @@ namespace{
 
 
 void
-process_key_down(const SDL_KeyboardEvent&  evt, gbstd::keyboard&  kbd, bool&  flag) noexcept
+process_key_down(const SDL_KeyboardEvent&  evt, gbstd::keyboard&  kbd) noexcept
 {
   if(!evt.repeat)
   {
       switch(evt.keysym.sym)
       {
-    case(SDLK_UP   ): kbd.up_button.press(flag);break;
-    case(SDLK_LEFT ): kbd.left_button.press(flag);break;
-    case(SDLK_RIGHT): kbd.right_button.press(flag);break;
-    case(SDLK_DOWN ): kbd.down_button.press(flag);break;
+    case(SDLK_UP   ): kbd.set_up_button();break;
+    case(SDLK_LEFT ): kbd.set_left_button();break;
+    case(SDLK_RIGHT): kbd.set_right_button();break;
+    case(SDLK_DOWN ): kbd.set_down_button();break;
 
-    case(SDLK_SPACE ): kbd.start_button.press(flag);break;
+    case(SDLK_SPACE ): kbd.set_start_button();break;
     case(SDLK_LSHIFT):
-    case(SDLK_RSHIFT): kbd.shift_button.press(flag);break;
+    case(SDLK_RSHIFT): kbd.set_shift_button();break;
 
     case(SDLK_RETURN):
     case(SDLK_z):
-        kbd.p_button.press(flag);
+        kbd.set_p_button();
         break;
     case(SDLK_RCTRL):
     case(SDLK_LCTRL):
     case(SDLK_x    ):
-        kbd.n_button.press(flag);
+        kbd.set_n_button();
         break;
     case(SDLK_F1):
 //        SDL_SaveBMP(surface,"__SCREEN.bmp");
@@ -90,27 +90,27 @@ process_key_down(const SDL_KeyboardEvent&  evt, gbstd::keyboard&  kbd, bool&  fl
 
 
 void
-process_key_up(const SDL_KeyboardEvent&  evt, gbstd::keyboard&  kbd, bool&  flag) noexcept
+process_key_up(const SDL_KeyboardEvent&  evt, gbstd::keyboard&  kbd) noexcept
 {
     switch(evt.keysym.sym)
     {
-  case(SDLK_UP   ): kbd.up_button.release(flag);break;
-  case(SDLK_LEFT ): kbd.left_button.release(flag);break;
-  case(SDLK_RIGHT): kbd.right_button.release(flag);break;
-  case(SDLK_DOWN ): kbd.down_button.release(flag);break;
+  case(SDLK_UP   ): kbd.unset_up_button();break;
+  case(SDLK_LEFT ): kbd.unset_left_button();break;
+  case(SDLK_RIGHT): kbd.unset_right_button();break;
+  case(SDLK_DOWN ): kbd.unset_down_button();break;
 
-  case(SDLK_SPACE ): kbd.start_button.release(flag);break;
+  case(SDLK_SPACE ): kbd.unset_start_button();break;
   case(SDLK_LSHIFT):
-  case(SDLK_RSHIFT): kbd.shift_button.release(flag);break;
+  case(SDLK_RSHIFT): kbd.unset_shift_button();break;
 
   case(SDLK_RETURN):
   case(SDLK_z     ):
-      kbd.p_button.release(flag);
+      kbd.unset_p_button();
       break;
   case(SDLK_RCTRL):
   case(SDLK_LCTRL):
   case(SDLK_x    ):
-      kbd.n_button.release(flag);
+      kbd.unset_n_button();
       break;
     }
 }
@@ -230,24 +230,22 @@ update_control_device() noexcept
 
   static SDL_Event  evt;
 
-  dev.time                       = SDL_GetTicks();
-  dev.needed_to_redraw           = false;
-  dev.mouse_state_modify_flag    = false;
-  dev.keyboard_state_modify_flag = false;
+  dev.time                    = SDL_GetTicks();
+  dev.needed_to_redraw        = false;
+  dev.mouse_state_modify_flag = false;
 
 #ifdef EMSCRIPTEN
   try_read_dropped_file(dev);
 #endif
 
-  auto&  mf = dev.mouse_state_modify_flag   ;
-  auto&  kf = dev.keyboard_state_modify_flag;
+  auto&  mf = dev.mouse_state_modify_flag;
 
     while(SDL_PollEvent(&evt))
     {
         switch(evt.type)
         {
-      case(SDL_KEYDOWN): process_key_down(evt.key,dev.keyboard,kf);break;
-      case(SDL_KEYUP  ): process_key_up(  evt.key,dev.keyboard,kf);break;
+      case(SDL_KEYDOWN): process_key_down(evt.key,dev.keyboard);break;
+      case(SDL_KEYUP  ): process_key_up(  evt.key,dev.keyboard);break;
       case(SDL_MOUSEBUTTONUP  ): process_mouse_button(evt.button,dev.mouse,mf);break;
       case(SDL_MOUSEBUTTONDOWN): process_mouse_button(evt.button,dev.mouse,mf);break;
       case(SDL_MOUSEMOTION): process_mouse_motion(evt.motion,dev.mouse,mf);break;

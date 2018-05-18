@@ -182,10 +182,10 @@ public:
 
 
 void  transform(rectangle&  src_rect, rectangle&  dst_rect) noexcept;
-void    paste(const image&  src, rectangle  src_rect, image&        dst, point  dst_pt, rectangle*  result=nullptr) noexcept;
-void    paste(const image&  src, rectangle  src_rect, image_cursor  dst,                rectangle*  result=nullptr) noexcept;
-void  overlay(const image&  src, rectangle  src_rect, image&        dst, point  dst_pt, rectangle*  result=nullptr) noexcept;
-void  overlay(const image&  src, rectangle  src_rect, image_cursor  dst,                rectangle*  result=nullptr) noexcept;
+void    paste(const image&  src, rectangle  src_rect, image&        dst, point  dst_pt) noexcept;
+void    paste(const image&  src, rectangle  src_rect, image_cursor  dst               ) noexcept;
+void  overlay(const image&  src, rectangle  src_rect, image&        dst, point  dst_pt) noexcept;
+void  overlay(const image&  src, rectangle  src_rect, image_cursor  dst               ) noexcept;
 
 
 

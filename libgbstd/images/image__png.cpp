@@ -1,6 +1,3 @@
-#ifndef EMSCRIPTEN
-
-
 #include"libgbstd/image.hpp"
 #include"libgbstd/string.hpp"
 #include<libpng/png.h>
@@ -118,11 +115,6 @@ save_to_png(const char*  filepath) const noexcept
 
 
 }}
-
-
-
-
-#endif
 
 
 

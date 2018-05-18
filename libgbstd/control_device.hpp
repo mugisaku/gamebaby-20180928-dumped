@@ -44,19 +44,68 @@ public:
 };
 
 
-struct
+class
 keyboard
 {
-  button     up_button;
-  button   left_button;
-  button  right_button;
-  button   down_button;
+  uint32_t  m_state;
 
-  button  p_button;
-  button  n_button;
+  struct flags{
+    static constexpr int     up = 0x01;
+    static constexpr int   left = 0x02;
+    static constexpr int  right = 0x04;
+    static constexpr int   down = 0x08;
+    static constexpr int      p = 0x10;
+    static constexpr int      n = 0x20;
+    static constexpr int  shift = 0x40;
+    static constexpr int  start = 0x80;
+  };
 
-  button  shift_button;
-  button  start_button;
+  bool   test(int  flag) const noexcept{return m_state&flag;}
+
+  void    set(int  flag) noexcept{m_state |=  flag;}
+  void  unset(int  flag) noexcept{m_state &= ~flag;}
+
+public:
+  keyboard(uint32_t  state=0) noexcept: m_state(state){}
+
+  keyboard  operator^(const keyboard&  rhs) const noexcept{return keyboard(m_state^rhs.m_state);}
+
+  uint32_t  get_code() noexcept{return m_state;}
+
+  bool     test_up_button() const noexcept{return test(flags::up);}
+  bool   test_left_button() const noexcept{return test(flags::left);}
+  bool  test_right_button() const noexcept{return test(flags::right);}
+  bool   test_down_button() const noexcept{return test(flags::down);}
+
+  bool  test_p_button() const noexcept{return test(flags::p);}
+  bool  test_n_button() const noexcept{return test(flags::n);}
+
+  bool  test_shift_button() const noexcept{return test(flags::shift);}
+  bool  test_start_button() const noexcept{return test(flags::start);}
+
+
+  void     set_up_button() noexcept{set(flags::up);}
+  void   set_left_button() noexcept{set(flags::left);}
+  void  set_right_button() noexcept{set(flags::right);}
+  void   set_down_button() noexcept{set(flags::down);}
+
+  void  set_p_button() noexcept{set(flags::p);}
+  void  set_n_button() noexcept{set(flags::n);}
+
+  void  set_shift_button() noexcept{set(flags::shift);}
+  void  set_start_button() noexcept{set(flags::start);}
+
+
+  void     unset_up_button() noexcept{unset(flags::up);}
+  void   unset_left_button() noexcept{unset(flags::left);}
+  void  unset_right_button() noexcept{unset(flags::right);}
+  void   unset_down_button() noexcept{unset(flags::down);}
+
+  void  unset_p_button() noexcept{unset(flags::p);}
+  void  unset_n_button() noexcept{unset(flags::n);}
+
+  void  unset_shift_button() noexcept{unset(flags::shift);}
+  void  unset_start_button() noexcept{unset(flags::start);}
 
 };
 
@@ -86,8 +135,7 @@ control_device
   control_devices::mouse        mouse;
   control_devices::keyboard  keyboard;
 
-  bool     mouse_state_modify_flag;
-  bool  keyboard_state_modify_flag;
+  bool  mouse_state_modify_flag;
 
   std::vector<uint8_t>  dropped_file_content;
 
@@ -102,7 +150,6 @@ control_device
 using control_devices::control_device;
 using control_devices::mouse;
 using control_devices::keyboard;
-using   key_button = control_devices::button;
 using mouse_button = control_devices::button;
 
 
