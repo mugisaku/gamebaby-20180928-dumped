@@ -15,8 +15,12 @@ set(SOURCES
   texts/character_queue.cpp
   texts/string_form.cpp
   tasks/task_manager.cpp
-  contexts/context.cpp
-  contexts/context_stack.cpp
+  programs/value.cpp
+  programs/context.cpp
+  programs/program.cpp
+  spaces/object.cpp
+  spaces/body.cpp
+  spaces/space.cpp
   widgets/widget.cpp
   widgets/container.cpp
   widgets/node.cpp

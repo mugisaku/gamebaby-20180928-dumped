@@ -1,7 +1,9 @@
-#include"libgbstd/context.hpp"
+#include"libgbstd/program.hpp"
 #include"libgbstd/task.hpp"
+#include"libgbstd/space.hpp"
 #include"libgbstd/direction.hpp"
 #include"sdl.hpp"
+#include<cmath>
 
 
 #ifdef EMSCRIPTEN
@@ -23,6 +25,14 @@ keyboard  g_modified_input;
 keyboard           g_input;
 
 
+images::image
+title_image;
+
+
+spaces::space
+g_space;
+
+
 namespace characters{
 
 
@@ -30,26 +40,14 @@ images::image
 image;
 
 
-struct
-environment
-{
-  double  m_gravitation;//重力
-
-  double  m_fluid_viscosity;//流体粘土
-
-  real_point  m_fluid_vector;//流体方向
-
-};
-
-
 class
-character
+character: public spaces::object
 {
-  environment  m_environment;
+  const images::image*  m_image=nullptr;
 
-  real_point  m_previous_point;
-  real_point  m_point;
-  real_point  m_vector;
+  rectangle  m_image_rectangle;
+
+  point  m_rendering_offset;
 
   int  m_phase=0;
 
@@ -69,25 +67,25 @@ character
     squat,
   } m_action=action::stand;
 
-  enum class state{
-    landing,
-    floating,
-
-  } m_state=state::floating;
-
   void  move(direction  d, double  walk_value, double  run_value) noexcept
   {
       if(is_landing())
       {
           if(does_walk())
           {
-            m_vector.x = walk_value;
+              if(std::abs(m_kinetic_energy.x) < 2)
+              {
+                m_kinetic_energy.x += walk_value;
+              }
           }
 
         else
           if(does_run())
           {
-            m_vector.x = run_value;
+              if(std::abs(m_kinetic_energy.x) < 4)
+              {
+                m_kinetic_energy.x += run_value;
+              }
           }
 
         else
@@ -128,11 +126,16 @@ character
   }
 
 public:
-  character() noexcept
+  character() noexcept:
+  object(rectangle(screen_width/2,0,24,48))
   {
-    m_point.x = screen_width/2;
+    g_space.get_environment().set_gravitation(0.2);
+    g_space.get_environment().set_fluid_kinetic_energy(real_point(0.0,0.0));
+//    g_space.get_environment().set_fluid_viscosity(0.08);
 
-    m_environment.m_gravitation = 0.2;
+    m_rendering_offset = point(-12,-48);
+
+    get_body().set_offset(point(-12,-48));
   }
 
   bool  does_stand()  const noexcept{return m_action == action::stand;}
@@ -145,17 +148,11 @@ public:
   void  do_run()   noexcept{m_action = action::run;}
   void  do_squat() noexcept{m_action = action::squat;}
 
-  bool  is_landing()  const noexcept{return m_state == state::landing;}
-  bool  is_floating() const noexcept{return m_state == state::floating;}
-
-  void  be_landing()  noexcept{m_state = state::landing;}
-  void  be_floating() noexcept{m_state = state::floating;}
-
-  void  update() noexcept
+  void  update() noexcept override
   {
-          if(g_input.test_right_button()         ){        move(direction::right,2,4 );}
+          if(g_input.test_right_button()         ){        move(direction::right,0.1,0.02 );}
      else if(g_modified_input.test_right_button()){ready_to_run(direction::right     );}
-     else if(g_input.test_left_button()          ){        move(direction::left,-2,-4);}
+     else if(g_input.test_left_button()          ){        move(direction::left,-0.1,-0.2);}
      else if(g_modified_input.test_left_button() ){ready_to_run(direction::left      );}
      else {do_stand();}
 
@@ -164,7 +161,7 @@ public:
        {
            if(is_landing())
            {
-             m_vector.x = 0;
+             m_kinetic_energy.x = 0;
 
              do_squat();
            }
@@ -175,7 +172,7 @@ public:
        {
            if(is_landing())
            {
-             m_vector.y -= 4;
+             m_kinetic_energy.y -= 5;
 
              do_stand();
 
@@ -195,93 +192,53 @@ public:
        }
 
 
-       if(is_floating())
-       {
-         m_vector.y += m_environment.m_gravitation;
-       }
-
-
-     m_previous_point = m_point            ;
-                        m_point += m_vector;
-
-       if(is_landing())
-       {
-         m_vector.x /= 2;
-       }
-
-
-       if(m_previous_point.x > m_point.x)
-       {
-           if(m_point.x < 0)
-           {
-             m_point.x = 0;
-
-             m_vector.x = 0;
-           }
-       }
-
-     else
-       if(m_previous_point.x < m_point.x)
-       {
-           if(m_point.x > screen_width)
-           {
-             m_point.x = screen_width;
-
-             m_vector.x = 0;
-           }
-       }
-
-
-       if(m_previous_point.y < m_point.y)
-       {
-           if(m_point.y > (screen_height/2))
-           {
-             m_point.y = (screen_height/2);
-
-             m_state = state::landing;
-
-             m_vector.y = 0;
-           }
-       }
+     object::update();
   }
 
-  sprite  make_sprite() const noexcept
+  void  render(images::image&  dst) const noexcept override
   {
     sprite  spr;
 
-    spr.image = &image;
+    spr.src_image = &characters::image;
 
-    spr.width  = 24;
-    spr.height = 48;
+    auto&  src_point = static_cast<point&>(spr.src_rectangle);
+
+    spr.src_rectangle.w = 24;
+    spr.src_rectangle.h = 48;
+
+    spr.dst_point = get_const_body().get_base_point()+m_rendering_offset;
 
       switch(m_action)
       {
     case(action::stand):
-        spr.src_point = (m_state == state::landing)? point( 0,0)
-                       :                             point(24,0);
+        src_point = (m_state == state::landing)? point( 0,0)
+                   :                             point(24,0);
         break;
     case(action::walk):
     case(action::run):
-        spr.src_point = (m_phase == 0)? point( 0,0)
-                       :(m_phase == 1)? point(24,0)
-                       :(m_phase == 2)? point( 0,0)
-                       :                point(48,0);
+        src_point = (m_phase == 0)? point( 0,0)
+                   :(m_phase == 1)? point(24,0)
+                   :(m_phase == 2)? point( 0,0)
+                   :                point(48,0);
         break;
     case(action::squat):
-        spr.src_point = point(24*3,0);
+        src_point = point(24*3,0);
         break;
       }
 
 
       if(m_direction == direction::left)
       {
-        spr.width = -spr.width;
+        spr.src_rectangle.w = -spr.src_rectangle.w;
       }
 
 
-    spr.dst_point = m_point-point(24/2,48);
+    spr.render(dst);
 
-    return spr;
+
+    auto  rect = get_const_body().get_rectangle();
+
+    dst.draw_rectangle_safely(colors::red,rect.x,rect.y,rect.w,rect.h);
   }
 
 };
@@ -303,16 +260,12 @@ images::image
 final_image;
 
 
-std::vector<sprite>
-garden;
-
-
-contexts::context_stack
-stack;
+programs::program
+program;
 
 
 class
-player_context: public context
+root_context: public programs::context
 {
 public:
   void  step() noexcept override;
@@ -321,16 +274,87 @@ public:
 
 
 void
-player_context::
+root_context::
 step() noexcept
 {
+  static bool  pausing;
+
     switch(get_pc())
     {
   case(0):
+      final_image.fill();
+
+      g_space.update();
+
+      g_space.render(final_image);
+
+      sdl::update_screen(final_image);
+
       add_pc(1);
       break;
   case(1):
-      
+        if(pausing)
+        {
+            if(g_modified_input.test_start_button() &&
+               g_input.test_start_button())
+            {
+              pausing = false;
+            }
+        }
+
+      else
+        {
+            if(g_modified_input.test_start_button() &&
+                        g_input.test_start_button())
+            {
+              pausing = true;
+            }
+
+          else
+            {
+              final_image.fill();
+
+              g_space.update();
+
+              g_space.detect_ds_collision([](spaces::object&  a, spaces::object&  b){
+                  if(spaces::body::test_collision(a.get_body(),b.get_body()))
+                  {
+                    auto&     fixed_obj = a.is_fixed()? a:b;
+                    auto&  nonfixed_obj = a.is_fixed()? b:a;
+
+                      if(nonfixed_obj.get_body().is_moved_to_down())
+                      {
+                        nonfixed_obj.get_body().set_bottom_position(fixed_obj.get_body().get_top_position());
+
+                        nonfixed_obj.be_landing();
+                      }
+
+                    else
+                      if(nonfixed_obj.get_body().is_moved_to_left())
+                      {
+                        nonfixed_obj.get_body().set_left_position(fixed_obj.get_body().get_right_position());
+
+                        nonfixed_obj.set_x_kinetic_energy(0);
+                      }
+
+                    else
+                      if(nonfixed_obj.get_body().is_moved_to_right())
+                      {
+                        nonfixed_obj.get_body().set_right_position(fixed_obj.get_body().get_left_position());
+
+                        nonfixed_obj.set_x_kinetic_energy(0);
+                      }
+                  }
+              });
+
+
+              g_space.render(final_image);
+
+              sdl::update_screen(final_image);
+            }
+        }
+
+character.print();
       break;
   case(2):
       add_pc(-1);
@@ -351,23 +375,7 @@ main_loop() noexcept
 
   g_time = condev.time;
 
-  stack.touch(condev.time);
-
-  garden.clear();
-
-  character.update();
-
-  garden.emplace_back(character.make_sprite());
-
-  final_image.fill();
-
-    for(auto&  s: garden)
-    {
-      s.render(final_image);
-    }
-
-
-  sdl::update_screen(final_image);
+  program.touch(condev.time);
 }
 
 
@@ -381,7 +389,10 @@ main(int  argc, char**  argv)
   set_caption("game - " __DATE__);
   set_description("<pre>"
                   "*キーボードで操作\n"
-                  "*左右で移動、上でジャンプ、下でしゃがむ\n"
+                  "*左右キーを押すと歩く。二回素早く押すと走る\n"
+                  "*上キーでジャンプ\n"
+                  "*下キーでしゃがむ\n"
+                  "*目的などは、まだ無い"
                   "</pre>"
   );
 #endif
@@ -390,10 +401,22 @@ main(int  argc, char**  argv)
   sdl::init(screen_width,screen_height);
 
   characters::image.load_from_png("__resources/__anigra.png");
+  title_image.load_from_png("__resources/title_ch.png");
 
   final_image = sdl::make_screen_image();
 
-  stack.push(ctx);
+  auto  o = new spaces::rectangle_object(rectangle(     0,  0, 16,100),colors::white);
+
+  o->be_fixed();
+
+  o->set_mark(1);
+
+  g_space.append_dynamical_object(character);
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(     0,100,240, 16),colors::white))->be_fixed());
+  g_space.append_statical_object(*o);
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(240-16,  0, 16,100),colors::white))->be_fixed());
+
+  program.push(ctx);
 
 
 #ifdef EMSCRIPTEN

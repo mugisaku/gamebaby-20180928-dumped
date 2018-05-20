@@ -7,8 +7,9 @@ namespace gbstd{
 namespace images{
 
 
+void
 line_maker::
-line_maker(int  x0, int  y0, int  x1, int  y1) noexcept
+reset(int  x0, int  y0, int  x1, int  y1) noexcept
 {
   constexpr int  base = (1<<shift_amount)/2;
 

@@ -249,7 +249,11 @@ line_maker
   int  m_y;
 
 public:
-  line_maker(int  x0=0, int  y0=0, int  x1=0, int  y1=0) noexcept;
+  line_maker(int  x0=0, int  y0=0, int  x1=0, int  y1=0) noexcept{reset(x0,y0,x1,y1);}
+  line_maker(point  a, point  b) noexcept{reset(a,b);}
+
+  void  reset(int  x0=0, int  y0=0, int  x1=0, int  y1=0) noexcept;
+  void  reset(point  a, point  b) noexcept{reset(a.x,a.y,b.x,b.y);}
 
   int  get_distance() const noexcept{return m_distance;}
 
@@ -264,21 +268,17 @@ public:
 struct
 sprite
 {
-  const images::image*  image=nullptr;
+  const images::image*  src_image=nullptr;
 
-  point  src_point;
+  rectangle  src_rectangle;
+
   point  dst_point;
-
-  int  width =0;
-  int  height=0;
 
   void  render(images::image&  dst) const noexcept
   {
-      if(image)
+      if(src_image)
       {
-        auto  src_rect = rectangle(src_point,width,height);
-
-        images::overlay(*image,src_rect,dst,dst_point);
+        images::overlay(*src_image,src_rectangle,dst,dst_point);
       }
   }
 

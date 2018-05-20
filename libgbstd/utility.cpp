@@ -43,6 +43,11 @@ make_string_from_file(const char*  filepath) noexcept
       fclose(f);
     }
 
+  else
+    {
+      printf("make_string_from_file error: %sは開けない\n",filepath);
+    }
+
 
   return std::move(s);
 }
