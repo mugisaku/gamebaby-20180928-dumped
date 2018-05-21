@@ -17,21 +17,19 @@ update() noexcept
 
     if(!is_fixed())
     {
-/*
       m_kinetic_energy.y += env.get_gravitation();
 
       m_kinetic_energy *= (1.0-env.get_fluid_viscosity());
 
       m_kinetic_energy += env.get_fluid_kinetic_energy();
 
-      m_body.add_base_point(m_kinetic_energy);
-*/
+      add_base_point(m_kinetic_energy);
     }
 
 
-    if(is_landing())
+//    if(is_landing())
     {
-//      m_kinetic_energy.x /= 1.2;
+      m_kinetic_energy.x /= 2;
     }
 }
 

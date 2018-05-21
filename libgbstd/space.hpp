@@ -179,11 +179,13 @@ public:
   object(rect),
   m_color(color){}
 
+  void  set_color(color  new_color) noexcept{m_color = new_color;}
+
   void  render(image&  dst) const noexcept override
   {
     auto  rect = get_rectangle();
 
-    dst.draw_rectangle_safely(m_color,rect.x,rect.y,rect.w,rect.h);
+    dst.fill_rectangle(m_color,rect.x,rect.y,rect.w,rect.h);
   }
 
 };

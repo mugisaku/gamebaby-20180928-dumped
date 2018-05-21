@@ -245,65 +245,54 @@ render(image&  dst) const noexcept
 void
 default_detection(object&  a, object&  b) noexcept
 {
+  auto&     fixed_obj = a.is_fixed()? a:b;
+  auto&  nonfixed_obj = a.is_fixed()? b:a;
+
     if(!spaces::area::test_collision(a.get_area(),b.get_area()))
     {
+      reinterpret_cast<rectangle_object*>(&fixed_obj)->set_color(colors::white);
+
       return;
     }
 
 
-  auto&     fixed_obj = a.is_fixed()? a:b;
-  auto&  nonfixed_obj = a.is_fixed()? b:a;
-
   auto&  target_area =    fixed_obj.get_area();
   auto&   saved_area = nonfixed_obj.get_saved_area();
+
+  reinterpret_cast<rectangle_object*>(&fixed_obj)->set_color(colors::red);
 
     if(saved_area.left >= target_area.right)
     {
       nonfixed_obj.set_left(target_area.right);
+
+      nonfixed_obj.set_x_kinetic_energy(0);
     }
 
   else
     if(saved_area.right <= target_area.left)
     {
       nonfixed_obj.set_right(target_area.left);
+
+      nonfixed_obj.set_x_kinetic_energy(0);
     }
 
   else
     if(saved_area.top >= target_area.bottom)
     {
       nonfixed_obj.set_top(target_area.bottom);
+
+      nonfixed_obj.set_y_kinetic_energy(0);
     }
 
   else
     if(saved_area.bottom <= target_area.top)
     {
       nonfixed_obj.set_bottom(target_area.top);
-    }
-
-
-/*
-    if(nonfixed_obj.is_moved_to_down())
-    {
 
       nonfixed_obj.set_y_kinetic_energy(0);
+
+      nonfixed_obj.be_landing();
     }
-
-  else
-    if(nonfixed_obj.is_moved_to_left())
-    {
-      nonfixed_obj.set_left(fixed_obj.get_area().right);
-
-      nonfixed_obj.set_x_kinetic_energy(0);
-    }
-
-  else
-    if(nonfixed_obj.is_moved_to_right())
-    {
-      nonfixed_obj.set_right(fixed_obj.get_area().left);
-
-      nonfixed_obj.set_x_kinetic_energy(0);
-    }
-*/
 }
 
 

@@ -69,17 +69,17 @@ character: public spaces::object
 
   void  move(direction  d, double  walk_value, double  run_value) noexcept
   {
-add_base_point(real_point(walk_value,0));
-return;
-      if(is_landing())
+//      if(is_landing())
       {
-          if(does_walk())
+//          if(does_walk())
           {
               if(std::abs(m_kinetic_energy.x) < 2)
               {
-//                m_kinetic_energy.x += walk_value;
+            do_walk();
+                m_kinetic_energy.x += walk_value;
               }
           }
+/*
 
         else
           if(does_run())
@@ -109,6 +109,7 @@ return;
           {
             do_walk();
           }
+*/
        }
 
 
@@ -152,19 +153,18 @@ public:
 
   void  update() noexcept override
   {
-          if(g_input.test_right_button()         ){        move(direction::right,1,0.02 );}
+          if(g_input.test_right_button()         ){        move(direction::right,1,2 );}
      else if(g_modified_input.test_right_button()){ready_to_run(direction::right     );}
-     else if(g_input.test_left_button()          ){        move(direction::left,-1,-0.2);}
+     else if(g_input.test_left_button()          ){        move(direction::left,-1,-2);}
      else if(g_modified_input.test_left_button() ){ready_to_run(direction::left      );}
      else {do_stand();}
 
 
        if(g_input.test_down_button())
        {
-add_base_point(real_point(0,1));
            if(is_landing())
            {
-//             m_kinetic_energy.x = 0;
+             m_kinetic_energy.x = 0;
 
              do_squat();
            }
@@ -173,10 +173,9 @@ add_base_point(real_point(0,1));
      else
        if(g_input.test_up_button())
        {
-add_base_point(real_point(0,-1));
            if(is_landing())
            {
-//             m_kinetic_energy.y -= 5;
+             m_kinetic_energy.y -= 5;
 
              do_stand();
 
@@ -361,10 +360,9 @@ main(int  argc, char**  argv)
   set_caption("game - " __DATE__);
   set_description("<pre>"
                   "*キーボードで操作\n"
-                  "*左右キーを押すと歩く。二回素早く押すと走る\n"
+                  "*左右キーを押すと歩く\n"
                   "*上キーでジャンプ\n"
                   "*下キーでしゃがむ\n"
-                  "*目的などは、まだ無い"
                   "</pre>"
   );
 #endif
@@ -377,22 +375,16 @@ main(int  argc, char**  argv)
 
   final_image = sdl::make_screen_image();
 
-/*
-  auto  o = new spaces::rectangle_object(rectangle(     0,  0, 16,150),colors::white);
-
-  o->be_fixed();
-
-  o->set_mark(1);
-*/
   character.set_base_point(real_point(30,120));
 
   g_space.append_dynamical_object(character);
-/*
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(     0,150,240, 16),colors::white))->be_fixed());
-  g_space.append_statical_object(*o);
+
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(     0,140,240, 16),colors::white))->be_fixed());
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(     0,  0, 16,150),colors::white))->be_fixed());
   g_space.append_statical_object((new spaces::rectangle_object(rectangle(240-16,  0, 16,150),colors::white))->be_fixed());
-*/
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(64,80,32,32),colors::white))->be_fixed());
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle( 80,100,32,32),colors::white))->be_fixed());
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(160, 80,32,32),colors::white))->be_fixed());
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(180, 60,32,32),colors::white))->be_fixed());
 
   program.push(ctx);
 
