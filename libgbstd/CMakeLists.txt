@@ -18,8 +18,9 @@ set(SOURCES
   programs/value.cpp
   programs/context.cpp
   programs/program.cpp
-  spaces/object.cpp
+  spaces/area.cpp
   spaces/body.cpp
+  spaces/object.cpp
   spaces/space.cpp
   widgets/widget.cpp
   widgets/container.cpp

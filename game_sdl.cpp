@@ -69,13 +69,15 @@ character: public spaces::object
 
   void  move(direction  d, double  walk_value, double  run_value) noexcept
   {
+add_base_point(real_point(walk_value,0));
+return;
       if(is_landing())
       {
           if(does_walk())
           {
               if(std::abs(m_kinetic_energy.x) < 2)
               {
-                m_kinetic_energy.x += walk_value;
+//                m_kinetic_energy.x += walk_value;
               }
           }
 
@@ -135,7 +137,7 @@ public:
 
     m_rendering_offset = point(-12,-48);
 
-    get_body().set_offset(point(-12,-48));
+    set_offset(point(-12,-48));
   }
 
   bool  does_stand()  const noexcept{return m_action == action::stand;}
@@ -150,18 +152,19 @@ public:
 
   void  update() noexcept override
   {
-          if(g_input.test_right_button()         ){        move(direction::right,0.1,0.02 );}
+          if(g_input.test_right_button()         ){        move(direction::right,1,0.02 );}
      else if(g_modified_input.test_right_button()){ready_to_run(direction::right     );}
-     else if(g_input.test_left_button()          ){        move(direction::left,-0.1,-0.2);}
+     else if(g_input.test_left_button()          ){        move(direction::left,-1,-0.2);}
      else if(g_modified_input.test_left_button() ){ready_to_run(direction::left      );}
      else {do_stand();}
 
 
        if(g_input.test_down_button())
        {
+add_base_point(real_point(0,1));
            if(is_landing())
            {
-             m_kinetic_energy.x = 0;
+//             m_kinetic_energy.x = 0;
 
              do_squat();
            }
@@ -170,9 +173,10 @@ public:
      else
        if(g_input.test_up_button())
        {
+add_base_point(real_point(0,-1));
            if(is_landing())
            {
-             m_kinetic_energy.y -= 5;
+//             m_kinetic_energy.y -= 5;
 
              do_stand();
 
@@ -206,7 +210,7 @@ public:
     spr.src_rectangle.w = 24;
     spr.src_rectangle.h = 48;
 
-    spr.dst_point = get_const_body().get_base_point()+m_rendering_offset;
+    spr.dst_point = get_base_point()+m_rendering_offset;
 
       switch(m_action)
       {
@@ -236,7 +240,7 @@ public:
     spr.render(dst);
 
 
-    auto  rect = get_const_body().get_rectangle();
+    auto  rect = get_rectangle();
 
     dst.draw_rectangle_safely(colors::red,rect.x,rect.y,rect.w,rect.h);
   }
@@ -316,45 +320,13 @@ step() noexcept
 
               g_space.update();
 
-              g_space.detect_ds_collision([](spaces::object&  a, spaces::object&  b){
-                  if(spaces::body::test_collision(a.get_body(),b.get_body()))
-                  {
-                    auto&     fixed_obj = a.is_fixed()? a:b;
-                    auto&  nonfixed_obj = a.is_fixed()? b:a;
-
-                      if(nonfixed_obj.get_body().is_moved_to_down())
-                      {
-                        nonfixed_obj.get_body().set_bottom_position(fixed_obj.get_body().get_top_position());
-
-                        nonfixed_obj.be_landing();
-                      }
-
-                    else
-                      if(nonfixed_obj.get_body().is_moved_to_left())
-                      {
-                        nonfixed_obj.get_body().set_left_position(fixed_obj.get_body().get_right_position());
-
-                        nonfixed_obj.set_x_kinetic_energy(0);
-                      }
-
-                    else
-                      if(nonfixed_obj.get_body().is_moved_to_right())
-                      {
-                        nonfixed_obj.get_body().set_right_position(fixed_obj.get_body().get_left_position());
-
-                        nonfixed_obj.set_x_kinetic_energy(0);
-                      }
-                  }
-              });
-
+              g_space.detect_ds_collision(spaces::default_detection);
 
               g_space.render(final_image);
 
               sdl::update_screen(final_image);
             }
         }
-
-character.print();
       break;
   case(2):
       add_pc(-1);
@@ -405,16 +377,22 @@ main(int  argc, char**  argv)
 
   final_image = sdl::make_screen_image();
 
-  auto  o = new spaces::rectangle_object(rectangle(     0,  0, 16,100),colors::white);
+/*
+  auto  o = new spaces::rectangle_object(rectangle(     0,  0, 16,150),colors::white);
 
   o->be_fixed();
 
   o->set_mark(1);
+*/
+  character.set_base_point(real_point(30,120));
 
   g_space.append_dynamical_object(character);
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(     0,100,240, 16),colors::white))->be_fixed());
+/*
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(     0,150,240, 16),colors::white))->be_fixed());
   g_space.append_statical_object(*o);
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(240-16,  0, 16,100),colors::white))->be_fixed());
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(240-16,  0, 16,150),colors::white))->be_fixed());
+*/
+  g_space.append_statical_object((new spaces::rectangle_object(rectangle(64,80,32,32),colors::white))->be_fixed());
 
   program.push(ctx);
 

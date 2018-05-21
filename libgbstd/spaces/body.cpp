@@ -40,10 +40,10 @@ get_point() const noexcept
 
 void
 body::
-set_left_position(int  v) noexcept
+set_left(int  v) noexcept
 {
-  m_left_position  = v        ;
-  m_right_position = v+m_width;
+  m_area.left  = v          ;
+  m_area.right = v+m_width-1;
 
   m_base_point.x = v-m_offset.x;
 }
@@ -51,21 +51,21 @@ set_left_position(int  v) noexcept
 
 void
 body::
-set_right_position(int  v) noexcept
+set_right(int  v) noexcept
 {
-  m_right_position = v        ;
-  m_left_position  = v-m_width;
+  m_area.right = v          ;
+  m_area.left  = v-m_width+1;
 
-  m_base_point.x = m_left_position-m_offset.x;
+  m_base_point.x = m_area.left-m_offset.x;
 }
 
 
 void
 body::
-set_top_position(int  v) noexcept
+set_top(int  v) noexcept
 {
-  m_top_position    = v         ;
-  m_bottom_position = v+m_height;
+  m_area.top    = v           ;
+  m_area.bottom = v+m_height-1;
 
   m_base_point.y = v-m_offset.y;
 }
@@ -73,12 +73,12 @@ set_top_position(int  v) noexcept
 
 void
 body::
-set_bottom_position(int  v) noexcept
+set_bottom(int  v) noexcept
 {
-  m_bottom_position = v         ;
-  m_top_position    = v-m_height;
+  m_area.bottom = v           ;
+  m_area.top    = v-m_height+1;
 
-  m_base_point.y = m_top_position-m_offset.y;
+  m_base_point.y = m_area.top-m_offset.y;
 }
 
 
@@ -90,11 +90,11 @@ update() noexcept
 {
   auto  pt = get_point();
 
-  m_left_position = pt.x;
-  m_top_position  = pt.y;
+  m_area.left = pt.x;
+  m_area.top  = pt.y;
 
-  m_right_position  = m_left_position+m_width ;
-  m_bottom_position = m_top_position +m_height;
+  m_area.right  = m_area.left+m_width -1;
+  m_area.bottom = m_area.top +m_height-1;
 }
 
 
@@ -114,37 +114,12 @@ void
 body::
 print() const noexcept
 {
-  printf("base_point: {%8f, %8f}\n",m_base_point.x,m_base_point.y);
+  printf("body:{\n",m_base_point.x,m_base_point.y);
+  printf("  base_point: {%8f, %8f}\n",m_base_point.x,m_base_point.y);
+  printf("}\n",m_base_point.x,m_base_point.y);
 }
 
 
-
-
-bool
-body::
-test_x_collision(const body&  a, const body&  b) noexcept
-{
-    if(a.m_left_position <= b.m_left_position){return a.m_right_position >= b.m_left_position;}
-  else                                        {return b.m_right_position >= a.m_left_position;}
-}
-
-
-bool
-body::
-test_y_collision(const body&  a, const body&  b) noexcept
-{
-    if(a.m_top_position <= b.m_top_position){return a.m_bottom_position >= b.m_top_position;}
-  else                                      {return b.m_bottom_position >= a.m_top_position;}
-}
-
-
-bool
-body::
-test_collision(const body&  a, const body&  b) noexcept
-{
-  return(test_x_collision(a,b) &&
-         test_y_collision(a,b));
-}
 
 
 }}

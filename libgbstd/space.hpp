@@ -35,10 +35,25 @@ public:
 };
 
 
+struct
+area
+{
+  int     top=0;
+  int    left=0;
+  int   right=0;
+  int  bottom=0;
+
+
+  static bool  test_x_collision(const area&  a, const area&  b) noexcept;
+  static bool  test_y_collision(const area&  a, const area&  b) noexcept;
+  static bool  test_collision(  const area&  a, const area&  b) noexcept;
+
+};
+
+
 class
 body
 {
-  real_point  m_saved_base_point;
   real_point  m_base_point;
 
   point  m_offset;
@@ -46,10 +61,8 @@ body
   int  m_width =0;
   int  m_height=0;
 
-  int  m_top_position   =0;
-  int  m_left_position  =0;
-  int  m_right_position =0;
-  int  m_bottom_position=0;
+  area  m_saved_area;
+  area        m_area;
 
 public:
   body() noexcept{}
@@ -58,7 +71,10 @@ public:
   m_height(rect.h){}
 
 
-  void  save_base_point() noexcept{m_saved_base_point = m_base_point;}
+  void  save_area() noexcept{m_saved_area = m_area;}
+
+  const area&  get_area()       const noexcept{return m_area;}
+  const area&  get_saved_area() const noexcept{return m_saved_area;}
 
   void  set_base_point(real_point  new_pt) noexcept;
   void  add_base_point(real_point      pt) noexcept;
@@ -74,20 +90,15 @@ public:
   int  get_width()  const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
 
-  bool  is_moved_to_up()    const noexcept{return m_saved_base_point.y > m_base_point.y;}
-  bool  is_moved_to_down()  const noexcept{return m_saved_base_point.y < m_base_point.y;}
-  bool  is_moved_to_left()  const noexcept{return m_saved_base_point.x > m_base_point.x;}
-  bool  is_moved_to_right() const noexcept{return m_saved_base_point.x < m_base_point.x;}
+  bool  is_moved_to_up()    const noexcept{return m_area.top  < m_saved_area.top;}
+  bool  is_moved_to_down()  const noexcept{return m_area.top  > m_saved_area.top;}
+  bool  is_moved_to_left()  const noexcept{return m_area.left < m_saved_area.left;}
+  bool  is_moved_to_right() const noexcept{return m_area.left > m_saved_area.left;}
 
-  int  get_left_position()   const noexcept{return m_left_position;}
-  int  get_right_position()  const noexcept{return m_right_position;}
-  int  get_top_position()    const noexcept{return m_top_position;}
-  int  get_bottom_position() const noexcept{return m_bottom_position;}
-
-  void  set_left_position(  int  v) noexcept;
-  void  set_right_position( int  v) noexcept;
-  void  set_top_position(   int  v) noexcept;
-  void  set_bottom_position(int  v) noexcept;
+  void  set_left(  int  v) noexcept;
+  void  set_right( int  v) noexcept;
+  void  set_top(   int  v) noexcept;
+  void  set_bottom(int  v) noexcept;
 
   void  update() noexcept;
 
@@ -95,15 +106,11 @@ public:
 
   void  print() const noexcept;
 
-  static bool  test_x_collision(const body&  a, const body&  b) noexcept;
-  static bool  test_y_collision(const body&  a, const body&  b) noexcept;
-  static bool  test_collision(  const body&  a, const body&  b) noexcept;
-
 };
 
 
 class
-object
+object: public body
 {
 protected:
   gbstd::string  m_name;
@@ -111,8 +118,6 @@ protected:
   space*  m_space=nullptr;
 
   real_point  m_kinetic_energy;
-
-  body  m_body;
 
   int  m_mass=0;
   int  m_mark=0;
@@ -128,15 +133,12 @@ protected:
 
 public:
   object() noexcept{}
-  object(rectangle  rect) noexcept: m_body(rect){}
+  object(rectangle  rect) noexcept: body(rect){}
 
   virtual ~object(){}
 
   void    set_space(space&  sp)       noexcept{        m_space = &sp;}
   space&  get_space(          ) const noexcept{return *m_space      ;}
-
-        body&  get_body()             noexcept{return m_body;}
-  const body&  get_const_body() const noexcept{return m_body;}
 
   real_point  get_kinetic_energy(              ) const noexcept{return m_kinetic_energy      ;}
   void        set_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy  = pt;}
@@ -179,9 +181,9 @@ public:
 
   void  render(image&  dst) const noexcept override
   {
-    auto  rect = get_const_body().get_rectangle();
+    auto  rect = get_rectangle();
 
-    dst.fill_rectangle(m_color,rect.x,rect.y,rect.w,rect.h);
+    dst.draw_rectangle_safely(m_color,rect.x,rect.y,rect.w,rect.h);
   }
 
 };
@@ -251,6 +253,9 @@ public:
   virtual void  render(image&  dst) const noexcept;
 
 };
+
+
+void  default_detection(object&  a, object&  b) noexcept;
 
 
 }
