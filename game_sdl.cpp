@@ -33,6 +33,15 @@ spaces::space
 g_space;
 
 
+class
+block_object: public spaces::rectangle_object
+{
+public:
+  using rectangle_object::rectangle_object;
+
+};
+
+
 namespace characters{
 
 
@@ -160,13 +169,56 @@ public:
   void  be_landing()  noexcept{m_state = state::landing;}
   void  be_floating() noexcept{m_state = state::floating;}
 
+  void  do_when_collided(object&  other_side, spaces::position  position) noexcept override
+  {
+    auto&  area = other_side.get_area();
+
+        if(position == spaces::position::left)
+        {
+          set_left(area.right);
+
+          set_kinetic_energy_x(0);
+        }
+
+      else
+        if(position == spaces::position::right)
+        {
+          set_right(area.left);
+
+          set_kinetic_energy_x(0);
+        }
+
+      else
+        if(position == spaces::position::top)
+        {
+          set_top(area.bottom);
+
+          set_kinetic_energy_y(0);
+        }
+
+      else
+        if(position == spaces::position::bottom)
+        {
+          set_bottom(area.top);
+
+          set_kinetic_energy_y(0);
+
+          be_landing();
+        }
+  }
+
   void  update() noexcept override
   {
          if(g_input.test_right_button()         ){        move(direction::right,1,2 );}
     else if(g_modified_input.test_right_button()){ready_to_run(direction::right     );}
     else if(g_input.test_left_button()          ){        move(direction::left,-1,-2);}
     else if(g_modified_input.test_left_button() ){ready_to_run(direction::left      );}
-    else {do_stand();}
+    else
+      {
+        do_stand();
+
+        set_kinetic_energy_x(0);
+      }
 
 
     auto  ene = get_kinetic_energy();
@@ -209,6 +261,8 @@ public:
      set_kinetic_energy(ene);
 
      object::update();
+
+     
   }
 
   void  render(images::image&  dst) const noexcept override
@@ -393,12 +447,12 @@ main(int  argc, char**  argv)
 
   g_space.append_kinetic_object(character);
 
-  g_space.append_object(*new spaces::rectangle_object(rectangle(     0,140,240, 16),colors::white));
-  g_space.append_object(*new spaces::rectangle_object(rectangle(     0,  0, 16,150),colors::white));
-  g_space.append_object(*new spaces::rectangle_object(rectangle(240-16,  0, 16,150),colors::white));
-  g_space.append_object(*new spaces::rectangle_object(rectangle( 80,100,32,32),colors::white));
-  g_space.append_object(*new spaces::rectangle_object(rectangle(160, 80,32,32),colors::white));
-  g_space.append_object(*new spaces::rectangle_object(rectangle(180, 60,32,32),colors::white));
+  g_space.append_object(*new block_object(rectangle(     0,140,240, 16),colors::white));
+  g_space.append_object(*new block_object(rectangle(     0,  0, 16,150),colors::white));
+  g_space.append_object(*new block_object(rectangle(240-16,  0, 16,150),colors::white));
+  g_space.append_object(*new block_object(rectangle( 80,100,32,32),colors::white));
+  g_space.append_object(*new block_object(rectangle(160, 80,32,32),colors::white));
+  g_space.append_object(*new block_object(rectangle(180, 60,32,32),colors::white));
 
   program.push(ctx);
 

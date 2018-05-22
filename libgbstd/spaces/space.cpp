@@ -110,42 +110,37 @@ check_collision(object&  a, object&  b) noexcept
     }
 
 
-    if(!b.is_kinetic())
+  auto&   saved_area = a.get_saved_area();
+  auto&  target_area = b.get_area();
+
+  position  pos;
+
+    if(saved_area.left >= target_area.right)
     {
-      auto&   saved_area = a.get_saved_area();
-      auto&  target_area = b.get_area();
-
-        if(saved_area.left >= target_area.right)
-        {
-          a.set_left(target_area.right);
-
-          a.set_x_kinetic_energy(0);
-        }
-
-      else
-        if(saved_area.right <= target_area.left)
-        {
-          a.set_right(target_area.left);
-
-          a.set_x_kinetic_energy(0);
-        }
-
-      else
-        if(saved_area.top >= target_area.bottom)
-        {
-          a.set_top(target_area.bottom);
-
-          a.set_y_kinetic_energy(0);
-        }
-
-      else
-        if(saved_area.bottom <= target_area.top)
-        {
-          a.set_bottom(target_area.top);
-
-          a.set_y_kinetic_energy(0);
-        }
+      pos = position::left;
     }
+
+  else
+    if(saved_area.right <= target_area.left)
+    {
+      pos = position::right;
+    }
+
+  else
+    if(saved_area.top >= target_area.bottom)
+    {
+      pos = position::top;
+    }
+
+  else
+    if(saved_area.bottom <= target_area.top)
+    {
+      pos = position::bottom;
+    }
+
+
+  a.do_when_collided(b,pos);
+  b.do_when_collided(a,get_opposite(pos));
 }
 
 

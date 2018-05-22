@@ -10,6 +10,7 @@ namespace gbstd{
 namespace spaces{
 
 
+class object;
 class space;
 
 
@@ -107,8 +108,8 @@ public:
   void        set_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy  = pt;}
   void        add_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy += pt;}
 
-  void  set_x_kinetic_energy(double  v) noexcept{m_kinetic_energy.x = v;}
-  void  set_y_kinetic_energy(double  v) noexcept{m_kinetic_energy.y = v;}
+  void  set_kinetic_energy_x(double  v) noexcept{m_kinetic_energy.x = v;}
+  void  set_kinetic_energy_y(double  v) noexcept{m_kinetic_energy.y = v;}
 
 
   bool  is_moved_to_up()    const noexcept{return m_area.top  < m_saved_area.top;}
@@ -130,6 +131,27 @@ public:
 };
 
 
+enum class
+position
+{
+     top,
+    left,
+   right,
+  bottom,
+
+};
+
+
+constexpr position
+get_opposite(position  pos) noexcept
+{
+  return( (pos == position::top  )? position::bottom
+         :(pos == position::left )? position::right
+         :(pos == position::right)? position::left
+         :                          position::top);
+}
+
+
 class
 object: public body
 {
@@ -143,6 +165,8 @@ public:
   virtual ~object(){}
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
+
+  virtual void  do_when_collided( object&  other_side, spaces::position  position) noexcept{}
 
   virtual void  update() noexcept;
 
