@@ -13,23 +13,21 @@ void
 object::
 update() noexcept
 {
-  auto&  env = m_space->get_environment();
+  auto  env = get_environment();
 
-    if(!is_fixed())
+    if(env)
     {
-      m_kinetic_energy.y += env.get_gravitation();
+      auto  ene = get_kinetic_energy();
 
-      m_kinetic_energy *= (1.0-env.get_fluid_viscosity());
+      ene.y += env->get_gravitation();
 
-      m_kinetic_energy += env.get_fluid_kinetic_energy();
+      ene *= (1.0-env->get_fluid_viscosity());
 
-      add_base_point(m_kinetic_energy);
-    }
+      ene += env->get_fluid_kinetic_energy();
 
+      set_kinetic_energy(ene);
 
-//    if(is_landing())
-    {
-      m_kinetic_energy.x /= 2;
+      add_base_point(ene);
     }
 }
 
@@ -42,7 +40,7 @@ print() const noexcept
 
   body::print();
 
-  printf("kinetic energy: {%8f,%8f}\n",m_kinetic_energy.x,m_kinetic_energy.y);
+//  printf("kinetic energy: {%8f,%8f}\n",m_kinetic_energy.x,m_kinetic_energy.y);
 
   printf("}\n\n");
 }

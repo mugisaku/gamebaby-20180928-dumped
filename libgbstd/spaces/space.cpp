@@ -59,8 +59,6 @@ append_object(object&  o, object_node*&  first, object_node*&  last) noexcept
 
   nd->object = &o;
 
-  o.set_space(*this);
-
     if(last)
     {
       last->next = nd;
@@ -82,54 +80,21 @@ append_object(object&  o, object_node*&  first, object_node*&  last) noexcept
 
 void
 space::
-append_dynamical_object(object&  o) noexcept
+append_object(object&  o) noexcept
 {
-  append_object(o,m_dynamicals_first,m_dynamicals_last);
+  append_object(o,m_object_first,m_object_last);
+
+  o.set_environment(nullptr);
 }
 
 
 void
 space::
-append_statical_object(object&  o) noexcept
+append_kinetic_object(object&  o) noexcept
 {
-  append_object(o,m_staticals_first,m_staticals_last);
-}
+  append_object(o,m_kinetic_object_first,m_kinetic_object_last);
 
-
-
-
-void
-space::
-append_child(space&  sp, int  x, int  y) noexcept
-{
-  m_child_spaces.emplace_back(&sp);
-
-  sp.m_parent_space = this;
-
-  sp.m_relative_point = point(x,y);
-}
-
-
-void
-space::
-reform() noexcept
-{
-  m_absolute_point = m_relative_point;
-
-    if(m_parent_space)
-    {
-      m_absolute_point += m_parent_space->m_absolute_point;
-    }
-
-
-    for(auto  sp: m_child_spaces)
-    {
-      sp->reform();
-    }
-
-
-  m_right_position  = m_absolute_point.x+m_width ;
-  m_bottom_position = m_absolute_point.y+m_height;
+  o.set_environment(&m_environment);
 }
 
 
@@ -137,47 +102,93 @@ reform() noexcept
 
 void
 space::
-detect_dd_collision(void  (*callback)(object&  a, object&  b)) noexcept
+check_collision(object&  a, object&  b) noexcept
 {
-    if(!m_dynamicals_first || !m_dynamicals_first->next)
+    if(!spaces::area::test_collision(a.get_area(),b.get_area()))
     {
       return;
     }
 
-  auto  a = m_dynamicals_first      ;
-  auto  b = m_dynamicals_first->next;
 
-    while(a)
+    if(!b.is_kinetic())
     {
-      auto  b_next = b          ;
-                     b = b->next;
+      auto&   saved_area = a.get_saved_area();
+      auto&  target_area = b.get_area();
 
-        while(b_next)
+        if(saved_area.left >= target_area.right)
         {
-          callback(*a->object,*b_next->object);
+          a.set_left(target_area.right);
 
-          b_next = b_next->next;
+          a.set_x_kinetic_energy(0);
         }
 
+      else
+        if(saved_area.right <= target_area.left)
+        {
+          a.set_right(target_area.left);
 
-      a = a->next;
+          a.set_x_kinetic_energy(0);
+        }
+
+      else
+        if(saved_area.top >= target_area.bottom)
+        {
+          a.set_top(target_area.bottom);
+
+          a.set_y_kinetic_energy(0);
+        }
+
+      else
+        if(saved_area.bottom <= target_area.top)
+        {
+          a.set_bottom(target_area.top);
+
+          a.set_y_kinetic_energy(0);
+        }
     }
 }
 
 
+
+
 void
 space::
-detect_ds_collision(void  (*callback)(object&  a, object&  b)) noexcept
+detect_collision() noexcept
 {
-  auto  a_next = m_dynamicals_first;
+    if(m_kinetic_object_first && m_kinetic_object_first->next)
+    {
+      auto  a = m_kinetic_object_first      ;
+      auto  b = m_kinetic_object_first->next;
+
+        while(a)
+        {
+          auto  b_next = b          ;
+                         b = b->next;
+
+            while(b_next)
+            {
+              check_collision(     *a->object,
+                              *b_next->object);
+
+              b_next = b_next->next;
+            }
+
+
+          a = a->next;
+        }
+    }
+
+
+  auto  a_next = m_kinetic_object_first;
 
     while(a_next)
     {
-      auto  b_next = m_staticals_first;
+      auto  b_next = m_object_first;
 
         while(b_next)
         {
-          callback(*a_next->object,*b_next->object);
+          check_collision(*a_next->object,
+                          *b_next->object);
 
           b_next = b_next->next;
         }
@@ -211,8 +222,8 @@ void
 space::
 update() noexcept
 {
-  update_objects( m_staticals_first);
-  update_objects(m_dynamicals_first);
+  update_objects(        m_object_first);
+  update_objects(m_kinetic_object_first);
 }
 
 
@@ -237,62 +248,8 @@ void
 space::
 render(image&  dst) const noexcept
 {
-  render_objects( m_staticals_first,dst);
-  render_objects(m_dynamicals_first,dst);
-}
-
-
-void
-default_detection(object&  a, object&  b) noexcept
-{
-  auto&     fixed_obj = a.is_fixed()? a:b;
-  auto&  nonfixed_obj = a.is_fixed()? b:a;
-
-    if(!spaces::area::test_collision(a.get_area(),b.get_area()))
-    {
-      reinterpret_cast<rectangle_object*>(&fixed_obj)->set_color(colors::white);
-
-      return;
-    }
-
-
-  auto&  target_area =    fixed_obj.get_area();
-  auto&   saved_area = nonfixed_obj.get_saved_area();
-
-  reinterpret_cast<rectangle_object*>(&fixed_obj)->set_color(colors::red);
-
-    if(saved_area.left >= target_area.right)
-    {
-      nonfixed_obj.set_left(target_area.right);
-
-      nonfixed_obj.set_x_kinetic_energy(0);
-    }
-
-  else
-    if(saved_area.right <= target_area.left)
-    {
-      nonfixed_obj.set_right(target_area.left);
-
-      nonfixed_obj.set_x_kinetic_energy(0);
-    }
-
-  else
-    if(saved_area.top >= target_area.bottom)
-    {
-      nonfixed_obj.set_top(target_area.bottom);
-
-      nonfixed_obj.set_y_kinetic_energy(0);
-    }
-
-  else
-    if(saved_area.bottom <= target_area.top)
-    {
-      nonfixed_obj.set_bottom(target_area.top);
-
-      nonfixed_obj.set_y_kinetic_energy(0);
-
-      nonfixed_obj.be_landing();
-    }
+  render_objects(        m_object_first,dst);
+  render_objects(m_kinetic_object_first,dst);
 }
 
 

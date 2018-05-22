@@ -37,18 +37,12 @@ namespace characters{
 
 
 images::image
-image;
+g_image;
 
 
 class
-character: public spaces::object
+character: public spaces::image_object
 {
-  const images::image*  m_image=nullptr;
-
-  rectangle  m_image_rectangle;
-
-  point  m_rendering_offset;
-
   int  m_phase=0;
 
   direction  m_direction=direction::right;
@@ -60,6 +54,11 @@ character: public spaces::object
 
   bool  m_ready_to_run=false;
 
+  enum class state{
+    landing,
+    floating,
+  } m_state=state::floating;
+
   enum class action{
     stand,
     walk,
@@ -69,14 +68,18 @@ character: public spaces::object
 
   void  move(direction  d, double  walk_value, double  run_value) noexcept
   {
+    auto  ene = get_kinetic_energy();
+
 //      if(is_landing())
       {
 //          if(does_walk())
           {
-              if(std::abs(m_kinetic_energy.x) < 2)
+              if(std::abs(ene.x) < 2)
               {
             do_walk();
-                m_kinetic_energy.x += walk_value;
+                ene.x += walk_value;
+
+                set_kinetic_energy(ene);
               }
           }
 /*
@@ -130,13 +133,13 @@ character: public spaces::object
 
 public:
   character() noexcept:
-  object(rectangle(screen_width/2,0,24,48))
+  image_object(g_image,rectangle(screen_width/2,0,24,48))
   {
     g_space.get_environment().set_gravitation(0.2);
     g_space.get_environment().set_fluid_kinetic_energy(real_point(0.0,0.0));
 //    g_space.get_environment().set_fluid_viscosity(0.08);
 
-    m_rendering_offset = point(-12,-48);
+    set_rendering_offset(point(-12,-48));
 
     set_offset(point(-12,-48));
   }
@@ -151,20 +154,28 @@ public:
   void  do_run()   noexcept{m_action = action::run;}
   void  do_squat() noexcept{m_action = action::squat;}
 
+  bool  is_landing()  const noexcept{return m_state == state::landing;}
+  bool  is_floating() const noexcept{return m_state == state::floating;}
+
+  void  be_landing()  noexcept{m_state = state::landing;}
+  void  be_floating() noexcept{m_state = state::floating;}
+
   void  update() noexcept override
   {
-          if(g_input.test_right_button()         ){        move(direction::right,1,2 );}
-     else if(g_modified_input.test_right_button()){ready_to_run(direction::right     );}
-     else if(g_input.test_left_button()          ){        move(direction::left,-1,-2);}
-     else if(g_modified_input.test_left_button() ){ready_to_run(direction::left      );}
-     else {do_stand();}
+         if(g_input.test_right_button()         ){        move(direction::right,1,2 );}
+    else if(g_modified_input.test_right_button()){ready_to_run(direction::right     );}
+    else if(g_input.test_left_button()          ){        move(direction::left,-1,-2);}
+    else if(g_modified_input.test_left_button() ){ready_to_run(direction::left      );}
+    else {do_stand();}
 
+
+    auto  ene = get_kinetic_energy();
 
        if(g_input.test_down_button())
        {
            if(is_landing())
            {
-             m_kinetic_energy.x = 0;
+             ene.x = 0;
 
              do_squat();
            }
@@ -175,7 +186,7 @@ public:
        {
            if(is_landing())
            {
-             m_kinetic_energy.y -= 5;
+             ene.y -= 5;
 
              do_stand();
 
@@ -195,6 +206,8 @@ public:
        }
 
 
+     set_kinetic_energy(ene);
+
      object::update();
   }
 
@@ -202,14 +215,14 @@ public:
   {
     sprite  spr;
 
-    spr.src_image = &characters::image;
+    spr.src_image = &get_image();
 
     auto&  src_point = static_cast<point&>(spr.src_rectangle);
 
     spr.src_rectangle.w = 24;
     spr.src_rectangle.h = 48;
 
-    spr.dst_point = get_base_point()+m_rendering_offset;
+    spr.dst_point = get_base_point()+get_rendering_offset();
 
       switch(m_action)
       {
@@ -285,13 +298,7 @@ step() noexcept
     switch(get_pc())
     {
   case(0):
-      final_image.fill();
-
-      g_space.update();
-
-      g_space.render(final_image);
-
-      sdl::update_screen(final_image);
+//      static text_object  to(u"PRESS ANY KEY TO START GAME");
 
       add_pc(1);
       break;
@@ -315,15 +322,9 @@ step() noexcept
 
           else
             {
-              final_image.fill();
-
               g_space.update();
 
-              g_space.detect_ds_collision(spaces::default_detection);
-
-              g_space.render(final_image);
-
-              sdl::update_screen(final_image);
+              g_space.detect_collision();
             }
         }
       break;
@@ -347,6 +348,20 @@ main_loop() noexcept
   g_time = condev.time;
 
   program.touch(condev.time);
+
+
+  static uint32_t  last;
+
+    if(g_time >= last+60)
+    {
+      last = g_time;
+
+      final_image.fill();
+
+      g_space.render(final_image);
+
+      sdl::update_screen(final_image);
+    }
 }
 
 
@@ -370,21 +385,20 @@ main(int  argc, char**  argv)
 
   sdl::init(screen_width,screen_height);
 
-  characters::image.load_from_png("__resources/__anigra.png");
-  title_image.load_from_png("__resources/title_ch.png");
+  characters::g_image.load_from_png("__resources/__anigra.png");
 
   final_image = sdl::make_screen_image();
 
   character.set_base_point(real_point(30,120));
 
-  g_space.append_dynamical_object(character);
+  g_space.append_kinetic_object(character);
 
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(     0,140,240, 16),colors::white))->be_fixed());
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(     0,  0, 16,150),colors::white))->be_fixed());
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(240-16,  0, 16,150),colors::white))->be_fixed());
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle( 80,100,32,32),colors::white))->be_fixed());
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(160, 80,32,32),colors::white))->be_fixed());
-  g_space.append_statical_object((new spaces::rectangle_object(rectangle(180, 60,32,32),colors::white))->be_fixed());
+  g_space.append_object(*new spaces::rectangle_object(rectangle(     0,140,240, 16),colors::white));
+  g_space.append_object(*new spaces::rectangle_object(rectangle(     0,  0, 16,150),colors::white));
+  g_space.append_object(*new spaces::rectangle_object(rectangle(240-16,  0, 16,150),colors::white));
+  g_space.append_object(*new spaces::rectangle_object(rectangle( 80,100,32,32),colors::white));
+  g_space.append_object(*new spaces::rectangle_object(rectangle(160, 80,32,32),colors::white));
+  g_space.append_object(*new spaces::rectangle_object(rectangle(180, 60,32,32),colors::white));
 
   program.push(ctx);
 

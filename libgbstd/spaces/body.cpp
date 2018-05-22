@@ -114,9 +114,9 @@ void
 body::
 print() const noexcept
 {
-  printf("body:{\n",m_base_point.x,m_base_point.y);
+  printf("body:{\n");
   printf("  base_point: {%8f, %8f}\n",m_base_point.x,m_base_point.y);
-  printf("}\n",m_base_point.x,m_base_point.y);
+  printf("}\n");
 }
 
 

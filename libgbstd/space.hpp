@@ -54,6 +54,10 @@ area
 class
 body
 {
+  int  m_mass=0;
+
+  double  m_energy_refection=0;
+
   real_point  m_base_point;
 
   point  m_offset;
@@ -61,8 +65,12 @@ body
   int  m_width =0;
   int  m_height=0;
 
+  const environment*  m_environment=nullptr;
+
+  real_point  m_kinetic_energy;
+
+  area  m_area;
   area  m_saved_area;
-  area        m_area;
 
 public:
   body() noexcept{}
@@ -83,12 +91,25 @@ public:
 
   const real_point&  get_base_point() const noexcept{return m_base_point;}
 
-  const point&  get_offset() noexcept{return m_offset;}
+  const point&  get_offset() const noexcept{return m_offset;}
 
   void  set_offset(point  off) noexcept{m_offset = off;}
 
   int  get_width()  const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
+
+  void                set_environment(const environment*  env)       noexcept{       m_environment = env;}
+  const environment*  get_environment(                       ) const noexcept{return m_environment      ;}
+
+  bool  is_kinetic() const noexcept{return m_environment;}
+
+  real_point  get_kinetic_energy(              ) const noexcept{return m_kinetic_energy      ;}
+  void        set_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy  = pt;}
+  void        add_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy += pt;}
+
+  void  set_x_kinetic_energy(double  v) noexcept{m_kinetic_energy.x = v;}
+  void  set_y_kinetic_energy(double  v) noexcept{m_kinetic_energy.y = v;}
+
 
   bool  is_moved_to_up()    const noexcept{return m_area.top  < m_saved_area.top;}
   bool  is_moved_to_down()  const noexcept{return m_area.top  > m_saved_area.top;}
@@ -115,56 +136,19 @@ object: public body
 protected:
   gbstd::string  m_name;
 
-  space*  m_space=nullptr;
-
-  real_point  m_kinetic_energy;
-
-  int  m_mass=0;
-  int  m_mark=0;
-
-  double  m_energy_refection=0;
-
-  enum class state{
-    fixed,
-    landing,
-    floating,
-
-  } m_state=state::floating;
-
 public:
   object() noexcept{}
   object(rectangle  rect) noexcept: body(rect){}
 
   virtual ~object(){}
 
-  void    set_space(space&  sp)       noexcept{        m_space = &sp;}
-  space&  get_space(          ) const noexcept{return *m_space      ;}
-
-  real_point  get_kinetic_energy(              ) const noexcept{return m_kinetic_energy      ;}
-  void        set_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy  = pt;}
-  void        add_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy += pt;}
-
-  void  set_x_kinetic_energy(double  v) noexcept{m_kinetic_energy.x = v;}
-  void  set_y_kinetic_energy(double  v) noexcept{m_kinetic_energy.y = v;}
-
-
-  bool  is_fixed()    const noexcept{return m_state == state::fixed;}
-  bool  is_landing()  const noexcept{return m_state == state::landing;}
-  bool  is_floating() const noexcept{return m_state == state::floating;}
-
-  object&  be_fixed()    noexcept{  m_state =    state::fixed;  return *this;}
-  object&  be_landing()  noexcept{  m_state =  state::landing;  return *this;}
-  object&  be_floating() noexcept{  m_state = state::floating;  return *this;}
-
-  void  set_mark(int  v)       noexcept{       m_mark = v;}
-  int   get_mark(      ) const noexcept{return m_mark    ;}
-
+  const gbstd::string&  get_name() const noexcept{return m_name;}
 
   virtual void  update() noexcept;
 
   virtual void  render(image&  dst) const noexcept{}
 
-  void  print() const noexcept;
+  virtual void  print() const noexcept;
 
 };
 
@@ -192,17 +176,70 @@ public:
 
 
 class
+image_object: public object
+{
+  const image*  m_image=nullptr;
+
+  rectangle  m_image_rectangle;
+
+  point  m_rendering_offset;
+
+public:
+  image_object(const image&  image, rectangle  image_rect) noexcept:
+  object(rectangle(point(),image_rect.w,image_rect.h)),
+  m_image(&image), m_image_rectangle(image_rect){}
+
+  const image&  get_image() const noexcept{return *m_image;}
+
+  void  set_rendering_offset(point  off) noexcept{m_rendering_offset = off;}
+
+  const point&  get_rendering_offset() const noexcept{return m_rendering_offset;}
+
+  void  render(image&  dst) const noexcept override
+  {
+    sprite  spr;
+
+    spr.src_image = m_image;
+
+    spr.src_rectangle = m_image_rectangle;
+
+    spr.dst_point = get_base_point()+m_rendering_offset;
+
+    spr.render(dst);
+  }
+
+};
+
+
+class
+text_object: public object
+{
+  gbstd::u16string  m_string;
+
+  text_style  m_style;
+
+public:
+  text_object(gbstd::string_view  sv, const text_style&  style) noexcept:
+  m_style(style){set_string(sv);}
+
+  void  set_string(gbstd::string     sv) noexcept;
+  void  set_string(gbstd::u16string  sv) noexcept;
+
+  void  render(image&  dst) const noexcept override;
+
+};
+
+
+class
 space
 {
   struct object_node;
 
-  std::vector<space*>  m_child_spaces;
+  object_node*  m_object_first=nullptr;
+  object_node*  m_object_last =nullptr;
 
-  object_node*  m_dynamicals_first=nullptr;
-  object_node*  m_dynamicals_last =nullptr;
-
-  object_node*  m_staticals_first=nullptr;
-  object_node*  m_staticals_last =nullptr;
+  object_node*  m_kinetic_object_first=nullptr;
+  object_node*  m_kinetic_object_last =nullptr;
 
   object_node*  m_trash=nullptr;
 
@@ -210,18 +247,8 @@ space
   void          push_node(object_node*  nd) noexcept;
 
 
-  space*  m_parent_space=nullptr;
-
-  gbstd::string  m_name;
-
-  point  m_absolute_point;
-  point  m_relative_point;
-
   int  m_width =0;
   int  m_height=0;
-
-  int  m_right_position =0;
-  int  m_bottom_position=0;
 
   environment  m_environment;
 
@@ -231,33 +258,21 @@ space
 
   void  append_object(object&  o, object_node*&  first, object_node*&  last) noexcept;
 
+  void  check_collision(object&  a, object&  b) noexcept;
+
 public:
-  void  append_dynamical_object(object&  o) noexcept;
-  void  append_statical_object(object&  o) noexcept;
-
-  void  append_child(space&  sp, int  x, int  y) noexcept;
-
-
-  const gbstd::string&  get_name() const noexcept{return m_name;}
-
-  const point&  get_absolute_point() const noexcept{return m_absolute_point;}
-  const point&  get_relative_point() const noexcept{return m_relative_point;}
+  void  append_object(        object&  o) noexcept;
+  void  append_kinetic_object(object&  o) noexcept;
 
   environment&  get_environment() noexcept{return m_environment;}
 
-  void  reform() noexcept;
-
-  void  detect_dd_collision(void  (*callback)(object&  a, object&  b)) noexcept;
-  void  detect_ds_collision(void  (*callback)(object&  a, object&  b)) noexcept;
+  void  detect_collision() noexcept;
 
   virtual void  update() noexcept;
 
   virtual void  render(image&  dst) const noexcept;
 
 };
-
-
-void  default_detection(object&  a, object&  b) noexcept;
 
 
 }
