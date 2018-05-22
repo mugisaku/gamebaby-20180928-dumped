@@ -72,6 +72,7 @@ public:
 
   uint32_t  get_code() noexcept{return m_state;}
 
+  bool    test_all_button() const noexcept{return m_state;}
   bool     test_up_button() const noexcept{return test(flags::up);}
   bool   test_left_button() const noexcept{return test(flags::left);}
   bool  test_right_button() const noexcept{return test(flags::right);}

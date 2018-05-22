@@ -13,6 +13,8 @@ object_node
 {
   spaces::object*  object;
 
+  void  (*onremove)(spaces::object&  o);
+
   object_node*  next;
 
 };
@@ -53,36 +55,25 @@ push_node(object_node*  nd) noexcept
 
 void
 space::
-append_object(object&  o, object_node*&  first, object_node*&  last) noexcept
+append_object(object&  o, void  (*onremove)(object&  o), object_node*&  list) noexcept
 {
   auto  nd = pop_node();
 
   nd->object = &o;
+  nd->onremove = onremove;
 
-    if(last)
-    {
-      last->next = nd;
-    }
-
-  else
-    {
-      first = nd;
-    }
-
-
-  last = nd;
+  nd->next = list     ;
+             list = nd;
 
   o.body::update();
-
-  nd->next = nullptr;
 }
 
 
 void
 space::
-append_object(object&  o) noexcept
+append_object(object&  o, void  (*onremove)(object&  o)) noexcept
 {
-  append_object(o,m_object_first,m_object_last);
+  append_object(o,onremove,m_object_list);
 
   o.set_environment(nullptr);
 }
@@ -90,9 +81,9 @@ append_object(object&  o) noexcept
 
 void
 space::
-append_kinetic_object(object&  o) noexcept
+append_kinetic_object(object&  o, void  (*onremove)(object&  o)) noexcept
 {
-  append_object(o,m_kinetic_object_first,m_kinetic_object_last);
+  append_object(o,onremove,m_kinetic_object_list);
 
   o.set_environment(&m_environment);
 }
@@ -150,10 +141,10 @@ void
 space::
 detect_collision() noexcept
 {
-    if(m_kinetic_object_first && m_kinetic_object_first->next)
+    if(m_kinetic_object_list && m_kinetic_object_list->next)
     {
-      auto  a = m_kinetic_object_first      ;
-      auto  b = m_kinetic_object_first->next;
+      auto  a = m_kinetic_object_list      ;
+      auto  b = m_kinetic_object_list->next;
 
         while(a)
         {
@@ -174,11 +165,11 @@ detect_collision() noexcept
     }
 
 
-  auto  a_next = m_kinetic_object_first;
+  auto  a_next = m_kinetic_object_list;
 
     while(a_next)
     {
-      auto  b_next = m_object_first;
+      auto  b_next = m_object_list;
 
         while(b_next)
         {
@@ -200,15 +191,36 @@ void
 space::
 update_objects(object_node*  nd) noexcept
 {
+  object_node*  previous = nullptr;
+
   auto  next = nd;
 
     while(next)
     {
-      next->object->save_area();
+        if(next->object->is_needed_to_remove())
+        {
+            if(next->onremove)
+            {
+              next->onremove(*next->object);
+            }
 
-      next->object->update();
 
-      next = next->next;
+            if(previous)
+            {
+              previous->next = next->next;
+            }
+        }
+
+      else
+        {
+          next->object->save_area();
+
+          next->object->update();
+        }
+
+
+      previous = next             ;
+                 next = next->next;
     }
 }
 
@@ -217,8 +229,8 @@ void
 space::
 update() noexcept
 {
-  update_objects(        m_object_first);
-  update_objects(m_kinetic_object_first);
+  update_objects(        m_object_list);
+  update_objects(m_kinetic_object_list);
 }
 
 
@@ -243,8 +255,8 @@ void
 space::
 render(image&  dst) const noexcept
 {
-  render_objects(        m_object_first,dst);
-  render_objects(m_kinetic_object_first,dst);
+  render_objects(        m_object_list,dst);
+  render_objects(m_kinetic_object_list,dst);
 }
 
 

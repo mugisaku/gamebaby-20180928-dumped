@@ -14,8 +14,8 @@
 using namespace gbstd;
 
 
-constexpr int  screen_width  = 240;
-constexpr int  screen_height = 240;
+constexpr int  screen_width  = 320;
+constexpr int  screen_height = 320;
 
 
 uint32_t  g_time = 0;
@@ -349,14 +349,38 @@ step() noexcept
 {
   static bool  pausing;
 
+  static spaces::text_object  start_message(u"PRESS ANY KEY TO START GAME",styles::a_white_based_text_style);
+
     switch(get_pc())
     {
   case(0):
-//      static text_object  to(u"PRESS ANY KEY TO START GAME");
+      g_space.append_object(start_message);
 
       add_pc(1);
       break;
   case(1):
+        if(g_input.test_all_button())
+        {
+          start_message.need_to_remove();
+
+          add_pc(1);
+        }
+      break;
+  case(2):
+      character.set_base_point(real_point(30,120));
+
+      g_space.append_kinetic_object(character);
+
+      g_space.append_object(*new block_object(rectangle(     0,140,240, 16),colors::white));
+      g_space.append_object(*new block_object(rectangle(     0,  0, 16,150),colors::white));
+      g_space.append_object(*new block_object(rectangle(240-16,  0, 16,150),colors::white));
+      g_space.append_object(*new block_object(rectangle( 80,100,32,32),colors::white));
+      g_space.append_object(*new block_object(rectangle(160, 80,32,32),colors::white));
+      g_space.append_object(*new block_object(rectangle(180, 60,32,32),colors::white));
+      add_pc(1);
+
+      break;
+  case(3):
         if(pausing)
         {
             if(g_modified_input.test_start_button() &&
@@ -381,9 +405,6 @@ step() noexcept
               g_space.detect_collision();
             }
         }
-      break;
-  case(2):
-      add_pc(-1);
       break;
     }
 }
@@ -442,17 +463,6 @@ main(int  argc, char**  argv)
   characters::g_image.load_from_png("__resources/__anigra.png");
 
   final_image = sdl::make_screen_image();
-
-  character.set_base_point(real_point(30,120));
-
-  g_space.append_kinetic_object(character);
-
-  g_space.append_object(*new block_object(rectangle(     0,140,240, 16),colors::white));
-  g_space.append_object(*new block_object(rectangle(     0,  0, 16,150),colors::white));
-  g_space.append_object(*new block_object(rectangle(240-16,  0, 16,150),colors::white));
-  g_space.append_object(*new block_object(rectangle( 80,100,32,32),colors::white));
-  g_space.append_object(*new block_object(rectangle(160, 80,32,32),colors::white));
-  g_space.append_object(*new block_object(rectangle(180, 60,32,32),colors::white));
 
   program.push(ctx);
 

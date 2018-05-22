@@ -158,6 +158,8 @@ object: public body
 protected:
   gbstd::string  m_name;
 
+  bool  m_needed_to_remove=false;
+
 public:
   object() noexcept{}
   object(rectangle  rect) noexcept: body(rect){}
@@ -165,6 +167,10 @@ public:
   virtual ~object(){}
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
+
+  bool  is_needed_to_remove() const noexcept{return m_needed_to_remove;}
+  void    need_to_remove() noexcept{m_needed_to_remove =  true;}
+  void  unneed_to_remove() noexcept{m_needed_to_remove = false;}
 
   virtual void  do_when_collided( object&  other_side, spaces::position  position) noexcept{}
 
@@ -246,6 +252,9 @@ public:
   text_object(gbstd::string_view  sv, const text_style&  style) noexcept:
   m_style(style){set_string(sv);}
 
+  text_object(gbstd::u16string_view  sv, const text_style&  style) noexcept:
+  m_style(style){set_string(sv);}
+
   void  set_string(gbstd::string     sv) noexcept;
   void  set_string(gbstd::u16string  sv) noexcept;
 
@@ -259,11 +268,8 @@ space
 {
   struct object_node;
 
-  object_node*  m_object_first=nullptr;
-  object_node*  m_object_last =nullptr;
-
-  object_node*  m_kinetic_object_first=nullptr;
-  object_node*  m_kinetic_object_last =nullptr;
+  object_node*  m_object_list=nullptr;
+  object_node*  m_kinetic_object_list=nullptr;
 
   object_node*  m_trash=nullptr;
 
@@ -280,21 +286,21 @@ space
 
   void  render_objects(object_node*  nd, image&  dst) const noexcept;
 
-  void  append_object(object&  o, object_node*&  first, object_node*&  last) noexcept;
+  void  append_object(object&  o, void  (*onremove)(object&  o), object_node*&  ls) noexcept;
 
   void  check_collision(object&  a, object&  b) noexcept;
 
 public:
-  void  append_object(        object&  o) noexcept;
-  void  append_kinetic_object(object&  o) noexcept;
+  void  append_object(        object&  o, void  (*onremove)(object&  o)=nullptr) noexcept;
+  void  append_kinetic_object(object&  o, void  (*onremove)(object&  o)=nullptr) noexcept;
 
   environment&  get_environment() noexcept{return m_environment;}
 
   void  detect_collision() noexcept;
 
-  virtual void  update() noexcept;
+  void  update() noexcept;
 
-  virtual void  render(image&  dst) const noexcept;
+  void  render(image&  dst) const noexcept;
 
 };
 

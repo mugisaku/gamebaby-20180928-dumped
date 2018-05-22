@@ -21,6 +21,7 @@ set(SOURCES
   spaces/area.cpp
   spaces/body.cpp
   spaces/object.cpp
+  spaces/text_object.cpp
   spaces/space.cpp
   widgets/widget.cpp
   widgets/container.cpp
