@@ -42,6 +42,22 @@ public:
 };
 
 
+class
+death_object: public spaces::rectangle_object
+{
+public:
+  using rectangle_object::rectangle_object;
+
+  void  do_when_collided(spaces::object&  o, spaces::position  pos) noexcept override
+  {
+    o.need_to_remove();
+  }
+
+  void  render(image&  dst) const noexcept override{}
+
+};
+
+
 namespace characters{
 
 
@@ -323,15 +339,15 @@ namespace{
 
 
 characters::character
-character;
+g_character;
 
 
 images::image
-final_image;
+g_final_image;
 
 
 programs::program
-program;
+g_program;
 
 
 class
@@ -351,19 +367,37 @@ step() noexcept
 
   static spaces::text_object  system_message("",styles::a_white_based_text_style);
 
+  static block_object  blocks[] = {
+    block_object(rectangle(     0,140,80,  16),colors::white),
+    block_object(rectangle(     0,  0, 16,150),colors::white),
+    block_object(rectangle(240-16,  0, 16,150),colors::white),
+    block_object(rectangle( 80,100,32,32),colors::white),
+    block_object(rectangle(160, 80,32,32),colors::white),
+    block_object(rectangle(180, 60,32,32),colors::white),
+  };
+
+  static death_object  death_obj(rectangle(0,screen_height+48,screen_width,32),colors::red);
+
     switch(get_pc())
     {
   case(0):
+      system_message.set_base_point(real_point(screen_width/2,screen_height/2));
+
       system_message.set_string("PRESS ANY KEY TO START GAME");
+
+      system_message.align_center();
 
       g_space.append_object(system_message);
 
       add_pc(1);
       break;
   case(1):
-        if(g_input.test_all_button())
+        if(g_modified_input.test_all_button() &&
+           g_input.test_all_button())
         {
           system_message.set_string("STAGE 0");
+
+          system_message.align_right();
 
           sleep(2000);
 
@@ -371,21 +405,21 @@ step() noexcept
         }
       break;
   case(2):
-      system_message.need_to_remove();
+        system_message.need_to_remove();
 
-      character.set_base_point(real_point(30,120));
+        g_character.set_base_point(real_point(30,120));
 
-      g_space.append_kinetic_object(character);
+        g_space.append_kinetic_object(g_character);
 
-      g_space.append_object(*new block_object(rectangle(     0,140,80,  16),colors::white));
-      g_space.append_object(*new block_object(rectangle(     0,  0, 16,150),colors::white));
-      g_space.append_object(*new block_object(rectangle(240-16,  0, 16,150),colors::white));
-      g_space.append_object(*new block_object(rectangle( 80,100,32,32),colors::white));
-      g_space.append_object(*new block_object(rectangle(160, 80,32,32),colors::white));
-      g_space.append_object(*new block_object(rectangle(180, 60,32,32),colors::white));
-      add_pc(1);
+          for(auto&  blk: blocks)
+          {
+            g_space.append_object(blk);
+          }
 
-      break;
+
+        g_space.append_object(death_obj);
+
+        add_pc(1);
   case(3):
         if(pausing)
         {
@@ -409,6 +443,13 @@ step() noexcept
               g_space.update();
 
               g_space.detect_collision();
+
+                if(!g_character.get_space())
+                {
+                  g_space.remove_all_object();
+
+                  set_pc(0);
+                }
             }
         }
       break;
@@ -428,7 +469,7 @@ main_loop() noexcept
 
   g_time = condev.time;
 
-  program.touch(condev.time);
+  g_program.step(condev.time);
 
 
   static uint32_t  last;
@@ -437,11 +478,11 @@ main_loop() noexcept
     {
       last = g_time;
 
-      final_image.fill();
+      g_final_image.fill();
 
-      g_space.render(final_image);
+      g_space.render(g_final_image);
 
-      sdl::update_screen(final_image);
+      sdl::update_screen(g_final_image);
     }
 }
 
@@ -468,9 +509,9 @@ main(int  argc, char**  argv)
 
   characters::g_image.load_from_png("__resources/__anigra.png");
 
-  final_image = sdl::make_screen_image();
+  g_final_image = sdl::make_screen_image();
 
-  program.push(ctx);
+  g_program.push(ctx);
 
 
 #ifdef EMSCRIPTEN

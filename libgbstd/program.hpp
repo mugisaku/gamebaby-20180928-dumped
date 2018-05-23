@@ -142,7 +142,7 @@ public:
   void   store_value(value&&  v) noexcept{m_stored_value = std::move(v);}
   value&   get_value() noexcept{return m_stored_value;}
 
-  void  touch(uint32_t  time) noexcept;
+  void  step(uint32_t  time) noexcept;
 
 };
 

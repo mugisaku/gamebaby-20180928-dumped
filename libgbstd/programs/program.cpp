@@ -58,7 +58,7 @@ set_sleep_timer(uint32_t  ms) noexcept
 
 void
 program::
-touch(uint32_t  time) noexcept
+step(uint32_t  time) noexcept
 {
   m_current_time = time;
 

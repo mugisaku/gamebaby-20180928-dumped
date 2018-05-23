@@ -20,7 +20,7 @@ object_node
 
 space::object_node*
 space::
-pop_node() noexcept
+pop_node_from_trash() noexcept
 {
     if(m_trash)
     {
@@ -39,7 +39,7 @@ pop_node() noexcept
 
 void
 space::
-push_node(object_node*  nd) noexcept
+push_node_to_trash(object_node*  nd) noexcept
 {
     if(nd)
     {
@@ -55,7 +55,7 @@ void
 space::
 append_object(object&  o, object_node*&  list) noexcept
 {
-  auto  nd = pop_node();
+  auto  nd = pop_node_from_trash();
 
   nd->object = &o;
 
@@ -86,6 +86,56 @@ append_kinetic_object(object&  o) noexcept
   append_object(o,m_kinetic_object_list);
 
   o.set_environment(&m_environment);
+}
+
+
+
+
+void
+space::
+remove_all_object() noexcept
+{
+  auto  current = m_object_list          ;
+                  m_object_list = nullptr;
+
+    while(current)
+    {
+      auto  next = current->next;
+
+      push_node_to_trash(current)      ;
+                         current = next;
+    }
+
+
+  current = m_kinetic_object_list          ;
+            m_kinetic_object_list = nullptr;
+
+    while(current)
+    {
+      auto  next = current->next;
+
+      push_node_to_trash(current)      ;
+                         current = next;
+    }
+}
+
+
+
+
+void
+space::
+empty_trash() noexcept
+{
+    while(m_trash)
+    {
+      auto  next = m_trash->next;
+
+      delete m_trash       ;
+             m_trash = next;
+    }
+
+
+  m_trash = nullptr;
 }
 
 
@@ -143,44 +193,44 @@ detect_collision() noexcept
 {
     if(m_kinetic_object_list && m_kinetic_object_list->next)
     {
-      auto  a = m_kinetic_object_list      ;
-      auto  b = m_kinetic_object_list->next;
+      auto  a_current = m_kinetic_object_list      ;
+      auto  b         = m_kinetic_object_list->next;
 
-        while(a)
+        while(b)
         {
-          auto  b_next = b          ;
-                         b = b->next;
+          auto  b_current = b          ;
+                            b = b->next;
 
-            while(b_next)
+            while(b_current)
             {
-              check_collision(     *a->object,
-                              *b_next->object);
+              check_collision(*a_current->object,
+                              *b_current->object);
 
-              b_next = b_next->next;
+              b_current = b_current->next;
             }
 
 
-          a = a->next;
+          a_current = a_current->next;
         }
     }
 
 
-  auto  a_next = m_kinetic_object_list;
+  auto  a = m_kinetic_object_list;
 
-    while(a_next)
+    while(a)
     {
-      auto  b_next = m_object_list;
+      auto  b = m_object_list;
 
-        while(b_next)
+        while(b)
         {
-          check_collision(*a_next->object,
-                          *b_next->object);
+          check_collision(*a->object,
+                          *b->object);
 
-          b_next = b_next->next;
+          b = b->next;
         }
 
 
-      a_next = a_next->next;
+      a = a->next;
     }
 }
 
@@ -189,34 +239,47 @@ detect_collision() noexcept
 
 void
 space::
-update_objects(object_node*  nd) noexcept
+update_objects(object_node*&  list) noexcept
 {
   object_node*  previous = nullptr;
 
-  auto  next = nd;
+  auto  current = list;
 
-    while(next)
+    while(current)
     {
-        if(next->object->is_needed_to_remove())
+      auto  next = current->next;
+
+        if(current->object->is_needed_to_remove())
         {
-          next->object->unset_space();
+          current->object->unset_space();
 
             if(previous)
             {
-              previous->next = next->next;
+              previous->next = next;
+            }
+
+
+          push_node_to_trash(current);
+
+            if(current == list)
+            {
+              list = nullptr;
+
+              return;
             }
         }
 
       else
         {
-          next->object->save_area();
+          current->object->save_area();
 
-          next->object->update();
+          current->object->update();
+
+          previous = current;
         }
 
 
-      previous = next             ;
-                 next = next->next;
+      current = next;
     }
 }
 
@@ -234,15 +297,15 @@ update() noexcept
 
 void
 space::
-render_objects(object_node*  nd, image&  dst) const noexcept
+render_objects(object_node*  list, image&  dst) const noexcept
 {
-  auto  next = nd;
+  auto  current = list;
 
-    while(next)
+    while(current)
     {
-      next->object->render(dst);
+      current->object->render(dst);
 
-      next = next->next;
+      current = current->next;
     }
 }
 

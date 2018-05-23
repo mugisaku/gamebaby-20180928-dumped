@@ -87,10 +87,9 @@ public:
 
   void  set_base_point(real_point  new_pt) noexcept;
   void  add_base_point(real_point      pt) noexcept;
+  const real_point&  get_base_point() const noexcept{return m_base_point;}
 
   point  get_point() const noexcept;
-
-  const real_point&  get_base_point() const noexcept{return m_base_point;}
 
   const point&  get_offset() const noexcept{return m_offset;}
 
@@ -98,6 +97,9 @@ public:
 
   int  get_width()  const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
+
+  void  set_width( int  v) noexcept{m_width  = v;}
+  void  set_height(int  v) noexcept{m_height = v;}
 
   void                set_environment(const environment*  env)       noexcept{       m_environment = env;}
   const environment*  get_environment(                       ) const noexcept{return m_environment      ;}
@@ -255,6 +257,8 @@ text_object: public object
 
   text_style  m_style;
 
+  point  m_rendering_offset;
+
 public:
   text_object(gbstd::string_view  sv, const text_style&  style) noexcept:
   m_style(style){set_string(sv);}
@@ -264,6 +268,10 @@ public:
 
   void  set_string(gbstd::string_view     sv) noexcept;
   void  set_string(gbstd::u16string_view  sv) noexcept;
+
+  void  align_left(  ) noexcept;
+  void  align_right( ) noexcept;
+  void  align_center() noexcept;
 
   void  render(image&  dst) const noexcept override;
 
@@ -280,8 +288,8 @@ space
 
   object_node*  m_trash=nullptr;
 
-  object_node*  pop_node() noexcept;
-  void          push_node(object_node*  nd) noexcept;
+  object_node*  pop_node_from_trash() noexcept;
+  void          push_node_to_trash(object_node*  nd) noexcept;
 
 
   int  m_width =0;
@@ -289,17 +297,23 @@ space
 
   environment  m_environment;
 
-  void  update_objects(object_node*  nd) noexcept;
+  void  update_objects(object_node*&  list) noexcept;
 
-  void  render_objects(object_node*  nd, image&  dst) const noexcept;
+  void  render_objects(object_node*  list, image&  dst) const noexcept;
 
   void  append_object(object&  o, object_node*&  ls) noexcept;
 
   void  check_collision(object&  a, object&  b) noexcept;
 
 public:
+ ~space(){empty_trash();}
+
   void  append_object(        object&  o) noexcept;
   void  append_kinetic_object(object&  o) noexcept;
+
+  void  remove_all_object() noexcept;
+
+  void  empty_trash() noexcept;
 
   environment&  get_environment() noexcept{return m_environment;}
 
