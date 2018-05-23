@@ -12,7 +12,7 @@ namespace spaces{
 
 void
 text_object::
-set_string(gbstd::string  sv) noexcept
+set_string(gbstd::string_view  sv) noexcept
 {
   utf8_decoder  dec(sv);
 
@@ -35,7 +35,7 @@ set_string(gbstd::string  sv) noexcept
 
 void
 text_object::
-set_string(gbstd::u16string  sv) noexcept
+set_string(gbstd::u16string_view  sv) noexcept
 {
   m_string = sv;
 }

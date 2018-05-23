@@ -13,8 +13,6 @@ object_node
 {
   spaces::object*  object;
 
-  void  (*onremove)(spaces::object&  o);
-
   object_node*  next;
 
 };
@@ -55,15 +53,17 @@ push_node(object_node*  nd) noexcept
 
 void
 space::
-append_object(object&  o, void  (*onremove)(object&  o), object_node*&  list) noexcept
+append_object(object&  o, object_node*&  list) noexcept
 {
   auto  nd = pop_node();
 
   nd->object = &o;
-  nd->onremove = onremove;
 
   nd->next = list     ;
              list = nd;
+
+  o.unneed_to_remove();
+  o.set_space(*this);
 
   o.body::update();
 }
@@ -71,9 +71,9 @@ append_object(object&  o, void  (*onremove)(object&  o), object_node*&  list) no
 
 void
 space::
-append_object(object&  o, void  (*onremove)(object&  o)) noexcept
+append_object(object&  o) noexcept
 {
-  append_object(o,onremove,m_object_list);
+  append_object(o,m_object_list);
 
   o.set_environment(nullptr);
 }
@@ -81,9 +81,9 @@ append_object(object&  o, void  (*onremove)(object&  o)) noexcept
 
 void
 space::
-append_kinetic_object(object&  o, void  (*onremove)(object&  o)) noexcept
+append_kinetic_object(object&  o) noexcept
 {
-  append_object(o,onremove,m_kinetic_object_list);
+  append_object(o,m_kinetic_object_list);
 
   o.set_environment(&m_environment);
 }
@@ -199,11 +199,7 @@ update_objects(object_node*  nd) noexcept
     {
         if(next->object->is_needed_to_remove())
         {
-            if(next->onremove)
-            {
-              next->onremove(*next->object);
-            }
-
+          next->object->unset_space();
 
             if(previous)
             {

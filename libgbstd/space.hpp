@@ -158,6 +158,8 @@ object: public body
 protected:
   gbstd::string  m_name;
 
+  space*  m_space=nullptr;
+
   bool  m_needed_to_remove=false;
 
 public:
@@ -167,6 +169,11 @@ public:
   virtual ~object(){}
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
+
+  space*  get_space() const noexcept{return m_space;}
+
+  void    set_space(space&  sp) noexcept{m_space = &sp;}
+  void  unset_space(          ) noexcept{m_space = nullptr;}
 
   bool  is_needed_to_remove() const noexcept{return m_needed_to_remove;}
   void    need_to_remove() noexcept{m_needed_to_remove =  true;}
@@ -255,8 +262,8 @@ public:
   text_object(gbstd::u16string_view  sv, const text_style&  style) noexcept:
   m_style(style){set_string(sv);}
 
-  void  set_string(gbstd::string     sv) noexcept;
-  void  set_string(gbstd::u16string  sv) noexcept;
+  void  set_string(gbstd::string_view     sv) noexcept;
+  void  set_string(gbstd::u16string_view  sv) noexcept;
 
   void  render(image&  dst) const noexcept override;
 
@@ -286,13 +293,13 @@ space
 
   void  render_objects(object_node*  nd, image&  dst) const noexcept;
 
-  void  append_object(object&  o, void  (*onremove)(object&  o), object_node*&  ls) noexcept;
+  void  append_object(object&  o, object_node*&  ls) noexcept;
 
   void  check_collision(object&  a, object&  b) noexcept;
 
 public:
-  void  append_object(        object&  o, void  (*onremove)(object&  o)=nullptr) noexcept;
-  void  append_kinetic_object(object&  o, void  (*onremove)(object&  o)=nullptr) noexcept;
+  void  append_object(        object&  o) noexcept;
+  void  append_kinetic_object(object&  o) noexcept;
 
   environment&  get_environment() noexcept{return m_environment;}
 

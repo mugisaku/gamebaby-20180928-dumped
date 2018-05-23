@@ -113,10 +113,12 @@ public:
 class
 program
 {
-  struct node;
+  struct node{
+    programs::context*  context;
+    void  (*onpop)(programs::context*  ctx);
+  };
 
-  node*  m_stack=nullptr;
-  node*  m_trash=nullptr;
+  std::vector<node>  m_node_list;
 
   context*  m_top=nullptr;
 
@@ -127,15 +129,13 @@ program
 
   bool  m_sleeping=false;
 
-  node*  pump_node(         ) noexcept;
-  void   dump_node(node*  nd) noexcept;
-
 public:
   ~program(){clear();}
 
   void  clear() noexcept;
 
   void  push(context&  ctx, void  (*onpop)(context*  ctx)=nullptr) noexcept;
+  void  pop() noexcept;
 
   void  set_sleep_timer(uint32_t  ms) noexcept;
 

@@ -349,29 +349,35 @@ step() noexcept
 {
   static bool  pausing;
 
-  static spaces::text_object  start_message(u"PRESS ANY KEY TO START GAME",styles::a_white_based_text_style);
+  static spaces::text_object  system_message("",styles::a_white_based_text_style);
 
     switch(get_pc())
     {
   case(0):
-      g_space.append_object(start_message);
+      system_message.set_string("PRESS ANY KEY TO START GAME");
+
+      g_space.append_object(system_message);
 
       add_pc(1);
       break;
   case(1):
         if(g_input.test_all_button())
         {
-          start_message.need_to_remove();
+          system_message.set_string("STAGE 0");
+
+          sleep(2000);
 
           add_pc(1);
         }
       break;
   case(2):
+      system_message.need_to_remove();
+
       character.set_base_point(real_point(30,120));
 
       g_space.append_kinetic_object(character);
 
-      g_space.append_object(*new block_object(rectangle(     0,140,240, 16),colors::white));
+      g_space.append_object(*new block_object(rectangle(     0,140,80,  16),colors::white));
       g_space.append_object(*new block_object(rectangle(     0,  0, 16,150),colors::white));
       g_space.append_object(*new block_object(rectangle(240-16,  0, 16,150),colors::white));
       g_space.append_object(*new block_object(rectangle( 80,100,32,32),colors::white));
