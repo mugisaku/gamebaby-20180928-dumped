@@ -182,6 +182,7 @@ public:
   void  unneed_to_remove() noexcept{m_needed_to_remove = false;}
 
   virtual void  do_when_collided( object&  other_side, spaces::position  position) noexcept{}
+  virtual void  do_when_removed() noexcept{}
 
   virtual void  update() noexcept;
 

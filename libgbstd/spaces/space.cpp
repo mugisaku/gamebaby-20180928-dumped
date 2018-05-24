@@ -249,9 +249,11 @@ update_objects(object_node*&  list) noexcept
     {
       auto  next = current->next;
 
-        if(current->object->is_needed_to_remove())
+      auto&  obj = *current->object;
+
+        if(obj.is_needed_to_remove())
         {
-          current->object->unset_space();
+          obj.unset_space();
 
             if(previous)
             {
@@ -264,16 +266,17 @@ update_objects(object_node*&  list) noexcept
             if(current == list)
             {
               list = nullptr;
-
-              return;
             }
+
+
+          obj.do_when_removed();
         }
 
       else
         {
-          current->object->save_area();
+          obj.save_area();
 
-          current->object->update();
+          obj.update();
 
           previous = current;
         }
