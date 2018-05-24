@@ -29,8 +29,11 @@ extern images::image
 g_image;
 
 
+class character;
+
+
 class
-character: public spaces::image_object
+character_data
 {
 protected:
   int  m_phase=0;
@@ -39,13 +42,20 @@ protected:
 
   direction  m_direction=direction::right;
 
+  character*  m_shooter=nullptr;
+
   enum class state{
     landing,
     floating,
   } m_state=state::floating;
 
+
+  character*  m_character=nullptr;
+
 public:
-  character() noexcept;
+  void        set_character(character&  chr)       noexcept{        m_character = &chr;}
+  character&  get_character(               ) const noexcept{return *m_character       ;}
+
 
   bool  is_landing()  const noexcept{return m_state == state::landing;}
   bool  is_floating() const noexcept{return m_state == state::floating;}
@@ -53,7 +63,38 @@ public:
   void  be_landing()  noexcept{m_state = state::landing;}
   void  be_floating() noexcept{m_state = state::floating;}
 
+  void       set_direction(direction  dir)       noexcept{       m_direction = dir;}
+  direction  get_direction(              ) const noexcept{return m_direction      ;}
+
+
+  virtual void  initialize_character() noexcept{}
+
+  virtual void  do_when_collided_with_character(character&  other_side, spaces::position  position) noexcept;
+
+  virtual void  do_when_collided_with_object(spaces::object&  other_side, spaces::position  position) noexcept;
+
+  virtual void  update_image() noexcept{}
+  virtual void  update_character() noexcept{}
+
+};
+
+
+class
+character: public spaces::image_object
+{
+  character_data*  m_data=nullptr;
+
+public:
+  void             set_data(character_data*  dat)       noexcept;
+  character_data*  get_data(                    ) const noexcept{return m_data;}
+
+  const char*  get_class_id() const noexcept override;
+
+  bool  query(uint32_t  code) const noexcept override{return true;}
+
   void  do_when_collided(object&  other_side, spaces::position  position) noexcept override;
+
+  void  update() noexcept override;
 
   void  render(images::image&  dst) const noexcept override;
 
@@ -61,7 +102,7 @@ public:
 
 
 class
-player: public character
+player: public character_data
 {
   enum class action{
     stand,
@@ -94,16 +135,12 @@ public:
   void  do_run()   noexcept{m_action = action::run;}
   void  do_squat() noexcept{m_action = action::squat;}
 
-  void  update() noexcept override;
 
-  void  render(images::image&  dst) const noexcept;
+  void  initialize_character() noexcept override;
 
-};
+  void  update_character() noexcept override;
+  void  update_image() noexcept override;
 
-
-class
-enemy: public character
-{
 };
 
 

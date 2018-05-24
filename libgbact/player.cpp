@@ -15,13 +15,6 @@ player() noexcept
   g_space.get_environment().set_gravitation(0.2);
   g_space.get_environment().set_fluid_kinetic_energy(real_point(0.0,0.0));
 //    g_space.get_environment().set_fluid_viscosity(0.08);
-
-  set_width( 24);
-  set_height(48);
-
-  set_rendering_offset(point(-12,-48));
-
-  set_offset(point(-12,-48));
 }
 
 
@@ -31,7 +24,9 @@ void
 player::
 move(direction  d, double  walk_value, double  run_value) noexcept
 {
-  auto  ene = get_kinetic_energy();
+  auto&  chr = get_character();
+
+  auto  ene = chr.get_kinetic_energy();
 
 //      if(is_landing())
     {
@@ -42,7 +37,7 @@ move(direction  d, double  walk_value, double  run_value) noexcept
           do_walk();
               ene.x += walk_value;
 
-              set_kinetic_energy(ene);
+              chr.set_kinetic_energy(ene);
             }
         }
 /*
@@ -79,7 +74,7 @@ move(direction  d, double  walk_value, double  run_value) noexcept
      }
 
 
-  m_direction = d;
+  set_direction(d);
 }
 
 
@@ -102,8 +97,23 @@ ready_to_run(direction  d) noexcept
 
 void
 player::
-update() noexcept
+initialize_character() noexcept
 {
+  auto&  chr = get_character();
+
+  chr.set_width( 24);
+  chr.set_height(48);
+
+  chr.set_offset(point(-12,-48));
+}
+
+
+void
+player::
+update_character() noexcept
+{
+  auto&  chr = get_character();
+
        if(g_input.test_right_button()         ){        move(direction::right,1,2 );}
   else if(g_modified_input.test_right_button()){ready_to_run(direction::right     );}
   else if(g_input.test_left_button()          ){        move(direction::left,-1,-2);}
@@ -112,69 +122,65 @@ update() noexcept
     {
       do_stand();
 
-      set_kinetic_energy_x(0);
+      chr.set_kinetic_energy_x(0);
     }
 
 
-  auto  ene = get_kinetic_energy();
+  auto  ene = chr.get_kinetic_energy();
 
-     if(g_input.test_down_button())
-     {
-         if(is_landing())
-         {
-           ene.x = 0;
+    if(g_input.test_down_button())
+    {
+        if(is_landing())
+        {
+          ene.x = 0;
 
-           do_squat();
-         }
-     }
+          do_squat();
+        }
+    }
 
-   else
-     if(g_input.test_up_button())
-     {
-         if(is_landing())
-         {
-           ene.y -= 5;
+  else
+    if(g_input.test_up_button())
+    {
+        if(is_landing())
+        {
+          ene.y -= 5;
 
-           do_stand();
+          do_stand();
 
-           be_floating();
-         }
-     }
-
-
-     if(g_time >= (m_last_animated_time+160))
-     {
-       m_last_animated_time = g_time;
-
-         if(++m_phase > 3)
-         {
-           m_phase = 0;
-         }
-     }
+          be_floating();
+        }
+    }
 
 
-   set_kinetic_energy(ene);
+    if(g_time >= (m_last_animated_time+160))
+    {
+      m_last_animated_time = g_time;
 
-   object::update();
+        if(++m_phase > 3)
+        {
+          m_phase = 0;
+        }
+    }
 
-   
+
+  chr.set_kinetic_energy(ene);
 }
 
 
 void
 player::
-render(images::image&  dst) const noexcept
+update_image() noexcept
 {
-  sprite  spr;
+  auto&  chr = get_character();
 
-  spr.src_image = &get_image();
+  chr.set_image(g_image);
 
-  auto&  src_point = static_cast<point&>(spr.src_rectangle);
+  rectangle  rect;
 
-  spr.src_rectangle.w = 24;
-  spr.src_rectangle.h = 48;
+  auto&  src_point = static_cast<point&>(rect);
 
-  spr.dst_point = get_base_point()+get_rendering_offset();
+  rect.w = 24;
+  rect.h = 48;
 
     switch(m_action)
     {
@@ -197,14 +203,13 @@ render(images::image&  dst) const noexcept
 
     if(m_direction == direction::left)
     {
-      spr.src_rectangle.w = -spr.src_rectangle.w;
+      rect.w = -rect.w;
     }
 
 
-  spr.render(dst);
+  chr.set_image_rectangle(rect);
 
-
-  character::render(dst);
+  chr.set_rendering_offset(point(-12,-48));
 }
 
 

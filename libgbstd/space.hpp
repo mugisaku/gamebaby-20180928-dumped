@@ -172,6 +172,10 @@ public:
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
 
+  virtual const char*  get_class_id() const noexcept;
+
+  virtual bool  query(uint32_t  code) const noexcept{return false;}
+
   space*  get_space() const noexcept{return m_space;}
 
   void    set_space(space&  sp) noexcept{m_space = &sp;}
@@ -225,11 +229,16 @@ image_object: public object
   point  m_rendering_offset;
 
 public:
-  image_object(const image&  image, rectangle  image_rect) noexcept:
-  object(rectangle(point(),image_rect.w,image_rect.h)),
-  m_image(&image), m_image_rectangle(image_rect){}
+  image_object() noexcept{}
 
-  const image&  get_image() const noexcept{return *m_image;}
+  image_object(const image&  image, rectangle  image_rect, point  rend_off) noexcept:
+  object(rectangle(point(),image_rect.w,image_rect.h)),
+  m_image(&image), m_image_rectangle(image_rect), m_rendering_offset(rend_off){}
+
+  const image&  get_image(           ) const noexcept{return *m_image       ;}
+  void          set_image(image&  img)       noexcept{        m_image = &img;}
+
+  void  set_image_rectangle(rectangle  rect) noexcept{m_image_rectangle = rect;}
 
   void  set_rendering_offset(point  off) noexcept{m_rendering_offset = off;}
 
@@ -237,15 +246,7 @@ public:
 
   void  render(image&  dst) const noexcept override
   {
-    sprite  spr;
-
-    spr.src_image = m_image;
-
-    spr.src_rectangle = m_image_rectangle;
-
-    spr.dst_point = get_base_point()+m_rendering_offset;
-
-    spr.render(dst);
+    images::overlay(*m_image,m_image_rectangle,dst,get_base_point()+m_rendering_offset);
   }
 
 };

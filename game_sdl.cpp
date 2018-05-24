@@ -62,7 +62,7 @@ public:
 namespace{
 
 
-gbact::characters::player
+gbact::characters::character
 g_player;
 
 
@@ -132,6 +132,8 @@ step() noexcept
         system_message.need_to_remove();
 
         g_player.set_base_point(real_point(30,120));
+
+        g_player.set_data(new gbact::characters::player());
 
         g_space.append_kinetic_object(g_player);
 
