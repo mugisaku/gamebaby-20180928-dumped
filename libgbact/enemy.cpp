@@ -72,18 +72,18 @@ update_parameter() noexcept
 
           bch.set_data(new bullet(chr,*m_target));
 
-          bch.set_base_point(chr.get_base_point());
+          bch.set_base_point(chr.get_base_point()+real_point(0,-24));
 
           bch.get_data()->set_direction(get_direction());
 
             if(get_direction() == direction::left)
             {
-              bch.set_kinetic_energy_x(-1);
+              bch.set_kinetic_energy_x(1);
             }
 
           else
             {
-              bch.set_kinetic_energy_x(1);
+              bch.set_kinetic_energy_x(-1);
             }
 
 

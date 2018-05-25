@@ -17,10 +17,10 @@ initialize() noexcept
 
   chr.set_kind_code(kind_codes::bullet);
 
-  chr.set_width( 24);
-  chr.set_height(24);
+  chr.set_width( 16);
+  chr.set_height(16);
 
-  chr.set_offset(point(-12,-12));
+  chr.set_offset(point(-8,-8));
 }
 
 
@@ -32,9 +32,21 @@ do_when_collided_with_player(player&  other_side, spaces::position  position) no
 {
   auto&  chr = get_character();
 
+    if(&other_side.get_character() != m_shooter)
+    {
+      chr.need_to_remove();
+    }
 }
 
 
+void
+bullet::
+do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept
+{
+  auto&  chr = get_character();
+
+  chr.need_to_remove();
+}
 
 
 void
@@ -43,6 +55,7 @@ update_parameter() noexcept
 {
   auto&  chr = get_character();
 
+  chr.set_kinetic_energy_y(0);
 }
 
 

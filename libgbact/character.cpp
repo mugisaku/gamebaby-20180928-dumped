@@ -22,10 +22,23 @@ set_data(character_data*  dat) noexcept
 
     if(m_data)
     {
+      m_visible=true;
+
       m_data->set_character(*this);
 
       m_data->initialize();
     }
+}
+
+
+void
+character::
+blink(uint32_t  time) noexcept
+{
+  m_blinking_status.valid = true;
+
+  m_blinking_status.end_time            = g_time+time;
+  m_blinking_status.next_switching_time = g_time+80;
 }
 
 
@@ -59,6 +72,23 @@ void
 character::
 update() noexcept
 {
+    if(m_blinking_status.valid)
+    {
+        if(g_time >= m_blinking_status.end_time)
+        {
+          m_blinking_status.valid = false;
+        }
+
+      else
+        if(g_time >= m_blinking_status.next_switching_time)
+        {
+          m_blinking_status.next_switching_time = g_time+80;
+
+          m_blinking_status.visible = !m_blinking_status.visible;
+        }
+    }
+
+
     if(m_data)
     {
       m_data->update_parameter();
@@ -67,6 +97,8 @@ update() noexcept
 
 
   object::update();
+
+  m_last_update_time = g_time;
 }
 
 
@@ -74,7 +106,10 @@ void
 character::
 render(images::image&  dst) const noexcept
 {
-  image_object::render(dst);
+    if(m_visible && (!m_blinking_status.valid || m_blinking_status.visible))
+    {
+      image_object::render(dst);
+    }
 
 
   auto  rect = get_rectangle();

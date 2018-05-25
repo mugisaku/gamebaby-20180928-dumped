@@ -135,8 +135,6 @@ hero::
 do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept
 {
   auto&  chr = get_character();
-
-  other_side.get_character().need_to_remove();
 }
 
 

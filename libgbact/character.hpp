@@ -96,10 +96,28 @@ character: public spaces::image_object
 {
   character_data*  m_data=nullptr;
 
+  bool  m_visible=true;
+
+  struct{
+    bool    valid=false;
+    bool  visible=false;
+
+    uint32_t  end_time=0;
+    uint32_t  next_switching_time=0;
+
+  } m_blinking_status;
+
+
+  uint32_t  m_last_update_time=0;
+
 public:
   character_data*  get_data(                     ) const noexcept{return m_data;}
   void             set_data(character_data*  data)       noexcept;
 
+  void  blink(uint32_t  time) noexcept;
+
+  void  show() noexcept{m_visible =  true;}
+  void  hide() noexcept{m_visible = false;}
 
   void  do_when_collided(object&  other_side, spaces::position  position) noexcept override;
 
@@ -215,6 +233,7 @@ public:
   {}
 
   void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept override;
 
   void  initialize() noexcept override;
 
