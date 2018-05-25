@@ -9,14 +9,6 @@ namespace spaces{
 
 
 
-const char*
-object::
-get_class_id() const noexcept
-{
-  return "object";
-}
-
-
 void
 object::
 update() noexcept

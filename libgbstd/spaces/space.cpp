@@ -265,7 +265,7 @@ update_objects(object_node*&  list) noexcept
 
             if(current == list)
             {
-              list = nullptr;
+              list = next;
             }
 
 

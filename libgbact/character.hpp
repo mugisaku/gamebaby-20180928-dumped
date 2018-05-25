@@ -30,11 +30,24 @@ g_image;
 
 
 class character;
+class player;
+class bullet;
+
+
+struct
+kind_codes
+{
+  static constexpr uint32_t  player = 1;
+  static constexpr uint32_t  bullet = 2;
+
+};
 
 
 class
 character_data
 {
+  character*  m_character=nullptr;
+
 protected:
   int  m_phase=0;
 
@@ -42,20 +55,16 @@ protected:
 
   direction  m_direction=direction::right;
 
-  character*  m_shooter=nullptr;
-
   enum class state{
     landing,
     floating,
   } m_state=state::floating;
 
-
-  character*  m_character=nullptr;
+  using object = spaces::object;
 
 public:
   void        set_character(character&  chr)       noexcept{        m_character = &chr;}
   character&  get_character(               ) const noexcept{return *m_character       ;}
-
 
   bool  is_landing()  const noexcept{return m_state == state::landing;}
   bool  is_floating() const noexcept{return m_state == state::floating;}
@@ -67,16 +76,19 @@ public:
   direction  get_direction(              ) const noexcept{return m_direction      ;}
 
 
-  virtual void  initialize_character() noexcept{}
+  virtual void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept{}
+  virtual void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept{}
+  virtual void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept;
 
-  virtual void  do_when_collided_with_character(character&  other_side, spaces::position  position) noexcept;
 
-  virtual void  do_when_collided_with_object(spaces::object&  other_side, spaces::position  position) noexcept;
+  virtual void  initialize() noexcept{}
 
+  virtual void  update_parameter() noexcept{}
   virtual void  update_image() noexcept{}
-  virtual void  update_character() noexcept{}
 
 };
+
+
 
 
 class
@@ -85,12 +97,9 @@ character: public spaces::image_object
   character_data*  m_data=nullptr;
 
 public:
-  void             set_data(character_data*  dat)       noexcept;
-  character_data*  get_data(                    ) const noexcept{return m_data;}
+  character_data*  get_data(                     ) const noexcept{return m_data;}
+  void             set_data(character_data*  data)       noexcept;
 
-  const char*  get_class_id() const noexcept override;
-
-  bool  query(uint32_t  code) const noexcept override{return true;}
 
   void  do_when_collided(object&  other_side, spaces::position  position) noexcept override;
 
@@ -104,17 +113,30 @@ public:
 class
 player: public character_data
 {
+public:
+  player() noexcept{}
+
+};
+
+
+
+
+class
+hero: public player
+{
   enum class action{
     stand,
     walk,
     run,
     squat,
+    greeting,
   } m_action=action::stand;
 
 
   direction  m_running_direction=direction::unknown;
 
   uint32_t  m_running_limit_time=0;
+  uint32_t  m_greeting_end_time=0;
 
   bool  m_ready_to_run=false;
 
@@ -123,22 +145,80 @@ player: public character_data
   void  move(direction  d, double  walk_value, double  run_value) noexcept;
 
 public:
-  player() noexcept;
+  hero() noexcept;
 
-  bool  does_stand()  const noexcept{return m_action == action::stand;}
-  bool  does_walk()   const noexcept{return m_action == action::walk;}
-  bool  does_run()    const noexcept{return m_action == action::run;}
-  bool  does_squat()  const noexcept{return m_action == action::squat;}
+  bool  does_stand()    const noexcept{return m_action == action::stand;}
+  bool  does_walk()     const noexcept{return m_action == action::walk;}
+  bool  does_run()      const noexcept{return m_action == action::run;}
+  bool  does_squat()    const noexcept{return m_action == action::squat;}
+  bool  does_greeting() const noexcept{return m_action == action::greeting;}
 
   void  do_stand() noexcept{m_action = action::stand;}
   void  do_walk()  noexcept{m_action = action::walk;}
   void  do_run()   noexcept{m_action = action::run;}
   void  do_squat() noexcept{m_action = action::squat;}
+  void  do_greeting() noexcept;
 
 
-  void  initialize_character() noexcept override;
+  void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
 
-  void  update_character() noexcept override;
+  void  initialize() noexcept override;
+
+  void  update_parameter() noexcept override;
+  void  update_image() noexcept override;
+
+};
+
+
+class
+enemy: public player
+{
+  enum class action{
+    sleep,
+    attack,
+
+  } m_action=action::sleep;
+
+
+  uint32_t  m_time=0;
+
+  character*  m_target=nullptr;
+
+public:
+  enemy(character&  target) noexcept: m_target(&target){}
+
+
+  void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
+
+  void  initialize() noexcept override;
+
+  void  update_parameter() noexcept override;
+  void  update_image() noexcept override;
+
+};
+
+
+class
+bullet: public character_data
+{
+  uint32_t  m_time=0;
+
+  character*  m_shooter=nullptr;
+  character*  m_target =nullptr;
+
+public:
+  bullet(character&  shooter, character&  target) noexcept:
+  m_shooter(&shooter),
+  m_target(&target)
+  {}
+
+  void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
+
+  void  initialize() noexcept override;
+
+  void  update_parameter() noexcept override;
   void  update_image() noexcept override;
 
 };
@@ -146,7 +226,10 @@ public:
 
 
 
-}}
+}
+
+
+}
 
 
 

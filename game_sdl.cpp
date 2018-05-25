@@ -63,7 +63,11 @@ namespace{
 
 
 gbact::characters::character
-g_player;
+g_player_character;
+
+
+gbact::characters::character
+g_enemy_character;
 
 
 images::image
@@ -92,12 +96,9 @@ step() noexcept
   static spaces::text_object  system_message("",styles::a_white_based_text_style);
 
   static block_object  blocks[] = {
-    block_object(rectangle(     0,140,80,  16),colors::white),
-    block_object(rectangle(     0,  0, 16,150),colors::white),
-    block_object(rectangle(240-16,  0, 16,150),colors::white),
-    block_object(rectangle( 80,100,32,32),colors::white),
-    block_object(rectangle(160, 80,32,32),colors::white),
-    block_object(rectangle(180, 60,32,32),colors::white),
+    block_object(rectangle(     0,200,240, 16),colors::white),
+    block_object(rectangle(     0,  0, 16,240),colors::white),
+    block_object(rectangle(240-16,  0, 16,240),colors::white),
   };
 
   static death_object  death_obj(rectangle(0,screen_height+48,screen_width,32),colors::red);
@@ -123,7 +124,7 @@ step() noexcept
 
           system_message.align_right();
 
-          sleep(2000);
+          sleep(1000);
 
           add_pc(1);
         }
@@ -131,11 +132,17 @@ step() noexcept
   case(2):
         system_message.need_to_remove();
 
-        g_player.set_base_point(real_point(30,120));
+        g_player_character.set_base_point(real_point(30,120));
 
-        g_player.set_data(new gbact::characters::player());
+        g_player_character.set_data(new gbact::characters::hero);
 
-        g_space.append_kinetic_object(g_player);
+        g_space.append_kinetic_object(g_player_character);
+
+        g_enemy_character.set_base_point(real_point(120,100));
+
+        g_enemy_character.set_data(new gbact::characters::enemy(g_player_character));
+
+        g_space.append_kinetic_object(g_enemy_character);
 
           for(auto&  blk: blocks)
           {
@@ -170,7 +177,7 @@ step() noexcept
 
               g_space.detect_collision();
 
-                if(!g_player.get_space())
+                if(!g_player_character.get_space())
                 {
                   g_space.remove_all_object();
 

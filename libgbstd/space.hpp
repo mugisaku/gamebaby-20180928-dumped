@@ -162,6 +162,8 @@ protected:
 
   space*  m_space=nullptr;
 
+  uint32_t  m_kind_code=0;
+
   bool  m_needed_to_remove=false;
 
 public:
@@ -172,9 +174,8 @@ public:
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
 
-  virtual const char*  get_class_id() const noexcept;
-
-  virtual bool  query(uint32_t  code) const noexcept{return false;}
+  uint32_t  get_kind_code(              ) const noexcept{return m_kind_code       ;}
+  void      set_kind_code(uint32_t  code)       noexcept{       m_kind_code = code;}
 
   space*  get_space() const noexcept{return m_space;}
 
@@ -246,7 +247,10 @@ public:
 
   void  render(image&  dst) const noexcept override
   {
-    images::overlay(*m_image,m_image_rectangle,dst,get_base_point()+m_rendering_offset);
+      if(m_image)
+      {
+        images::overlay(*m_image,m_image_rectangle,dst,get_base_point()+m_rendering_offset);
+      }
   }
 
 };
