@@ -22,7 +22,10 @@ set_data(character_data*  dat) noexcept
 
     if(m_data)
     {
-      m_visible=true;
+      set_base_point(real_point());
+      set_kinetic_energy(real_point());
+
+      show();
 
       m_data->set_character(*this);
 
@@ -37,8 +40,7 @@ blink(uint32_t  time) noexcept
 {
   m_blinking_status.valid = true;
 
-  m_blinking_status.end_time            = g_time+time;
-  m_blinking_status.next_switching_time = g_time+80;
+  m_blinking_status.end_time = g_time+time;
 }
 
 
@@ -80,10 +82,7 @@ update() noexcept
         }
 
       else
-        if(g_time >= m_blinking_status.next_switching_time)
         {
-          m_blinking_status.next_switching_time = g_time+80;
-
           m_blinking_status.visible = !m_blinking_status.visible;
         }
     }

@@ -7,6 +7,7 @@ set(SOURCES
   hero.cpp
   enemy.cpp
   bullet.cpp
+  greeting_sphere.cpp
 )
 
 

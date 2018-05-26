@@ -10,7 +10,7 @@ namespace characters{
 
 
 void
-bullet::
+greeting_sphere::
 initialize() noexcept
 {
   auto&  chr = get_character();
@@ -18,16 +18,18 @@ initialize() noexcept
   chr.set_kind_code(kind_codes::bullet);
 
   chr.set_width( 16);
-  chr.set_height(16);
+  chr.set_height(40);
 
-  chr.set_offset(point(-8,-8));
+  chr.set_offset(point(-8,-40));
+
+  set_time(g_time+1000);
 }
 
 
 
 
 void
-bullet::
+greeting_sphere::
 do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept
 {
   auto&  chr = get_character();
@@ -36,51 +38,30 @@ do_when_collided_with_player(player&  other_side, spaces::position  position) no
 
 
 void
-bullet::
+greeting_sphere::
 do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept
 {
   auto&  chr = get_character();
-
-  chr.need_to_remove();
 }
 
 
 void
-bullet::
+greeting_sphere::
 update_parameter() noexcept
 {
   auto&  chr = get_character();
 
-  chr.set_kinetic_energy_y(0);
+    if(g_time >= get_time())
+    {
+      chr.need_to_remove();
+    }
 }
 
 
 void
-bullet::
+greeting_sphere::
 update_image() noexcept
 {
-  auto&  chr = get_character();
-
-  chr.set_image(g_image);
-
-  rectangle  rect;
-
-  auto&  src_point = static_cast<point&>(rect);
-
-  rect.w = 24;
-  rect.h = 24;
-
-  src_point = point(24*7,0);
-
-    if(m_direction == direction::left)
-    {
-      rect.w = -rect.w;
-    }
-
-
-  chr.set_image_rectangle(rect);
-
-  chr.set_rendering_offset(point(-12,-12));
 }
 
 

@@ -96,9 +96,9 @@ step() noexcept
   static spaces::text_object  system_message("",styles::a_white_based_text_style);
 
   static block_object  blocks[] = {
-    block_object(rectangle(     0,200,240, 16),colors::white),
-    block_object(rectangle(     0,  0, 16,240),colors::white),
-    block_object(rectangle(240-16,  0, 16,240),colors::white),
+    block_object(rectangle(              0,240,screen_width, 16),colors::white),
+    block_object(rectangle(              0,  0,          16,240),colors::white),
+    block_object(rectangle(screen_width-16,  0,          16,240),colors::white),
   };
 
   static death_object  death_obj(rectangle(0,screen_height+48,screen_width,32),colors::red);
@@ -132,15 +132,15 @@ step() noexcept
   case(2):
         system_message.need_to_remove();
 
-        g_player_character.set_base_point(real_point(30,120));
-
         g_player_character.set_data(new gbact::characters::hero);
+        g_enemy_character.set_data(new gbact::characters::enemy(g_player_character));
+
+
+        g_player_character.set_base_point(real_point(30,120));
 
         g_space.append_kinetic_object(g_player_character);
 
-        g_enemy_character.set_base_point(real_point(120,100));
-
-        g_enemy_character.set_data(new gbact::characters::enemy(g_player_character));
+        g_enemy_character.set_base_point(real_point(180,160));
 
         g_space.append_kinetic_object(g_enemy_character);
 

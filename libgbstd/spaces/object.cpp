@@ -13,12 +13,15 @@ void
 object::
 update() noexcept
 {
+  auto  ene = get_kinetic_energy();
+
+  add_base_point(ene);
+
+
   auto  env = get_environment();
 
     if(env)
     {
-      auto  ene = get_kinetic_energy();
-
       ene.y += env->get_gravitation();
 
       ene *= (1.0-env->get_fluid_viscosity());
@@ -26,9 +29,8 @@ update() noexcept
       ene += env->get_fluid_kinetic_energy();
 
       set_kinetic_energy(ene);
-
-      add_base_point(ene);
     }
+
 }
 
 

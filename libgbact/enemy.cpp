@@ -32,6 +32,12 @@ do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) no
 {
   auto&  chr = get_character();
 
+    if((&chr != other_side.get_shooter()) && (m_action == action::attack) && !chr.is_blinking())
+    {
+      add_life_level(-1);
+
+      chr.blink(2000);
+    }
 }
 
 
@@ -49,6 +55,9 @@ void
 enemy::
 update_parameter() noexcept
 {
+  player::update_parameter();
+
+
   auto&  chr = get_character();
 
     if(m_target->get_base_point().x < chr.get_base_point().x)
@@ -70,7 +79,7 @@ update_parameter() noexcept
         {
           static character  bch;
 
-          bch.set_data(new bullet(chr,*m_target));
+          bch.set_data(new bullet(&chr,m_target));
 
           bch.set_base_point(chr.get_base_point()+real_point(0,-24));
 
@@ -90,6 +99,8 @@ update_parameter() noexcept
           m_action = action::attack;
 
           chr.get_space()->append_kinetic_object(bch);
+
+          bch.set_environment(nullptr);
         }
 
       else

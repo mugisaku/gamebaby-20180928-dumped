@@ -103,7 +103,6 @@ character: public spaces::image_object
     bool  visible=false;
 
     uint32_t  end_time=0;
-    uint32_t  next_switching_time=0;
 
   } m_blinking_status;
 
@@ -113,6 +112,8 @@ character: public spaces::image_object
 public:
   character_data*  get_data(                     ) const noexcept{return m_data;}
   void             set_data(character_data*  data)       noexcept;
+
+  bool  is_blinking() const noexcept{return m_blinking_status.valid;}
 
   void  blink(uint32_t  time) noexcept;
 
@@ -131,8 +132,30 @@ public:
 class
 player: public character_data
 {
+  struct{
+    bool  valid=false;
+    uint32_t  end_time=0;
+
+  } m_exemption_status;
+
+
+  int  m_life_level=1;
+
 public:
-  player() noexcept{}
+  player(int  life=1) noexcept: m_life_level(life){}
+
+  int  get_life_level() const noexcept{return m_life_level;}
+
+  void  set_life_level(int  v) noexcept;
+  void  add_life_level(int  v) noexcept;
+
+  void  knockback() noexcept;
+
+  void  exempt(uint32_t  time) noexcept;
+
+  virtual void  do_when_ran_out_life() noexcept;
+
+  void  update_parameter() noexcept override;
 
 };
 
@@ -160,7 +183,8 @@ hero: public player
 
   void  ready_to_run(direction  d) noexcept;
 
-  void  move(direction  d, double  walk_value, double  run_value) noexcept;
+  void  move_to_left( ) noexcept;
+  void  move_to_right() noexcept;
 
 public:
   hero() noexcept;
@@ -204,7 +228,7 @@ enemy: public player
   character*  m_target=nullptr;
 
 public:
-  enemy(character&  target) noexcept: m_target(&target){}
+  enemy(character&  target) noexcept: player(4), m_target(&target){}
 
 
   void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept override;
@@ -227,15 +251,38 @@ bullet: public character_data
   character*  m_target =nullptr;
 
 public:
-  bullet(character&  shooter, character&  target) noexcept:
-  m_shooter(&shooter),
-  m_target(&target)
+  bullet(character*  shooter=nullptr, character*  target=nullptr) noexcept:
+  m_shooter(shooter),
+  m_target(target)
   {}
+
+
+  void      set_time(uint32_t  t)       noexcept{       m_time = t;}
+  uint32_t  get_time(           ) const noexcept{return m_time    ;}
+
+  character*  get_shooter() const noexcept{return m_shooter;}
 
   void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
   void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept override;
 
   void  initialize() noexcept override;
+
+  void  update_parameter() noexcept override;
+  void  update_image() noexcept override;
+
+};
+
+
+class
+greeting_sphere: public bullet
+{
+public:
+  using bullet::bullet;
+
+  void  initialize() noexcept override;
+
+  void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept override;
 
   void  update_parameter() noexcept override;
   void  update_image() noexcept override;
