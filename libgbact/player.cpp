@@ -38,7 +38,7 @@ knockback() noexcept
 {
   auto&  chr = get_character();
 
-  chr.add_base_point(real_point((get_direction() == direction::left)? 4:-4,-4));
+  chr.add_base_point(real_point((get_direction() == direction::left)? 8:-8,-4));
 
   chr.add_kinetic_energy(real_point((get_direction() == direction::left)? 16:-16,-4));
 

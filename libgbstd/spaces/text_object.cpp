@@ -82,7 +82,7 @@ align_center() noexcept
 
 void
 text_object::
-render(image&  dst) const noexcept
+render(image&  dst) noexcept
 {
   auto  pt = get_base_point()+m_rendering_offset;
 

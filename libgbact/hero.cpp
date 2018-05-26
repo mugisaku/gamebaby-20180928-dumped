@@ -184,22 +184,25 @@ void
 hero::
 do_greeting() noexcept
 {
-  m_action = action::greeting;
+    if(does_stand())
+    {
+      m_action = action::greeting;
 
-  m_greeting_end_time = g_time+1000;
+      m_greeting_end_time = g_time+1000;
 
-  static character  chr;
+      static character  chr;
 
 
-  chr.set_data(new greeting_sphere(&get_character(),nullptr));
+      chr.set_data(new greeting_sphere(&get_character(),nullptr));
 
-  bool  flag = m_direction == direction::right;
+      bool  flag = m_direction == direction::right;
 
-  chr.set_base_point(get_character().get_base_point()+real_point(flag? 16:-16,-8));
+      chr.set_base_point(get_character().get_base_point()+real_point(flag? 16:-16,-8));
 
-  get_character().get_space()->append_kinetic_object(chr);
+      get_character().get_space()->append_kinetic_object(chr);
 
-  chr.set_environment(nullptr);
+      chr.set_environment(nullptr);
+    }
 }
 
 
@@ -280,32 +283,35 @@ update_parameter() noexcept
 
           chr.set_kinetic_energy_x(0);
         }
-    }
 
 
-  auto  ene = chr.get_kinetic_energy();
+      auto  ene = chr.get_kinetic_energy();
 
-    if(g_input.test_down_button())
-    {
-        if(is_landing())
+        if(g_input.test_down_button())
         {
-          ene.x = 0;
+            if(is_landing())
+            {
+              ene.x = 0;
 
-          do_squat();
+              do_squat();
+            }
         }
-    }
 
-  else
-    if(g_input.test_up_button())
-    {
-        if(is_landing())
+      else
+        if(g_input.test_up_button())
         {
-          ene.y -= 5;
+            if(is_landing())
+            {
+              ene.y -= 5;
 
-          do_stand();
+              do_stand();
 
-          be_floating();
+              be_floating();
+            }
         }
+
+
+      chr.set_kinetic_energy(ene);
     }
 
 
@@ -318,9 +324,6 @@ update_parameter() noexcept
           m_phase = 0;
         }
     }
-
-
-  chr.set_kinetic_energy(ene);
 }
 
 

@@ -54,7 +54,7 @@ public:
     o.need_to_remove();
   }
 
-  void  render(image&  dst) const noexcept override{}
+  void  render(image&  dst) noexcept override{}
 
 };
 
@@ -103,12 +103,14 @@ step() noexcept
 
   static death_object  death_obj(rectangle(0,screen_height+48,screen_width,32),colors::red);
 
+  static uint32_t  time;
+
     switch(get_pc())
     {
   case(0):
       system_message.set_base_point(real_point(screen_width/2,screen_height/2));
 
-      system_message.set_string("PRESS ANY KEY TO START GAME");
+      system_message.set_string("PRESS [ Z or ENTER ] KEY TO START GAME");
 
       system_message.align_center();
 
@@ -117,8 +119,8 @@ step() noexcept
       add_pc(1);
       break;
   case(1):
-        if(g_modified_input.test_all_button() &&
-           g_input.test_all_button())
+        if(g_modified_input.test_p_button() &&
+           g_input.test_p_button())
         {
           system_message.set_string("STAGE 0");
 
@@ -179,9 +181,13 @@ step() noexcept
 
                 if(!g_player_character.get_space())
                 {
-                  g_space.remove_all_object();
-
                   set_pc(4);
+                }
+
+              else
+                if(!g_enemy_character.get_space())
+                {
+                  set_pc(5);
                 }
             }
         }
@@ -189,15 +195,39 @@ step() noexcept
   case(4):
       system_message.set_base_point(real_point(screen_width/2,screen_height/2));
 
-      system_message.set_string("GAME OVER");
+      system_message.set_string("YOU LOOSE");
 
       system_message.align_center();
 
       g_space.append_object(system_message);
 
-      sleep(2000);
+      time = g_time+4000;
 
-      set_pc(0);
+      set_pc(6);
+      break;
+  case(5):
+      system_message.set_base_point(real_point(screen_width/2,screen_height/2));
+
+      system_message.set_string("YOU WIN");
+
+      system_message.align_center();
+
+      g_space.append_object(system_message);
+
+      time = g_time+4000;
+
+      set_pc(6);
+      break;
+  case(6):
+      g_space.update();
+
+      g_space.detect_collision();
+
+        if(g_time >= time)
+        {
+          g_space.remove_all_object();
+          set_pc(0);
+        }
       break;
     }
 }
@@ -246,6 +276,7 @@ main(int  argc, char**  argv)
                   "*左右キーを押すと歩く\n"
                   "*上キーでジャンプ\n"
                   "*下キーでしゃがむ\n"
+                  "*zまたはenterで、おじぎで攻撃\n"
                   "</pre>"
   );
 #endif

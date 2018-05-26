@@ -191,7 +191,7 @@ public:
 
   virtual void  update() noexcept;
 
-  virtual void  render(image&  dst) const noexcept{}
+  virtual void  render(image&  dst) noexcept{}
 
   virtual void  print() const noexcept;
 
@@ -210,7 +210,7 @@ public:
 
   void  set_color(color  new_color) noexcept{m_color = new_color;}
 
-  void  render(image&  dst) const noexcept override
+  void  render(image&  dst) noexcept override
   {
     auto  rect = get_rectangle();
 
@@ -245,7 +245,7 @@ public:
 
   const point&  get_rendering_offset() const noexcept{return m_rendering_offset;}
 
-  void  render(image&  dst) const noexcept override
+  void  render(image&  dst) noexcept override
   {
       if(m_image)
       {
@@ -279,7 +279,7 @@ public:
   void  align_right( ) noexcept;
   void  align_center() noexcept;
 
-  void  render(image&  dst) const noexcept override;
+  void  render(image&  dst) noexcept override;
 
 };
 

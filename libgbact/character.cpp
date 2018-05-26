@@ -80,11 +80,6 @@ update() noexcept
         {
           m_blinking_status.valid = false;
         }
-
-      else
-        {
-          m_blinking_status.visible = !m_blinking_status.visible;
-        }
     }
 
 
@@ -103,9 +98,11 @@ update() noexcept
 
 void
 character::
-render(images::image&  dst) const noexcept
+render(images::image&  dst) noexcept
 {
-    if(m_visible && (!m_blinking_status.valid || m_blinking_status.visible))
+  ++m_rendering_count;
+
+    if(m_visible && (!m_blinking_status.valid || (m_rendering_count&1)))
     {
       image_object::render(dst);
     }

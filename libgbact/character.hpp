@@ -108,6 +108,7 @@ character: public spaces::image_object
 
 
   uint32_t  m_last_update_time=0;
+  uint32_t  m_rendering_count=0;
 
 public:
   character_data*  get_data(                     ) const noexcept{return m_data;}
@@ -124,7 +125,7 @@ public:
 
   void  update() noexcept override;
 
-  void  render(images::image&  dst) const noexcept override;
+  void  render(images::image&  dst) noexcept override;
 
 };
 
