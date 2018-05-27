@@ -276,7 +276,7 @@ update_objects(object_node*&  list) noexcept
         {
           obj.save_area();
 
-          obj.update();
+          obj.update_core();
 
           previous = current;
         }
@@ -306,6 +306,8 @@ render_objects(object_node*  list, image&  dst) const noexcept
 
     while(current)
     {
+      current->object->update_graphics();
+
       current->object->render(dst);
 
       current = current->next;

@@ -36,15 +36,13 @@ void
 player::
 knockback() noexcept
 {
-  auto&  chr = get_character();
+  add_base_point(real_point((get_direction() == direction::left)? 8:-8,-4));
 
-  chr.add_base_point(real_point((get_direction() == direction::left)? 8:-8,-4));
-
-  chr.add_kinetic_energy(real_point((get_direction() == direction::left)? 16:-16,-4));
+  add_kinetic_energy(real_point((get_direction() == direction::left)? 16:-16,-4));
 
   be_floating();
 
-  chr.blink(2000);
+  blink(2000);
 }
 
 
@@ -62,14 +60,16 @@ void
 player::
 do_when_ran_out_life() noexcept
 {
-  get_character().need_to_remove();
+  need_to_remove();
 }
 
 
 void
 player::
-update_parameter() noexcept
+update_core() noexcept
 {
+  character::update_core();
+
     if(m_exemption_status.valid)
     {
         if(g_time >= m_exemption_status.end_time)

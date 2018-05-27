@@ -9,18 +9,17 @@ namespace characters{
 
 
 
-void
 bullet::
-initialize() noexcept
+bullet(player*  shooter, player*  target) noexcept:
+m_shooter(shooter),
+m_target(target)
 {
-  auto&  chr = get_character();
+  set_kind_code(kind_codes::bullet);
 
-  chr.set_kind_code(kind_codes::bullet);
+  set_width( 16);
+  set_height(16);
 
-  chr.set_width( 16);
-  chr.set_height(16);
-
-  chr.set_offset(point(-8,-8));
+  set_offset(point(-8,-8));
 }
 
 
@@ -30,8 +29,6 @@ void
 bullet::
 do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept
 {
-  auto&  chr = get_character();
-
 }
 
 
@@ -39,29 +36,28 @@ void
 bullet::
 do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept
 {
-  auto&  chr = get_character();
-
-  chr.need_to_remove();
+  need_to_remove();
 }
 
 
 void
 bullet::
-update_parameter() noexcept
+update_core() noexcept
 {
-  auto&  chr = get_character();
+  character::update_core();
 
-  chr.set_kinetic_energy_y(0);
+  set_kinetic_energy_y(0);
 }
 
 
 void
 bullet::
-update_image() noexcept
+update_graphics() noexcept
 {
-  auto&  chr = get_character();
+  character::update_graphics();
 
-  chr.set_image(g_image);
+
+  set_image(g_image);
 
   rectangle  rect;
 
@@ -72,15 +68,15 @@ update_image() noexcept
 
   src_point = point(24*7,0);
 
-    if(m_direction == direction::left)
+    if(get_direction() == direction::left)
     {
       rect.w = -rect.w;
     }
 
 
-  chr.set_image_rectangle(rect);
+  set_image_rectangle(rect);
 
-  chr.set_rendering_offset(point(-12,-12));
+  set_rendering_offset(point(-12,-12));
 }
 
 

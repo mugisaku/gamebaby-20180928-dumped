@@ -9,18 +9,17 @@ namespace characters{
 
 
 
-void
 enemy::
-initialize() noexcept
+enemy(player*  target) noexcept:
+player(4),
+m_target(target)
 {
-  auto&  chr = get_character();
+  set_kind_code(kind_codes::player);
 
-  chr.set_kind_code(kind_codes::player);
+  set_width( 24);
+  set_height(48);
 
-  chr.set_width( 24);
-  chr.set_height(48);
-
-  chr.set_offset(point(-12,-48));
+  set_offset(point(-12,-48));
 }
 
 
@@ -30,13 +29,11 @@ void
 enemy::
 do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept
 {
-  auto&  chr = get_character();
-
-    if((&chr != other_side.get_shooter()) && (m_action == action::attack) && !chr.is_blinking())
+    if((this != other_side.get_shooter()) && (m_action == action::attack) && !is_blinking())
     {
       add_life_level(-1);
 
-      chr.blink(2000);
+      blink(2000);
     }
 }
 
@@ -45,7 +42,6 @@ void
 enemy::
 do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept
 {
-  auto&  chr = get_character();
 }
 
 
@@ -53,14 +49,11 @@ do_when_collided_with_player(player&  other_side, spaces::position  position) no
 
 void
 enemy::
-update_parameter() noexcept
+update_core() noexcept
 {
-  player::update_parameter();
+  player::update_core();
 
-
-  auto&  chr = get_character();
-
-    if(m_target->get_base_point().x < chr.get_base_point().x)
+    if(m_target->get_base_point().x < get_base_point().x)
     {
       set_direction(direction::right);
     }
@@ -77,30 +70,30 @@ update_parameter() noexcept
 
         if(m_action == action::sleep)
         {
-          static character  bch;
+          static any_character  bch;
 
-          bch.set_data(new bullet(&chr,m_target));
+          new(&bch) bullet(this,m_target);
 
-          bch.set_base_point(chr.get_base_point()+real_point(0,-24));
+          bch.m_character.set_base_point(get_base_point()+real_point(0,-24));
 
-          bch.get_data()->set_direction(get_direction());
+          bch.m_bullet.set_direction(get_direction());
 
             if(get_direction() == direction::left)
             {
-              bch.set_kinetic_energy_x(1);
+              bch.m_character.set_kinetic_energy_x(1);
             }
 
           else
             {
-              bch.set_kinetic_energy_x(-1);
+              bch.m_character.set_kinetic_energy_x(-1);
             }
 
 
           m_action = action::attack;
 
-          chr.get_space()->append_kinetic_object(bch);
+          get_space()->append_kinetic_object(bch.m_character);
 
-          bch.set_environment(nullptr);
+          bch.m_character.set_environment(nullptr);
         }
 
       else
@@ -113,11 +106,11 @@ update_parameter() noexcept
 
 void
 enemy::
-update_image() noexcept
+update_graphics() noexcept
 {
-  auto&  chr = get_character();
+  player::update_graphics();
 
-  chr.set_image(g_image);
+  set_image(g_image);
 
   rectangle  rect;
 
@@ -137,15 +130,15 @@ update_image() noexcept
     }
 
 
-    if(m_direction == direction::left)
+    if(get_direction() == direction::left)
     {
       rect.w = -rect.w;
     }
 
 
-  chr.set_image_rectangle(rect);
+  set_image_rectangle(rect);
 
-  chr.set_rendering_offset(point(-12,-48));
+  set_rendering_offset(point(-12,-48));
 }
 
 

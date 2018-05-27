@@ -62,12 +62,12 @@ public:
 namespace{
 
 
-gbact::characters::character
-g_player_character;
+gbact::characters::hero
+g_hero;
 
 
-gbact::characters::character
-g_enemy_character;
+gbact::characters::enemy
+g_enemy;
 
 
 images::image
@@ -134,17 +134,17 @@ step() noexcept
   case(2):
         system_message.need_to_remove();
 
-        g_player_character.set_data(new gbact::characters::hero);
-        g_enemy_character.set_data(new gbact::characters::enemy(g_player_character));
+        new(&g_hero) gbact::characters::hero;
+        new(&g_enemy)  gbact::characters::enemy(&g_hero);
 
 
-        g_player_character.set_base_point(real_point(30,120));
+        g_hero.set_base_point(real_point(30,120));
 
-        g_space.append_kinetic_object(g_player_character);
+        g_space.append_kinetic_object(g_hero);
 
-        g_enemy_character.set_base_point(real_point(180,160));
+        g_enemy.set_base_point(real_point(180,160));
 
-        g_space.append_kinetic_object(g_enemy_character);
+        g_space.append_kinetic_object(g_enemy);
 
           for(auto&  blk: blocks)
           {
@@ -179,13 +179,13 @@ step() noexcept
 
               g_space.detect_collision();
 
-                if(!g_player_character.get_space())
+                if(!g_hero.get_space())
                 {
                   set_pc(4);
                 }
 
               else
-                if(!g_enemy_character.get_space())
+                if(!g_enemy.get_space())
                 {
                   set_pc(5);
                 }
@@ -213,6 +213,8 @@ step() noexcept
       system_message.align_center();
 
       g_space.append_object(system_message);
+
+      g_hero.set_invincible();
 
       time = g_time+4000;
 

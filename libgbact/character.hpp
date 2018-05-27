@@ -5,6 +5,7 @@
 #include"libgbstd/space.hpp"
 #include"libgbstd/control_device.hpp"
 #include"libgbstd/direction.hpp"
+#include<new>
 
 
 using namespace gbstd;
@@ -29,9 +30,10 @@ extern images::image
 g_image;
 
 
-class character;
 class player;
 class bullet;
+
+using object = spaces::object;
 
 
 struct
@@ -44,57 +46,9 @@ kind_codes
 
 
 class
-character_data
-{
-  character*  m_character=nullptr;
-
-protected:
-  int  m_phase=0;
-
-  uint32_t  m_last_animated_time=0;
-
-  direction  m_direction=direction::right;
-
-  enum class state{
-    landing,
-    floating,
-  } m_state=state::floating;
-
-  using object = spaces::object;
-
-public:
-  void        set_character(character&  chr)       noexcept{        m_character = &chr;}
-  character&  get_character(               ) const noexcept{return *m_character       ;}
-
-  bool  is_landing()  const noexcept{return m_state == state::landing;}
-  bool  is_floating() const noexcept{return m_state == state::floating;}
-
-  void  be_landing()  noexcept{m_state = state::landing;}
-  void  be_floating() noexcept{m_state = state::floating;}
-
-  void       set_direction(direction  dir)       noexcept{       m_direction = dir;}
-  direction  get_direction(              ) const noexcept{return m_direction      ;}
-
-
-  virtual void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept{}
-  virtual void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept{}
-  virtual void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept;
-
-
-  virtual void  initialize() noexcept{}
-
-  virtual void  update_parameter() noexcept{}
-  virtual void  update_image() noexcept{}
-
-};
-
-
-
-
-class
 character: public spaces::image_object
 {
-  character_data*  m_data=nullptr;
+  direction  m_direction=direction::right;
 
   bool  m_visible=true;
 
@@ -107,12 +61,34 @@ character: public spaces::image_object
   } m_blinking_status;
 
 
+  int  m_phase=0;
+
+  uint32_t  m_last_animated_time=0;
+
   uint32_t  m_last_update_time=0;
   uint32_t  m_rendering_count=0;
 
+
+  enum class state{
+    landing,
+    floating,
+  } m_state=state::floating;
+
+
 public:
-  character_data*  get_data(                     ) const noexcept{return m_data;}
-  void             set_data(character_data*  data)       noexcept;
+  void  reset_phase() noexcept{m_phase = 0;}
+  int  get_phase() const noexcept{return m_phase;}
+
+  bool  check_last_animated_time(uint32_t  interval) noexcept;
+
+  bool  is_landing()  const noexcept{return m_state == state::landing;}
+  bool  is_floating() const noexcept{return m_state == state::floating;}
+
+  void  be_landing()  noexcept{m_state = state::landing;}
+  void  be_floating() noexcept{m_state = state::floating;}
+
+  void       set_direction(direction  dir)       noexcept{       m_direction = dir;}
+  direction  get_direction(              ) const noexcept{return m_direction      ;}
 
   bool  is_blinking() const noexcept{return m_blinking_status.valid;}
 
@@ -121,17 +97,26 @@ public:
   void  show() noexcept{m_visible =  true;}
   void  hide() noexcept{m_visible = false;}
 
+
+  virtual void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept{}
+  virtual void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept{}
+  virtual void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept;
+
+
   void  do_when_collided(object&  other_side, spaces::position  position) noexcept override;
 
-  void  update() noexcept override;
+
+  void  update_core() noexcept override;
 
   void  render(images::image&  dst) noexcept override;
 
 };
 
 
+
+
 class
-player: public character_data
+player: public character
 {
   struct{
     bool  valid=false;
@@ -142,8 +127,14 @@ player: public character_data
 
   int  m_life_level=1;
 
+  bool  m_invincible=false;
+
 public:
   player(int  life=1) noexcept: m_life_level(life){}
+
+  bool  is_invincible() const noexcept{return m_invincible;}
+  void    set_invincible() noexcept{m_invincible =  true;}
+  void  unset_invincible() noexcept{m_invincible = false;}
 
   int  get_life_level() const noexcept{return m_life_level;}
 
@@ -156,7 +147,7 @@ public:
 
   virtual void  do_when_ran_out_life() noexcept;
 
-  void  update_parameter() noexcept override;
+  void  update_core() noexcept override;
 
 };
 
@@ -206,10 +197,8 @@ public:
   void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
 
-  void  initialize() noexcept override;
-
-  void  update_parameter() noexcept override;
-  void  update_image() noexcept override;
+  void  update_core() noexcept override;
+  void  update_graphics() noexcept override;
 
 };
 
@@ -226,50 +215,42 @@ enemy: public player
 
   uint32_t  m_time=0;
 
-  character*  m_target=nullptr;
+  player*  m_target=nullptr;
 
 public:
-  enemy(character&  target) noexcept: player(4), m_target(&target){}
+  enemy(player*  target=nullptr) noexcept;
 
 
   void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
 
-  void  initialize() noexcept override;
-
-  void  update_parameter() noexcept override;
-  void  update_image() noexcept override;
+  void  update_core() noexcept override;
+  void  update_graphics() noexcept override;
 
 };
 
 
 class
-bullet: public character_data
+bullet: public character
 {
   uint32_t  m_time=0;
 
-  character*  m_shooter=nullptr;
-  character*  m_target =nullptr;
+  player*  m_shooter=nullptr;
+  player*  m_target =nullptr;
 
 public:
-  bullet(character*  shooter=nullptr, character*  target=nullptr) noexcept:
-  m_shooter(shooter),
-  m_target(target)
-  {}
-
+  bullet(player*  shooter, player*  target) noexcept;
 
   void      set_time(uint32_t  t)       noexcept{       m_time = t;}
   uint32_t  get_time(           ) const noexcept{return m_time    ;}
 
-  character*  get_shooter() const noexcept{return m_shooter;}
+  player*  get_shooter() const noexcept{return m_shooter;}
 
   void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
   void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept override;
 
-  void  initialize() noexcept override;
-
-  void  update_parameter() noexcept override;
-  void  update_image() noexcept override;
+  void  update_core() noexcept override;
+  void  update_graphics() noexcept override;
 
 };
 
@@ -278,19 +259,31 @@ class
 greeting_sphere: public bullet
 {
 public:
-  using bullet::bullet;
-
-  void  initialize() noexcept override;
+  greeting_sphere(player*  shooter, player*  target) noexcept;
 
   void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
   void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept override;
 
-  void  update_parameter() noexcept override;
-  void  update_image() noexcept override;
+  void  update_core() noexcept override;
+  void  update_graphics() noexcept override{}
 
 };
 
 
+union
+any_character
+{
+  character        m_character;
+  player           m_player;
+  hero             m_hero;
+  enemy            m_enemy;
+  bullet           m_bullet;
+  greeting_sphere  m_greeting_sphere;
+
+  any_character(){}
+ ~any_character(){}
+
+};
 
 
 }

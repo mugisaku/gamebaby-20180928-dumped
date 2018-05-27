@@ -11,7 +11,7 @@ namespace spaces{
 
 void
 object::
-update() noexcept
+update_core() noexcept
 {
   auto  ene = get_kinetic_energy();
 

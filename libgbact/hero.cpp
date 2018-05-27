@@ -18,6 +18,13 @@ player(4)
 //  g_space.get_environment().set_fluid_kinetic_energy(real_point(0.0,));
 
 //  g_space.get_environment().set_fluid_viscosity(0.08);
+
+  set_kind_code(kind_codes::player);
+
+  set_width( 24);
+  set_height(48);
+
+  set_offset(point(-12,-48));
 }
 
 
@@ -33,30 +40,32 @@ void
 hero::
 move_to_left() noexcept
 {
-  auto&  chr = get_character();
-
-  auto  ene = chr.get_kinetic_energy();
+  auto  ene = get_kinetic_energy();
 
     if(is_landing())
     {
         if(does_walk())
         {
+          add_base_point(real_point(-1,0));
+
             if(ene.x > -g_walk_value_max)
             {
               ene.x += -g_walk_value;
 
-              chr.set_kinetic_energy(ene);
+              set_kinetic_energy(ene);
             }
         }
 
       else
         if(does_run())
         {
+          add_base_point(real_point(-1,0));
+
             if(ene.x > -g_run_value_max)
             {
               ene.x += -g_run_value;
 
-              chr.set_kinetic_energy(ene);
+              set_kinetic_energy(ene);
             }
         }
 
@@ -83,11 +92,13 @@ move_to_left() noexcept
 
   else
     {
+      add_base_point(real_point(-1,0));
+
         if(ene.x > -g_walk_value_max)
         {
           ene.x += -g_walk_value;
 
-          chr.set_kinetic_energy(ene);
+          set_kinetic_energy(ene);
         }
      }
 
@@ -100,30 +111,32 @@ void
 hero::
 move_to_right() noexcept
 {
-  auto&  chr = get_character();
-
-  auto  ene = chr.get_kinetic_energy();
+  auto  ene = get_kinetic_energy();
 
     if(is_landing())
     {
         if(does_walk())
         {
+          add_base_point(real_point(1,0));
+
             if(ene.x < g_walk_value_max)
             {
               ene.x += g_walk_value;
 
-              chr.set_kinetic_energy(ene);
+              set_kinetic_energy(ene);
             }
         }
 
       else
         if(does_run())
         {
+          add_base_point(real_point(1,0));
+
             if(ene.x < g_run_value_max)
             {
               ene.x += g_run_value;
 
-              chr.set_kinetic_energy(ene);
+              set_kinetic_energy(ene);
             }
         }
 
@@ -150,11 +163,13 @@ move_to_right() noexcept
 
   else
     {
+      add_base_point(real_point(1,0));
+
         if(ene.x < g_walk_value_max)
         {
           ene.x += g_walk_value;
 
-          chr.set_kinetic_energy(ene);
+          set_kinetic_energy(ene);
         }
      }
 
@@ -190,18 +205,18 @@ do_greeting() noexcept
 
       m_greeting_end_time = g_time+1000;
 
-      static character  chr;
+      static any_character  chr;
 
 
-      chr.set_data(new greeting_sphere(&get_character(),nullptr));
+      new(&chr) greeting_sphere(this,nullptr);
 
-      bool  flag = m_direction == direction::right;
+      bool  flag = (get_direction() == direction::right);
 
-      chr.set_base_point(get_character().get_base_point()+real_point(flag? 16:-16,-8));
+      chr.m_character.set_base_point(get_base_point()+real_point(flag? 16:-16,-8));
 
-      get_character().get_space()->append_kinetic_object(chr);
+      get_space()->append_kinetic_object(chr.m_character);
 
-      chr.set_environment(nullptr);
+      chr.m_character.set_environment(nullptr);
     }
 }
 
@@ -210,26 +225,9 @@ do_greeting() noexcept
 
 void
 hero::
-initialize() noexcept
-{
-  auto&  chr = get_character();
-
-  chr.set_kind_code(kind_codes::player);
-
-  chr.set_width( 24);
-  chr.set_height(48);
-
-  chr.set_offset(point(-12,-48));
-}
-
-
-void
-hero::
 do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept
 {
-  auto&  chr = get_character();
-
-    if((this != other_side.get_shooter()->get_data()) && !chr.is_blinking())
+    if(!is_invincible() && (this != other_side.get_shooter()) && !is_blinking())
     {
       add_life_level(-1);
 
@@ -242,9 +240,7 @@ void
 hero::
 do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept
 {
-  auto&  chr = get_character();
-
-    if(!chr.is_blinking())
+    if(!is_invincible() && !is_blinking())
     {
       add_life_level(-1);
 
@@ -255,12 +251,9 @@ do_when_collided_with_player(player&  other_side, spaces::position  position) no
 
 void
 hero::
-update_parameter() noexcept
+update_core() noexcept
 {
-  player::update_parameter();
-
-
-  auto&  chr = get_character();
+  player::update_core();
 
     if(does_greeting())
     {
@@ -281,11 +274,11 @@ update_parameter() noexcept
         {
           do_stand();
 
-          chr.set_kinetic_energy_x(0);
+          set_kinetic_energy_x(0);
         }
 
 
-      auto  ene = chr.get_kinetic_energy();
+      auto  ene = get_kinetic_energy();
 
         if(g_input.test_down_button())
         {
@@ -302,6 +295,8 @@ update_parameter() noexcept
         {
             if(is_landing())
             {
+              add_base_point(real_point(0,-1));
+
               ene.y -= 5;
 
               do_stand();
@@ -311,17 +306,15 @@ update_parameter() noexcept
         }
 
 
-      chr.set_kinetic_energy(ene);
+      set_kinetic_energy(ene);
     }
 
 
-    if(g_time >= (m_last_animated_time+160))
+    if(check_last_animated_time(160))
     {
-      m_last_animated_time = g_time;
-
-        if(++m_phase > 3)
+        if(get_phase() > 3)
         {
-          m_phase = 0;
+          reset_phase();
         }
     }
 }
@@ -329,11 +322,12 @@ update_parameter() noexcept
 
 void
 hero::
-update_image() noexcept
+update_graphics() noexcept
 {
-  auto&  chr = get_character();
+  player::update_graphics();
 
-  chr.set_image(g_image);
+
+  set_image(g_image);
 
   rectangle  rect;
 
@@ -342,18 +336,21 @@ update_image() noexcept
   rect.w = 24;
   rect.h = 48;
 
+
+  auto  phase = get_phase();
+
     switch(m_action)
     {
   case(action::stand):
-      src_point = (m_state == state::landing)? point( 0,0)
-                 :                             point(24,0);
+      src_point = (is_landing())? point( 0,0)
+                 :                point(24,0);
       break;
   case(action::walk):
   case(action::run):
-      src_point = (m_phase == 0)? point( 0,0)
-                 :(m_phase == 1)? point(24,0)
-                 :(m_phase == 2)? point( 0,0)
-                 :                point(48,0);
+      src_point = (phase == 0)? point( 0,0)
+                 :(phase == 1)? point(24,0)
+                 :(phase == 2)? point( 0,0)
+                 :              point(48,0);
       break;
   case(action::squat):
       src_point = point(24*3,0);
@@ -364,15 +361,15 @@ update_image() noexcept
     }
 
 
-    if(m_direction == direction::left)
+    if(get_direction() == direction::left)
     {
       rect.w = -rect.w;
     }
 
 
-  chr.set_image_rectangle(rect);
+  set_image_rectangle(rect);
 
-  chr.set_rendering_offset(point(-12,-48));
+  set_rendering_offset(point(-12,-48));
 }
 
 
