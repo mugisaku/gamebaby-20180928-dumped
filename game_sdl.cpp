@@ -1,6 +1,7 @@
 #include"libgbstd/program.hpp"
 #include"libgbstd/task.hpp"
 #include"libgbstd/space.hpp"
+#include"libgbstd/board.hpp"
 #include"libgbstd/direction.hpp"
 #include"sdl.hpp"
 #include"libgbact/character.hpp"
@@ -78,6 +79,14 @@ programs::program
 g_program;
 
 
+boards::board
+g_board;
+
+
+boards::board_view
+g_board_view;
+
+
 class
 root_context: public programs::context
 {
@@ -108,6 +117,11 @@ step() noexcept
     switch(get_pc())
     {
   case(0):
+     if(/*g_modified_input.test_up_button()    &&*/  g_input.test_up_button()   ){g_board_view.add_offset(0,-1);}
+else if(/*g_modified_input.test_down_button()  &&*/  g_input.test_down_button() ){g_board_view.add_offset(0, 1);}
+     if(/*g_modified_input.test_left_button()  &&*/  g_input.test_left_button() ){g_board_view.add_offset(-1,0);}
+else if(/*g_modified_input.test_right_button() &&*/  g_input.test_right_button()){g_board_view.add_offset( 1,0);}
+/*
       system_message.set_base_point(real_point(screen_width/2,screen_height/2));
 
       system_message.set_string("PRESS [ Z or ENTER ] KEY TO START GAME");
@@ -117,6 +131,7 @@ step() noexcept
       g_space.append_object(system_message);
 
       add_pc(1);
+*/
       break;
   case(1):
         if(g_modified_input.test_p_button() &&
@@ -258,7 +273,8 @@ main_loop() noexcept
 
       g_final_image.fill();
 
-      g_space.render(g_final_image);
+      g_board_view.render(g_final_image);
+//      g_space.render(g_final_image);
 
       sdl::update_screen(g_final_image);
     }
@@ -292,6 +308,9 @@ main(int  argc, char**  argv)
 
   g_program.push(ctx);
 
+  g_board.build(4,4,40,nullptr);
+
+  g_board_view.reset(g_board,160,160);
 
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop,0,false);
