@@ -297,11 +297,11 @@ update_core() noexcept
             {
               add_base_point(real_point(0,-1));
 
-              ene.y -= 5;
-
-              do_stand();
+              ene.y -= 6;
 
               be_floating();
+
+              do_stand();
             }
         }
 

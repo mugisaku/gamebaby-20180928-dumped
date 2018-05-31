@@ -111,34 +111,108 @@ detect_collision(spaces::object&  o) noexcept
   auto&  area = o.get_area();
   auto&    pt = o.get_base_point();
 
-
-  auto  base_x = get_corrected_x(pt.x-12)/m_square_size;
-  auto  base_y = get_corrected_y(pt.y-12)/m_square_size;
+  auto  base_x = get_corrected_x(pt.x)/m_square_size;
+  auto  base_y = get_corrected_y(pt.y)/m_square_size;
 
   auto*  new_sq = &get_square(base_x,base_y);
-  auto*  old_sq = o.get_current_square();
+  auto*  cur_sq = o.get_current_square();
 
-    if(new_sq != old_sq)
+    if(new_sq != cur_sq)
     {
-        if(old_sq)
+        if(cur_sq)
         {
-               if(o.is_moved_to_up()   ){do_when_entered(o,old_sq->get_link(links::up   ));}
-          else if(o.is_moved_to_down() ){do_when_entered(o,old_sq->get_link(links::down ));}
+          auto  cur_sq_i = cur_sq->get_index();
+          auto  new_sq_i = new_sq->get_index();
+
+            if(cur_sq_i.x < new_sq_i.x)
+            {
+              o.set_left_contacted_square(nullptr);
+
+              auto  sq = cur_sq->get_link(links::right);
+
+                if(sq && sq->get_data())
+                {
+                  new_sq_i.x = cur_sq_i.x;
+
+                  o.set_right(sq->get_area().left-1);
+
+                  o.set_right_contacted_square(sq);
+                }
+
+              else
+                {
+                  o.set_right_contacted_square(nullptr);
+                }
+            }
+
+          else
+            if(cur_sq_i.x > new_sq_i.x)
+            {
+              o.set_right_contacted_square(nullptr);
+
+              auto  sq = cur_sq->get_link(links::left);
+
+                if(sq && cur_sq->get_data())
+                {
+                  new_sq_i.x = cur_sq_i.x;
+
+                  o.set_left(sq->get_area().right+1);
+
+                  o.set_left_contacted_square(sq);
+                }
+
+              else
+                {
+                  o.set_left_contacted_square(nullptr);
+                }
+            }
 
 
-          base_x = get_corrected_x(pt.x-12)/m_square_size;
-          base_y = get_corrected_y(pt.y-12)/m_square_size;
+            if(cur_sq_i.y < new_sq_i.y)
+            {
+              o.set_up_contacted_square(nullptr);
 
-          old_sq = &get_square(base_x,base_y);
+              auto  sq = cur_sq->get_link(links::down);
 
-               if(o.is_moved_to_left() ){do_when_entered(o,old_sq->get_link(links::left ));}
-          else if(o.is_moved_to_right()){do_when_entered(o,old_sq->get_link(links::right));}
+                if(sq && sq->get_data())
+                {
+                  new_sq_i.y = cur_sq_i.y;
+
+                  o.set_bottom(sq->get_area().top-1);
+
+                  o.set_down_contacted_square(sq);
+                }
+
+              else
+                {
+                  o.set_down_contacted_square(nullptr);
+                }
+            }
+
+          else
+            if(cur_sq_i.y > new_sq_i.y)
+            {
+              o.set_down_contacted_square(nullptr);
+
+              auto  sq = cur_sq->get_link(links::up);
+
+                if(sq && cur_sq->get_data())
+                {
+                  new_sq_i.y = cur_sq_i.y;
+
+                  o.set_top(sq->get_area().bottom+1);
+
+                  o.set_up_contacted_square(sq);
+                }
+
+              else
+                {
+                  o.set_up_contacted_square(nullptr);
+                }
+            }
 
 
-          base_x = get_corrected_x(pt.x-12)/m_square_size;
-          base_y = get_corrected_y(pt.y-12)/m_square_size;
-
-          new_sq = &get_square(base_x,base_y);
+          new_sq = &get_square(new_sq_i.x,new_sq_i.y);
         }
 
 

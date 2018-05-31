@@ -160,9 +160,8 @@ public:
   void  unset_space(          ) noexcept{m_space = nullptr;}
 
 
-  void  set_current_square(boards::square*  sq) noexcept{m_current_square = sq;}
-        boards::square*  get_current_square()       noexcept{return m_current_square;}
-  const boards::square*  get_current_square() const noexcept{return m_current_square;}
+  void                   set_current_square(boards::square*  sq)       noexcept{       m_current_square = sq;}
+  const boards::square*  get_current_square(                   ) const noexcept{return m_current_square     ;}
 
   void  set_left_contacted_square(boards::square*  sq) noexcept{m_left_contacted_square = sq;}
         boards::square*  get_left_contacted_square()       noexcept{return m_left_contacted_square;}

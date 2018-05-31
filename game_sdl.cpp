@@ -306,6 +306,7 @@ dat.set_image_point(point(24,0));
   g_board_view.set_source_image(g_bg_image);
   g_board_view.reset(g_board,screen_width,screen_height);
 
+
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop,0,false);
 #else

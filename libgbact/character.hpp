@@ -69,23 +69,16 @@ character: public spaces::image_object
   uint32_t  m_rendering_count=0;
 
 
-  enum class state{
-    landing,
-    floating,
-  } m_state=state::floating;
-
-
 public:
   void  reset_phase() noexcept{m_phase = 0;}
   int  get_phase() const noexcept{return m_phase;}
 
   bool  check_last_animated_time(uint32_t  interval) noexcept;
 
-  bool  is_landing()  const noexcept{return m_state == state::landing;}
-  bool  is_floating() const noexcept{return m_state == state::floating;}
+  bool  is_landing()  const noexcept{return get_down_contacted_square();}
+  bool  is_floating() const noexcept{return !is_landing();}
 
-  void  be_landing()  noexcept{m_state = state::landing;}
-  void  be_floating() noexcept{m_state = state::floating;}
+  void  be_floating() noexcept{set_down_contacted_square(nullptr);}
 
   void       set_direction(direction  dir)       noexcept{       m_direction = dir;}
   direction  get_direction(              ) const noexcept{return m_direction      ;}
@@ -104,7 +97,6 @@ public:
 
 
   void  do_when_collided(object&  other_side, positions::position  position) noexcept override;
-  void  do_when_entered(boards::square&  square) noexcept override;
 
 
   void  update_core() noexcept override;
