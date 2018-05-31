@@ -103,6 +103,8 @@ get_nearer(direction  base, direction  a, direction  b) noexcept
 }
 
 
+
+
 }
 
 

@@ -43,7 +43,7 @@ blink(uint32_t  time) noexcept
 
 void
 character::
-do_when_collided(object&  other_side, spaces::position  position) noexcept
+do_when_collided(object&  other_side, positions::position  position) noexcept
 {
     if(other_side.get_kind_code() == kind_codes::player)
     {
@@ -97,6 +97,21 @@ render(images::image&  dst) noexcept
   auto  rect = get_rectangle();
 
   dst.draw_rectangle_safely(colors::red,rect.x,rect.y,rect.w,rect.h);
+
+
+  auto  sq = get_current_square();
+
+    if(sq)
+    {
+      auto&  area = sq->get_area();
+
+      dst.fill_rectangle(colors::blue,area.left,area.top,24,24);
+
+      auto&  base_pt = get_base_point();
+
+      dst.draw_vline(colors::red,base_pt.x   ,base_pt.y-32,64);
+      dst.draw_hline(colors::red,base_pt.x-32,base_pt.y   ,64);
+    }
 }
 
 
@@ -104,42 +119,85 @@ render(images::image&  dst) noexcept
 
 void
 character::
-do_when_collided_with_object(spaces::object&  other_side, spaces::position  position) noexcept
+do_when_entered(boards::square&  square) noexcept
 {
-  auto&  area = other_side.get_area();
+  auto  dat = square.get_data();
 
-      if(position == spaces::position::left)
-      {
-        set_left(area.right);
 
-        set_kinetic_energy_x(0);
-      }
+  auto&  area = square.get_area();
 
-    else
-      if(position == spaces::position::right)
-      {
-        set_right(area.left);
+    if(is_moved_to_down())
+    {
+      set_up_contacted_square(nullptr);
 
-        set_kinetic_energy_x(0);
-      }
+        if(dat)
+        {
+          set_bottom(area.top-1);
 
-    else
-      if(position == spaces::position::top)
-      {
-        set_top(area.bottom);
+          set_down_contacted_square(&square);
 
-        set_kinetic_energy_y(0);
-      }
+          be_landing();
+        }
 
-    else
-      if(position == spaces::position::bottom)
-      {
-        set_bottom(area.top);
+      else
+        {
+          set_down_contacted_square(nullptr);
+        }
+    }
 
-        set_kinetic_energy_y(0);
+  else
+    if(is_moved_to_up())
+    {
+      set_down_contacted_square(nullptr);
 
-        be_landing();
-      }
+        if(dat)
+        {
+          set_top(area.bottom+1);
+
+          set_up_contacted_square(&square);
+        }
+
+      else
+        {
+          set_up_contacted_square(nullptr);
+        }
+    }
+
+
+    if(is_moved_to_left())
+    {
+      set_right_contacted_square(nullptr);
+
+        if(dat)
+        {
+          set_left(area.right+1);
+
+          set_left_contacted_square(&square);
+        }
+
+      else
+        {
+          set_left_contacted_square(nullptr);
+        }
+    }
+
+  else
+    if(is_moved_to_right())
+    {
+      set_left_contacted_square(nullptr);
+
+        if(dat)
+        {
+          set_right(area.left-1);
+
+          set_right_contacted_square(&square);
+        }
+
+      else
+        {
+          set_right_contacted_square(nullptr);
+        }
+    }
 }
 
 

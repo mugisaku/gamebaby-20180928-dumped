@@ -1,4 +1,5 @@
 #include"libgbstd/board.hpp"
+#include"libgbstd/space.hpp"
 
 
 
@@ -9,9 +10,43 @@ namespace boards{
 
 
 
+int
+board::
+get_corrected_x(int  x) const noexcept
+{
+  x %= m_image_width;
+
+    if(x < 0)
+    {
+      x += m_image_width;
+    }
+
+
+  return x;
+}
+
+
+int
+board::
+get_corrected_y(int  y) const noexcept
+{
+  y %= m_image_height;
+
+    if(y < 0)
+    {
+      y += m_image_height;
+    }
+
+
+  return y;
+}
+
+
+
+
 void
 board::
-build(int  w, int  h, int  square_size, square_data*  (*get)(int  x, int  y)) noexcept
+build(int  w, int  h, int  square_size) noexcept
 {
   m_width  = w;
   m_height = h;
@@ -27,7 +62,7 @@ build(int  w, int  h, int  square_size, square_data*  (*get)(int  x, int  y)) no
     for(int  x = 0;  x < w;  ++x){
       auto&  sq = get_square(x,y);
 
-      spaces::area  area;
+      boards::area  area;
 
       area.top    = y*square_size;
       area.left   = x*square_size;
@@ -37,11 +72,6 @@ build(int  w, int  h, int  square_size, square_data*  (*get)(int  x, int  y)) no
       sq.set_area(area);
 
       sq.set_index(point(x,y));
-
-        if(get)
-        {
-          sq.set_data(get(x,y));
-        }
 
 
       bool  u = (y               );
@@ -59,6 +89,61 @@ build(int  w, int  h, int  square_size, square_data*  (*get)(int  x, int  y)) no
       sq.set_link((d && l)? &get_square(x-1,y+1):nullptr,links::lower_left );
       sq.set_link((d && r)? &get_square(x+1,y+1):nullptr,links::lower_right);
     }}
+}
+
+
+namespace{
+void
+do_when_entered(spaces::object&  o, square*  sq) noexcept
+{
+    if(sq)
+    {
+      o.do_when_entered(*sq);
+    }
+}
+}
+
+
+void
+board::
+detect_collision(spaces::object&  o) noexcept
+{
+  auto&  area = o.get_area();
+  auto&    pt = o.get_base_point();
+
+
+  auto  base_x = get_corrected_x(pt.x-12)/m_square_size;
+  auto  base_y = get_corrected_y(pt.y-12)/m_square_size;
+
+  auto*  new_sq = &get_square(base_x,base_y);
+  auto*  old_sq = o.get_current_square();
+
+    if(new_sq != old_sq)
+    {
+        if(old_sq)
+        {
+               if(o.is_moved_to_up()   ){do_when_entered(o,old_sq->get_link(links::up   ));}
+          else if(o.is_moved_to_down() ){do_when_entered(o,old_sq->get_link(links::down ));}
+
+
+          base_x = get_corrected_x(pt.x-12)/m_square_size;
+          base_y = get_corrected_y(pt.y-12)/m_square_size;
+
+          old_sq = &get_square(base_x,base_y);
+
+               if(o.is_moved_to_left() ){do_when_entered(o,old_sq->get_link(links::left ));}
+          else if(o.is_moved_to_right()){do_when_entered(o,old_sq->get_link(links::right));}
+
+
+          base_x = get_corrected_x(pt.x-12)/m_square_size;
+          base_y = get_corrected_y(pt.y-12)/m_square_size;
+
+          new_sq = &get_square(base_x,base_y);
+        }
+
+
+      o.set_current_square(new_sq);
+    }
 }
 
 

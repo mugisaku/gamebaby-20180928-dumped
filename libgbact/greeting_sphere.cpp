@@ -28,14 +28,14 @@ bullet(shooter,target)
 
 void
 greeting_sphere::
-do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept
+do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
 }
 
 
 void
 greeting_sphere::
-do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept
+do_when_collided_with_object(object&  other_side, positions::position  position) noexcept
 {
 }
 

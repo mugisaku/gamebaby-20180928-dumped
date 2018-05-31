@@ -214,7 +214,7 @@ do_greeting() noexcept
 
       chr.m_character.set_base_point(get_base_point()+real_point(flag? 16:-16,-8));
 
-      get_space()->append_kinetic_object(chr.m_character);
+      get_space()->append_object(chr.m_character);
 
       chr.m_character.set_environment(nullptr);
     }
@@ -225,7 +225,7 @@ do_greeting() noexcept
 
 void
 hero::
-do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept
+do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
     if(!is_invincible() && (this != other_side.get_shooter()) && !is_blinking())
     {
@@ -238,7 +238,7 @@ do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) no
 
 void
 hero::
-do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept
+do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
     if(!is_invincible() && !is_blinking())
     {

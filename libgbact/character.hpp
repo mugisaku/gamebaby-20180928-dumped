@@ -98,12 +98,13 @@ public:
   void  hide() noexcept{m_visible = false;}
 
 
-  virtual void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept{}
-  virtual void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept{}
-  virtual void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept;
+  virtual void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept{}
+  virtual void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept{}
+  virtual void  do_when_collided_with_object(object&  other_side, positions::position  position) noexcept{}
 
 
-  void  do_when_collided(object&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided(object&  other_side, positions::position  position) noexcept override;
+  void  do_when_entered(boards::square&  square) noexcept override;
 
 
   void  update_core() noexcept override;
@@ -194,8 +195,8 @@ public:
   void  do_greeting() noexcept;
 
 
-  void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept override;
-  void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
 
   void  update_core() noexcept override;
   void  update_graphics() noexcept override;
@@ -221,8 +222,8 @@ public:
   enemy(player*  target=nullptr) noexcept;
 
 
-  void  do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept override;
-  void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
 
   void  update_core() noexcept override;
   void  update_graphics() noexcept override;
@@ -246,8 +247,8 @@ public:
 
   player*  get_shooter() const noexcept{return m_shooter;}
 
-  void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
-  void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_object(object&  other_side, positions::position  position) noexcept override;
 
   void  update_core() noexcept override;
   void  update_graphics() noexcept override;
@@ -261,8 +262,8 @@ greeting_sphere: public bullet
 public:
   greeting_sphere(player*  shooter, player*  target) noexcept;
 
-  void  do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept override;
-  void  do_when_collided_with_object(object&  other_side, spaces::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_object(object&  other_side, positions::position  position) noexcept override;
 
   void  update_core() noexcept override;
   void  update_graphics() noexcept override{}

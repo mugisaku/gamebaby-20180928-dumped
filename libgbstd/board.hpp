@@ -3,11 +3,40 @@
 
 
 #include"libgbstd/image.hpp"
-#include"libgbstd/space.hpp"
+#include"libgbstd/position.hpp"
 
 
 namespace gbstd{
+
+
+namespace spaces{
+class object;
+}
+
+
 namespace boards{
+
+
+
+
+struct
+area
+{
+  int     top=0;
+  int    left=0;
+  int   right=0;
+  int  bottom=0;
+
+
+  static bool  test_x_collision(const area&  a, const area&  b) noexcept;
+  static bool  test_y_collision(const area&  a, const area&  b) noexcept;
+  static bool  test_collision(  const area&  a, const area&  b) noexcept;
+
+  void  print() const noexcept;
+
+};
+
+
 
 
 struct
@@ -52,11 +81,14 @@ square_data
 {
   uint32_t  m_kind_code=0;
 
+  point  m_image_point;
+
 public:
   uint32_t  get_kind_code(              ) const noexcept{return m_kind_code       ;}
   void      set_kind_code(uint32_t  code)       noexcept{       m_kind_code = code;}
 
-  virtual void  render(image_cursor  cur) noexcept{}
+  point  get_image_point(         ) const noexcept{return m_image_point     ;}
+  void   set_image_point(point  pt)       noexcept{       m_image_point = pt;}
 
 };
 
@@ -66,7 +98,7 @@ square
 {
   point  m_index;
 
-  spaces::area  m_area;
+  area  m_area;
 
   square*  m_link_table[8];
 
@@ -78,8 +110,8 @@ public:
   const point&  get_index(         ) const noexcept{return m_index     ;}
   void          set_index(point  pt)       noexcept{       m_index = pt;}
 
-  const spaces::area&  get_area(                  ) const noexcept{return m_area       ;}
-  void                 set_area(spaces::area  area)       noexcept{       m_area = area;}
+  const area&  get_area(          ) const noexcept{return m_area       ;}
+  void         set_area(area  area)       noexcept{       m_area = area;}
 
   square*  get_link(             int  i) const noexcept{return m_link_table[i]     ;}
   void     set_link(square*  sq, int  i)       noexcept{       m_link_table[i] = sq;}
@@ -107,6 +139,9 @@ board
   std::vector<square>   m_square_table;
 
 public:
+  int  get_corrected_x(int  x) const noexcept;
+  int  get_corrected_y(int  y) const noexcept;
+
   int  get_width()  const noexcept{return m_width;}
   int  get_height() const noexcept{return m_height;}
 
@@ -118,7 +153,9 @@ public:
         square&  get_square(int  x, int  y)       noexcept{return m_square_table[(m_width*y)+x];}
   const square&  get_square(int  x, int  y) const noexcept{return m_square_table[(m_width*y)+x];}
 
-  void  build(int  w, int  h, int  square_size, square_data*  (*get)(int  x, int  y)) noexcept;
+  void  build(int  w, int  h, int  square_size) noexcept;
+
+  void  detect_collision(spaces::object&  o) noexcept;
 
 };
 
@@ -127,6 +164,8 @@ class
 board_view
 {
   const board*  m_board=nullptr;
+
+  const image*  m_source_image=nullptr;
 
   image  m_image;
 
@@ -142,6 +181,8 @@ board_view
 public:
   board_view(                                 ) noexcept{}
   board_view(const board&  brd, int  w, int  h) noexcept{reset(brd,w,h);}
+
+  void  set_source_image(const image&  img) noexcept{m_source_image = &img;}
 
   void  reset(const board&  brd, int  w, int  h) noexcept;
 

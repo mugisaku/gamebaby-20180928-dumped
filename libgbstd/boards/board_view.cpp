@@ -33,23 +33,8 @@ point
 board_view::
 get_base_point() const noexcept
 {
-  auto  brdimg_w = m_board->get_image_width() ;
-  auto  brdimg_h = m_board->get_image_height();
-
-  auto  x = m_offset.x%brdimg_w;
-  auto  y = m_offset.y%brdimg_h;
-
-    if(x < 0)
-    {
-      x += brdimg_w;
-    }
-
-
-    if(y < 0)
-    {
-      y += brdimg_h;
-    }
-
+  auto  x = m_board->get_corrected_x(m_offset.x);
+  auto  y = m_board->get_corrected_y(m_offset.y);
 
   return point(x,y);
 }
@@ -59,7 +44,6 @@ void
 board_view::
 update_image(point  base_square_point) noexcept
 {
-report;
   auto  sq_size = m_board->get_square_size();
 
   auto  brd_w = m_board->get_width() ;
@@ -74,6 +58,8 @@ report;
 
   m_image.fill();
 
+  rectangle  srcimg_rect(0,0,sq_size,sq_size);
+
     for(int  y = 0;  y < img_h;  y += sq_size)
     {
       auto  sq_x = m_base_square_point.x;
@@ -82,10 +68,15 @@ report;
         {
           auto&  sq = m_board->get_square(sq_x,sq_y);
 
-//          sq.get_data()->render(image_cursor(m_image,point(x,y)));
-string_form  sf;
-          m_image.draw_text(sf("x:%d",sq.get_index().x),styles::a_white_based_text_style,x,y);
-          m_image.draw_text(sf("y:%d",sq.get_index().y),styles::a_white_based_text_style,x,y+16);
+          auto  dat = sq.get_data();
+
+            if(dat)
+            {
+              static_cast<point&>(srcimg_rect) = dat->get_image_point();
+
+              images::overlay(*m_source_image,srcimg_rect,m_image,point(x,y));
+            }
+
 
             if(++sq_x >= brd_w)
             {

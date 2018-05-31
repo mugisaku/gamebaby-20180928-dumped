@@ -42,8 +42,8 @@ void
 body::
 set_left(int  v) noexcept
 {
-  m_area.left  = v          ;
-  m_area.right = v+m_width-1;
+  m_area.left  = v            ;
+  m_area.right = v+(m_width-1);
 
   m_base_point.x = v-m_offset.x;
 }
@@ -53,8 +53,8 @@ void
 body::
 set_right(int  v) noexcept
 {
-  m_area.right = v          ;
-  m_area.left  = v-m_width+1;
+  m_area.right = v            ;
+  m_area.left  = v-(m_width-1);
 
   m_base_point.x = m_area.left-m_offset.x;
 }
@@ -64,8 +64,8 @@ void
 body::
 set_top(int  v) noexcept
 {
-  m_area.top    = v           ;
-  m_area.bottom = v+m_height-1;
+  m_area.top    = v             ;
+  m_area.bottom = v+(m_height-1);
 
   m_base_point.y = v-m_offset.y;
 }
@@ -75,8 +75,8 @@ void
 body::
 set_bottom(int  v) noexcept
 {
-  m_area.bottom = v           ;
-  m_area.top    = v-m_height+1;
+  m_area.bottom = v             ;
+  m_area.top    = v-(m_height-1);
 
   m_base_point.y = m_area.top-m_offset.y;
 }
@@ -115,7 +115,11 @@ body::
 print() const noexcept
 {
   printf("body:{\n");
-  printf("  base_point: {%8f, %8f}\n",m_base_point.x,m_base_point.y);
+  printf("    base_point: {%8f, %8f}\n",m_base_point.x,m_base_point.y);
+  printf("kinetic energy: {%8f, %8f}\n",m_kinetic_energy.x,m_kinetic_energy.y);
+
+  m_area.print();
+
   printf("}\n");
 }
 

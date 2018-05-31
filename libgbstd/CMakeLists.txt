@@ -18,13 +18,13 @@ set(SOURCES
   programs/value.cpp
   programs/context.cpp
   programs/program.cpp
-  spaces/area.cpp
   spaces/body.cpp
   spaces/object.cpp
   spaces/text_object.cpp
+  spaces/space.cpp
+  boards/area.cpp
   boards/board.cpp
   boards/board_view.cpp
-  spaces/space.cpp
   widgets/widget.cpp
   widgets/container.cpp
   widgets/node.cpp

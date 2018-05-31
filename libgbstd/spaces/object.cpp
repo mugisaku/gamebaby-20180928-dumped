@@ -15,6 +15,42 @@ update_core() noexcept
 {
   auto  ene = get_kinetic_energy();
 
+    if(ene.x < 0)
+    {
+        if(m_left_contacted_square)
+        {
+          ene.x = 0;
+        }
+    }
+
+  else
+    if(ene.x > 0)
+    {
+        if(m_right_contacted_square)
+        {
+          ene.x = 0;
+        }
+    }
+
+
+    if(ene.y < 0)
+    {
+        if(m_up_contacted_square)
+        {
+          ene.y = 0;
+        }
+    }
+
+  else
+    if(ene.y > 0)
+    {
+        if(m_down_contacted_square)
+        {
+          ene.y = 0;
+        }
+    }
+
+
   add_base_point(ene);
 
 
@@ -41,8 +77,6 @@ print() const noexcept
   printf("object: {\n");
 
   body::print();
-
-//  printf("kinetic energy: {%8f,%8f}\n",m_kinetic_energy.x,m_kinetic_energy.y);
 
   printf("}\n\n");
 }

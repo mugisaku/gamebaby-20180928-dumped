@@ -404,7 +404,7 @@ create_right_part_widget() noexcept
   mnu = new widgets::menu(mip,table_width,table_height);
 
 
-  resize_cell_all(24,24*2);
+  resize_cell_all(24,24);
 
   auto  color_list = {
     colors::black,

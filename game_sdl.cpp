@@ -28,7 +28,7 @@ keyboard           g_input;
 
 
 images::image
-title_image;
+g_bg_image;
 
 
 spaces::space
@@ -50,7 +50,7 @@ death_object: public spaces::rectangle_object
 public:
   using rectangle_object::rectangle_object;
 
-  void  do_when_collided(spaces::object&  o, spaces::position  pos) noexcept override
+  void  do_when_collided(spaces::object&  o, position  pos) noexcept override
   {
     o.need_to_remove();
   }
@@ -104,24 +104,11 @@ step() noexcept
 
   static spaces::text_object  system_message("",styles::a_white_based_text_style);
 
-  static block_object  blocks[] = {
-    block_object(rectangle(              0,240,screen_width, 16),colors::white),
-    block_object(rectangle(              0,  0,          16,240),colors::white),
-    block_object(rectangle(screen_width-16,  0,          16,240),colors::white),
-  };
-
-  static death_object  death_obj(rectangle(0,screen_height+48,screen_width,32),colors::red);
-
   static uint32_t  time;
 
     switch(get_pc())
     {
   case(0):
-     if(/*g_modified_input.test_up_button()    &&*/  g_input.test_up_button()   ){g_board_view.add_offset(0,-1);}
-else if(/*g_modified_input.test_down_button()  &&*/  g_input.test_down_button() ){g_board_view.add_offset(0, 1);}
-     if(/*g_modified_input.test_left_button()  &&*/  g_input.test_left_button() ){g_board_view.add_offset(-1,0);}
-else if(/*g_modified_input.test_right_button() &&*/  g_input.test_right_button()){g_board_view.add_offset( 1,0);}
-/*
       system_message.set_base_point(real_point(screen_width/2,screen_height/2));
 
       system_message.set_string("PRESS [ Z or ENTER ] KEY TO START GAME");
@@ -131,15 +118,14 @@ else if(/*g_modified_input.test_right_button() &&*/  g_input.test_right_button()
       g_space.append_object(system_message);
 
       add_pc(1);
-*/
       break;
   case(1):
         if(g_modified_input.test_p_button() &&
            g_input.test_p_button())
         {
-          system_message.set_string("STAGE 0");
+//          system_message.set_string("STAGE 0");
 
-          system_message.align_right();
+//          system_message.align_right();
 
           sleep(1000);
 
@@ -155,19 +141,11 @@ else if(/*g_modified_input.test_right_button() &&*/  g_input.test_right_button()
 
         g_hero.set_base_point(real_point(30,120));
 
-        g_space.append_kinetic_object(g_hero);
+        g_space.append_object(g_hero,true);
 
         g_enemy.set_base_point(real_point(180,160));
 
-        g_space.append_kinetic_object(g_enemy);
-
-          for(auto&  blk: blocks)
-          {
-            g_space.append_object(blk);
-          }
-
-
-        g_space.append_object(death_obj);
+//        g_space.append_object(g_enemy);
 
         add_pc(1);
   case(3):
@@ -193,6 +171,7 @@ else if(/*g_modified_input.test_right_button() &&*/  g_input.test_right_button()
               g_space.update();
 
               g_space.detect_collision();
+              g_space.detect_collision(g_board);
 
                 if(!g_hero.get_space())
                 {
@@ -202,7 +181,7 @@ else if(/*g_modified_input.test_right_button() &&*/  g_input.test_right_button()
               else
                 if(!g_enemy.get_space())
                 {
-                  set_pc(5);
+//                  set_pc(5);
                 }
             }
         }
@@ -274,7 +253,7 @@ main_loop() noexcept
       g_final_image.fill();
 
       g_board_view.render(g_final_image);
-//      g_space.render(g_final_image);
+      g_space.render(g_final_image);
 
       sdl::update_screen(g_final_image);
     }
@@ -303,14 +282,29 @@ main(int  argc, char**  argv)
   sdl::init(screen_width,screen_height);
 
   gbact::characters::g_image.load_from_png("__resources/__anigra.png");
+  g_bg_image.load_from_png("__resources/bg.png");
 
   g_final_image = sdl::make_screen_image();
 
   g_program.push(ctx);
 
-  g_board.build(4,4,40,nullptr);
 
-  g_board_view.reset(g_board,160,160);
+static boards::square_data  dat;
+
+dat.set_image_point(point(24,0));
+
+
+  g_board.build(256,256,24);
+
+  g_board.get_square(1,10).set_data(&dat);
+  g_board.get_square(2,10).set_data(&dat);
+  g_board.get_square(3,10).set_data(&dat);
+  g_board.get_square(4,10).set_data(&dat);
+  g_board.get_square(5,10).set_data(&dat);
+
+
+  g_board_view.set_source_image(g_bg_image);
+  g_board_view.reset(g_board,screen_width,screen_height);
 
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop,0,false);

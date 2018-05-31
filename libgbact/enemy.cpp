@@ -27,7 +27,7 @@ m_target(target)
 
 void
 enemy::
-do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) noexcept
+do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
     if((this != other_side.get_shooter()) && (m_action == action::attack) && !is_blinking())
     {
@@ -40,7 +40,7 @@ do_when_collided_with_bullet(bullet&  other_side, spaces::position  position) no
 
 void
 enemy::
-do_when_collided_with_player(player&  other_side, spaces::position  position) noexcept
+do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
 }
 
@@ -91,7 +91,7 @@ update_core() noexcept
 
           m_action = action::attack;
 
-          get_space()->append_kinetic_object(bch.m_character);
+          get_space()->append_object(bch.m_character);
 
           bch.m_character.set_environment(nullptr);
         }

@@ -4,9 +4,12 @@
 
 #include"libgbstd/image.hpp"
 #include"libgbstd/string.hpp"
+#include"libgbstd/board.hpp"
 
 
 namespace gbstd{
+
+
 namespace spaces{
 
 
@@ -36,22 +39,6 @@ public:
 };
 
 
-struct
-area
-{
-  int     top=0;
-  int    left=0;
-  int   right=0;
-  int  bottom=0;
-
-
-  static bool  test_x_collision(const area&  a, const area&  b) noexcept;
-  static bool  test_y_collision(const area&  a, const area&  b) noexcept;
-  static bool  test_collision(  const area&  a, const area&  b) noexcept;
-
-};
-
-
 class
 body
 {
@@ -70,8 +57,8 @@ body
 
   real_point  m_kinetic_energy;
 
-  area  m_area;
-  area  m_saved_area;
+  boards::area  m_area;
+  boards::area  m_saved_area;
 
 public:
   body() noexcept{}
@@ -82,14 +69,19 @@ public:
 
   void  save_area() noexcept{m_saved_area = m_area;}
 
-  const area&  get_area()       const noexcept{return m_area;}
-  const area&  get_saved_area() const noexcept{return m_saved_area;}
+  const boards::area&  get_area()       const noexcept{return m_area;}
+  const boards::area&  get_saved_area() const noexcept{return m_saved_area;}
 
   void  set_base_point(real_point  new_pt) noexcept;
   void  add_base_point(real_point      pt) noexcept;
   const real_point&  get_base_point() const noexcept{return m_base_point;}
 
   point  get_point() const noexcept;
+
+  point  get_left_point()   const noexcept{return point(m_area.left,m_base_point.y);}
+  point  get_right_point()  const noexcept{return point(m_area.right,m_base_point.y);}
+  point  get_top_point()    const noexcept{return point(m_base_point.x,m_area.top);}
+  point  get_bottom_point() const noexcept{return point(m_base_point.x,m_area.bottom);}
 
   const point&  get_offset() const noexcept{return m_offset;}
 
@@ -133,27 +125,6 @@ public:
 };
 
 
-enum class
-position
-{
-     top,
-    left,
-   right,
-  bottom,
-
-};
-
-
-constexpr position
-get_opposite(position  pos) noexcept
-{
-  return( (pos == position::top  )? position::bottom
-         :(pos == position::left )? position::right
-         :(pos == position::right)? position::left
-         :                          position::top);
-}
-
-
 class
 object: public body
 {
@@ -165,6 +136,12 @@ protected:
   uint32_t  m_kind_code=0;
 
   bool  m_needed_to_remove=false;
+
+  boards::square*            m_current_square=nullptr;
+  boards::square*     m_left_contacted_square=nullptr;
+  boards::square*    m_right_contacted_square=nullptr;
+  boards::square*       m_up_contacted_square=nullptr;
+  boards::square*     m_down_contacted_square=nullptr;
 
 public:
   object() noexcept{}
@@ -182,11 +159,34 @@ public:
   void    set_space(space&  sp) noexcept{m_space = &sp;}
   void  unset_space(          ) noexcept{m_space = nullptr;}
 
+
+  void  set_current_square(boards::square*  sq) noexcept{m_current_square = sq;}
+        boards::square*  get_current_square()       noexcept{return m_current_square;}
+  const boards::square*  get_current_square() const noexcept{return m_current_square;}
+
+  void  set_left_contacted_square(boards::square*  sq) noexcept{m_left_contacted_square = sq;}
+        boards::square*  get_left_contacted_square()       noexcept{return m_left_contacted_square;}
+  const boards::square*  get_left_contacted_square() const noexcept{return m_left_contacted_square;}
+
+  void  set_right_contacted_square(boards::square*  sq) noexcept{m_right_contacted_square = sq;}
+        boards::square*  get_right_contacted_square()       noexcept{return m_right_contacted_square;}
+  const boards::square*  get_right_contacted_square() const noexcept{return m_right_contacted_square;}
+
+  void  set_up_contacted_square(boards::square*  sq) noexcept{m_up_contacted_square = sq;}
+        boards::square*  get_up_contacted_square()       noexcept{return m_up_contacted_square;}
+  const boards::square*  get_up_contacted_square() const noexcept{return m_up_contacted_square;}
+
+  void  set_down_contacted_square(boards::square*  sq) noexcept{m_down_contacted_square = sq;}
+        boards::square*  get_down_contacted_square()       noexcept{return m_down_contacted_square;}
+  const boards::square*  get_down_contacted_square() const noexcept{return m_down_contacted_square;}
+
+
   bool  is_needed_to_remove() const noexcept{return m_needed_to_remove;}
   void    need_to_remove() noexcept{m_needed_to_remove =  true;}
   void  unneed_to_remove() noexcept{m_needed_to_remove = false;}
 
-  virtual void  do_when_collided( object&  other_side, spaces::position  position) noexcept{}
+  virtual void  do_when_collided( object&  other_side, positions::position  position) noexcept{}
+  virtual void  do_when_entered(boards::square&  square) noexcept{}
   virtual void  do_when_removed() noexcept{}
 
   virtual void  update_core() noexcept;
@@ -291,7 +291,6 @@ space
   struct object_node;
 
   object_node*  m_object_list=nullptr;
-  object_node*  m_kinetic_object_list=nullptr;
 
   object_node*  m_trash=nullptr;
 
@@ -304,19 +303,12 @@ space
 
   environment  m_environment;
 
-  void  update_objects(object_node*&  list) noexcept;
-
-  void  render_objects(object_node*  list, image&  dst) const noexcept;
-
-  void  append_object(object&  o, object_node*&  ls) noexcept;
-
   void  check_collision(object&  a, object&  b) noexcept;
 
 public:
  ~space(){empty_trash();}
 
-  void  append_object(        object&  o) noexcept;
-  void  append_kinetic_object(object&  o) noexcept;
+  void  append_object(object&  o, bool  use_env=false) noexcept;
 
   void  remove_all_object() noexcept;
 
@@ -325,6 +317,7 @@ public:
   environment&  get_environment() noexcept{return m_environment;}
 
   void  detect_collision() noexcept;
+  void  detect_collision(boards::board&  board) noexcept;
 
   void  update() noexcept;
 

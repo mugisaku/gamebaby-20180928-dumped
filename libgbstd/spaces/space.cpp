@@ -53,39 +53,21 @@ push_node_to_trash(object_node*  nd) noexcept
 
 void
 space::
-append_object(object&  o, object_node*&  list) noexcept
+append_object(object&  o, bool  use_env) noexcept
 {
   auto  nd = pop_node_from_trash();
 
   nd->object = &o;
 
-  nd->next = list     ;
-             list = nd;
+  nd->next = m_object_list     ;
+             m_object_list = nd;
 
   o.unneed_to_remove();
+
   o.set_space(*this);
+  o.set_environment(use_env? &m_environment:nullptr);
 
   o.body::update();
-}
-
-
-void
-space::
-append_object(object&  o) noexcept
-{
-  append_object(o,m_object_list);
-
-  o.set_environment(nullptr);
-}
-
-
-void
-space::
-append_kinetic_object(object&  o) noexcept
-{
-  append_object(o,m_kinetic_object_list);
-
-  o.set_environment(&m_environment);
 }
 
 
@@ -97,18 +79,6 @@ remove_all_object() noexcept
 {
   auto  current = m_object_list          ;
                   m_object_list = nullptr;
-
-    while(current)
-    {
-      auto  next = current->next;
-
-      push_node_to_trash(current)      ;
-                         current = next;
-    }
-
-
-  current = m_kinetic_object_list          ;
-            m_kinetic_object_list = nullptr;
 
     while(current)
     {
@@ -145,7 +115,7 @@ void
 space::
 check_collision(object&  a, object&  b) noexcept
 {
-    if(!spaces::area::test_collision(a.get_area(),b.get_area()))
+    if(!boards::area::test_collision(a.get_area(),b.get_area()))
     {
       return;
     }
@@ -191,10 +161,10 @@ void
 space::
 detect_collision() noexcept
 {
-    if(m_kinetic_object_list && m_kinetic_object_list->next)
+    if(m_object_list && m_object_list->next)
     {
-      auto  a_current = m_kinetic_object_list      ;
-      auto  b         = m_kinetic_object_list->next;
+      auto  a_current = m_object_list      ;
+      auto  b         = m_object_list->next;
 
         while(b)
         {
@@ -213,24 +183,20 @@ detect_collision() noexcept
           a_current = a_current->next;
         }
     }
+}
 
 
-  auto  a = m_kinetic_object_list;
+void
+space::
+detect_collision(boards::board&  board) noexcept
+{
+  auto  current = m_object_list;
 
-    while(a)
+    while(current)
     {
-      auto  b = m_object_list;
+      board.detect_collision(*current->object);
 
-        while(b)
-        {
-          check_collision(*a->object,
-                          *b->object);
-
-          b = b->next;
-        }
-
-
-      a = a->next;
+      current = current->next;
     }
 }
 
@@ -239,11 +205,11 @@ detect_collision() noexcept
 
 void
 space::
-update_objects(object_node*&  list) noexcept
+update() noexcept
 {
   object_node*  previous = nullptr;
 
-  auto  current = list;
+  auto  current = m_object_list;
 
     while(current)
     {
@@ -263,9 +229,9 @@ update_objects(object_node*&  list) noexcept
 
           push_node_to_trash(current);
 
-            if(current == list)
+            if(current == m_object_list)
             {
-              list = next;
+              m_object_list = next;
             }
 
 
@@ -287,22 +253,13 @@ update_objects(object_node*&  list) noexcept
 }
 
 
-void
-space::
-update() noexcept
-{
-  update_objects(        m_object_list);
-  update_objects(m_kinetic_object_list);
-}
-
-
 
 
 void
 space::
-render_objects(object_node*  list, image&  dst) const noexcept
+render(image&  dst) const noexcept
 {
-  auto  current = list;
+  auto  current = m_object_list;
 
     while(current)
     {
@@ -312,15 +269,6 @@ render_objects(object_node*  list, image&  dst) const noexcept
 
       current = current->next;
     }
-}
-
-
-void
-space::
-render(image&  dst) const noexcept
-{
-  render_objects(        m_object_list,dst);
-  render_objects(m_kinetic_object_list,dst);
 }
 
 
