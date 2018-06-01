@@ -296,11 +296,14 @@ dat.set_image_point(point(24,0));
 
   g_board.build(256,256,24);
 
-  g_board.get_square(1,10).set_data(&dat);
-  g_board.get_square(2,10).set_data(&dat);
-  g_board.get_square(3,10).set_data(&dat);
-  g_board.get_square(4,10).set_data(&dat);
-  g_board.get_square(5,10).set_data(&dat);
+  g_board.get_square(1,8).set_data(&dat);
+  g_board.get_square(1,7).set_data(&dat);
+  g_board.get_square(2,8).set_data(&dat);
+  g_board.get_square(3,8).set_data(&dat);
+  g_board.get_square(4,8).set_data(&dat);
+  g_board.get_square(5,8).set_data(&dat);
+  g_board.get_square(5,3).set_data(&dat);
+  g_board.get_square(5,7).set_data(&dat);
 
 
   g_board_view.set_source_image(g_bg_image);

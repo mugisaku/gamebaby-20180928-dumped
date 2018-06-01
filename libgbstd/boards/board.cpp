@@ -127,6 +127,7 @@ detect_collision(spaces::object&  o) noexcept
             if(cur_sq_i.x < new_sq_i.x)
             {
               o.set_left_contacted_square(nullptr);
+              o.set_down_contacted_square(nullptr);
 
               auto  sq = cur_sq->get_link(links::right);
 
@@ -134,7 +135,9 @@ detect_collision(spaces::object&  o) noexcept
                 {
                   new_sq_i.x = cur_sq_i.x;
 
-                  o.set_right(sq->get_area().left-1);
+                  o.set_base_point_x(sq->get_area().left-1);
+
+                  o.body::update();
 
                   o.set_right_contacted_square(sq);
                 }
@@ -149,14 +152,17 @@ detect_collision(spaces::object&  o) noexcept
             if(cur_sq_i.x > new_sq_i.x)
             {
               o.set_right_contacted_square(nullptr);
+              o.set_down_contacted_square(nullptr);
 
               auto  sq = cur_sq->get_link(links::left);
 
-                if(sq && cur_sq->get_data())
+                if(sq && sq->get_data())
                 {
                   new_sq_i.x = cur_sq_i.x;
 
-                  o.set_left(sq->get_area().right+1);
+                  o.set_base_point_x(sq->get_area().right+1);
+
+                  o.body::update();
 
                   o.set_left_contacted_square(sq);
                 }
@@ -178,7 +184,9 @@ detect_collision(spaces::object&  o) noexcept
                 {
                   new_sq_i.y = cur_sq_i.y;
 
-                  o.set_bottom(sq->get_area().top-1);
+                  o.set_base_point_y(sq->get_area().top-1);
+
+                  o.body::update();
 
                   o.set_down_contacted_square(sq);
                 }
@@ -196,11 +204,13 @@ detect_collision(spaces::object&  o) noexcept
 
               auto  sq = cur_sq->get_link(links::up);
 
-                if(sq && cur_sq->get_data())
+                if(sq && sq->get_data())
                 {
                   new_sq_i.y = cur_sq_i.y;
 
-                  o.set_top(sq->get_area().bottom+1);
+                  o.set_base_point_y(sq->get_area().bottom+1);
+
+                  o.body::update();
 
                   o.set_up_contacted_square(sq);
                 }

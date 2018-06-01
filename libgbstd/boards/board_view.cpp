@@ -77,6 +77,11 @@ update_image(point  base_square_point) noexcept
               images::overlay(*m_source_image,srcimg_rect,m_image,point(x,y));
             }
 
+          else
+            {
+              m_image.draw_rectangle(colors::white,x,y,sq_size,sq_size);
+            }
+
 
             if(++sq_x >= brd_w)
             {
