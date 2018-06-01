@@ -101,7 +101,7 @@ public:
 
   void  update_core() noexcept override;
 
-  void  render(images::image&  dst) noexcept override;
+  void  render(point  offset, images::image&  dst) noexcept override;
 
 };
 

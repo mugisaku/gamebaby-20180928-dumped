@@ -92,6 +92,25 @@ build(int  w, int  h, int  square_size) noexcept
 }
 
 
+void
+board::
+put_to_around(square_data*  sqdat) noexcept
+{
+    for(int  x = 0;  x < m_width;  ++x)
+    {
+      get_square(x,         0).set_data(sqdat);
+      get_square(x,m_height-1).set_data(sqdat);
+    }
+
+
+    for(int  y = 1;  y < (m_height-1);  ++y)
+    {
+      get_square(        0,y).set_data(sqdat);
+      get_square(m_width-1,y).set_data(sqdat);
+    }
+}
+
+
 namespace{
 void
 do_when_entered(spaces::object&  o, square*  sq) noexcept

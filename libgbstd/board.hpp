@@ -155,6 +155,8 @@ public:
 
   void  build(int  w, int  h, int  square_size) noexcept;
 
+  void  put_to_around(square_data*  sqdat) noexcept;
+
   void  detect_collision(spaces::object&  o) noexcept;
 
 };
@@ -183,6 +185,8 @@ public:
   board_view(const board&  brd, int  w, int  h) noexcept{reset(brd,w,h);}
 
   void  set_source_image(const image&  img) noexcept{m_source_image = &img;}
+
+  void  chase_object(const spaces::object&  obj) noexcept;
 
   void  reset(const board&  brd, int  w, int  h) noexcept;
 

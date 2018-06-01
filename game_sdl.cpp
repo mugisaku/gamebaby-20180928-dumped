@@ -35,31 +35,6 @@ spaces::space
 g_space;
 
 
-class
-block_object: public spaces::rectangle_object
-{
-public:
-  using rectangle_object::rectangle_object;
-
-};
-
-
-class
-death_object: public spaces::rectangle_object
-{
-public:
-  using rectangle_object::rectangle_object;
-
-  void  do_when_collided(spaces::object&  o, position  pos) noexcept override
-  {
-    o.need_to_remove();
-  }
-
-  void  render(image&  dst) noexcept override{}
-
-};
-
-
 namespace{
 
 
@@ -173,6 +148,8 @@ step() noexcept
               g_space.detect_collision();
               g_space.detect_collision(g_board);
 
+              g_board_view.chase_object(g_hero);
+
                 if(!g_hero.get_space())
                 {
                   set_pc(4);
@@ -253,7 +230,7 @@ main_loop() noexcept
       g_final_image.fill();
 
       g_board_view.render(g_final_image);
-      g_space.render(g_final_image);
+      g_space.render(g_board_view.get_offset(),g_final_image);
 
       sdl::update_screen(g_final_image);
     }
@@ -294,16 +271,19 @@ static boards::square_data  dat;
 dat.set_image_point(point(24,0));
 
 
-  g_board.build(256,256,24);
+  g_board.build(20,20,24);
 
-  g_board.get_square(1,8).set_data(&dat);
   g_board.get_square(1,7).set_data(&dat);
-  g_board.get_square(2,8).set_data(&dat);
-  g_board.get_square(3,8).set_data(&dat);
-  g_board.get_square(4,8).set_data(&dat);
-  g_board.get_square(5,8).set_data(&dat);
   g_board.get_square(5,3).set_data(&dat);
   g_board.get_square(5,7).set_data(&dat);
+
+    for(int  i = 0;  i < 10;  ++i)
+    {
+      g_board.get_square(i,8).set_data(&dat);
+    }
+
+
+  g_board.put_to_around(&dat);
 
 
   g_board_view.set_source_image(g_bg_image);

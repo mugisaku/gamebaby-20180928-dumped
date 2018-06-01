@@ -257,7 +257,7 @@ update() noexcept
 
 void
 space::
-render(image&  dst) const noexcept
+render(point  offset, image&  dst) const noexcept
 {
   auto  current = m_object_list;
 
@@ -265,7 +265,7 @@ render(image&  dst) const noexcept
     {
       current->object->update_graphics();
 
-      current->object->render(dst);
+      current->object->render(offset,dst);
 
       current = current->next;
     }

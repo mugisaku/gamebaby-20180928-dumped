@@ -84,16 +84,17 @@ update_core() noexcept
 
 void
 character::
-render(images::image&  dst) noexcept
+render(point  offset, images::image&  dst) noexcept
 {
   ++m_rendering_count;
 
     if(m_visible && (!m_blinking_status.valid || (m_rendering_count&1)))
     {
-      image_object::render(dst);
+      image_object::render(offset,dst);
     }
 
 
+/*
   auto  rect = get_rectangle();
 
   dst.draw_rectangle_safely(colors::red,rect.x,rect.y,rect.w,rect.h);
@@ -112,6 +113,7 @@ render(images::image&  dst) noexcept
       dst.draw_vline(colors::red,base_pt.x   ,base_pt.y-32,64);
       dst.draw_hline(colors::red,base_pt.x-32,base_pt.y   ,64);
     }
+*/
 }
 
 

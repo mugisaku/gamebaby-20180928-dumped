@@ -1,4 +1,5 @@
 #include"libgbstd/board.hpp"
+#include"libgbstd/space.hpp"
 #include"libgbstd/text.hpp"
 
 
@@ -6,6 +7,91 @@
 
 namespace gbstd{
 namespace boards{
+
+
+
+
+void
+board_view::
+chase_object(const spaces::object&  obj) noexcept
+{
+  constexpr int  add_amount = 4;
+
+  auto&  base_point = obj.get_base_point();
+
+  auto  dst_point = point(static_cast<int>(base_point.x)-(m_width /2),
+                          static_cast<int>(base_point.y)-(m_height/2));
+
+  auto  screen_w = m_board->get_image_width() ;
+  auto  screen_h = m_board->get_image_height();
+
+    if(dst_point.x < 0)
+    {
+      dst_point.x = 0;
+    }
+
+  else
+    if(dst_point.x > (screen_w-m_width))
+    {
+      dst_point.x = (screen_w-m_width);
+    }
+
+
+    if(dst_point.y < 0)
+    {
+      dst_point.y = 0;
+    }
+
+  else
+    if(dst_point.y > (screen_h-m_height))
+    {
+      dst_point.y = (screen_h-m_height);
+    }
+
+
+    if(m_offset.x < dst_point.x)
+    {
+      m_offset.x += add_amount;
+
+        if(m_offset.x > dst_point.x)
+        {
+          m_offset.x = dst_point.x;
+        }
+    }
+
+  else
+    if(m_offset.x > dst_point.x)
+    {
+      m_offset.x -= add_amount;
+
+        if(m_offset.x < dst_point.x)
+        {
+          m_offset.x = dst_point.x;
+        }
+    }
+
+
+    if(m_offset.y < dst_point.y)
+    {
+      m_offset.y += add_amount;
+
+        if(m_offset.y > dst_point.y)
+        {
+          m_offset.y = dst_point.y;
+        }
+    }
+
+  else
+    if(m_offset.y > dst_point.y)
+    {
+      m_offset.y -= add_amount;
+
+        if(m_offset.y < dst_point.y)
+        {
+          m_offset.y = dst_point.y;
+        }
+    }
+}
 
 
 

@@ -194,31 +194,9 @@ public:
   virtual void  update_core() noexcept;
   virtual void  update_graphics() noexcept{}
 
-  virtual void  render(image&  dst) noexcept{}
+  virtual void  render(point  offset, image&  dst) noexcept{}
 
   virtual void  print() const noexcept;
-
-};
-
-
-class
-rectangle_object: public object
-{
-  color  m_color;
-
-public:
-  rectangle_object(rectangle  rect, colors::color  color) noexcept:
-  object(rect),
-  m_color(color){}
-
-  void  set_color(color  new_color) noexcept{m_color = new_color;}
-
-  void  render(image&  dst) noexcept override
-  {
-    auto  rect = get_rectangle();
-
-    dst.fill_rectangle(m_color,rect.x,rect.y,rect.w,rect.h);
-  }
 
 };
 
@@ -248,11 +226,11 @@ public:
 
   const point&  get_rendering_offset() const noexcept{return m_rendering_offset;}
 
-  void  render(image&  dst) noexcept override
+  void  render(point  offset, image&  dst) noexcept override
   {
       if(m_image)
       {
-        images::overlay(*m_image,m_image_rectangle,dst,get_base_point()+m_rendering_offset);
+        images::overlay(*m_image,m_image_rectangle,dst,get_base_point()+m_rendering_offset-offset);
       }
   }
 
@@ -282,7 +260,7 @@ public:
   void  align_right( ) noexcept;
   void  align_center() noexcept;
 
-  void  render(image&  dst) noexcept override;
+  void  render(point  offset, image&  dst) noexcept override;
 
 };
 
@@ -323,7 +301,7 @@ public:
 
   void  update() noexcept;
 
-  void  render(image&  dst) const noexcept;
+  void  render(point  offset, image&  dst) const noexcept;
 
 };
 
