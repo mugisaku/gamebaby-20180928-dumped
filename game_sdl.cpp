@@ -148,7 +148,7 @@ step() noexcept
               g_space.detect_collision();
               g_space.detect_collision(g_board);
 
-              g_board_view.chase_object(g_hero);
+              g_board_view.chase_object(g_hero,4);
 
                 if(!g_hero.get_space())
                 {
@@ -276,11 +276,14 @@ dat.set_image_point(point(24,0));
   g_board.get_square(1,7).set_data(&dat);
   g_board.get_square(5,3).set_data(&dat);
   g_board.get_square(5,7).set_data(&dat);
-
-    for(int  i = 0;  i < 10;  ++i)
-    {
-      g_board.get_square(i,8).set_data(&dat);
-    }
+  g_board.get_square(8,9).set_data(&dat);
+  g_board.get_square(3,12).set_data(&dat);
+  g_board.get_square(6,11).set_data(&dat);
+  g_board.get_square(8,15).set_data(&dat);
+  g_board.get_square(7,17).set_data(&dat);
+  g_board.get_square(7,18).set_data(&dat);
+  g_board.get_square(4,15).set_data(&dat);
+  g_board.get_square(4,14).set_data(&dat);
 
 
   g_board.put_to_around(&dat);

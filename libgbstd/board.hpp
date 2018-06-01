@@ -186,7 +186,7 @@ public:
 
   void  set_source_image(const image&  img) noexcept{m_source_image = &img;}
 
-  void  chase_object(const spaces::object&  obj) noexcept;
+  void  chase_object(const spaces::object&  obj, int speed) noexcept;
 
   void  reset(const board&  brd, int  w, int  h) noexcept;
 

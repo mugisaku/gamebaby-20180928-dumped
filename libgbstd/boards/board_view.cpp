@@ -13,10 +13,8 @@ namespace boards{
 
 void
 board_view::
-chase_object(const spaces::object&  obj) noexcept
+chase_object(const spaces::object&  obj, int  speed) noexcept
 {
-  constexpr int  add_amount = 4;
-
   auto&  base_point = obj.get_base_point();
 
   auto  dst_point = point(static_cast<int>(base_point.x)-(m_width /2),
@@ -51,7 +49,7 @@ chase_object(const spaces::object&  obj) noexcept
 
     if(m_offset.x < dst_point.x)
     {
-      m_offset.x += add_amount;
+      m_offset.x += speed;
 
         if(m_offset.x > dst_point.x)
         {
@@ -62,7 +60,7 @@ chase_object(const spaces::object&  obj) noexcept
   else
     if(m_offset.x > dst_point.x)
     {
-      m_offset.x -= add_amount;
+      m_offset.x -= speed;
 
         if(m_offset.x < dst_point.x)
         {
@@ -73,7 +71,7 @@ chase_object(const spaces::object&  obj) noexcept
 
     if(m_offset.y < dst_point.y)
     {
-      m_offset.y += add_amount;
+      m_offset.y += speed;
 
         if(m_offset.y > dst_point.y)
         {
@@ -84,7 +82,7 @@ chase_object(const spaces::object&  obj) noexcept
   else
     if(m_offset.y > dst_point.y)
     {
-      m_offset.y -= add_amount;
+      m_offset.y -= speed;
 
         if(m_offset.y < dst_point.y)
         {

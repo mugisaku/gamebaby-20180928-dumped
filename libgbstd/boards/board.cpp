@@ -148,9 +148,10 @@ detect_collision(spaces::object&  o) noexcept
               o.set_left_contacted_square(nullptr);
               o.set_down_contacted_square(nullptr);
 
-              auto  sq = cur_sq->get_link(links::right);
+              auto     sq = cur_sq->get_link(links::right);
+              auto  up_sq =     sq->get_link(links::up);
 
-                if(sq && sq->get_data())
+                if(!sq || sq->get_data() || !up_sq || up_sq->get_data())
                 {
                   new_sq_i.x = cur_sq_i.x;
 
@@ -173,9 +174,10 @@ detect_collision(spaces::object&  o) noexcept
               o.set_right_contacted_square(nullptr);
               o.set_down_contacted_square(nullptr);
 
-              auto  sq = cur_sq->get_link(links::left);
+              auto     sq = cur_sq->get_link(links::left);
+              auto  up_sq =     sq->get_link(links::up);
 
-                if(sq && sq->get_data())
+                if(!sq || sq->get_data() || !up_sq || up_sq->get_data())
                 {
                   new_sq_i.x = cur_sq_i.x;
 
@@ -199,7 +201,7 @@ detect_collision(spaces::object&  o) noexcept
 
               auto  sq = cur_sq->get_link(links::down);
 
-                if(sq && sq->get_data())
+                if(!sq || sq->get_data())
                 {
                   new_sq_i.y = cur_sq_i.y;
 
@@ -221,9 +223,10 @@ detect_collision(spaces::object&  o) noexcept
             {
               o.set_down_contacted_square(nullptr);
 
-              auto  sq = cur_sq->get_link(links::up);
+              auto     sq = cur_sq->get_link(links::up);
+              auto  up_sq =     sq->get_link(links::up);
 
-                if(sq && sq->get_data())
+                if(!sq || sq->get_data() || !up_sq || up_sq->get_data())
                 {
                   new_sq_i.y = cur_sq_i.y;
 
