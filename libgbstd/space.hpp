@@ -163,8 +163,8 @@ public:
   void  unset_space(          ) noexcept{m_space = nullptr;}
 
 
-  void                   set_current_square(boards::square*  sq)       noexcept{       m_current_square = sq;}
-  const boards::square*  get_current_square(                   ) const noexcept{return m_current_square     ;}
+  void             set_current_square(boards::square*  sq)       noexcept{       m_current_square = sq;}
+  boards::square*  get_current_square(                   ) const noexcept{return m_current_square     ;}
 
   void  set_left_contacted_square(boards::square*  sq) noexcept{m_left_contacted_square = sq;}
         boards::square*  get_left_contacted_square()       noexcept{return m_left_contacted_square;}
@@ -188,8 +188,9 @@ public:
   void  unneed_to_remove() noexcept{m_needed_to_remove = false;}
 
   virtual void  do_when_collided( object&  other_side, positions::position  position) noexcept{}
-  virtual void  do_when_entered(boards::square&  square) noexcept{}
   virtual void  do_when_removed() noexcept{}
+
+  virtual void  step(boards::board&  board) noexcept{}
 
   virtual void  update_core() noexcept;
   virtual void  update_graphics() noexcept{}
@@ -297,7 +298,8 @@ public:
   environment&  get_environment() noexcept{return m_environment;}
 
   void  detect_collision() noexcept;
-  void  detect_collision(boards::board&  board) noexcept;
+
+  void  step(boards::board&  board) noexcept;
 
   void  update() noexcept;
 

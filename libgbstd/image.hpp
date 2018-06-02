@@ -98,6 +98,7 @@ public:
   void  draw_rectangle(       color  i, int  x, int  y, int  w, int  h) noexcept;
   void  draw_rectangle_safely(color  i, int  x, int  y, int  w, int  h) noexcept;
   void  fill_rectangle(       color  i, int  x, int  y, int  w, int  h) noexcept;
+  void  fill_rectangle_safely(color  i, int  x, int  y, int  w, int  h) noexcept;
 
   void  draw_doubleline_rectangle(color  in, color  out, int  x, int  y, int  w, int  h) noexcept;
 
@@ -106,6 +107,10 @@ public:
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) noexcept;
   void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) noexcept;
   void  draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) noexcept;
+
+  void  draw_character_safely(char16_t           c, const text_style&  style, int  x, int  y) noexcept;
+  void  draw_text_safely(gbstd::string_view     sv, const text_style&  style, int  x, int  y) noexcept;
+  void  draw_text_safely(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) noexcept;
 
 };
 

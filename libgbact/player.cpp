@@ -38,7 +38,7 @@ knockback() noexcept
 {
   add_base_point(real_point((get_direction() == direction::left)? 8:-8,-4));
 
-  add_kinetic_energy(real_point((get_direction() == direction::left)? 16:-16,-4));
+  add_kinetic_energy(real_point((get_direction() == direction::left)? 8:-8,-4));
 
   be_floating();
 
@@ -61,6 +61,23 @@ player::
 do_when_ran_out_life() noexcept
 {
   need_to_remove();
+}
+
+
+bool
+player::
+test_if_can_move_into_square(boards::square&  sq) const noexcept
+{
+  auto  up_sq = sq.get_link(boards::links::up);
+
+  return character::test_if_can_move_into_square(sq) && up_sq && !up_sq->get_data(); 
+}
+
+
+void
+player::
+do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept
+{
 }
 
 

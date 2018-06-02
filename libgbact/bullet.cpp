@@ -42,6 +42,23 @@ do_when_collided_with_object(object&  other_side, positions::position  position)
 
 void
 bullet::
+do_when_collided_with_square(boards::square&  sq) noexcept
+{
+  need_to_remove();
+}
+
+
+void
+bullet::
+do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept
+{
+}
+
+
+
+
+void
+bullet::
 update_core() noexcept
 {
   character::update_core();

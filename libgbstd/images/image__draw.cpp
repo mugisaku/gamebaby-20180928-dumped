@@ -201,6 +201,19 @@ fill_rectangle(color  i, int  x, int  y, int  w, int  h) noexcept
 }
 
 
+void
+image::
+fill_rectangle_safely(color  i, int  x, int  y, int  w, int  h) noexcept
+{
+    while(h--)
+    {
+      draw_hline_safely(i,x,y,w);
+
+      ++y;
+    }
+}
+
+
 
 
 void
@@ -373,6 +386,102 @@ draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) n
     for(auto  c: sv)
     {
       draw_character(c,style,x,y);
+
+      x += w;
+    }
+}
+
+
+
+
+void
+image::
+draw_character_safely(char16_t  c, const text_style&  style, int  x, int  y) noexcept
+{
+START:
+  auto  p = table[c];
+
+    if(p)
+    {
+        for(int  yy = 0;  yy < h;  yy += 1)
+        {
+          auto  code = *p++;
+
+          int  yyy = y+yy;
+
+            if((yyy >=       0) &&
+               (yyy < m_height))
+            {
+              auto   begin = &get_pixel(      0,yyy);
+              auto     end = &get_pixel(m_width,yyy);
+
+              auto   dst = &get_pixel(x,yyy);
+                
+                for(int  xx = 0;  xx < w;  xx += 1)
+                {
+                    if((dst >= begin) &&
+                       (dst <    end))
+                    {
+                      auto  color = style.get_color(code>>14);
+
+                        if(color)
+                        {
+                          dst->color = color;
+                        }
+                    }
+
+
+                   dst  += 1;
+                  code <<= 2;
+                }
+            }
+        }
+    }
+
+  else
+    {
+//printf("0x%04X\n",c);
+      c = '!';
+
+      goto START;
+    }
+}
+
+
+
+
+void
+image::
+draw_text_safely(gbstd::string_view  sv, const text_style&  style, int  x, int  y) noexcept
+{
+  utf8_decoder  dec(sv);
+
+    while(dec)
+    {
+      auto  c = static_cast<char16_t>(dec());
+
+        if(!c)
+        {
+          break;
+        }
+
+
+      draw_character_safely(c,style,x,y);
+
+      x += w;
+    }
+}
+
+
+
+
+void
+image::
+draw_text_safely(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) noexcept
+{
+    for(auto  c: sv)
+    {
+      draw_character_safely(c,style,x,y);
 
       x += w;
     }

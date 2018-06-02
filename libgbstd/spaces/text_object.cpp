@@ -86,7 +86,7 @@ render(point  offset, image&  dst) noexcept
 {
   auto  pt = get_base_point()+m_rendering_offset-offset;
 
-//  dst.draw_text(m_string,m_style,pt.x,pt.y);
+  dst.draw_text_safely(m_string,m_style,pt.x,pt.y);
 }
 
 

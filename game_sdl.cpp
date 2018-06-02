@@ -81,10 +81,12 @@ step() noexcept
 
   static uint32_t  time;
 
+  auto&  view_off = g_board_view.get_offset();
+
     switch(get_pc())
     {
   case(0):
-      system_message.set_base_point(real_point(screen_width/2,screen_height/2));
+      system_message.set_base_point(real_point(view_off.x+screen_width/2,view_off.y+screen_height/2));
 
       system_message.set_string("PRESS [ Z or ENTER ] KEY TO START GAME");
 
@@ -118,9 +120,9 @@ step() noexcept
 
         g_space.append_object(g_hero,true);
 
-        g_enemy.set_base_point(real_point(180,160));
+        g_enemy.set_base_point(real_point(220,160));
 
-//        g_space.append_object(g_enemy);
+        g_space.append_object(g_enemy,true);
 
         add_pc(1);
   case(3):
@@ -146,7 +148,7 @@ step() noexcept
               g_space.update();
 
               g_space.detect_collision();
-              g_space.detect_collision(g_board);
+              g_space.step(g_board);
 
               g_board_view.chase_object(g_hero,4);
 
@@ -158,13 +160,13 @@ step() noexcept
               else
                 if(!g_enemy.get_space())
                 {
-//                  set_pc(5);
+                  set_pc(5);
                 }
             }
         }
       break;
   case(4):
-      system_message.set_base_point(real_point(screen_width/2,screen_height/2));
+      system_message.set_base_point(real_point(view_off.x+screen_width/2,view_off.y+screen_height/2));
 
       system_message.set_string("YOU LOOSE");
 
@@ -177,7 +179,7 @@ step() noexcept
       set_pc(6);
       break;
   case(5):
-      system_message.set_base_point(real_point(screen_width/2,screen_height/2));
+      system_message.set_base_point(real_point(view_off.x+screen_width/2,view_off.y+screen_height/2));
 
       system_message.set_string("YOU WIN");
 
@@ -195,6 +197,9 @@ step() noexcept
       g_space.update();
 
       g_space.detect_collision();
+      g_space.step(g_board);
+
+      g_board_view.chase_object(g_hero,4);
 
         if(g_time >= time)
         {
@@ -278,8 +283,8 @@ dat.set_image_point(point(24,0));
   g_board.get_square(5,7).set_data(&dat);
   g_board.get_square(8,9).set_data(&dat);
   g_board.get_square(3,12).set_data(&dat);
-  g_board.get_square(6,11).set_data(&dat);
-  g_board.get_square(8,15).set_data(&dat);
+  g_board.get_square(6,17).set_data(&dat);
+  g_board.get_square(8,19).set_data(&dat);
   g_board.get_square(7,17).set_data(&dat);
   g_board.get_square(7,18).set_data(&dat);
   g_board.get_square(4,15).set_data(&dat);

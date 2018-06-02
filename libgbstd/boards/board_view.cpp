@@ -163,7 +163,7 @@ update_image(point  base_square_point) noexcept
 
           else
             {
-              m_image.draw_rectangle(colors::white,x,y,sq_size,sq_size);
+//              m_image.draw_rectangle(colors::white,x,y,sq_size,sq_size);
             }
 
 

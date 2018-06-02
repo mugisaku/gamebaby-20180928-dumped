@@ -188,13 +188,13 @@ detect_collision() noexcept
 
 void
 space::
-detect_collision(boards::board&  board) noexcept
+step(boards::board&  board) noexcept
 {
   auto  current = m_object_list;
 
     while(current)
     {
-      board.detect_collision(*current->object);
+      current->object->step(board);
 
       current = current->next;
     }

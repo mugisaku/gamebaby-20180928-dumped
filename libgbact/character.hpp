@@ -99,6 +99,14 @@ public:
   void  do_when_collided(object&  other_side, positions::position  position) noexcept override;
 
 
+  virtual void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept{}
+
+
+  void  step(boards::board&  board) noexcept override;
+
+  virtual bool  test_if_can_move_into_square(boards::square&  sq) const noexcept;
+  virtual void  do_when_collided_with_square(boards::square&  sq) noexcept{}
+
   void  update_core() noexcept override;
 
   void  render(point  offset, images::image&  dst) noexcept override;
@@ -139,6 +147,10 @@ public:
   void  exempt(uint32_t  time) noexcept;
 
   virtual void  do_when_ran_out_life() noexcept;
+
+  bool  test_if_can_move_into_square(boards::square&  sq) const noexcept override;
+
+  void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override;
 
   void  update_core() noexcept override;
 
@@ -242,6 +254,9 @@ public:
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_object(object&  other_side, positions::position  position) noexcept override;
 
+  void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override;
+  void  do_when_collided_with_square(boards::square&  sq) noexcept override;
+
   void  update_core() noexcept override;
   void  update_graphics() noexcept override;
 
@@ -256,6 +271,8 @@ public:
 
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_object(object&  other_side, positions::position  position) noexcept override;
+
+  void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override{}
 
   void  update_core() noexcept override;
   void  update_graphics() noexcept override{}

@@ -80,20 +80,18 @@ update_core() noexcept
 
             if(get_direction() == direction::left)
             {
-              bch.m_character.set_kinetic_energy_x(1);
+              bch.m_character.set_kinetic_energy_x(2);
             }
 
           else
             {
-              bch.m_character.set_kinetic_energy_x(-1);
+              bch.m_character.set_kinetic_energy_x(-2);
             }
 
 
           m_action = action::attack;
 
           get_space()->append_object(bch.m_character);
-
-          bch.m_character.set_environment(nullptr);
         }
 
       else

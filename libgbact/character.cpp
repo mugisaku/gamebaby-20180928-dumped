@@ -63,6 +63,162 @@ do_when_collided(object&  other_side, positions::position  position) noexcept
 }
 
 
+bool
+character::
+test_if_can_move_into_square(boards::square&  sq) const noexcept
+{
+  return !sq.get_data();
+}
+
+
+void
+character::
+step(boards::board&  board) noexcept
+{
+  auto&  area = get_area();
+  auto&    pt = get_base_point();
+
+  auto  sq_size = board.get_square_size();
+
+  auto  base_x = board.get_corrected_x(pt.x)/sq_size;
+  auto  base_y = board.get_corrected_y(pt.y)/sq_size;
+
+  auto*  new_sq = &board.get_square(base_x,base_y);
+  auto*  cur_sq = get_current_square();
+
+    if(new_sq != cur_sq)
+    {
+        if(cur_sq)
+        {
+          auto  cur_sq_i = cur_sq->get_index();
+          auto  new_sq_i = new_sq->get_index();
+
+            if(cur_sq_i.x < new_sq_i.x)
+            {
+              set_left_contacted_square(nullptr);
+              set_down_contacted_square(nullptr);
+
+              auto  sq = cur_sq->get_link(boards::links::right);
+
+                if(!sq || !test_if_can_move_into_square(*sq))
+                {
+                  new_sq_i.x = cur_sq_i.x;
+
+                  set_base_point_x(sq->get_area().left-1);
+
+                  body::update();
+
+                  set_right_contacted_square(sq);
+
+                  do_when_collided_with_square(*sq);
+                }
+
+              else
+                {
+                  set_right_contacted_square(nullptr);
+                }
+            }
+
+          else
+            if(cur_sq_i.x > new_sq_i.x)
+            {
+              set_right_contacted_square(nullptr);
+              set_down_contacted_square(nullptr);
+
+              auto  sq = cur_sq->get_link(boards::links::left);
+
+                if(!sq || !test_if_can_move_into_square(*sq))
+                {
+                  new_sq_i.x = cur_sq_i.x;
+
+                  set_base_point_x(sq->get_area().right+1);
+
+                  body::update();
+
+                  set_left_contacted_square(sq);
+
+                  do_when_collided_with_square(*sq);
+                }
+
+              else
+                {
+                  set_left_contacted_square(nullptr);
+                }
+            }
+
+
+            if(cur_sq_i.y < new_sq_i.y)
+            {
+              set_up_contacted_square(nullptr);
+
+              auto  sq = cur_sq->get_link(boards::links::down);
+
+                if(!sq || !test_if_can_move_into_square(*sq))
+                {
+                  new_sq_i.y = cur_sq_i.y;
+
+                  set_base_point_y(sq->get_area().top-1);
+
+                  body::update();
+
+                  set_down_contacted_square(sq);
+
+                  do_when_collided_with_square(*sq);
+                }
+
+              else
+                {
+                  set_down_contacted_square(nullptr);
+                }
+            }
+
+          else
+            if(cur_sq_i.y > new_sq_i.y)
+            {
+              set_down_contacted_square(nullptr);
+
+              auto  sq = cur_sq->get_link(boards::links::up);
+
+                if(!sq || !test_if_can_move_into_square(*sq))
+                {
+                  new_sq_i.y = cur_sq_i.y;
+
+                  set_base_point_y(sq->get_area().bottom+1);
+
+                  body::update();
+
+                  set_up_contacted_square(sq);
+
+                  do_when_collided_with_square(*sq);
+                }
+
+              else
+                {
+                  set_up_contacted_square(nullptr);
+                }
+            }
+
+
+          new_sq = &board.get_square(new_sq_i.x,new_sq_i.y);
+
+            if(new_sq != cur_sq)
+            {
+              set_current_square(new_sq);
+
+              do_when_changed_square(new_sq,cur_sq);
+            }
+        }
+
+      else
+        {
+          set_current_square(new_sq);
+
+          do_when_changed_square(new_sq,cur_sq);
+        }
+    }
+}
+
+
 void
 character::
 update_core() noexcept
@@ -94,26 +250,28 @@ render(point  offset, images::image&  dst) noexcept
     }
 
 
-/*
-  auto  rect = get_rectangle();
-
-  dst.draw_rectangle_safely(colors::red,rect.x,rect.y,rect.w,rect.h);
-
-
-  auto  sq = get_current_square();
-
-    if(sq)
+    if(1)
     {
-      auto&  area = sq->get_area();
+      auto  rect = get_rectangle();
 
-      dst.fill_rectangle(colors::blue,area.left,area.top,24,24);
+      dst.draw_rectangle_safely(colors::red,rect.x-offset.x,rect.y-offset.y,rect.w,rect.h);
+
 
       auto&  base_pt = get_base_point();
 
-      dst.draw_vline(colors::red,base_pt.x   ,base_pt.y-32,64);
-      dst.draw_hline(colors::red,base_pt.x-32,base_pt.y   ,64);
+      dst.draw_vline_safely(colors::red,base_pt.x   -offset.x,base_pt.y-32-offset.y,64);
+      dst.draw_hline_safely(colors::red,base_pt.x-32-offset.x,base_pt.y   -offset.y,64);
+
+
+      auto  sq = get_current_square();
+
+        if(0 && sq)
+        {
+          auto&  area = sq->get_area();
+
+          dst.fill_rectangle_safely(colors::blue,area.left-offset.x,area.top-offset.y,24,24);
+        }
     }
-*/
 }
 
 
