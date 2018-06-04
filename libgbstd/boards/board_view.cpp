@@ -174,6 +174,19 @@ render_line(const rendering_context&  ctx) const noexcept
   auto  current_dst_pixel = &ctx.target->get_pixel(                      0,ctx.output_line);
   auto      end_dst_pixel = &ctx.target->get_pixel(ctx.target->get_width(),ctx.output_line);
 
+  int  x_offset = 0;
+
+    if(x_remainder)
+    {
+      x_offset = x_remainder;
+
+        if(x_remainder < 0)
+        {
+          x_offset = x_remainder+ctx.square_size;
+        }
+    }
+
+
     for(;;)
     {
       auto  dat = current_square++->get_data();
@@ -188,8 +201,10 @@ render_line(const rendering_context&  ctx) const noexcept
         {
           auto  srcimg_pt = dat->get_image_point();
 
-          auto  current_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x                ,srcimg_pt.y+square_y);
+          auto  current_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x+x_offset       ,srcimg_pt.y+square_y);
           auto      end_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x+ctx.square_size,srcimg_pt.y+square_y);
+
+          x_offset = 0;
 
             while(current_src_pixel < end_src_pixel)
             {
@@ -204,7 +219,8 @@ render_line(const rendering_context&  ctx) const noexcept
 
       else
         {
-          int  n = ctx.square_size;
+          int  n = ctx.square_size-x_offset    ;
+                                   x_offset = 0;
 
             while(n--)
             {
@@ -222,7 +238,7 @@ render_line(const rendering_context&  ctx) const noexcept
 
 void
 board_view::
-render(image&  dst) const noexcept
+render(image&  dst, void  (*callback)(board_view&  bv, int  output_line)) noexcept
 {
   rendering_context  ctx;
 
@@ -240,6 +256,12 @@ render(image&  dst) const noexcept
 
     while(ctx.output_line < m_height)
     {
+        if(callback)
+        {
+          callback(*this,ctx.output_line);
+        }
+
+
       render_line(ctx);
 
       ++ctx.output_line;

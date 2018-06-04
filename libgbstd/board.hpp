@@ -202,7 +202,7 @@ public:
 
   const point&  get_offset() const noexcept{return m_offset;}
 
-  void  render(image&  dst) const noexcept;
+  void  render(image&  dst, void  (*callback)(board_view&  bv, int  output_line)=nullptr) noexcept;
 
 };
 
