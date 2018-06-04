@@ -5,6 +5,7 @@
 #include"libgbstd/direction.hpp"
 #include"sdl.hpp"
 #include"libgbact/character.hpp"
+#include"libgbact/block.hpp"
 #include<cmath>
 
 
@@ -60,6 +61,9 @@ g_board;
 
 boards::board_view
 g_board_view;
+
+
+static gbact::blocks::waterfall  wf;
 
 
 class
@@ -232,6 +236,8 @@ main_loop() noexcept
     {
       last = g_time;
 
+      wf.step();
+
       g_final_image.fill();
 
       g_board_view.render(g_final_image);
@@ -263,7 +269,7 @@ main(int  argc, char**  argv)
 
   sdl::init(screen_width,screen_height);
 
-  gbact::characters::g_image.load_from_png("__resources/__anigra.png");
+  gbact::characters::g_image.load_from_png("__resources/character.png");
   g_bg_image.load_from_png("__resources/bg.png");
 
   g_final_image = sdl::make_screen_image();
@@ -271,27 +277,34 @@ main(int  argc, char**  argv)
   g_program.push(ctx);
 
 
-static boards::square_data  dat;
-
-dat.set_image_point(point(24,0));
-
+static gbact::blocks::brick  blk;
 
   g_board.build(20,20,24);
 
-  g_board.get_square(1,7).set_data(&dat);
-  g_board.get_square(5,3).set_data(&dat);
-  g_board.get_square(5,7).set_data(&dat);
-  g_board.get_square(8,9).set_data(&dat);
-  g_board.get_square(3,12).set_data(&dat);
-  g_board.get_square(6,17).set_data(&dat);
-  g_board.get_square(8,19).set_data(&dat);
-  g_board.get_square(7,17).set_data(&dat);
-  g_board.get_square(7,18).set_data(&dat);
-  g_board.get_square(4,15).set_data(&dat);
-  g_board.get_square(4,14).set_data(&dat);
+  g_board.get_square(1,7).set_data(&blk);
+  g_board.get_square(5,3).set_data(&blk);
+  g_board.get_square(5,7).set_data(&blk);
+  g_board.get_square(8,9).set_data(&blk);
+  g_board.get_square(3,12).set_data(&blk);
+  g_board.get_square(6,17).set_data(&blk);
+  g_board.get_square(8,17).set_data(&blk);
+  g_board.get_square(9,17).set_data(&blk);
+  g_board.get_square(6,12).set_data(&blk);
+  g_board.get_square(7,12).set_data(&blk);
+  g_board.get_square(8,19).set_data(&blk);
+  g_board.get_square(7,17).set_data(&blk);
+  g_board.get_square(7,18).set_data(&blk);
+  g_board.get_square(4,15).set_data(&blk);
+  g_board.get_square(4,14).set_data(&blk);
+
+    for(int  i = 0;  i < 17;  ++i)
+    {
+      g_board.get_square(12,2+i).set_data(&wf);
+      g_board.get_square(13,2+i).set_data(&wf);
+    }
 
 
-  g_board.put_to_around(&dat);
+  g_board.put_to_around(&blk);
 
 
   g_board_view.set_source_image(g_bg_image);

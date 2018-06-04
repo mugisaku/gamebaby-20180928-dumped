@@ -152,7 +152,7 @@ public:
 
   const point&  get_offset() const noexcept{return m_offset;}
 
-        pixel&        get_pixel(int  x, int  y) const noexcept{return m_image->get_pixel(get_x(x),get_y(y));}
+        pixel&        get_pixel(int  x, int  y) const noexcept{return m_image->get_pixel(      get_x(x),get_y(y));}
   const pixel&  get_const_pixel(int  x, int  y) const noexcept{return m_image->get_const_pixel(get_x(x),get_y(y));}
 
   void  set_pixel(pixel  pix, int  x, int  y                ) noexcept{m_image->set_pixel(pix,get_x(x),get_y(y));}

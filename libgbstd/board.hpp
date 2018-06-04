@@ -11,6 +11,7 @@ namespace gbstd{
 
 namespace spaces{
 class object;
+class environment;
 }
 
 
@@ -81,11 +82,16 @@ square_data
 {
   uint32_t  m_kind_code=0;
 
+  spaces::environment*  m_environment=nullptr;
+
   point  m_image_point;
 
 public:
   uint32_t  get_kind_code(              ) const noexcept{return m_kind_code       ;}
   void      set_kind_code(uint32_t  code)       noexcept{       m_kind_code = code;}
+
+  spaces::environment*  get_environment(                         ) const noexcept{return m_environment      ;}
+  void                  set_environment(spaces::environment*  env)       noexcept{       m_environment = env;}
 
   point  get_image_point(         ) const noexcept{return m_image_point     ;}
   void   set_image_point(point  pt)       noexcept{       m_image_point = pt;}
@@ -139,9 +145,6 @@ board
   std::vector<square>   m_square_table;
 
 public:
-  int  get_corrected_x(int  x) const noexcept;
-  int  get_corrected_y(int  y) const noexcept;
-
   int  get_width()  const noexcept{return m_width;}
   int  get_height() const noexcept{return m_height;}
 
@@ -152,6 +155,9 @@ public:
 
         square&  get_square(int  x, int  y)       noexcept{return m_square_table[(m_width*y)+x];}
   const square&  get_square(int  x, int  y) const noexcept{return m_square_table[(m_width*y)+x];}
+
+        square&  get_square_by_object(const spaces::object&  o)       noexcept;
+  const square&  get_square_by_object(const spaces::object&  o) const noexcept;
 
   void  build(int  w, int  h, int  square_size) noexcept;
 
@@ -169,16 +175,14 @@ board_view
 
   const image*  m_source_image=nullptr;
 
-  image  m_image;
-
   int  m_width =0;
   int  m_height=0;
 
   point  m_offset;
 
-  point  m_base_square_point;
+  struct rendering_context;
 
-  point  get_base_point() const noexcept;
+  void  render_line(const rendering_context&  ctx) const noexcept;
 
 public:
   board_view(                                 ) noexcept{}
@@ -198,9 +202,7 @@ public:
 
   const point&  get_offset() const noexcept{return m_offset;}
 
-  void  update_image(point  base_square_point) noexcept;
-
-  void  render(image&  dst) noexcept;
+  void  render(image&  dst) const noexcept;
 
 };
 

@@ -40,7 +40,7 @@ if(EMSC)
   set(CMAKE_CXX_FLAGS "-Werror -std=c++1z -Wno-switch -Os")
   set(CMAKE_CXX_FLAGS_DEBUG "")
   set(EMSC_PORTS "-s USE_SDL=2 -s USE_LIBPNG=1")
-  set(CMAKE_CXX_LINK_FLAGS  "${CMAKE_CXX_LINK_FLAGS} --shell-file ../shell.html --preload-file __resources/__anigra.png ${EMSC_PORTS}")
+  set(CMAKE_CXX_LINK_FLAGS  "${CMAKE_CXX_LINK_FLAGS} --shell-file ../shell.html --preload-file __resources/character.png --preload-file __resources/bg.png ${EMSC_PORTS}")
 endif()
 
 

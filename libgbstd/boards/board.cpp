@@ -10,40 +10,6 @@ namespace boards{
 
 
 
-int
-board::
-get_corrected_x(int  x) const noexcept
-{
-  x %= m_image_width;
-
-    if(x < 0)
-    {
-      x += m_image_width;
-    }
-
-
-  return x;
-}
-
-
-int
-board::
-get_corrected_y(int  y) const noexcept
-{
-  y %= m_image_height;
-
-    if(y < 0)
-    {
-      y += m_image_height;
-    }
-
-
-  return y;
-}
-
-
-
-
 void
 board::
 build(int  w, int  h, int  square_size) noexcept
@@ -90,6 +56,56 @@ build(int  w, int  h, int  square_size) noexcept
       sq.set_link((d && r)? &get_square(x+1,y+1):nullptr,links::lower_right);
     }}
 }
+
+
+
+
+square&
+board::
+get_square_by_object(const spaces::object&  o) noexcept
+{
+  auto  x = (static_cast<int>(o.get_base_point().x)%m_image_width );
+  auto  y = (static_cast<int>(o.get_base_point().y)%m_image_height);
+
+    if(x < 0)
+    {
+      x += m_image_width;
+    }
+
+
+    if(y < 0)
+    {
+      y += m_image_height;
+    }
+
+
+  return get_square(x/m_square_size,y/m_square_size);
+}
+
+
+const square&
+board::
+get_square_by_object(const spaces::object&  o) const noexcept
+{
+  auto  x = (static_cast<int>(o.get_base_point().x)%m_image_width );
+  auto  y = (static_cast<int>(o.get_base_point().y)%m_image_height);
+
+    if(x < 0)
+    {
+      x += m_image_width;
+    }
+
+
+    if(y < 0)
+    {
+      y += m_image_height;
+    }
+
+
+  return get_square(x/m_square_size,y/m_square_size);
+}
+
+
 
 
 void

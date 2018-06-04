@@ -70,7 +70,8 @@ test_if_can_move_into_square(boards::square&  sq) const noexcept
 {
   auto  up_sq = sq.get_link(boards::links::up);
 
-  return character::test_if_can_move_into_square(sq) && up_sq && !up_sq->get_data(); 
+  return character::test_if_can_move_into_square(sq) && up_sq &&
+         character::test_if_can_move_into_square(*up_sq); 
 }
 
 

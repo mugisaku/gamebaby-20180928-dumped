@@ -1,4 +1,5 @@
 #include"libgbact/character.hpp"
+#include"libgbact/block.hpp"
 
 
 
@@ -67,7 +68,9 @@ bool
 character::
 test_if_can_move_into_square(boards::square&  sq) const noexcept
 {
-  return !sq.get_data();
+  auto  blk = static_cast<blocks::block*>(sq.get_data());
+
+  return !blk || !blk->test_wall_flag();
 }
 
 
@@ -80,10 +83,7 @@ step(boards::board&  board) noexcept
 
   auto  sq_size = board.get_square_size();
 
-  auto  base_x = board.get_corrected_x(pt.x)/sq_size;
-  auto  base_y = board.get_corrected_y(pt.y)/sq_size;
-
-  auto*  new_sq = &board.get_square(base_x,base_y);
+  auto*  new_sq = &board.get_square_by_object(*this);
   auto*  cur_sq = get_current_square();
 
     if(new_sq != cur_sq)
