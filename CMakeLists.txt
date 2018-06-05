@@ -54,6 +54,7 @@ set(SDL_SOURCES
 
 add_subdirectory(libgbstd)
 add_subdirectory(libgbact)
+add_subdirectory(libgbgui)
 #add_subdirectory(libgbsnd)
 #add_subdirectory(libgbscr)
 
@@ -83,7 +84,7 @@ add_executable("game_sdl${EXECUTABLE_EXTENSION}" game_sdl.cpp ${SDL_SOURCES})
 #target_link_libraries("mkfont_sdl${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("mkicon_sdl${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("mkforest_sdl${EXECUTABLE_EXTENSION}" "gbstd")
-target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbstd" "png" "z" "webp" "pthread")
+target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbgui" "gbstd" "png" "z" "webp" "pthread")
 #target_link_libraries("markit_sdl${EXECUTABLE_EXTENSION}" "gbstd" "markit")
 #target_link_libraries("winmantester${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("growin${EXECUTABLE_EXTENSION}" "gbstd")

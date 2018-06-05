@@ -100,7 +100,6 @@ init(int  w, int  h) noexcept
 
 
   renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
-//  texture  = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGB24,SDL_TEXTUREACCESS_STREAMING,w,h);
   texture  = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_ARGB1555,SDL_TEXTUREACCESS_STREAMING,w,h);
 }
 
