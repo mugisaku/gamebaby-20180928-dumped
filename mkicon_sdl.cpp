@@ -1,4 +1,4 @@
-#include"libgbstd/canvas.hpp"
+#include"libgbgui/canvas.hpp"
 #include"sdl.hpp"
 
 
@@ -8,6 +8,7 @@
 
 
 using namespace gbstd;
+using namespace gbgui;
 
 
 namespace{

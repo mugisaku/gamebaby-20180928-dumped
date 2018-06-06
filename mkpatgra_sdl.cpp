@@ -71,114 +71,37 @@ constexpr int  table_height = 2;
 images::point  g_current_index;
 
 
-namespace animator{
-
-
-std::vector<images::point>
-stack;
-
-
-int
-index;
-
-
-widgets::dial*
-interval_dial;
-
-
-widgets::label*
-state_label;
-
-
-uint32_t
-interval_time = 1000;
-
-
-uint32_t
-last_time;
-
-
-void
-update_state_label() noexcept
-{
-    if(stack.empty())
-    {
-      state_label->set_text("  / 0");
-    }
-
-  else
-    {
-      string_form  sf;
-
-      state_label->set_text(sf("%2d/%2d",index+1,stack.size()));
-    }
-}
-
-
+namespace{
 class
-view: public widget
+previewer: public gbgui::widget
 {
+  static constexpr int  m_scale = 3;
+
 public:
-  view() noexcept{}
-
-  void  advance() noexcept
+  void  reset() noexcept
   {
-      if(++index >= stack.size())
-      {
-        index = 0;
-      }
+    set_width( cell_width *m_scale);
+    set_height(cell_height*m_scale);
 
-
-    update_state_label();
-
-    need_to_redraw();
+    need_to_reform();
   }
 
-  void  reform(gbstd::point  base_pt) noexcept override
+  void  render(image_cursor  cur) noexcept
   {
-    widget::reform(base_pt);
+    rectangle  rect(cell_width,cell_height,
+                    cell_width,cell_height);
 
-    m_width  = cell_width ;
-    m_height = cell_height;
+    rect.x *= g_current_index.x;
+    rect.y *= g_current_index.y;
+
+      for(int  y = 0;  y < m_scale;  ++y){
+      for(int  x = 0;  x < m_scale;  ++x){
+        images::paste(source_image,rect,cur+point(cell_width*x,cell_height*y));
+      }}
   }
 
-
-  void  render(image_cursor  cur) noexcept override
-  {
-    widget::render_background(cur);
-
-      if(index < stack.size())
-      {
-        images::overlay(source_image,get_rect(stack[index]),cur);
-      }
-  }
-
-};
-
-
-animator::view
-view;
-
-
-
-
-void
-check_time(uint32_t  now) noexcept
-{
-    if(stack.size())
-    {
-        if(now >= (last_time+interval_time))
-        {
-          last_time = now;
-
-          view.advance();
-        }
-    }
+} pv;
 }
-
-
-}
-
 
 
 void
@@ -197,14 +120,14 @@ resize_cell_all(int  w, int  h) noexcept
 
   mnu->need_to_reform();
 
-  animator::view.need_to_reform();
+  pv.reset();
 }
 
 
 void
 save() noexcept
 {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
   auto  buf = source_image.make_image_data();
 
   transfer_to_javascript(buf.data(),buf.size());
@@ -258,67 +181,12 @@ main_loop() noexcept
     }
 
 
-  animator::check_time(condev.time);
-
   root.react(condev);
 
     if(root.redraw_only_needed_widgets(final_image) || condev.needed_to_redraw)
     {
       sdl::update_screen(final_image);
     }
-}
-
-
-widget*
-create_animation_widget() noexcept
-{
-  animator::interval_dial = new widgets::dial(1,4,[](widgets::dial&  d, int  old_value, int  new_value){
-    static const uint32_t  table[] = {1000,600,200,80};
-
-    animator::interval_time = table[new_value-1];
-  });
-
-  auto  psh_btn = new widgets::button(new widgets::label(u"Push"),[](widgets::button&  btn){
-      if(btn.get_count())
-      {
-        btn.reset_count();
-
-        animator::stack.emplace_back(g_current_index);
-
-        animator::view.need_to_redraw();
-      }
-  });
-
-  auto  pop_btn = new widgets::button(new widgets::label(u"Pop"),[](widgets::button&  btn){
-      if(btn.get_count())
-      {
-        btn.reset_count();
-
-          if(animator::stack.size())
-          {
-            animator::stack.pop_back();
-
-            animator::update_state_label();
-
-            animator::view.need_to_redraw();
-          }
-      }
-  });
-
-
-  auto  op_col = new widgets::table_column({psh_btn,pop_btn});
-
-  animator::state_label = new widgets::label(u"  / 0",styles::a_white_based_text_style);
-
-  auto  speed_frame = new widgets::frame(animator::interval_dial,"speed");
-
-  auto  frm_col = new widgets::table_column({&animator::view,animator::state_label});
-
-  auto  urow = new widgets::table_row({frm_col,op_col});
-
-  auto  frame = new widgets::frame(new widgets::table_column({urow,speed_frame}),"animation");
-
-  return frame;
 }
 
 
@@ -331,6 +199,7 @@ create_left_part_widget() noexcept
       if(evt == canvas_event::image_is_modified)
       {
         mnu->need_to_redraw();
+          pv.need_to_redraw();
       }
 
 
@@ -365,9 +234,14 @@ create_left_part_widget() noexcept
 
   auto  cv_frame = new widgets::frame(new widgets::table_column({cv,cursor_label}),"canvas");
 
-  cv_frame->set_line_color(colors::black);
+  cv_frame->set_line_color(colors::white);
 
-  return cv_frame;
+  auto  pv_frame = new widgets::frame(&pv,"preview");
+
+  pv_frame->set_line_color(colors::white);
+
+  return new widgets::table_column({cv_frame,
+                                    pv_frame});
 }
 
 
@@ -384,6 +258,7 @@ create_right_part_widget() noexcept
           cv->set_cursor_offset(cell_width*index.x,cell_height*index.y);
 
           menu.need_to_redraw();
+            pv.need_to_redraw();
         }
     },
 
@@ -405,7 +280,7 @@ create_right_part_widget() noexcept
   mnu = new widgets::menu(mip,table_width,table_height);
 
 
-  resize_cell_all(48,48);
+  resize_cell_all(24,24);
 
   auto  color_list = {
     colors::black,
@@ -465,7 +340,6 @@ create_right_part_widget() noexcept
 
         cv->need_to_redraw();
         mnu->need_to_redraw();
-        animator::view.need_to_redraw();
       }
   });
 
@@ -478,18 +352,32 @@ create_right_part_widget() noexcept
 
         cv->need_to_redraw();
         mnu->need_to_redraw();
-        animator::view.need_to_redraw();
       }
   });
 
 
-  auto  celtbl_frame = new widgets::frame(mnu,"cell table");
+  static const icons::icon*    up_ico[] = {&icons::up};
+  static const icons::icon*  down_ico[] = {&icons::down};
+  static const icons::icon*  plus_ico[] = {&icons::plus};
+
+  auto  up_btn = new widgets::button(new widgets::icon_selector(up_ico),[](widgets::button&  btn){
+  });
+
+  auto  down_btn = new widgets::button(new widgets::icon_selector(down_ico),[](widgets::button&  btn){
+  });
+
+  auto  ext_btn = new widgets::button(new widgets::icon_selector(plus_ico),[](widgets::button&  btn){
+  });
+
+  auto  btn_col = new widgets::table_column({up_btn,down_btn,ext_btn});
+
+  auto  celtbl_frame = new widgets::frame(new widgets::table_row({btn_col,mnu}),"cell table");
 
   auto  bgchcol = new widgets::table_column({new widgets::table_column({ch1bg_btn,ch2bg_btn})});
   auto  btn_row = new widgets::table_row({bgchcol,save_btn});
 
   auto  urow = new widgets::table_row({cv_tool,cv_op});
-  auto  drow = new widgets::table_row({color_maker_frame,create_animation_widget()});
+  auto  drow = new widgets::table_row({color_maker_frame});
 
   auto  ucol = new widgets::table_column({urow,drow,celtbl_frame});
 
@@ -526,7 +414,6 @@ main(int  argc, char**  argv)
 
   cv->set_style(bg_style);
   mnu->set_style(bg_style);
-  animator::view.set_style(bg_style);
 
   root.redraw(final_image);
 

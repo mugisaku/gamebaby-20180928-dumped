@@ -134,6 +134,9 @@ public:
   int  get_width()  const noexcept{return m_width;}
   int  get_height() const noexcept{return m_height;}
 
+  void  set_width( int  v) noexcept{ m_width = v;}
+  void  set_height(int  v) noexcept{m_height = v;}
+
 
   void  set_style(const background_style&  new_style) noexcept;
 

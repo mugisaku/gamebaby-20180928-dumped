@@ -49,10 +49,21 @@ void
 image::
 resize(int  w, int  h) noexcept
 {
+  image  tmp(*this);
+
   m_width  = w;
   m_height = h;
 
   m_pixels.resize(w*h);
+
+
+  int  old_w = tmp.get_width() ;
+  int  old_h = tmp.get_height();
+
+    for(int  y = 0;  y < old_h;  ++y){
+    for(int  x = 0;  x < old_w;  ++x){
+      set_pixel(tmp.get_pixel(x,y),x,y);
+    }}
 }
 
 

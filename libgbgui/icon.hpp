@@ -42,7 +42,7 @@ extern const icon  unchecked;
 extern const icon    radio_checked;
 extern const icon  radio_unchecked;
 
-//  static const icon         up;
+extern const icon         up;
 //  static const icon  sunken_up;
 
 extern const icon         left;
@@ -51,8 +51,12 @@ extern const icon  sunken_left;
 extern const icon         right;
 extern const icon  sunken_right;
 
-//  static const icon         down;
+extern const icon         down;
 //  static const icon  sunken_down;
+
+extern const icon   plus;
+extern const icon  minus;
+
 
 }
 

@@ -111,6 +111,38 @@ radio_unchecked
 };
 
 
+
+
+const icon
+plus
+{
+#include"libgbgui/icons/icon_data__plus.txt"
+};
+
+
+const icon
+minus
+{
+#include"libgbgui/icons/icon_data__minus.txt"
+};
+
+
+
+
+const icon
+up
+{
+#include"libgbgui/icons/icon_data__up.txt"
+};
+
+
+const icon
+down
+{
+#include"libgbgui/icons/icon_data__down.txt"
+};
+
+
 }}
 
 
