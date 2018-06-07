@@ -241,12 +241,15 @@ main(int  argc, char**  argv)
 
   auto  coloring_widget = new widgets::table_column({ge->m_color_maker_frame,ge->m_bg_change_buttons,ani});
 
-  auto  right = new widgets::table_column({ge->m_tool_widget_frame,ge->m_operation_widget_frame,});
+  auto  to_col = new widgets::table_column({ge->m_tool_widget_frame,ge->m_operation_widget_frame});
 
-  auto  left_under = new widgets::table_row({ge->m_cell_table_frame});
-  auto        left = new widgets::table_column({ge->m_canvas_frame,left_under,ge->m_save_button});
+  auto  right_upper = new widgets::table_row({ge->m_color_holder_frame,coloring_widget,to_col});
+  auto  right       = new widgets::table_column({right_upper,ge->m_cell_table_frame});
 
-  root.set_node_target(new widgets::table_row({left,ge->m_color_holder_frame,coloring_widget,right}));
+
+  auto  left = new widgets::table_column({ge->m_canvas_frame,ge->m_save_button});
+
+  root.set_node_target(new widgets::table_row({left,right}));
 
   auto&  root_node = root.get_node();
 

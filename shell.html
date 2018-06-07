@@ -60,16 +60,12 @@ var  g_dropped_file_is_image = false;
 </script>
   </head>
   <body>
-    <hr/>
     <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>  
     </div>
 <table>
-    <tr>
-    <td><div id="caption">no caption</div></td>
-    </tr>
 <tr>
 <td>
     <div class="emscripten_border">
@@ -87,6 +83,9 @@ var  g_dropped_file_is_image = false;
 </td>
 <td>
     <table align="left">
+    <tr>
+    <td><div id="caption">no caption</div></td>
+    </tr>
     <tr><td><div id="description">no description</div></td></tr>
     <tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby">こちら</a></td></tr>
     </table>
