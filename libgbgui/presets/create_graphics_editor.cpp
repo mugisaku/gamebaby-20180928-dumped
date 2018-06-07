@@ -9,6 +9,9 @@ namespace presets{
 
 
 
+namespace{
+
+
 rectangle
 get_rect(const graphics_editor*  ge, point  index) noexcept
 {
@@ -57,14 +60,14 @@ build_for_coloring(graphics_editor*  ge) noexcept
 
 
   ge->m_color_holder = new widgets::color_holder(color_list,[](widgets::color_holder&  holder, colors::color  color){
-    auto  ge = static_cast<graphics_editor*>(holder.get_userdata());
+    auto  ge = holder.get_userdata<graphics_editor>();
     
     ge->m_color_maker->set_color(color);
   });
 
 
   ge->m_color_maker = new widgets::color_maker([](widgets::color_maker&  maker, colors::color  color){
-    auto  ge = static_cast<graphics_editor*>(maker.get_userdata());
+    auto  ge = maker.get_userdata<graphics_editor>();
 
 
     ge->m_color_holder->set_color(color);
@@ -72,6 +75,9 @@ build_for_coloring(graphics_editor*  ge) noexcept
     ge->m_canvas->set_drawing_color(color);
   });
 
+
+  ge->m_color_maker->set_userdata(ge);
+  ge->m_color_holder->set_userdata(ge);
 
   ge->m_color_maker_frame  = new widgets::frame(ge->m_color_maker ,"color");
   ge->m_color_holder_frame = new widgets::frame(ge->m_color_holder,"palette");
@@ -84,7 +90,7 @@ build_cell_table(graphics_editor*  ge) noexcept
   widgets::menu_item_parameter  mip = {0,0,
     [](widgets::menu&  menu, point  index, mouse_button  left, mouse_button  right)
     {
-      auto  ge = static_cast<graphics_editor*>(menu.get_userdata());
+      auto  ge = menu.get_userdata<graphics_editor>();
 
         if(left)
         {
@@ -95,13 +101,16 @@ build_cell_table(graphics_editor*  ge) noexcept
 
           menu.need_to_redraw();
 
-          ge->m_callback();
+            if(ge->m_callback)
+            {
+              ge->m_callback();
+            }
         }
     },
 
     [](widgets::menu&  menu, point  index, image_cursor  cur)
     {
-      auto  ge = static_cast<graphics_editor*>(menu.get_userdata());
+      auto  ge = menu.get_userdata<graphics_editor>();
 
       auto  i = point(0,ge->m_table_offset)+index;
 
@@ -129,7 +138,7 @@ build_cell_table(graphics_editor*  ge) noexcept
   ge->m_table_offset_label = new widgets::label(u" 1/ 1",styles::a_white_based_text_style);
 
   auto  up_btn = new widgets::button(new widgets::icon_selector(up_ico),[](widgets::button&  btn){
-    auto  ge = static_cast<graphics_editor*>(btn.get_userdata());
+    auto  ge = btn.get_userdata<graphics_editor>();
 
       if(btn.is_pressed())
       {
@@ -145,7 +154,7 @@ build_cell_table(graphics_editor*  ge) noexcept
   });
 
   auto  down_btn = new widgets::button(new widgets::icon_selector(down_ico),[](widgets::button&  btn){
-    auto  ge = static_cast<graphics_editor*>(btn.get_userdata());
+    auto  ge = btn.get_userdata<graphics_editor>();
 
       if(btn.is_pressed())
       {
@@ -161,7 +170,7 @@ build_cell_table(graphics_editor*  ge) noexcept
   });
 
   auto  ext_btn = new widgets::button(new widgets::icon_selector(plus_ico),[](widgets::button&  btn){
-    auto  ge = static_cast<graphics_editor*>(btn.get_userdata());
+    auto  ge = btn.get_userdata<graphics_editor>();
 
       if(btn.is_pressed())
       {
@@ -172,6 +181,8 @@ build_cell_table(graphics_editor*  ge) noexcept
       }
   });
 
+
+  widget::set_userdata(ge,{up_btn,down_btn,ext_btn});
 
   auto     btn_col = new widgets::table_column({up_btn,down_btn,ext_btn});
   auto  celtbl_col = new widgets::table_column({ge->m_menu,ge->m_table_offset_label});
@@ -185,7 +196,7 @@ void
 build_misc_buttons(graphics_editor*  ge) noexcept
 {
   auto  ch1bg_btn = new widgets::button(new widgets::label(u"Change bg1 color"),[](widgets::button&  btn){
-    auto  ge = static_cast<graphics_editor*>(btn.get_userdata());
+    auto  ge = btn.get_userdata<graphics_editor>();
 
       if(btn.get_count())
       {
@@ -199,7 +210,7 @@ build_misc_buttons(graphics_editor*  ge) noexcept
   });
 
   auto  ch2bg_btn = new widgets::button(new widgets::label(u"Change bg2 color"),[](widgets::button&  btn){
-    auto  ge = static_cast<graphics_editor*>(btn.get_userdata());
+    auto  ge = btn.get_userdata<graphics_editor>();
 
       if(btn.get_count())
       {
@@ -227,7 +238,7 @@ build_canvas(graphics_editor*  ge) noexcept
   ge->m_cursor_label = new widgets::label(u"X: -- Y: -- PIX: ---",styles::a_white_based_text_style);
 
   ge->m_canvas = new canvases::canvas(ge->m_source_image,ge->m_cell_width,ge->m_cell_height,[](canvas&  cv, canvas_event  evt){
-    auto  ge = static_cast<graphics_editor*>(cv.get_userdata());
+    auto  ge = cv.get_userdata<graphics_editor>();
 
       if(evt == canvas_event::image_is_modified)
       {
@@ -272,6 +283,61 @@ build_canvas(graphics_editor*  ge) noexcept
 }
 
 
+}
+
+
+
+
+void
+graphics_editor::
+load(const std::vector<uint8_t>&  bin) noexcept
+{
+  images::image  img;
+
+    if(is_image_data(bin.data()))
+    {
+      img.load_from_image_data(bin.data());
+    }
+
+  else
+    if(is_png(bin.data()))
+    {
+      img.load_from_png(bin.data(),bin.size());
+    }
+
+  else
+    if(is_webp(bin.data()))
+    {
+      img.load_from_webp(bin.data(),bin.size());
+    }
+
+
+    if(img.get_width())
+    {
+      int  w = std::max(img.get_width() ,m_cell_width *m_table_width );
+      int  h = std::max(img.get_height(),m_cell_height*m_table_height);
+
+      w = (w+(m_cell_width -1))/m_cell_width *m_cell_width ;
+      h = (h+(m_cell_height-1))/m_cell_height*m_cell_height;
+
+      img.resize(w,h);
+
+      m_table_offset = 0;
+
+      m_source_image = std::move(img);
+
+      m_canvas->need_to_redraw();
+      m_menu->need_to_redraw();
+
+        if(m_callback)
+        {
+          m_callback();
+        }
+    }
+}
+
+
+
 graphics_editor*
 create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noexcept
 {
@@ -281,8 +347,12 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
   ge->m_cell_height  = cell_h;
   ge->m_table_width  = table_w;
   ge->m_table_height = table_h;
+  ge->m_bg_style = background_style(color(0,0,4),color(0,0,6),4);
+  ge->m_callback = [](){};
 
   build_canvas(ge);
+  build_for_coloring(ge);
+  build_misc_buttons(ge);
   build_cell_table(ge);
 
   ge->m_tool_widget_frame      = new widgets::frame(ge->m_canvas->create_tool_widget()     ,"tool");
@@ -296,7 +366,30 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
   ge->m_menu->set_item_size(cell_w,cell_h);
 
   ge->m_canvas->set_style(ge->m_bg_style);
-  ge->m_menu->set_style(ge->m_bg_style);
+  ge->m_menu->set_style(  ge->m_bg_style);
+
+  ge->m_save_button = new widgets::button(new widgets::label(u"save"),[](widgets::button&  btn){
+    auto  ge = btn.get_userdata<graphics_editor>();
+
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+#ifdef __EMSCRIPTEN__
+        auto  buf = ge->m_source_image.make_image_data();
+
+        transfer_to_javascript(buf.data(),buf.size());
+
+        download_image();
+#else
+        ge->m_source_image.save_to_png("__anigra.png");
+#endif
+      }
+  });
+
+
+  ge->m_save_button->set_userdata(ge);
+
 
   return ge;
 }

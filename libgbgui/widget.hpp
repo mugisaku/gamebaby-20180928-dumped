@@ -109,6 +109,7 @@ public:
   root*          get_root(        ) const noexcept{return m_root    ;}
 
 
+  template<typename  T>T*  get_userdata() const noexcept{return static_cast<T*>(m_userdata);}
   void*  get_userdata() const noexcept{return m_userdata;}
 
   void  set_userdata(void*  ptr) noexcept
@@ -120,6 +121,8 @@ public:
   {
     m_userdata = ptr;
   }
+
+  static void  set_userdata(void*  data, std::initializer_list<widget*>  ls) noexcept;
 
 
   bool  test_by_absolute_point(point  pt) const noexcept;

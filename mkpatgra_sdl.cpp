@@ -59,66 +59,15 @@ public:
 
 
 void
-save() noexcept
-{
-#ifdef __EMSCRIPTEN__
-  auto  buf = ge->m_source_image.make_image_data();
-
-  transfer_to_javascript(buf.data(),buf.size());
-
-  download_image();
-#else
-  ge->m_source_image.save_to_png("__anigra.png");
-#endif
-}
-
-
-void
 main_loop() noexcept
 {
   auto&  condev = sdl::update_control_device();
 
-    if(condev.dropped_file_content.size())
+  auto&  cont = condev.dropped_file_content;
+
+    if(cont.size())
     {
-      auto&  cont = condev.dropped_file_content;
-
-      images::image  img;
-
-        if(is_image_data(cont.data()))
-        {
-          img.load_from_image_data(cont.data());
-        }
-
-      else
-        if(is_png(cont.data()))
-        {
-          img.load_from_png(cont.data(),cont.size());
-        }
-
-      else
-        if(is_webp(cont.data()))
-        {
-          img.load_from_webp(cont.data(),cont.size());
-        }
-
-
-        if(img.get_width())
-        {
-/*
-          int  w = std::max(img.get_width() ,source_image.get_width() );
-          int  h = std::max(img.get_height(),source_image.get_height());
-
-          ge->m__table_offset = 0;
-
-          source_image.resize(w,h);
-
-          images::paste(img,img.get_rectangle(),source_image,point());
-
-           cv->need_to_redraw();
-          mnu->need_to_redraw();
-*/
-        }
-
+      ge->load(cont);
 
       cont.resize(0);
     }
@@ -151,7 +100,23 @@ main(int  argc, char**  argv)
   );
 #endif
 
-//  root.set_node_target();
+
+  ge = presets::create_graphics_editor(24,24,6,2);
+
+  pv.reset();
+
+  ge->m_callback = [](){pv.need_to_redraw();};
+
+  auto  coloring_widget = new widgets::table_column({ge->m_color_maker_frame,ge->m_bg_change_buttons});
+
+  auto  right = new widgets::table_column({ge->m_tool_widget_frame,ge->m_operation_widget_frame,});
+
+  auto  left_under = new widgets::table_row({new widgets::frame(&pv,"preview"),ge->m_cell_table_frame});
+  auto        left = new widgets::table_column({ge->m_canvas_frame,left_under,ge->m_save_button});
+
+  root.set_node_target(new widgets::table_row({left,ge->m_color_holder_frame,coloring_widget,right}));
+
+
 
   auto&  root_node = root.get_node();
 
@@ -159,8 +124,6 @@ main(int  argc, char**  argv)
   sdl::init(root_node.get_width(),root_node.get_height());
 
   final_image = sdl::make_screen_image();
-
-  ge = presets::create_graphics_editor(24,24,6,2);
 
   root.redraw(final_image);
 

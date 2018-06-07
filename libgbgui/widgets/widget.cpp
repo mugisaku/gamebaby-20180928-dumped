@@ -17,6 +17,17 @@ m_default_background_style;
 
 void
 widget::
+set_userdata(void*  data, std::initializer_list<widget*>  ls) noexcept
+{
+    for(auto  w: ls)
+    {
+      w->set_userdata(data);
+    }
+}
+
+
+void
+widget::
 set_style(const background_style&  new_style) noexcept
 {
   m_background_style = &new_style;

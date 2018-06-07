@@ -49,6 +49,13 @@ void
 image::
 resize(int  w, int  h) noexcept
 {
+    if((w == m_width ) &&
+       (h == m_height))
+    {
+      return;
+    }
+
+
   image  tmp(*this);
 
   m_width  = w;

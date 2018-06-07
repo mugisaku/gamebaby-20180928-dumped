@@ -45,13 +45,18 @@ graphics_editor
   widgets::label*  m_cursor_label;
   widgets::label*  m_table_offset_label;
 
+  widgets::button*  m_save_button;
+
   widgets::menu*  m_menu;
 
 
-  background_style  m_bg_style = background_style(color(0,0,4),color(0,0,6),4);
+  background_style  m_bg_style;
 
+  gbstd::string  m_filepath;
 
   void  (*m_callback)();
+
+  void  load(const std::vector<uint8_t>&  bin) noexcept;
 
 };
 
