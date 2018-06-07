@@ -27,6 +27,7 @@ set(SOURCES
   windows/window.cpp
   windows/window__update_frame_image.cpp
   windows/window_manager.cpp
+  presets/create_graphics_editor.cpp
 )
 
 
