@@ -12,16 +12,6 @@ namespace presets{
 namespace{
 
 
-rectangle
-get_rect(const graphics_editor*  ge, point  index) noexcept
-{
-   return rectangle(ge->m_cell_width *index.x,
-                    ge->m_cell_height*index.y,
-                    ge->m_cell_width,
-                    ge->m_cell_height);
-}
-
-
 
 
 void
@@ -114,7 +104,7 @@ build_cell_table(graphics_editor*  ge) noexcept
 
       auto  i = point(0,ge->m_table_offset)+index;
 
-      auto  src_rect = get_rect(ge,i);
+      auto  src_rect = ge->get_rect(i);
 
       images::overlay(ge->m_source_image,src_rect,cur);
 
@@ -273,7 +263,7 @@ build_canvas(graphics_editor*  ge) noexcept
 
 
   ge->m_canvas->set_grid();
-  ge->m_canvas->set_pixel_size(10);
+  ge->m_canvas->set_pixel_size(8);
   ge->m_canvas->set_userdata(ge);
 
 
@@ -336,6 +326,16 @@ load(const std::vector<uint8_t>&  bin) noexcept
     }
 }
 
+
+rectangle
+graphics_editor::
+get_rect(point  index) const noexcept
+{
+   return rectangle(m_cell_width *index.x,
+                    m_cell_height*index.y,
+                    m_cell_width,
+                    m_cell_height);
+}
 
 
 graphics_editor*

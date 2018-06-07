@@ -56,6 +56,9 @@ graphics_editor
 
   void  (*m_callback)();
 
+
+  rectangle  get_rect(point  index) const noexcept;
+
   void  load(const std::vector<uint8_t>&  bin) noexcept;
 
 };
