@@ -14,7 +14,7 @@ void  update_screen(const gbstd::image&  img) noexcept;
 
 void  quit() noexcept;
 
-void  init(int  w, int  h) noexcept;
+void  init(int  w, int  h, double  scale=1) noexcept;
 
 void  resize_screen(int  w, int  h) noexcept;
 

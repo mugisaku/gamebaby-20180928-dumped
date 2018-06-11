@@ -39,12 +39,8 @@ g_space;
 namespace{
 
 
-gbact::characters::hero
-g_hero;
-
-
-gbact::characters::enemy
-g_enemy;
+gbact::characters::lady
+g_lady;
 
 
 images::image
@@ -116,18 +112,12 @@ step() noexcept
   case(2):
         system_message.need_to_remove();
 
-        new(&g_hero) gbact::characters::hero;
-        new(&g_enemy)  gbact::characters::enemy(&g_hero);
+        new(&g_lady) gbact::characters::lady;
 
 
-        g_hero.set_base_point(real_point(30,120));
+        g_lady.set_base_point(real_point(30,120));
 
-        g_space.append_object(g_hero,true);
-
-        g_enemy.set_base_point(real_point(220,160));
-
-        g_space.append_object(g_enemy,true);
-
+        g_space.append_object(g_lady,true);
         add_pc(1);
   case(3):
         if(pausing)
@@ -154,18 +144,7 @@ step() noexcept
               g_space.detect_collision();
               g_space.step(g_board);
 
-              g_board_view.chase_object(g_hero,4);
-
-                if(!g_hero.get_space())
-                {
-                  set_pc(4);
-                }
-
-              else
-                if(!g_enemy.get_space())
-                {
-                  set_pc(5);
-                }
+              g_board_view.chase_object(g_lady,4);
             }
         }
       break;
@@ -182,28 +161,13 @@ step() noexcept
 
       set_pc(6);
       break;
-  case(5):
-      system_message.set_base_point(real_point(view_off.x+screen_width/2,view_off.y+screen_height/2));
-
-      system_message.set_string("YOU WIN");
-
-      system_message.align_center();
-
-      g_space.append_object(system_message);
-
-      g_hero.set_invincible();
-
-      time = g_time+4000;
-
-      set_pc(6);
-      break;
   case(6):
       g_space.update();
 
       g_space.detect_collision();
       g_space.step(g_board);
 
-      g_board_view.chase_object(g_hero,4);
+      g_board_view.chase_object(g_lady,4);
 
         if(g_time >= time)
         {
@@ -259,17 +223,17 @@ main(int  argc, char**  argv)
   set_description("<pre>"
                   "*キーボードで操作\n"
                   "*左右キーを押すと歩く\n"
-                  "*上キーでジャンプ\n"
-                  "*下キーでしゃがむ\n"
-                  "*zまたはenterで、おじぎで攻撃\n"
+//                  "*上キーでジャンプ\n"
+//                  "*下キーでしゃがむ\n"
+//                  "*zまたはenterで、おじぎで攻撃\n"
                   "</pre>"
   );
 #endif
 
 
-  sdl::init(screen_width,screen_height);
+  sdl::init(screen_width,screen_height,1.5);
 
-  gbact::characters::g_image.load_from_png("__resources/character.png");
+  gbact::characters::g_image.load_from_png("__resources/lady_and.png");
   g_bg_image.load_from_png("__resources/bg.png");
 
   g_final_image = sdl::make_screen_image();
@@ -279,8 +243,9 @@ main(int  argc, char**  argv)
 
 static gbact::blocks::brick  blk;
 
-  g_board.build(20,20,24);
+  g_board.build(14,14,24);
 
+/*
   g_board.get_square(1,7).set_data(&blk);
   g_board.get_square(5,3).set_data(&blk);
   g_board.get_square(5,7).set_data(&blk);
@@ -302,6 +267,7 @@ static gbact::blocks::brick  blk;
       g_board.get_square(12,2+i).set_data(&wf);
       g_board.get_square(13,2+i).set_data(&wf);
     }
+*/
 
 
   g_board.put_to_around(&blk);

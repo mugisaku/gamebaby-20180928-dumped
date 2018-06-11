@@ -12,6 +12,9 @@ images::image
 g_image;
 
 
+bool
+character::
+m_debug;
 
 
 bool
@@ -250,7 +253,7 @@ render(point  offset, images::image&  dst) noexcept
     }
 
 
-    if(1)
+    if(m_debug)
     {
       auto  rect = get_rectangle();
 

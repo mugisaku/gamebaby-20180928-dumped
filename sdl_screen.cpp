@@ -8,24 +8,21 @@ namespace sdl{
 namespace{
 
 
-SDL_Window*      window;
-SDL_Renderer*  renderer;
-SDL_Texture*    texture;
+SDL_Window*      g_window;
+SDL_Renderer*  g_renderer;
+SDL_Texture*    g_texture;
+
+int  g_width;
+int  g_height;
+
+SDL_Rect  g_dst_rect;
 
 
 void
 transfer(const gbstd::image&  src, uint8_t*  p_base, int  pitch) noexcept
 {
-  int  w;
-  int  h;
-
-  SDL_GetWindowSize(window,&w,&h);
-
-  int  src_w = src.get_width() ;
-  int  src_h = src.get_height();
-
-    if(w > src_w){w = src_w;}
-    if(h > src_h){h = src_h;}
+  int  w = std::min(src.get_width() ,g_width );
+  int  h = std::min(src.get_height(),g_height);
 
     for(int  y = 0;  y < h;  ++y)
     {
@@ -59,16 +56,16 @@ update_screen(const gbstd::image&  img) noexcept
 
   void*  ptr;
 
-    if(SDL_LockTexture(texture,nullptr,&ptr,&pitch) == 0)
+    if(SDL_LockTexture(g_texture,nullptr,&ptr,&pitch) == 0)
     {
       transfer(img,reinterpret_cast<uint8_t*>(ptr),pitch);
 
-      SDL_UnlockTexture(texture);
+      SDL_UnlockTexture(g_texture);
 
-      SDL_RenderClear(renderer);
-      SDL_RenderCopy(renderer,texture,nullptr,nullptr);
+      SDL_RenderClear(g_renderer);
+      SDL_RenderCopy(g_renderer,g_texture,nullptr,&g_dst_rect);
 
-      SDL_RenderPresent(renderer);
+      SDL_RenderPresent(g_renderer);
     }
 }
 
@@ -76,9 +73,9 @@ update_screen(const gbstd::image&  img) noexcept
 void
 quit() noexcept
 {
-  SDL_DestroyTexture(texture);
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
+  SDL_DestroyTexture(g_texture);
+  SDL_DestroyRenderer(g_renderer);
+  SDL_DestroyWindow(g_window);
 
   SDL_Quit();
 
@@ -87,34 +84,46 @@ quit() noexcept
 
 
 void
-init(int  w, int  h) noexcept
+init(int  w, int  h, double  scale) noexcept
 {
+  g_width  = w;
+  g_height = h;
+
+  g_dst_rect.x = 0;
+  g_dst_rect.y = 0;
+  g_dst_rect.w = w*scale;
+  g_dst_rect.h = h*scale;
+
+
   SDL_Init(SDL_INIT_VIDEO);
 
-  window = SDL_CreateWindow("GAME BABY - " __DATE__,0,0,w,h,0);
+  g_window = SDL_CreateWindow("GAME BABY - " __DATE__,0,0,g_dst_rect.w,g_dst_rect.h,0);
 
-    if(!window)
+    if(!g_window)
     {
       printf("cannot create window\n");
     }
 
 
-  renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
-  texture  = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_ARGB1555,SDL_TEXTUREACCESS_STREAMING,w,h);
+  g_renderer = SDL_CreateRenderer(g_window,-1,SDL_RENDERER_ACCELERATED);
+  g_texture  = SDL_CreateTexture(g_renderer,SDL_PIXELFORMAT_ARGB1555,SDL_TEXTUREACCESS_STREAMING,w,h);
 }
 
 
 void
 resize_screen(int  w, int  h) noexcept
 {
-    if(!window)
+    if(!g_window)
     {
       init(w,h);
     }
 
   else
     {
-      SDL_SetWindowSize(window,w,h);
+      SDL_SetWindowSize(g_window,w,h);
+
+      SDL_DestroyTexture(g_texture);
+                         g_texture  = SDL_CreateTexture(g_renderer,SDL_PIXELFORMAT_ARGB1555,SDL_TEXTUREACCESS_STREAMING,w,h);
     }
 }
 
@@ -122,12 +131,7 @@ resize_screen(int  w, int  h) noexcept
 gbstd::image
 make_screen_image() noexcept
 {
-  int  w;
-  int  h;
-
-  SDL_GetWindowSize(window,&w,&h);
-
-  return gbstd::image(w,h);
+  return gbstd::image(g_width,g_height);
 }
 
 

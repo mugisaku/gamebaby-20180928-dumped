@@ -55,7 +55,7 @@ brick: public block
 public:
   brick() noexcept{
     set_wall_flag();
-    set_image_point(point(24,0));
+    set_image_point(point(0,0));
   }
 
 };

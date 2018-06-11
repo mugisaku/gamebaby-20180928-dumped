@@ -41,6 +41,7 @@ kind_codes
 {
   static constexpr uint32_t  player = 1;
   static constexpr uint32_t  bullet = 2;
+  static constexpr uint32_t  lady = 3;
 
 };
 
@@ -110,6 +111,8 @@ public:
   void  update_core() noexcept override;
 
   void  render(point  offset, images::image&  dst) noexcept override;
+
+  static bool  m_debug;
 
 };
 
@@ -233,6 +236,53 @@ public:
   void  update_graphics() noexcept override;
 
 };
+
+
+class
+lady: public player
+{
+  int  m_stepping_phase=0;
+
+  enum class action{
+    stand,
+    walk,
+    turn,
+    kick,
+    orz,
+    ladder,
+    eat,
+
+  } m_action=action::stand;
+
+
+  void  do_when_this_is_landing() noexcept;
+  void  do_when_this_is_floating() noexcept;
+
+  void  do_when_action_is_stand() noexcept;
+  void  do_when_action_is_walk() noexcept;
+  void  do_when_action_is_turn() noexcept;
+  void  do_when_action_is_kick() noexcept;
+  void  do_when_action_is_orz() noexcept;
+  void  do_when_action_is_ladder() noexcept;
+  void  do_when_action_is_eat() noexcept;
+
+public:
+  lady() noexcept;
+
+  bool  does_stand()    const noexcept{return m_action == action::stand;}
+  bool  does_walk()     const noexcept{return m_action == action::walk;}
+  bool  does_kick()     const noexcept{return m_action == action::kick;}
+
+  void  do_stand() noexcept{m_action = action::stand;}
+  void  do_walk()  noexcept{m_action = action::walk;}
+  void  do_kick()  noexcept{m_action = action::kick;}
+
+  void  update_core() noexcept override;
+  void  update_graphics() noexcept override;
+
+};
+
+
 
 
 class

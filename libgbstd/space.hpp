@@ -76,6 +76,9 @@ public:
   void  set_base_point_x(double  x) noexcept{m_base_point.x = x;}
   void  set_base_point_y(double  y) noexcept{m_base_point.y = y;}
 
+  void  add_base_point_x(double  x) noexcept{m_base_point.x += x;}
+  void  add_base_point_y(double  y) noexcept{m_base_point.y += y;}
+
   void  add_base_point(real_point      pt) noexcept;
   const real_point&  get_base_point() const noexcept{return m_base_point;}
 
@@ -104,6 +107,9 @@ public:
   real_point  get_kinetic_energy(              ) const noexcept{return m_kinetic_energy      ;}
   void        set_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy  = pt;}
   void        add_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy += pt;}
+
+  void  add_kinetic_energy_x(double  v) noexcept{m_kinetic_energy.x += v;}
+  void  add_kinetic_energy_y(double  v) noexcept{m_kinetic_energy.y += v;}
 
   void  set_kinetic_energy_x(double  v) noexcept{m_kinetic_energy.x = v;}
   void  set_kinetic_energy_y(double  v) noexcept{m_kinetic_energy.y = v;}
