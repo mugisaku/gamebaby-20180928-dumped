@@ -43,6 +43,14 @@ gbact::characters::lady
 g_lady;
 
 
+gbact::characters::lady_monitor
+g_lady_monitor;
+
+
+gbact::characters::meat
+g_meat;
+
+
 images::image
 g_final_image;
 
@@ -113,11 +121,15 @@ step() noexcept
         system_message.need_to_remove();
 
         new(&g_lady) gbact::characters::lady;
+        new(&g_lady_monitor) gbact::characters::lady_monitor(g_lady,0,screen_height-48);
+        new(&g_meat) gbact::characters::meat(200,48);
 
 
         g_lady.set_base_point(real_point(30,120));
 
         g_space.append_object(g_lady,true);
+        g_space.append_object(g_lady_monitor);
+        g_space.append_object(g_meat,true);
         add_pc(1);
   case(3):
         if(pausing)
@@ -145,23 +157,15 @@ step() noexcept
               g_space.step(g_board);
 
               g_board_view.chase_object(g_lady,4);
+
+                if(!g_lady.get_space())
+                {
+                  set_pc(4);
+                }
             }
         }
       break;
   case(4):
-      system_message.set_base_point(real_point(view_off.x+screen_width/2,view_off.y+screen_height/2));
-
-      system_message.set_string("YOU LOOSE");
-
-      system_message.align_center();
-
-      g_space.append_object(system_message);
-
-      time = g_time+4000;
-
-      set_pc(6);
-      break;
-  case(6):
       g_space.update();
 
       g_space.detect_collision();
@@ -241,40 +245,15 @@ main(int  argc, char**  argv)
   g_program.push(ctx);
 
 
-static gbact::blocks::brick  blk;
+  static gbact::blocks::brick  blk;
 
-  g_board.build(14,14,24);
-
-/*
-  g_board.get_square(1,7).set_data(&blk);
-  g_board.get_square(5,3).set_data(&blk);
-  g_board.get_square(5,7).set_data(&blk);
-  g_board.get_square(8,9).set_data(&blk);
-  g_board.get_square(3,12).set_data(&blk);
-  g_board.get_square(6,17).set_data(&blk);
-  g_board.get_square(8,17).set_data(&blk);
-  g_board.get_square(9,17).set_data(&blk);
-  g_board.get_square(6,12).set_data(&blk);
-  g_board.get_square(7,12).set_data(&blk);
-  g_board.get_square(8,19).set_data(&blk);
-  g_board.get_square(7,17).set_data(&blk);
-  g_board.get_square(7,18).set_data(&blk);
-  g_board.get_square(4,15).set_data(&blk);
-  g_board.get_square(4,14).set_data(&blk);
-
-    for(int  i = 0;  i < 17;  ++i)
-    {
-      g_board.get_square(12,2+i).set_data(&wf);
-      g_board.get_square(13,2+i).set_data(&wf);
-    }
-*/
-
+  g_board.build(14,12,24);
 
   g_board.put_to_around(&blk);
 
 
   g_board_view.set_source_image(g_bg_image);
-  g_board_view.reset(g_board,screen_width,screen_height);
+  g_board_view.reset(g_board,screen_width,screen_height-48);
 
 
 #ifdef EMSCRIPTEN

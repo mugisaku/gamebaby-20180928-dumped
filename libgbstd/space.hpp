@@ -72,14 +72,16 @@ public:
   const boards::area&  get_area()       const noexcept{return m_area;}
   const boards::area&  get_saved_area() const noexcept{return m_saved_area;}
 
-  void  set_base_point(real_point  new_pt) noexcept;
+  void  set_base_point(real_point  new_pt) noexcept{m_base_point = new_pt;}
+  void  set_base_point(double  x, double  y) noexcept{m_base_point = real_point(x,y);}
   void  set_base_point_x(double  x) noexcept{m_base_point.x = x;}
   void  set_base_point_y(double  y) noexcept{m_base_point.y = y;}
 
   void  add_base_point_x(double  x) noexcept{m_base_point.x += x;}
   void  add_base_point_y(double  y) noexcept{m_base_point.y += y;}
 
-  void  add_base_point(real_point      pt) noexcept;
+  void  add_base_point(double  x, double  y) noexcept{m_base_point += real_point(x,y);}
+  void  add_base_point(real_point  pt) noexcept{m_base_point += pt;}
   const real_point&  get_base_point() const noexcept{return m_base_point;}
 
   point  get_point() const noexcept;

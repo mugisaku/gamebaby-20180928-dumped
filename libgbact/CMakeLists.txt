@@ -6,6 +6,8 @@ set(SOURCES
   hero.cpp
   enemy.cpp
   lady.cpp
+  lady_monitor.cpp
+  meat.cpp
   bullet.cpp
   greeting_sphere.cpp
 )

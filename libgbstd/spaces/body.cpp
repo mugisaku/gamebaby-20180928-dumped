@@ -9,26 +9,6 @@ namespace spaces{
 
 
 
-void
-body::
-set_base_point(real_point  pt) noexcept
-{
-  m_base_point = pt;
-
-  update();
-}
-
-
-void
-body::
-add_base_point(real_point  pt) noexcept
-{
-  m_base_point += pt;
-
-  update();
-}
-
-
 point
 body::
 get_point() const noexcept

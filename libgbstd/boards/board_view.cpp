@@ -145,25 +145,27 @@ void
 board_view::
 render_line(const rendering_context&  ctx) const noexcept
 {
-  int  board_x           = m_offset.x/ctx.square_size;
-  int        x_remainder = m_offset.x%ctx.square_size;
+  int  point_x = (m_offset.x%ctx.board_image_width);
 
-    if(board_x < 0)
+    if(point_x < 0)
     {
-      board_x += ctx.board_width;
+      point_x += ctx.board_image_width;
     }
 
 
-  int  board_y = (m_offset.y+ctx.output_line)/ctx.square_size;
+  int  point_y = (m_offset.y+ctx.output_line)%ctx.board_image_height;
 
-    if(board_y < 0)
+    if(point_y < 0)
     {
-      board_y += ctx.board_height;
+      point_y += ctx.board_image_height;
     }
 
 
-  int  square_y = (m_offset.y+ctx.output_line)%ctx.square_size;
+  int  board_x           = point_x/ctx.square_size;
+  int        x_remainder = point_x%ctx.square_size;
 
+  int  board_y  = point_y/ctx.square_size;
+  int  square_y = point_y%ctx.square_size;
 
   auto  begin_square = &m_board->get_square(              0,board_y);
   auto    end_square = &m_board->get_square(ctx.board_width,board_y);
@@ -254,7 +256,9 @@ render(image&  dst, void  (*callback)(board_view&  bv, int  output_line)) noexce
 
   ctx.output_line = 0;
 
-    while(ctx.output_line < m_height)
+  int  n = std::min(dst.get_height(),m_height);
+
+    while(ctx.output_line < n)
     {
         if(callback)
         {

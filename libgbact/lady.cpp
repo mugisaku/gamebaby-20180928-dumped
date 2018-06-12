@@ -11,7 +11,7 @@ namespace characters{
 
 lady::
 lady() noexcept:
-player(4)
+player(5)
 {
   g_space.get_environment().set_gravitation(0.2);
 
@@ -104,6 +104,8 @@ do_when_action_is_stand() noexcept
     if(g_input.test_n_button())
     {
       m_action = action::orz;
+
+      set_life_level(0);
     }
 
 
@@ -117,7 +119,7 @@ void
 lady::
 do_when_action_is_walk() noexcept
 {
-  constexpr int  add_amount = 1;
+  constexpr int  add_amount = 3;
 
     if(g_input.test_right_button())
     {
@@ -154,7 +156,7 @@ do_when_action_is_walk() noexcept
     }
 
 
-    if(check_last_animated_time(200))
+    if(check_last_animated_time(160))
     {
         if(get_phase() > 2)
         {
@@ -187,6 +189,8 @@ do_when_action_is_kick() noexcept
 {
     if(check_last_animated_time(400))
     {
+      add_life_level(-1);
+
       reset_phase();
 
       m_action = action::stand;

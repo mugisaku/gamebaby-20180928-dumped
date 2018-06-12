@@ -42,6 +42,7 @@ kind_codes
   static constexpr uint32_t  player = 1;
   static constexpr uint32_t  bullet = 2;
   static constexpr uint32_t  lady = 3;
+  static constexpr uint32_t  meat = 4;
 
 };
 
@@ -269,15 +270,35 @@ lady: public player
 public:
   lady() noexcept;
 
-  bool  does_stand()    const noexcept{return m_action == action::stand;}
-  bool  does_walk()     const noexcept{return m_action == action::walk;}
-  bool  does_kick()     const noexcept{return m_action == action::kick;}
-
-  void  do_stand() noexcept{m_action = action::stand;}
-  void  do_walk()  noexcept{m_action = action::walk;}
-  void  do_kick()  noexcept{m_action = action::kick;}
-
   void  update_core() noexcept override;
+  void  update_graphics() noexcept override;
+
+};
+
+
+class
+lady_monitor: public spaces::object
+{
+  lady*  m_target;
+
+public:
+  lady_monitor() noexcept{}
+  lady_monitor(lady&  lady, int  x, int  y) noexcept;
+
+  void  render(point  offset, images::image&  dst) noexcept override;
+
+};
+
+
+
+
+class
+meat: public spaces::image_object
+{
+public:
+  meat() noexcept{}
+  meat(int  x, int  y) noexcept;
+
   void  update_graphics() noexcept override;
 
 };
