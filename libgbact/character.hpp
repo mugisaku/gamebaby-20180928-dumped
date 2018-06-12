@@ -3,6 +3,7 @@
 
 
 #include"libgbstd/space.hpp"
+#include"libgbstd/board.hpp"
 #include"libgbstd/control_device.hpp"
 #include"libgbstd/direction.hpp"
 #include<new>
@@ -22,6 +23,10 @@ extern spaces::space
 g_space;
 
 
+extern boards::board
+g_board;
+
+
 namespace gbact{
 namespace characters{
 
@@ -34,6 +39,28 @@ class player;
 class bullet;
 
 using object = spaces::object;
+
+
+class
+environment
+{
+  double  m_gravitation=0;
+  double  m_fluid_viscosity=0;
+
+  real_point  m_fluid_kinetic_energy;
+
+public:
+  double  get_gravitation(         ) const noexcept{return m_gravitation    ;}
+  void    set_gravitation(double  v)       noexcept{       m_gravitation = v;}
+
+  double  get_fluid_viscosity(         ) const noexcept{return m_fluid_viscosity    ;}
+  void    set_fluid_viscosity(double  v)       noexcept{       m_fluid_viscosity = v;}
+
+  real_point  get_fluid_kinetic_energy(              ) const noexcept{return m_fluid_kinetic_energy      ;}
+  void        set_fluid_kinetic_energy(real_point  pt)       noexcept{       m_fluid_kinetic_energy  = pt;}
+  void        add_fluid_kinetic_energy(real_point  pt)       noexcept{       m_fluid_kinetic_energy += pt;}
+
+};
 
 
 struct
@@ -63,6 +90,16 @@ character: public spaces::image_object
   } m_blinking_status;
 
 
+  boards::square*            m_current_square=nullptr;
+  boards::square*     m_left_contacted_square=nullptr;
+  boards::square*    m_right_contacted_square=nullptr;
+  boards::square*       m_up_contacted_square=nullptr;
+  boards::square*     m_down_contacted_square=nullptr;
+
+  const environment*  m_environment=nullptr;
+
+  double  m_mass=0;
+
   int  m_phase=0;
 
   uint32_t  m_last_animated_time=0;
@@ -70,8 +107,35 @@ character: public spaces::image_object
   uint32_t  m_last_update_time=0;
   uint32_t  m_rendering_count=0;
 
-
 public:
+  character() noexcept{initialize();}
+
+  virtual void  initialize() noexcept;
+
+  void                set_environment(const environment*  env)       noexcept{       m_environment = env;}
+  const environment*  get_environment(                       ) const noexcept{return m_environment      ;}
+
+
+  void             set_current_square(boards::square*  sq)       noexcept{       m_current_square = sq;}
+  boards::square*  get_current_square(                   ) const noexcept{return m_current_square     ;}
+
+  void  set_left_contacted_square(boards::square*  sq) noexcept{m_left_contacted_square = sq;}
+        boards::square*  get_left_contacted_square()       noexcept{return m_left_contacted_square;}
+  const boards::square*  get_left_contacted_square() const noexcept{return m_left_contacted_square;}
+
+  void  set_right_contacted_square(boards::square*  sq) noexcept{m_right_contacted_square = sq;}
+        boards::square*  get_right_contacted_square()       noexcept{return m_right_contacted_square;}
+  const boards::square*  get_right_contacted_square() const noexcept{return m_right_contacted_square;}
+
+  void  set_up_contacted_square(boards::square*  sq) noexcept{m_up_contacted_square = sq;}
+        boards::square*  get_up_contacted_square()       noexcept{return m_up_contacted_square;}
+  const boards::square*  get_up_contacted_square() const noexcept{return m_up_contacted_square;}
+
+  void  set_down_contacted_square(boards::square*  sq) noexcept{m_down_contacted_square = sq;}
+        boards::square*  get_down_contacted_square()       noexcept{return m_down_contacted_square;}
+  const boards::square*  get_down_contacted_square() const noexcept{return m_down_contacted_square;}
+
+
   void  reset_phase() noexcept{m_phase = 0;}
   int  get_phase() const noexcept{return m_phase;}
 
@@ -104,7 +168,7 @@ public:
   virtual void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept{}
 
 
-  void  step(boards::board&  board) noexcept override;
+  void  step() noexcept;
 
   virtual bool  test_if_can_move_into_square(boards::square&  sq) const noexcept;
   virtual void  do_when_collided_with_square(boards::square&  sq) noexcept{}
@@ -293,7 +357,7 @@ public:
 
 
 class
-meat: public spaces::image_object
+meat: public character
 {
 public:
   meat() noexcept{}

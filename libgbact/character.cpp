@@ -17,6 +17,26 @@ character::
 m_debug;
 
 
+
+
+void
+character::
+initialize() noexcept
+{
+  static environment  env;
+
+  static bool  initialized;
+
+    if(!initialized)
+    {
+      env.set_gravitation(0.2);
+    }
+
+
+  m_environment = &env;
+}
+
+
 bool
 character::
 check_last_animated_time(uint32_t  interval) noexcept
@@ -79,14 +99,14 @@ test_if_can_move_into_square(boards::square&  sq) const noexcept
 
 void
 character::
-step(boards::board&  board) noexcept
+step() noexcept
 {
   auto&  area = get_area();
   auto&    pt = get_base_point();
 
-  auto  sq_size = board.get_square_size();
+  auto  sq_size = g_board.get_square_size();
 
-  auto*  new_sq = &board.get_square_by_object(*this);
+  auto*  new_sq = &g_board.get_square_by_object(*this);
   auto*  cur_sq = get_current_square();
 
     if(new_sq != cur_sq)
@@ -202,7 +222,7 @@ step(boards::board&  board) noexcept
             }
 
 
-          new_sq = &board.get_square(new_sq_i.x,new_sq_i.y);
+          new_sq = &g_board.get_square(new_sq_i.x,new_sq_i.y);
 
             if(new_sq != cur_sq)
             {
@@ -226,6 +246,8 @@ void
 character::
 update_core() noexcept
 {
+  step();
+
     if(m_blinking_status.valid)
     {
         if(g_time >= m_blinking_status.end_time)
@@ -236,6 +258,58 @@ update_core() noexcept
 
 
   object::update_core();
+
+  auto  ene = get_kinetic_energy();
+
+    if(ene.x < 0)
+    {
+        if(m_left_contacted_square)
+        {
+          ene.x = 0;
+        }
+    }
+
+  else
+    if(ene.x > 0)
+    {
+        if(m_right_contacted_square)
+        {
+          ene.x = 0;
+        }
+    }
+
+
+    if(ene.y < 0)
+    {
+        if(m_up_contacted_square)
+        {
+          ene.y = 0;
+        }
+    }
+
+  else
+    if(ene.y > 0)
+    {
+        if(m_down_contacted_square)
+        {
+          ene.y = 0;
+        }
+    }
+
+
+  auto  env = get_environment();
+
+    if(env)
+    {
+      ene.y += env->get_gravitation();
+
+      ene *= (1.0-env->get_fluid_viscosity());
+
+      ene += env->get_fluid_kinetic_energy();
+    }
+
+
+  set_kinetic_energy(ene);
 
   m_last_update_time = g_time;
 }

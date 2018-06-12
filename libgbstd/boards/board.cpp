@@ -28,7 +28,7 @@ build(int  w, int  h, int  square_size) noexcept
     for(int  x = 0;  x < w;  ++x){
       auto&  sq = get_square(x,y);
 
-      boards::area  area;
+      areas::area  area;
 
       area.top    = y*square_size;
       area.left   = x*square_size;

@@ -21,7 +21,6 @@ set(SOURCES
   spaces/object.cpp
   spaces/text_object.cpp
   spaces/space.cpp
-  boards/area.cpp
   boards/board.cpp
   boards/board_view.cpp
   ios/riff_chunk.cpp

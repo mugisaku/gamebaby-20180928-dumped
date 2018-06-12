@@ -53,7 +53,7 @@ push_node_to_trash(object_node*  nd) noexcept
 
 void
 space::
-append_object(object&  o, bool  use_env) noexcept
+append_object(object&  o) noexcept
 {
   auto  nd = pop_node_from_trash();
 
@@ -65,7 +65,6 @@ append_object(object&  o, bool  use_env) noexcept
   o.unneed_to_remove();
 
   o.set_space(*this);
-  o.set_environment(use_env? &m_environment:nullptr);
 
   o.body::update();
 }
@@ -115,7 +114,7 @@ void
 space::
 check_collision(object&  a, object&  b) noexcept
 {
-    if(!boards::area::test_collision(a.get_area(),b.get_area()))
+    if(!area::test_collision(a.get_area(),b.get_area()))
     {
       return;
     }
@@ -182,21 +181,6 @@ detect_collision() noexcept
 
           a_current = a_current->next;
         }
-    }
-}
-
-
-void
-space::
-step(boards::board&  board) noexcept
-{
-  auto  current = m_object_list;
-
-    while(current)
-    {
-      current->object->step(board);
-
-      current = current->next;
     }
 }
 

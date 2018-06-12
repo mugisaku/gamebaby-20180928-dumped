@@ -13,12 +13,6 @@ hero::
 hero() noexcept:
 player(4)
 {
-  g_space.get_environment().set_gravitation(0.2);
-
-//  g_space.get_environment().set_fluid_kinetic_energy(real_point(0.0,));
-
-//  g_space.get_environment().set_fluid_viscosity(0.08);
-
   set_kind_code(kind_codes::player);
 
   set_width( 24);

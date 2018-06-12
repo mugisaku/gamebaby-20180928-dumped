@@ -4,6 +4,7 @@
 
 #include"libgbstd/image.hpp"
 #include"libgbstd/position.hpp"
+#include"libgbstd/area.hpp"
 
 
 namespace gbstd{
@@ -11,31 +12,10 @@ namespace gbstd{
 
 namespace spaces{
 class object;
-class environment;
 }
 
 
 namespace boards{
-
-
-
-
-struct
-area
-{
-  int     top=0;
-  int    left=0;
-  int   right=0;
-  int  bottom=0;
-
-
-  static bool  test_x_collision(const area&  a, const area&  b) noexcept;
-  static bool  test_y_collision(const area&  a, const area&  b) noexcept;
-  static bool  test_collision(  const area&  a, const area&  b) noexcept;
-
-  void  print() const noexcept;
-
-};
 
 
 
@@ -82,16 +62,11 @@ square_data
 {
   uint32_t  m_kind_code=0;
 
-  spaces::environment*  m_environment=nullptr;
-
   point  m_image_point;
 
 public:
   uint32_t  get_kind_code(              ) const noexcept{return m_kind_code       ;}
   void      set_kind_code(uint32_t  code)       noexcept{       m_kind_code = code;}
-
-  spaces::environment*  get_environment(                         ) const noexcept{return m_environment      ;}
-  void                  set_environment(spaces::environment*  env)       noexcept{       m_environment = env;}
 
   point  get_image_point(         ) const noexcept{return m_image_point     ;}
   void   set_image_point(point  pt)       noexcept{       m_image_point = pt;}

@@ -36,6 +36,10 @@ spaces::space
 g_space;
 
 
+boards::board
+g_board;
+
+
 namespace{
 
 
@@ -57,10 +61,6 @@ g_final_image;
 
 programs::program
 g_program;
-
-
-boards::board
-g_board;
 
 
 boards::board_view
@@ -127,9 +127,9 @@ step() noexcept
 
         g_lady.set_base_point(real_point(30,120));
 
-        g_space.append_object(g_lady,true);
+        g_space.append_object(g_lady);
         g_space.append_object(g_lady_monitor);
-        g_space.append_object(g_meat,true);
+        g_space.append_object(g_meat);
         add_pc(1);
   case(3):
         if(pausing)
@@ -154,7 +154,6 @@ step() noexcept
               g_space.update();
 
               g_space.detect_collision();
-              g_space.step(g_board);
 
               g_board_view.chase_object(g_lady,4);
 
@@ -169,7 +168,6 @@ step() noexcept
       g_space.update();
 
       g_space.detect_collision();
-      g_space.step(g_board);
 
       g_board_view.chase_object(g_lady,4);
 
