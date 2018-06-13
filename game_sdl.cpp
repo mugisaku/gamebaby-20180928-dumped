@@ -153,7 +153,7 @@ step() noexcept
             {
               g_space.update();
 
-              g_space.detect_collision();
+              g_space.detect_collision<gbact::characters::character>();
 
               g_board_view.chase_object(g_lady,4);
 
@@ -167,7 +167,7 @@ step() noexcept
   case(4):
       g_space.update();
 
-      g_space.detect_collision();
+      g_space.detect_collision<gbact::characters::character>();
 
       g_board_view.chase_object(g_lady,4);
 
@@ -231,6 +231,8 @@ main(int  argc, char**  argv)
                   "</pre>"
   );
 #endif
+  gbact::characters::character::m_debug = true;
+
 
 
   sdl::init(screen_width,screen_height,1.5);

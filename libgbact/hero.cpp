@@ -13,8 +13,6 @@ hero::
 hero() noexcept:
 player(4)
 {
-  set_kind_code(kind_codes::player);
-
   set_width( 24);
   set_height(48);
 
@@ -210,7 +208,7 @@ do_greeting() noexcept
 
       get_space()->append_object(chr.m_character);
 
-      chr.m_character.set_environment(nullptr);
+      chr.m_character.get_physics().disable();
     }
 }
 

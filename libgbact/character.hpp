@@ -37,12 +37,13 @@ g_image;
 
 class player;
 class bullet;
+class item;
 
 using object = spaces::object;
 
 
 class
-environment
+physics_parameter
 {
   double  m_gravitation=0;
   double  m_fluid_viscosity=0;
@@ -63,13 +64,23 @@ public:
 };
 
 
-struct
-kind_codes
+class
+physics
 {
-  static constexpr uint32_t  player = 1;
-  static constexpr uint32_t  bullet = 2;
-  static constexpr uint32_t  lady = 3;
-  static constexpr uint32_t  meat = 4;
+  const physics_parameter*  m_parameter=nullptr;
+
+  bool  m_validity=false;
+
+public:
+  operator bool() const noexcept{return m_validity && m_parameter;}
+
+  void                      set_parameter(const physics_parameter*  p)       noexcept{       m_parameter = p;}
+  const physics_parameter*  get_parameter(                           ) const noexcept{return m_parameter    ;}
+
+  bool  is_valid() const noexcept{return m_validity;}
+
+  void   enable() noexcept{m_validity =  true;}
+  void  disable() noexcept{m_validity = false;}
 
 };
 
@@ -96,7 +107,7 @@ character: public spaces::image_object
   boards::square*       m_up_contacted_square=nullptr;
   boards::square*     m_down_contacted_square=nullptr;
 
-  const environment*  m_environment=nullptr;
+  physics  m_physics;
 
   double  m_mass=0;
 
@@ -107,14 +118,15 @@ character: public spaces::image_object
   uint32_t  m_last_update_time=0;
   uint32_t  m_rendering_count=0;
 
+  void  check_contacted_squares() noexcept;
+
 public:
   character() noexcept{initialize();}
 
   virtual void  initialize() noexcept;
 
-  void                set_environment(const environment*  env)       noexcept{       m_environment = env;}
-  const environment*  get_environment(                       ) const noexcept{return m_environment      ;}
-
+        physics&  get_physics()       noexcept{return m_physics;}
+  const physics&  get_physics() const noexcept{return m_physics;}
 
   void             set_current_square(boards::square*  sq)       noexcept{       m_current_square = sq;}
   boards::square*  get_current_square(                   ) const noexcept{return m_current_square     ;}
@@ -159,10 +171,9 @@ public:
 
   virtual void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept{}
   virtual void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept{}
-  virtual void  do_when_collided_with_object(object&  other_side, positions::position  position) noexcept{}
+  virtual void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept{}
 
-
-  void  do_when_collided(object&  other_side, positions::position  position) noexcept override;
+  virtual void  do_when_collided(character&  other_side, positions::position  position) noexcept{}
 
 
   virtual void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept{}
@@ -187,19 +198,12 @@ public:
 class
 player: public character
 {
-  struct{
-    bool  valid=false;
-    uint32_t  end_time=0;
-
-  } m_exemption_status;
-
-
   int  m_life_level=1;
 
   bool  m_invincible=false;
 
 public:
-  player(int  life=1) noexcept: m_life_level(life){}
+  player(int  life=1) noexcept: m_life_level(life){get_physics().enable();}
 
   bool  is_invincible() const noexcept{return m_invincible;}
   void    set_invincible() noexcept{m_invincible =  true;}
@@ -212,15 +216,19 @@ public:
 
   void  knockback() noexcept;
 
-  void  exempt(uint32_t  time) noexcept;
+
+  void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept override;
+
+  void  do_when_collided(character&  other_side, positions::position  position) noexcept override;
+
 
   virtual void  do_when_ran_out_life() noexcept;
 
   bool  test_if_can_move_into_square(boards::square&  sq) const noexcept override;
 
   void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override;
-
-  void  update_core() noexcept override;
 
 };
 
@@ -357,7 +365,24 @@ public:
 
 
 class
-meat: public character
+item: public character
+{
+public:
+  item() noexcept{}
+
+  void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept override;
+
+  void  do_when_collided(character&  other_side, positions::position  position) noexcept override;
+
+};
+
+
+
+
+class
+meat: public item
 {
 public:
   meat() noexcept{}
@@ -386,8 +411,11 @@ public:
 
   player*  get_shooter() const noexcept{return m_shooter;}
 
+  void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
-  void  do_when_collided_with_object(object&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept override;
+
+  void  do_when_collided(character&  other_side, positions::position  position) noexcept override;
 
   void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override;
   void  do_when_collided_with_square(boards::square&  sq) noexcept override;
@@ -405,7 +433,6 @@ public:
   greeting_sphere(player*  shooter, player*  target) noexcept;
 
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
-  void  do_when_collided_with_object(object&  other_side, positions::position  position) noexcept override;
 
   void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override{}
 

@@ -46,14 +46,37 @@ knockback() noexcept
 }
 
 
+
+
 void
 player::
-exempt(uint32_t  time) noexcept
+do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
-  m_exemption_status.valid = true;
-
-  m_exemption_status.end_time = g_time+time;
 }
+
+
+void
+player::
+do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
+{
+}
+
+
+void
+player::
+do_when_collided_with_item(item&  other_side, positions::position  position) noexcept
+{
+}
+
+
+void
+player::
+do_when_collided(character&  other_side, positions::position  position) noexcept
+{
+  other_side.do_when_collided_with_player(*this,get_opposite(position));
+}
+
+
 
 
 void
@@ -79,22 +102,6 @@ void
 player::
 do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept
 {
-}
-
-
-void
-player::
-update_core() noexcept
-{
-  character::update_core();
-
-    if(m_exemption_status.valid)
-    {
-        if(g_time >= m_exemption_status.end_time)
-        {
-          m_exemption_status.valid = false;
-        }
-    }
 }
 
 

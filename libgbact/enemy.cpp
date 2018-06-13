@@ -14,8 +14,6 @@ enemy(player*  target) noexcept:
 player(4),
 m_target(target)
 {
-  set_kind_code(kind_codes::player);
-
   set_width( 24);
   set_height(48);
 

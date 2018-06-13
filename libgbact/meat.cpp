@@ -12,14 +12,15 @@ namespace characters{
 meat::
 meat(int  x, int  y) noexcept
 {
-  set_kind_code(kind_codes::meat);
-
   set_base_point(x,y);
 
   set_width( 24);
   set_height(24);
 
   set_offset(point(-12,-24));
+  set_rendering_offset(point(-12,-24));
+
+  get_physics().enable();
 }
 
 

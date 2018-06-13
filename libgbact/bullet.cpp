@@ -14,8 +14,6 @@ bullet(player*  shooter, player*  target) noexcept:
 m_shooter(shooter),
 m_target(target)
 {
-  set_kind_code(kind_codes::bullet);
-
   set_width( 16);
   set_height(16);
 
@@ -27,6 +25,13 @@ m_target(target)
 
 void
 bullet::
+do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
+{
+}
+
+
+void
+bullet::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
 }
@@ -34,10 +39,19 @@ do_when_collided_with_player(player&  other_side, positions::position  position)
 
 void
 bullet::
-do_when_collided_with_object(object&  other_side, positions::position  position) noexcept
+do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept
 {
-  need_to_remove();
 }
+
+
+void
+bullet::
+do_when_collided(character&  other_side, positions::position  position) noexcept
+{
+  other_side.do_when_collided_with_bullet(*this,get_opposite(position));
+}
+
+
 
 
 void

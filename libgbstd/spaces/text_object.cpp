@@ -34,8 +34,6 @@ set_string(gbstd::string_view  sv) noexcept
 
   set_width( font_width*m_string.size());
   set_height(font_height);
-
-  body::update();
 }
 
 
@@ -47,8 +45,6 @@ set_string(gbstd::u16string_view  sv) noexcept
 
   set_width( font_width*m_string.size());
   set_height(font_height);
-
-  body::update();
 }
 
 

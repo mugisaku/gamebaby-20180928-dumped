@@ -13,8 +13,6 @@ lady::
 lady() noexcept:
 player(5)
 {
-  set_kind_code(kind_codes::lady);
-
   set_width( 24);
   set_height(48);
 
@@ -56,7 +54,10 @@ do_when_action_is_stand() noexcept
 {
     if(g_input.test_p_button())
     {
-      m_action = action::kick;
+        if(get_life_level() > 2)
+        {
+          m_action = action::kick;
+        }
     }
 
   else

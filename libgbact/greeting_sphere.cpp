@@ -13,8 +13,6 @@ greeting_sphere::
 greeting_sphere(player*  shooter, player*  target) noexcept:
 bullet(shooter,target)
 {
-  set_kind_code(kind_codes::bullet);
-
   set_width( 16);
   set_height(40);
 
@@ -29,13 +27,6 @@ bullet(shooter,target)
 void
 greeting_sphere::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
-{
-}
-
-
-void
-greeting_sphere::
-do_when_collided_with_object(object&  other_side, positions::position  position) noexcept
 {
 }
 

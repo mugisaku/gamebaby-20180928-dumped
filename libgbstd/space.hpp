@@ -17,7 +17,7 @@ class space;
 
 
 class
-body
+object
 {
   real_point  m_base_point;
 
@@ -31,9 +31,13 @@ body
   area  m_area;
   area  m_saved_area;
 
+  space*  m_space=nullptr;
+
+  bool  m_needed_to_remove=false;
+
 public:
-  body() noexcept{}
-  body(rectangle  rect) noexcept: m_base_point(rect.x,rect.y),
+  object() noexcept{}
+  object(rectangle  rect) noexcept: m_base_point(rect.x,rect.y),
   m_width(rect.w),
   m_height(rect.h){}
 
@@ -72,15 +76,29 @@ public:
   void  set_width( int  v) noexcept{m_width  = v;}
   void  set_height(int  v) noexcept{m_height = v;}
 
-  real_point  get_kinetic_energy(              ) const noexcept{return m_kinetic_energy      ;}
-  void        set_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy  = pt;}
-  void        add_kinetic_energy(real_point  pt)       noexcept{       m_kinetic_energy += pt;}
+
+        real_point&  get_kinetic_energy()       noexcept{return m_kinetic_energy;}
+  const real_point&  get_kinetic_energy() const noexcept{return m_kinetic_energy;}
+
+  void  set_kinetic_energy(real_point  pt) noexcept{m_kinetic_energy  = pt;}
+  void  add_kinetic_energy(real_point  pt) noexcept{m_kinetic_energy += pt;}
 
   void  add_kinetic_energy_x(double  v) noexcept{m_kinetic_energy.x += v;}
   void  add_kinetic_energy_y(double  v) noexcept{m_kinetic_energy.y += v;}
 
   void  set_kinetic_energy_x(double  v) noexcept{m_kinetic_energy.x = v;}
   void  set_kinetic_energy_y(double  v) noexcept{m_kinetic_energy.y = v;}
+
+
+  space*  get_space() const noexcept{return m_space;}
+
+  void    set_space(space&  sp) noexcept{m_space = &sp;}
+  void  unset_space(          ) noexcept{m_space = nullptr;}
+
+
+  bool  is_needed_to_remove() const noexcept{return m_needed_to_remove;}
+  void    need_to_remove() noexcept{m_needed_to_remove =  true;}
+  void  unneed_to_remove() noexcept{m_needed_to_remove = false;}
 
 
   bool  is_moved_to_up()    const noexcept{return m_area.top  < m_saved_area.top;}
@@ -93,49 +111,13 @@ public:
   void  set_top(   int  v) noexcept;
   void  set_bottom(int  v) noexcept;
 
-  void  update() noexcept;
+  void  update_area() noexcept;
 
   rectangle  get_rectangle() const noexcept;
 
-  void  print() const noexcept;
 
-};
+  void  do_when_collided(object&  other_side, positions::position  position) noexcept{}
 
-
-class
-object: public body
-{
-protected:
-  gbstd::string  m_name;
-
-  space*  m_space=nullptr;
-
-  uint32_t  m_kind_code=0;
-
-  bool  m_needed_to_remove=false;
-
-public:
-  object() noexcept{}
-  object(rectangle  rect) noexcept: body(rect){}
-
-  virtual ~object(){}
-
-  const gbstd::string&  get_name() const noexcept{return m_name;}
-
-  uint32_t  get_kind_code(              ) const noexcept{return m_kind_code       ;}
-  void      set_kind_code(uint32_t  code)       noexcept{       m_kind_code = code;}
-
-  space*  get_space() const noexcept{return m_space;}
-
-  void    set_space(space&  sp) noexcept{m_space = &sp;}
-  void  unset_space(          ) noexcept{m_space = nullptr;}
-
-
-  bool  is_needed_to_remove() const noexcept{return m_needed_to_remove;}
-  void    need_to_remove() noexcept{m_needed_to_remove =  true;}
-  void  unneed_to_remove() noexcept{m_needed_to_remove = false;}
-
-  virtual void  do_when_collided( object&  other_side, positions::position  position) noexcept{}
   virtual void  do_when_removed() noexcept{}
 
   virtual void  update_core() noexcept;
@@ -215,31 +197,84 @@ public:
 class
 space
 {
-  struct object_node;
-
-  object_node*  m_object_list=nullptr;
-
-  object_node*  m_trash=nullptr;
-
-  object_node*  pop_node_from_trash() noexcept;
-  void          push_node_to_trash(object_node*  nd) noexcept;
-
-
-  int  m_width =0;
-  int  m_height=0;
-
-  void  check_collision(object&  a, object&  b) noexcept;
+  std::vector<object*>          m_object_list;
+  std::vector<object*>  m_updated_object_list;
 
 public:
- ~space(){empty_trash();}
-
   void  append_object(object&  o) noexcept;
 
   void  remove_all_object() noexcept;
 
-  void  empty_trash() noexcept;
+  template<typename  T>
+  void  process_collision(T&  a, T&  b) noexcept
+  {
+    auto&   saved_area = a.get_saved_area();
+    auto&  target_area = b.get_area();
 
-  void  detect_collision() noexcept;
+    position  pos;
+
+      if(saved_area.left >= target_area.right)
+      {
+        pos = position::left;
+      }
+
+    else
+      if(saved_area.right <= target_area.left)
+      {
+        pos = position::right;
+      }
+
+    else
+      if(saved_area.top >= target_area.bottom)
+      {
+        pos = position::top;
+      }
+
+    else
+      if(saved_area.bottom <= target_area.top)
+      {
+        pos = position::bottom;
+      }
+
+
+    a.do_when_collided(b,pos);
+    b.do_when_collided(a,get_opposite(pos));
+  }
+
+
+  template<typename  T>
+  void  detect_collision() noexcept
+  {
+       if(m_object_list.size() >= 2)
+       {
+         auto  a_current = m_object_list.begin();
+         auto  b_base    = a_current+1;
+
+         auto  end = m_object_list.end();
+
+           while(b_base < end)
+           {
+             auto  b_current = b_base++;
+
+               while(b_current < end)
+               {
+                 auto&  a = *static_cast<T*>(*a_current);
+                 auto&  b = *static_cast<T*>(*b_current);
+
+                   if(area::test_collision(a.get_area(),b.get_area()))
+                   {
+                     process_collision(a,b);
+                   }
+
+
+                 ++b_current;
+               }
+
+
+             ++a_current;
+           }
+       }
+  }
 
   void  update() noexcept;
 

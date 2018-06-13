@@ -23,17 +23,17 @@ void
 character::
 initialize() noexcept
 {
-  static environment  env;
+  static physics_parameter  p;
 
   static bool  initialized;
 
     if(!initialized)
     {
-      env.set_gravitation(0.2);
+      p.set_gravitation(0.2);
     }
 
 
-  m_environment = &env;
+  m_physics.set_parameter(&p);
 }
 
 
@@ -62,28 +62,6 @@ blink(uint32_t  time) noexcept
   m_blinking_status.valid = true;
 
   m_blinking_status.end_time = g_time+time;
-}
-
-
-void
-character::
-do_when_collided(object&  other_side, positions::position  position) noexcept
-{
-    if(other_side.get_kind_code() == kind_codes::player)
-    {
-      do_when_collided_with_player(static_cast<player&>(other_side),position);
-    }
-
-  else
-    if(other_side.get_kind_code() == kind_codes::bullet)
-    {
-      do_when_collided_with_bullet(static_cast<bullet&>(other_side),position);
-    }
-
-  else
-    {
-      do_when_collided_with_object(other_side,position);
-    }
 }
 
 
@@ -129,7 +107,7 @@ step() noexcept
 
                   set_base_point_x(sq->get_area().left-1);
 
-                  body::update();
+                  update_area();
 
                   set_right_contacted_square(sq);
 
@@ -156,7 +134,7 @@ step() noexcept
 
                   set_base_point_x(sq->get_area().right+1);
 
-                  body::update();
+                  update_area();
 
                   set_left_contacted_square(sq);
 
@@ -182,7 +160,7 @@ step() noexcept
 
                   set_base_point_y(sq->get_area().top-1);
 
-                  body::update();
+                  update_area();
 
                   set_down_contacted_square(sq);
 
@@ -208,7 +186,7 @@ step() noexcept
 
                   set_base_point_y(sq->get_area().bottom+1);
 
-                  body::update();
+                  update_area();
 
                   set_up_contacted_square(sq);
 
@@ -244,22 +222,9 @@ step() noexcept
 
 void
 character::
-update_core() noexcept
+check_contacted_squares() noexcept
 {
-  step();
-
-    if(m_blinking_status.valid)
-    {
-        if(g_time >= m_blinking_status.end_time)
-        {
-          m_blinking_status.valid = false;
-        }
-    }
-
-
-  object::update_core();
-
-  auto  ene = get_kinetic_energy();
+  auto&  ene = get_kinetic_energy();
 
     if(ene.x < 0)
     {
@@ -295,21 +260,45 @@ update_core() noexcept
           ene.y = 0;
         }
     }
+}
 
 
-  auto  env = get_environment();
-
-    if(env)
+void
+character::
+update_core() noexcept
+{
+    if(m_physics)
     {
-      ene.y += env->get_gravitation();
-
-      ene *= (1.0-env->get_fluid_viscosity());
-
-      ene += env->get_fluid_kinetic_energy();
+      step();
     }
 
 
-  set_kinetic_energy(ene);
+    if(m_blinking_status.valid)
+    {
+        if(g_time >= m_blinking_status.end_time)
+        {
+          m_blinking_status.valid = false;
+        }
+    }
+
+
+  auto  p = m_physics.get_parameter();
+
+    if(p)
+    {
+      auto&  ene = get_kinetic_energy();
+
+      ene.y += p->get_gravitation();
+
+      ene *= (1.0-p->get_fluid_viscosity());
+
+      ene += p->get_fluid_kinetic_energy();
+    }
+
+
+  check_contacted_squares();
+
+  object::update_core();
 
   m_last_update_time = g_time;
 }

@@ -42,22 +42,6 @@ class piece;
 
 
 class
-piece
-{
-  uint32_t  m_kind_code=0;
-
-  square*  m_square=nullptr;
-
-public:
-  uint32_t  get_kind_code(              ) const noexcept{return m_kind_code       ;}
-  void      set_kind_code(uint32_t  code)       noexcept{       m_kind_code = code;}
-
-  virtual void  render(image&  dst) noexcept{}
-
-};
-
-
-class
 square_data
 {
   uint32_t  m_kind_code=0;
@@ -85,8 +69,6 @@ square
 
   square_data*  m_data=nullptr;
 
-  piece*  m_piece=nullptr;
-
 public:
   const point&  get_index(         ) const noexcept{return m_index     ;}
   void          set_index(point  pt)       noexcept{       m_index = pt;}
@@ -99,9 +81,6 @@ public:
 
   square_data*  get_data(                 ) const noexcept{return m_data      ;}
   void          set_data(square_data*  dat)       noexcept{       m_data = dat;}
-
-  piece*  get_piece(         ) const noexcept{return m_piece    ;}
-  void    set_piece(piece*  p)       noexcept{       m_piece = p;}
 
 };
 

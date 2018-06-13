@@ -17,7 +17,6 @@ set(SOURCES
   programs/value.cpp
   programs/context.cpp
   programs/program.cpp
-  spaces/body.cpp
   spaces/object.cpp
   spaces/text_object.cpp
   spaces/space.cpp
