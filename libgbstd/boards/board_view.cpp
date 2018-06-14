@@ -136,7 +136,7 @@ rendering_context
 
   int  output_line;
 
-  image*  target;
+  image_cursor  target;
 
 };
 
@@ -173,8 +173,8 @@ render_line(const rendering_context&  ctx) const noexcept
   auto  current_square = begin_square+board_x;
 
 
-  auto  current_dst_pixel = &ctx.target->get_pixel(                      0,ctx.output_line);
-  auto      end_dst_pixel = &ctx.target->get_pixel(ctx.target->get_width(),ctx.output_line);
+  auto  current_dst_pixel = &ctx.target.get_pixel(                                 0,ctx.output_line);
+  auto      end_dst_pixel = &ctx.target.get_pixel(ctx.target.get_image().get_width(),ctx.output_line);
 
   int  x_offset = 0;
 
@@ -240,7 +240,7 @@ render_line(const rendering_context&  ctx) const noexcept
 
 void
 board_view::
-render(image&  dst, void  (*callback)(board_view&  bv, int  output_line)) noexcept
+render(image_cursor  cur, void  (*callback)(board_view&  bv, int  output_line)) noexcept
 {
   rendering_context  ctx;
 
@@ -252,13 +252,11 @@ render(image&  dst, void  (*callback)(board_view&  bv, int  output_line)) noexce
   ctx.board_image_width  = m_board->get_image_width() ;
   ctx.board_image_height = m_board->get_image_height();
 
-  ctx.target = &dst;
+  ctx.target = cur;
 
   ctx.output_line = 0;
 
-  int  n = std::min(dst.get_height(),m_height);
-
-    while(ctx.output_line < n)
+    while(ctx.output_line < m_height)
     {
         if(callback)
         {

@@ -39,7 +39,7 @@ update_core() noexcept
 
     if(g_time >= get_time())
     {
-      need_to_remove();
+      die();
     }
 }
 

@@ -19,10 +19,6 @@ extern keyboard  g_modified_input;
 extern keyboard           g_input;
 
 
-extern spaces::space
-g_space;
-
-
 extern boards::board
 g_board;
 
@@ -186,7 +182,7 @@ public:
 
   void  update_core() noexcept override;
 
-  void  render(point  offset, images::image&  dst) noexcept override;
+  void  render(point  offset, image_cursor  cur) noexcept override;
 
   static bool  m_debug;
 
@@ -342,6 +338,10 @@ lady: public player
 public:
   lady() noexcept;
 
+  void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept override;
+
   void  update_core() noexcept override;
   void  update_graphics() noexcept override;
 
@@ -357,7 +357,7 @@ public:
   lady_monitor() noexcept{}
   lady_monitor(lady&  lady, int  x, int  y) noexcept;
 
-  void  render(point  offset, images::image&  dst) noexcept override;
+  void  render(point  offset, image_cursor  cur) noexcept override;
 
 };
 
@@ -462,6 +462,10 @@ any_character
 
 
 }
+
+
+extern spaces::space<gbact::characters::character>
+g_space;
 
 
 

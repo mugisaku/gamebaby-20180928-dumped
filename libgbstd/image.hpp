@@ -172,6 +172,7 @@ public:
   void  draw_rectangle(       color  i, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle(       i,get_x(x),get_y(y),w,h);}
   void  draw_rectangle_safely(color  i, int  x, int  y, int  w, int  h) const noexcept{m_image->draw_rectangle_safely(i,get_x(x),get_y(y),w,h);}
   void  fill_rectangle(       color  i, int  x, int  y, int  w, int  h) const noexcept{m_image->fill_rectangle(       i,get_x(x),get_y(y),w,h);}
+  void  fill_rectangle_safely(color  i, int  x, int  y, int  w, int  h) const noexcept{m_image->fill_rectangle_safely(i,get_x(x),get_y(y),w,h);}
 
   void  draw_doubleline_rectangle(color  in, color  out, int  x, int  y, int  w, int  h) const noexcept{
     m_image->draw_doubleline_rectangle(in,out,get_x(x),get_y(y),w,h);}
@@ -182,6 +183,10 @@ public:
   void  draw_character(char16_t           c, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_character(c,style,get_x(x),get_y(y));}
   void  draw_text(gbstd::string_view     sv, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_text(sv,style,get_x(x),get_y(y));}
   void  draw_text(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_text(sv,style,get_x(x),get_y(y));}
+
+  void  draw_character_safely(char16_t           c, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_character_safely(c,style,get_x(x),get_y(y));}
+  void  draw_text_safely(gbstd::string_view     sv, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_text_safely(sv,style,get_x(x),get_y(y));}
+  void  draw_text_safely(gbstd::u16string_view  sv, const text_style&  style, int  x, int  y) const noexcept{m_image->draw_text_safely(sv,style,get_x(x),get_y(y));}
 
 };
 

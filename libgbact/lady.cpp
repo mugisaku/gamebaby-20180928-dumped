@@ -11,12 +11,48 @@ namespace characters{
 
 lady::
 lady() noexcept:
-player(5)
+player(4)
 {
   set_width( 24);
   set_height(48);
 
   set_offset(point(-12,-48));
+}
+
+
+
+
+void
+lady::
+do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
+{
+}
+
+
+void
+lady::
+do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
+{
+}
+
+
+void
+lady::
+do_when_collided_with_item(item&  other_side, positions::position  position) noexcept
+{
+    if(get_life_level() < 5)
+    {
+      add_life_level(1);
+
+      m_action = action::eat;
+
+      check_last_animated_time(0);
+
+      reset_phase();
+    }
+
+
+  other_side.die();
 }
 
 
@@ -202,7 +238,7 @@ do_when_action_is_orz() noexcept
         {
           reset_phase();
 
-          need_to_remove();
+          die();
         }
     }
 }

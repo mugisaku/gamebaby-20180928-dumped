@@ -32,8 +32,12 @@ images::image
 g_bg_image;
 
 
-spaces::space
-g_space;
+spaces::space<gbact::characters::character>
+g_character_space;
+
+
+spaces::space<spaces::object>
+g_object_space;
 
 
 boards::board
@@ -100,7 +104,7 @@ step() noexcept
 
       system_message.align_center();
 
-      g_space.append_object(system_message);
+      g_object_space.append(system_message);
 
       add_pc(1);
       break;
@@ -118,18 +122,18 @@ step() noexcept
         }
       break;
   case(2):
-        system_message.need_to_remove();
+        system_message.die();
 
         new(&g_lady) gbact::characters::lady;
-        new(&g_lady_monitor) gbact::characters::lady_monitor(g_lady,0,screen_height-48);
+        new(&g_lady_monitor) gbact::characters::lady_monitor(g_lady,0,0);
         new(&g_meat) gbact::characters::meat(200,48);
 
 
         g_lady.set_base_point(real_point(30,120));
 
-        g_space.append_object(g_lady);
-        g_space.append_object(g_lady_monitor);
-        g_space.append_object(g_meat);
+        g_character_space.append(g_lady);
+        g_object_space.append(g_lady_monitor);
+        g_character_space.append(g_meat);
         add_pc(1);
   case(3):
         if(pausing)
@@ -151,13 +155,14 @@ step() noexcept
 
           else
             {
-              g_space.update();
+              g_object_space.update();
+              g_character_space.update();
 
-              g_space.detect_collision<gbact::characters::character>();
+              g_character_space.detect_collision();
 
               g_board_view.chase_object(g_lady,4);
 
-                if(!g_lady.get_space())
+                if(!g_lady.is_alive())
                 {
                   set_pc(4);
                 }
@@ -165,15 +170,17 @@ step() noexcept
         }
       break;
   case(4):
-      g_space.update();
+      g_object_space.update();
 
-      g_space.detect_collision<gbact::characters::character>();
+      g_character_space.update();
+
+      g_character_space.detect_collision();
 
       g_board_view.chase_object(g_lady,4);
 
         if(g_time >= time)
         {
-          g_space.remove_all_object();
+          g_character_space.remove_all();
           set_pc(0);
         }
       break;
@@ -206,8 +213,10 @@ main_loop() noexcept
 
       g_final_image.fill();
 
-      g_board_view.render(g_final_image);
-      g_space.render(g_board_view.get_offset(),g_final_image);
+      g_board_view.render(image_cursor(g_final_image,point(0,48)));
+
+      g_character_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
+      g_object_space.render(point(),image_cursor(g_final_image,point(0,0)));
 
       sdl::update_screen(g_final_image);
     }

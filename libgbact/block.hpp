@@ -18,10 +18,6 @@ extern keyboard  g_modified_input;
 extern keyboard           g_input;
 
 
-extern spaces::space
-g_space;
-
-
 namespace gbact{
 namespace blocks{
 
@@ -89,6 +85,10 @@ public:
 
 
 }
+
+
+extern spaces::space<gbact::characters::character>
+g_space;
 
 
 

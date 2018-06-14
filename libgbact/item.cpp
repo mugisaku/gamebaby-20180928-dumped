@@ -20,7 +20,6 @@ void
 item::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
-  need_to_remove();
 }
 
 

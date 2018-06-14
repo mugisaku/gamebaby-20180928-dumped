@@ -21,7 +21,7 @@ m_target(&lady)
 
 void
 lady_monitor::
-render(point  offset, images::image&  dst) noexcept
+render(point  offset, image_cursor  cur) noexcept
 {
   auto  l = m_target->get_life_level();
 
@@ -32,7 +32,7 @@ render(point  offset, images::image&  dst) noexcept
              :(l == 4)? point(48*1,48*3)
              :          point(48*0,48*3);
 
-  images::paste(g_image,rectangle(pt.x,pt.y,48,48),dst,get_base_point());
+  images::paste(g_image,rectangle(pt.x,pt.y,48,48),cur+point(get_base_point()));
 }
 
 

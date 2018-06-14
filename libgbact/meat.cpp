@@ -14,10 +14,10 @@ meat(int  x, int  y) noexcept
 {
   set_base_point(x,y);
 
-  set_width( 24);
+  set_width(  8);
   set_height(24);
 
-  set_offset(point(-12,-24));
+  set_offset(point(-4,-24));
   set_rendering_offset(point(-12,-24));
 
   get_physics().enable();

@@ -78,11 +78,11 @@ align_center() noexcept
 
 void
 text_object::
-render(point  offset, image&  dst) noexcept
+render(point  offset, image_cursor  cur) noexcept
 {
   auto  pt = get_base_point()+m_rendering_offset-offset;
 
-  dst.draw_text_safely(m_string,m_style,pt.x,pt.y);
+  cur.draw_text_safely(m_string,m_style,pt.x,pt.y);
 }
 
 

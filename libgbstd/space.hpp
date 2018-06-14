@@ -13,7 +13,6 @@ namespace spaces{
 
 
 class object;
-class space;
 
 
 class
@@ -31,9 +30,16 @@ object
   area  m_area;
   area  m_saved_area;
 
-  space*  m_space=nullptr;
+  struct flags{
+    static constexpr int   alive = 1;
+    static constexpr int  frozen = 2;
+    static constexpr int visible = 4;
+  };
 
-  bool  m_needed_to_remove=false;
+  int  m_state=0;
+
+  object&    set_flag(int  f) noexcept{  m_state |=  f;  return *this;}
+  object&  unset_flag(int  f) noexcept{  m_state &= ~f;  return *this;}
 
 public:
   object() noexcept{}
@@ -41,6 +47,17 @@ public:
   m_width(rect.w),
   m_height(rect.h){}
 
+
+  bool    is_alive() const noexcept{return m_state&flags::alive;}
+  bool   is_frozen() const noexcept{return m_state&flags::frozen;}
+  bool  is_visible() const noexcept{return m_state&flags::visible;}
+
+  object&      show() noexcept{return   set_flag(flags::visible);}
+  object&      hide() noexcept{return unset_flag(flags::visible);}
+  object&    freeze() noexcept{return   set_flag(flags::frozen);}
+  object&  unfreeze() noexcept{return unset_flag(flags::frozen);}
+  object&  be_alive() noexcept{return   set_flag(flags::alive);}
+  object&       die() noexcept{return unset_flag(flags::alive);}
 
   void  save_area() noexcept{m_saved_area = m_area;}
 
@@ -90,17 +107,6 @@ public:
   void  set_kinetic_energy_y(double  v) noexcept{m_kinetic_energy.y = v;}
 
 
-  space*  get_space() const noexcept{return m_space;}
-
-  void    set_space(space&  sp) noexcept{m_space = &sp;}
-  void  unset_space(          ) noexcept{m_space = nullptr;}
-
-
-  bool  is_needed_to_remove() const noexcept{return m_needed_to_remove;}
-  void    need_to_remove() noexcept{m_needed_to_remove =  true;}
-  void  unneed_to_remove() noexcept{m_needed_to_remove = false;}
-
-
   bool  is_moved_to_up()    const noexcept{return m_area.top  < m_saved_area.top;}
   bool  is_moved_to_down()  const noexcept{return m_area.top  > m_saved_area.top;}
   bool  is_moved_to_left()  const noexcept{return m_area.left < m_saved_area.left;}
@@ -118,12 +124,10 @@ public:
 
   void  do_when_collided(object&  other_side, positions::position  position) noexcept{}
 
-  virtual void  do_when_removed() noexcept{}
-
   virtual void  update_core() noexcept;
   virtual void  update_graphics() noexcept{}
 
-  virtual void  render(point  offset, image&  dst) noexcept{}
+  virtual void  render(point  offset, image_cursor  cur) noexcept{}
 
   virtual void  print() const noexcept;
 
@@ -155,11 +159,11 @@ public:
 
   const point&  get_rendering_offset() const noexcept{return m_rendering_offset;}
 
-  void  render(point  offset, image&  dst) noexcept override
+  void  render(point  offset, image_cursor  cur) noexcept override
   {
       if(m_image)
       {
-        images::overlay(*m_image,m_image_rectangle,dst,get_base_point()+m_rendering_offset-offset);
+        images::overlay(*m_image,m_image_rectangle,cur+(point(get_base_point())+m_rendering_offset-offset));
       }
   }
 
@@ -189,23 +193,33 @@ public:
   void  align_right( ) noexcept;
   void  align_center() noexcept;
 
-  void  render(point  offset, image&  dst) noexcept override;
+  void  render(point  offset, image_cursor  cur) noexcept override;
 
 };
 
 
+template<typename  T>
 class
 space
 {
-  std::vector<object*>          m_object_list;
-  std::vector<object*>  m_updated_object_list;
+  std::vector<T*>          m_object_list;
+  std::vector<T*>  m_updated_object_list;
 
 public:
-  void  append_object(object&  o) noexcept;
+  void  append(T&  o) noexcept
+  {
+    m_object_list.emplace_back(&o);
 
-  void  remove_all_object() noexcept;
+    o.be_alive();
 
-  template<typename  T>
+    o.update_area();
+  }
+
+  void  remove_all() noexcept
+  {
+    m_object_list.clear();
+  }
+
   void  process_collision(T&  a, T&  b) noexcept
   {
     auto&   saved_area = a.get_saved_area();
@@ -242,7 +256,6 @@ public:
   }
 
 
-  template<typename  T>
   void  detect_collision() noexcept
   {
        if(m_object_list.size() >= 2)
@@ -276,9 +289,35 @@ public:
        }
   }
 
-  void  update() noexcept;
+  void  update() noexcept
+  {
+    m_updated_object_list.clear();
 
-  void  render(point  offset, image&  dst) const noexcept;
+      for(auto  o: m_object_list)
+      {
+          if(o->is_alive())
+          {
+            o->update_core();
+
+            m_updated_object_list.emplace_back(o);
+          }
+      }
+
+
+    m_object_list.clear();
+
+    std::swap(m_object_list,m_updated_object_list);
+  }
+
+  void  render(point  offset, image_cursor  cur) const noexcept
+  {
+      for(auto  o: m_object_list)
+      {
+        o->update_graphics();
+
+        o->render(offset,cur);
+      }
+  }
 
 };
 

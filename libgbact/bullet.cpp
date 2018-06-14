@@ -58,7 +58,7 @@ void
 bullet::
 do_when_collided_with_square(boards::square&  sq) noexcept
 {
-  need_to_remove();
+  die();
 }
 
 

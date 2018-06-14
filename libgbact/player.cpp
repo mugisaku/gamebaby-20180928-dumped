@@ -83,7 +83,7 @@ void
 player::
 do_when_ran_out_life() noexcept
 {
-  need_to_remove();
+  die();
 }
 
 

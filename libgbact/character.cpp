@@ -306,13 +306,13 @@ update_core() noexcept
 
 void
 character::
-render(point  offset, images::image&  dst) noexcept
+render(point  offset, image_cursor  cur) noexcept
 {
   ++m_rendering_count;
 
     if(m_visible && (!m_blinking_status.valid || (m_rendering_count&1)))
     {
-      image_object::render(offset,dst);
+      image_object::render(offset,cur);
     }
 
 
@@ -320,13 +320,13 @@ render(point  offset, images::image&  dst) noexcept
     {
       auto  rect = get_rectangle();
 
-      dst.draw_rectangle_safely(colors::red,rect.x-offset.x,rect.y-offset.y,rect.w,rect.h);
+      cur.draw_rectangle_safely(colors::red,rect.x-offset.x,rect.y-offset.y,rect.w,rect.h);
 
 
       auto&  base_pt = get_base_point();
 
-      dst.draw_vline_safely(colors::red,base_pt.x   -offset.x,base_pt.y-32-offset.y,64);
-      dst.draw_hline_safely(colors::red,base_pt.x-32-offset.x,base_pt.y   -offset.y,64);
+      cur.draw_vline_safely(colors::red,base_pt.x   -offset.x,base_pt.y-32-offset.y,64);
+      cur.draw_hline_safely(colors::red,base_pt.x-32-offset.x,base_pt.y   -offset.y,64);
 
 
       auto  sq = get_current_square();
@@ -335,7 +335,7 @@ render(point  offset, images::image&  dst) noexcept
         {
           auto&  area = sq->get_area();
 
-          dst.fill_rectangle_safely(colors::blue,area.left-offset.x,area.top-offset.y,24,24);
+          cur.fill_rectangle_safely(colors::blue,area.left-offset.x,area.top-offset.y,24,24);
         }
     }
 }

@@ -156,7 +156,7 @@ public:
 
   const point&  get_offset() const noexcept{return m_offset;}
 
-  void  render(image&  dst, void  (*callback)(board_view&  bv, int  output_line)=nullptr) noexcept;
+  void  render(image_cursor  cur, void  (*callback)(board_view&  bv, int  output_line)=nullptr) noexcept;
 
 };
 
