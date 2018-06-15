@@ -47,18 +47,6 @@ g_board;
 namespace{
 
 
-gbact::characters::lady
-g_lady;
-
-
-gbact::characters::lady_monitor
-g_lady_monitor;
-
-
-gbact::characters::meat
-g_meat;
-
-
 images::image
 g_final_image;
 
@@ -89,6 +77,8 @@ step() noexcept
 {
   static bool  pausing;
 
+  static gbact::characters::lady  lady;
+
   static spaces::text_object  system_message("",styles::a_white_based_text_style);
 
   static uint32_t  time;
@@ -103,6 +93,8 @@ step() noexcept
       system_message.set_string("PRESS [ Z or ENTER ] KEY TO START GAME");
 
       system_message.align_center();
+
+      system_message.show();
 
       g_object_space.append(system_message);
 
@@ -124,16 +116,26 @@ step() noexcept
   case(2):
         system_message.die();
 
-        new(&g_lady) gbact::characters::lady;
-        new(&g_lady_monitor) gbact::characters::lady_monitor(g_lady,0,0);
-        new(&g_meat) gbact::characters::meat(200,48);
+        new(&lady) gbact::characters::lady;
+
+          {
+            auto   mon = new gbact::characters::lady_monitor(lady,0,0);
+            auto  meat = new gbact::characters::meat(200,48);
+            auto  wall = new gbact::characters::wall(200,80);
 
 
-        g_lady.set_base_point(real_point(30,120));
+            lady.set_base_point(30,120);
 
-        g_character_space.append(g_lady);
-        g_object_space.append(g_lady_monitor);
-        g_character_space.append(g_meat);
+            auto  del = [](gbact::character*  ptr){delete ptr;};
+
+            g_character_space.append(lady);
+            g_character_space.append(*meat,del);
+            g_character_space.append(*wall,del);
+
+            g_object_space.append(*mon,[](spaces::object*  ptr){delete ptr;});
+          }
+
+
         add_pc(1);
   case(3):
         if(pausing)
@@ -160,9 +162,9 @@ step() noexcept
 
               g_character_space.detect_collision();
 
-              g_board_view.chase_object(g_lady,4);
+              g_board_view.chase_object(lady,4);
 
-                if(!g_lady.is_alive())
+                if(!lady.is_alive())
                 {
                   set_pc(4);
                 }
@@ -176,7 +178,7 @@ step() noexcept
 
       g_character_space.detect_collision();
 
-      g_board_view.chase_object(g_lady,4);
+      g_board_view.chase_object(lady,4);
 
         if(g_time >= time)
         {

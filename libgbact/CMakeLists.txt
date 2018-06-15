@@ -8,6 +8,7 @@ set(SOURCES
   lady.cpp
   lady_monitor.cpp
   item.cpp
+  wall.cpp
   meat.cpp
   bullet.cpp
   greeting_sphere.cpp

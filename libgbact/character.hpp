@@ -86,8 +86,6 @@ character: public spaces::image_object
 {
   direction  m_direction=direction::right;
 
-  bool  m_visible=true;
-
   struct{
     bool    valid=false;
     bool  visible=false;
@@ -112,7 +110,6 @@ character: public spaces::image_object
   uint32_t  m_last_animated_time=0;
 
   uint32_t  m_last_update_time=0;
-  uint32_t  m_rendering_count=0;
 
   void  check_contacted_squares() noexcept;
 
@@ -161,8 +158,7 @@ public:
 
   void  blink(uint32_t  time) noexcept;
 
-  void  show() noexcept{m_visible =  true;}
-  void  hide() noexcept{m_visible = false;}
+  void  block(character&  target, positions::position  position) const noexcept;
 
 
   virtual void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept{}
@@ -184,6 +180,8 @@ public:
 
   void  render(point  offset, image_cursor  cur) noexcept override;
 
+  virtual void  render_additionally(point  offset, image_cursor  cur) noexcept{}
+
   static bool  m_debug;
 
 };
@@ -196,14 +194,19 @@ player: public character
 {
   int  m_life_level=1;
 
+  int  m_blocking_bits=0;
+
   bool  m_invincible=false;
 
 public:
   player(int  life=1) noexcept: m_life_level(life){get_physics().enable();}
 
-  bool  is_invincible() const noexcept{return m_invincible;}
+  bool     is_invincible() const noexcept{return m_invincible;}
   void    set_invincible() noexcept{m_invincible =  true;}
   void  unset_invincible() noexcept{m_invincible = false;}
+
+  int   get_blocking_bits(      ) const noexcept{return m_blocking_bits    ;}
+  void  set_blocking_bits(int  v)       noexcept{       m_blocking_bits = v;}
 
   int  get_life_level() const noexcept{return m_life_level;}
 
@@ -365,6 +368,21 @@ public:
 
 
 class
+wall: public player
+{
+public:
+  wall( int  x=0, int  y=0) noexcept;
+
+  void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
+  void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept override;
+
+};
+
+
+
+
+class
 item: public character
 {
 public:
@@ -400,16 +418,40 @@ bullet: public character
 {
   uint32_t  m_time=0;
 
-  player*  m_shooter=nullptr;
-  player*  m_target =nullptr;
+  int  m_x_distance=0;
+  int  m_y_distance=0;
+
+  character*  m_shooter=nullptr;
+  character*   m_target=nullptr;
+
+/*
+  struct flags{
+    static constexpr int          heat = 0x0001;
+    static constexpr int           ice = 0x0002;
+    static constexpr int         shock = 0x0004;
+    static constexpr int         shake = 0x0008;
+    static constexpr int   penetrating = 0x0010;
+    static constexpr int   electricity = 0x0020;
+    static constexpr int         water = 0x0040;
+    static constexpr int          dust = 0x0080;
+    static constexpr int         light = 0x0100;
+    static constexpr int      chemical = 0x0200;
+    static constexpr int       presure = 0x0400;
+    static constexpr int       cutting = 0x0800;
+    static constexpr int      radowave = 0x1000;
+
+  };
+*/
+
+  int  m_attribute=0;
 
 public:
-  bullet(player*  shooter, player*  target) noexcept;
+  bullet(character*  shooter, character*  target) noexcept;
 
   void      set_time(uint32_t  t)       noexcept{       m_time = t;}
   uint32_t  get_time(           ) const noexcept{return m_time    ;}
 
-  player*  get_shooter() const noexcept{return m_shooter;}
+  character*  get_shooter() const noexcept{return m_shooter;}
 
   void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
@@ -461,10 +503,13 @@ any_character
 }
 
 
+using characters::character;
+
+
 }
 
 
-extern spaces::space<gbact::characters::character>
+extern spaces::space<gbact::character>
 g_space;
 
 

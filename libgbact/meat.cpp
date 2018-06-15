@@ -32,8 +32,8 @@ update_graphics() noexcept
 
   rectangle  rect;
 
-  rect.x = 48*5;
-  rect.y = 48*1+24;
+  rect.x = 48*5+24;
+  rect.y = 48*0+24;
   rect.w = 24;
   rect.h = 24;
 

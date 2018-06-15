@@ -10,7 +10,7 @@ namespace characters{
 
 
 bullet::
-bullet(player*  shooter, player*  target) noexcept:
+bullet(character*  shooter, character*  target) noexcept:
 m_shooter(shooter),
 m_target(target)
 {

@@ -34,6 +34,8 @@ initialize() noexcept
 
 
   m_physics.set_parameter(&p);
+
+  show();
 }
 
 
@@ -77,13 +79,30 @@ test_if_can_move_into_square(boards::square&  sq) const noexcept
 
 void
 character::
+block(character&  target, positions::position  position) const noexcept
+{
+    switch(position)
+    {
+  case(position::left):
+      target.set_right(get_area().left-1);
+      break;
+  case(position::right):
+      target.set_left(get_area().right+1);
+      break;
+  case(position::top):
+      target.set_bottom(get_area().top-1);
+      break;
+  case(position::bottom):
+      target.set_top(get_area().bottom+1);
+      break;
+    }
+}
+
+
+void
+character::
 step() noexcept
 {
-  auto&  area = get_area();
-  auto&    pt = get_base_point();
-
-  auto  sq_size = g_board.get_square_size();
-
   auto*  new_sq = &g_board.get_square_by_object(*this);
   auto*  cur_sq = get_current_square();
 
@@ -267,12 +286,6 @@ void
 character::
 update_core() noexcept
 {
-    if(m_physics)
-    {
-      step();
-    }
-
-
     if(m_blinking_status.valid)
     {
         if(g_time >= m_blinking_status.end_time)
@@ -300,6 +313,12 @@ update_core() noexcept
 
   object::update_core();
 
+    if(m_physics)
+    {
+      step();
+    }
+
+
   m_last_update_time = g_time;
 }
 
@@ -308,13 +327,13 @@ void
 character::
 render(point  offset, image_cursor  cur) noexcept
 {
-  ++m_rendering_count;
-
-    if(m_visible && (!m_blinking_status.valid || (m_rendering_count&1)))
+    if(is_visible() && (!m_blinking_status.valid || (get_rendering_counter()&1)))
     {
       image_object::render(offset,cur);
     }
 
+
+  render_additionally(offset,cur);
 
     if(m_debug)
     {

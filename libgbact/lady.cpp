@@ -16,7 +16,7 @@ player(4)
   set_width( 24);
   set_height(48);
 
-  set_offset(point(-12,-48));
+  set_offset(-12,-48);
 }
 
 
@@ -297,8 +297,6 @@ void
 lady::
 update_core() noexcept
 {
-  player::update_core();
-
     if(is_landing())
     {
       do_when_this_is_landing();
@@ -309,6 +307,9 @@ update_core() noexcept
     {
       do_when_this_is_floating();
     }
+
+
+  player::update_core();
 }
 
 
@@ -353,6 +354,7 @@ update_graphics() noexcept
           src_point = (phase == 0)? point(48*3,0)
                      :              point(48*4,0);
         }
+
 
       rect.w = 24;
       set_rendering_offset(point(-12,-44));

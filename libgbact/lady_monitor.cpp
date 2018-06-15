@@ -14,6 +14,8 @@ lady_monitor(lady&  lady, int  x, int  y) noexcept:
 m_target(&lady)
 {
   set_base_point(x,y);
+
+  show();
 }
 
 

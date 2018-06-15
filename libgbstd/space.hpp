@@ -30,6 +30,8 @@ object
   area  m_area;
   area  m_saved_area;
 
+  uint32_t  m_rendering_counter=0;
+
   struct flags{
     static constexpr int   alive = 1;
     static constexpr int  frozen = 2;
@@ -59,6 +61,9 @@ public:
   object&  be_alive() noexcept{return   set_flag(flags::alive);}
   object&       die() noexcept{return unset_flag(flags::alive);}
 
+  const uint32_t&  get_rendering_counter(      ) const noexcept{return m_rendering_counter     ;}
+  void             add_rendering_counter(int  n)       noexcept{       m_rendering_counter += n;}
+
   void  save_area() noexcept{m_saved_area = m_area;}
 
   const area&  get_area()       const noexcept{return m_area;}
@@ -86,6 +91,7 @@ public:
   const point&  get_offset() const noexcept{return m_offset;}
 
   void  set_offset(point  off) noexcept{m_offset = off;}
+  void  set_offset(int  x, int  y) noexcept{m_offset = point(x,y);}
 
   int  get_width()  const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
@@ -202,13 +208,20 @@ template<typename  T>
 class
 space
 {
-  std::vector<T*>          m_object_list;
-  std::vector<T*>  m_updated_object_list;
+  struct element{
+    T*  data;
+
+    void  (*deleter)(T*  ptr);
+  };
+
+
+  std::vector<element>          m_list;
+  std::vector<element>  m_updated_list;
 
 public:
-  void  append(T&  o) noexcept
+  void  append(T&  o, void  (*deleter)(T*  ptr)=nullptr) noexcept
   {
-    m_object_list.emplace_back(&o);
+    m_list.emplace_back(element{&o,deleter});
 
     o.be_alive();
 
@@ -217,7 +230,16 @@ public:
 
   void  remove_all() noexcept
   {
-    m_object_list.clear();
+      for(auto&  e: m_list)
+      {
+          if(e.deleter)
+          {
+            e.deleter(e.data);
+          }
+      }
+
+
+    m_list.clear();
   }
 
   void  process_collision(T&  a, T&  b) noexcept
@@ -258,12 +280,12 @@ public:
 
   void  detect_collision() noexcept
   {
-       if(m_object_list.size() >= 2)
+       if(m_list.size() >= 2)
        {
-         auto  a_current = m_object_list.begin();
+         auto  a_current = m_list.begin();
          auto  b_base    = a_current+1;
 
-         auto  end = m_object_list.end();
+         auto  end = m_list.end();
 
            while(b_base < end)
            {
@@ -271,8 +293,8 @@ public:
 
                while(b_current < end)
                {
-                 auto&  a = *static_cast<T*>(*a_current);
-                 auto&  b = *static_cast<T*>(*b_current);
+                 auto&  a = *static_cast<T*>(a_current->data);
+                 auto&  b = *static_cast<T*>(b_current->data);
 
                    if(area::test_collision(a.get_area(),b.get_area()))
                    {
@@ -291,31 +313,48 @@ public:
 
   void  update() noexcept
   {
-    m_updated_object_list.clear();
+    m_updated_list.clear();
 
-      for(auto  o: m_object_list)
+      for(auto&  e: m_list)
       {
-          if(o->is_alive())
+          if(e.data->is_alive())
           {
-            o->update_core();
+              if(!e.data->is_frozen())
+              {
+                e.data->update_core();
+              }
 
-            m_updated_object_list.emplace_back(o);
+
+            m_updated_list.emplace_back(e);
+          }
+
+        else
+          {
+              if(e.deleter)
+              {
+                e.deleter(e.data);
+              }
           }
       }
 
 
-    m_object_list.clear();
+    m_list.clear();
 
-    std::swap(m_object_list,m_updated_object_list);
+    std::swap(m_list,m_updated_list);
   }
 
   void  render(point  offset, image_cursor  cur) const noexcept
   {
-      for(auto  o: m_object_list)
+      for(auto&  e: m_list)
       {
-        o->update_graphics();
+          if(e.data->is_visible())
+          {
+            e.data->update_graphics();
 
-        o->render(offset,cur);
+            e.data->render(offset,cur);
+
+            e.data->add_rendering_counter(1);
+          }
       }
   }
 
