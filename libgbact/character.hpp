@@ -24,6 +24,74 @@ g_board;
 
 
 namespace gbact{
+
+
+class
+square_enterability
+{
+  int  m_bits=0;
+
+public:
+  constexpr square_enterability(int  bits=0) noexcept: m_bits(bits){}
+
+  constexpr bool  test_left()   const noexcept{return m_bits&0b01000;}
+  constexpr bool  test_right()  const noexcept{return m_bits&0b00100;}
+  constexpr bool  test_top()    const noexcept{return m_bits&0b00010;}
+  constexpr bool  test_bottom() const noexcept{return m_bits&0b00001;}
+
+  constexpr square_enterability  operator|(square_enterability  rhs) const noexcept{return square_enterability(m_bits|rhs.m_bits);}
+  constexpr square_enterability  operator~() const noexcept{return square_enterability(~m_bits);}
+
+  static constexpr square_enterability  get_left()   noexcept{return square_enterability(0b1000);}
+  static constexpr square_enterability  get_right()  noexcept{return square_enterability(0b0100);}
+  static constexpr square_enterability  get_top()    noexcept{return square_enterability(0b0010);}
+  static constexpr square_enterability  get_bottom() noexcept{return square_enterability(0b0001);}
+
+  static constexpr square_enterability  get_all()  noexcept{return square_enterability(0b1111);}
+  static constexpr square_enterability  get_none() noexcept{return square_enterability(0b0000);}
+
+  static constexpr square_enterability  get_left_and_right() noexcept{return square_enterability(0b1100);}
+  static constexpr square_enterability  get_top_and_bottom() noexcept{return square_enterability(0b0011);}
+
+};
+
+
+class
+square_data: public boards::square_data
+{
+protected:
+  enum class kind{
+    null,
+    block,
+    ladder,
+
+  } m_kind=kind::null;
+
+
+  square_enterability  m_enterability;
+
+  constexpr square_data(square_enterability  ent, kind  k, int  x, int  y) noexcept: boards::square_data(x,y), m_kind(k){}
+
+public:
+  square_data() noexcept{}
+
+  constexpr bool  is_null()   const noexcept{return m_kind == kind::null;}
+  constexpr bool  is_block()  const noexcept{return m_kind == kind::block;}
+  constexpr bool  is_ladder() const noexcept{return m_kind == kind::ladder;}
+
+  constexpr square_enterability  get_enterability() const noexcept{return m_enterability;}
+
+  void  be_null()   noexcept{m_kind = kind::null;}
+  void  be_block()  noexcept{m_kind = kind::block;}
+  void  be_ladder() noexcept{m_kind = kind::ladder;}
+
+  static constexpr square_data    block(){return square_data( square_enterability::get_none(),kind::block,24*0,24*0);}
+  static constexpr square_data  ladder0(){return square_data(~square_enterability::get_top(),kind::ladder,24*1,24*0);}
+  static constexpr square_data  ladder1(){return square_data( square_enterability::get_all(),kind::ladder,24*1,24*1);}
+
+};
+
+
 namespace characters{
 
 
@@ -182,7 +250,7 @@ public:
   virtual void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept{}
 
 
-  void  step() noexcept;
+  void  detect_current_square() noexcept;
 
   virtual bool  test_if_can_move_into_square(boards::square&  sq) const noexcept;
   virtual void  do_when_collided_with_square(boards::square&  sq) noexcept{}

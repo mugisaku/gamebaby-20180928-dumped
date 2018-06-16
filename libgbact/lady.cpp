@@ -152,7 +152,17 @@ do_when_action_is_stand() noexcept
     if(  g_input.test_up_button() ||
        g_input.test_down_button())
     {
-      m_action = action::ladder;
+      auto  sq = get_current_square();
+
+        if(sq)
+        {
+          auto  dat = sq->get_data<square_data>();
+
+            if(dat && dat->is_ladder())
+            {
+              m_action = action::ladder;
+            }
+        }
     }
 
   else
@@ -319,6 +329,8 @@ void
 lady::
 update_core() noexcept
 {
+  player::update_core();
+
     if(is_landing())
     {
       do_when_this_is_landing();
@@ -329,9 +341,6 @@ update_core() noexcept
     {
       do_when_this_is_floating();
     }
-
-
-  player::update_core();
 }
 
 

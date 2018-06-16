@@ -5,7 +5,6 @@
 #include"libgbstd/direction.hpp"
 #include"sdl.hpp"
 #include"libgbact/character.hpp"
-#include"libgbact/block.hpp"
 #include<cmath>
 
 
@@ -17,8 +16,8 @@
 using namespace gbstd;
 
 
-constexpr int  screen_width  = 320;
-constexpr int  screen_height = 320;
+constexpr int  screen_width  = 288;
+constexpr int  screen_height = 240;
 
 
 uint32_t  g_time = 0;
@@ -57,9 +56,6 @@ g_program;
 
 boards::board_view
 g_board_view;
-
-
-static gbact::blocks::waterfall  wf;
 
 
 class
@@ -122,13 +118,12 @@ step() noexcept
             auto   mon = new gbact::characters::lady_monitor(lady,0,0);
 
 
-            lady.set_base_point(100,200);
+            lady.set_base_point(100,100);
 
             g_character_space.append(lady);
             g_character_space.append_with_deleter(*new gbact::characters::wall(30,80));
             g_character_space.append_with_deleter(*new gbact::characters::wall(60,80));
-            g_character_space.append_with_deleter(*new gbact::characters::wall(180,40));
-            g_character_space.append_with_deleter(*new gbact::characters::wall(260,80));
+            g_character_space.append_with_deleter(*new gbact::characters::wall(180,100));
 
             g_object_space.append_with_deleter(*mon);
           }
@@ -213,8 +208,6 @@ main_loop() noexcept
     {
       last = g_time;
 
-      wf.step();
-
       g_final_image.fill();
 
       g_board_view.render(image_cursor(g_final_image,point(0,48)));
@@ -256,11 +249,14 @@ main(int  argc, char**  argv)
   g_program.push(ctx);
 
 
-  static gbact::blocks::brick  blk;
+  static auto  blk_sqdat = gbact::square_data::block();
+  static auto   l0_sqdat = gbact::square_data::ladder0();
 
-  g_board.build(14,12,24);
+  g_board.build(12,8,24);
 
-  g_board.put_to_around(&blk);
+  g_board.put_to_around(&blk_sqdat);
+
+  g_board.get_square(5,6).set_data(&l0_sqdat);
 
 
   g_board_view.set_source_image(g_bg_image);

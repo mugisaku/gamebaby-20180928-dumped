@@ -44,16 +44,13 @@ class piece;
 class
 square_data
 {
-  uint32_t  m_kind_code=0;
-
   point  m_image_point;
 
 public:
-  uint32_t  get_kind_code(              ) const noexcept{return m_kind_code       ;}
-  void      set_kind_code(uint32_t  code)       noexcept{       m_kind_code = code;}
+  constexpr square_data(int  x=0, int  y=0) noexcept: m_image_point(x,y){}
 
-  point  get_image_point(         ) const noexcept{return m_image_point     ;}
-  void   set_image_point(point  pt)       noexcept{       m_image_point = pt;}
+  constexpr point  get_image_point(         ) const noexcept{return m_image_point     ;}
+  void             set_image_point(point  pt)       noexcept{       m_image_point = pt;}
 
 };
 
@@ -81,6 +78,9 @@ public:
 
   square_data*  get_data(                 ) const noexcept{return m_data      ;}
   void          set_data(square_data*  dat)       noexcept{       m_data = dat;}
+
+  template<typename  T>
+  T*  get_data() const noexcept{return static_cast<T*>(m_data);}
 
 };
 
