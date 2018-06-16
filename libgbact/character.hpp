@@ -121,6 +121,9 @@ public:
 
   virtual void  initialize() noexcept;
 
+  bool  is_facing_to_left()  const noexcept{return get_direction() == direction::left;}
+  bool  is_facing_to_right() const noexcept{return get_direction() == direction::right;}
+
   uint32_t  get_creation_time() const noexcept{return m_creation_time;}
 
   uint32_t  get_life_time(           ) const noexcept{return m_life_time    ;}
@@ -208,9 +211,6 @@ player: public character
 
 public:
   player(int  life=1) noexcept: m_life_level(life){get_physics().enable();}
-
-  bool  is_facing_to_left()  const noexcept{return get_direction() == direction::left;}
-  bool  is_facing_to_right() const noexcept{return get_direction() == direction::right;}
 
   bool     is_invincible() const noexcept{return m_invincible;}
   void    set_invincible() noexcept{m_invincible =  true;}
@@ -384,6 +384,8 @@ wall: public player
 public:
   wall( int  x=0, int  y=0) noexcept;
 
+  static int  get_count() noexcept;
+
   void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept override;
@@ -424,6 +426,10 @@ public:
 class
 bullet: public character
 {
+public:
+  using callback = void(*)(characters::bullet&  bullet, character&  other_side);
+
+private:
   int  m_x_distance=0;
   int  m_y_distance=0;
 
@@ -451,8 +457,15 @@ bullet: public character
 
   int  m_attribute=0;
 
+  int  m_destructive_power=0;
+
+  callback  m_callback=nullptr;
+
 public:
   bullet(character*  shooter, character*  target) noexcept;
+
+  void  set_destructive_power(int  v)       noexcept{       m_destructive_power = v;}
+  int   get_destructive_power(      ) const noexcept{return m_destructive_power    ;}
 
   character*  get_shooter() const noexcept{return m_shooter;}
 
@@ -464,6 +477,10 @@ public:
 
   void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override;
   void  do_when_collided_with_square(boards::square&  sq) noexcept override;
+
+  void  set_callback(callback  cb) noexcept{m_callback = cb;}
+
+  void  hit(character&  other_side) noexcept;
 
 };
 

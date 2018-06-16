@@ -9,9 +9,15 @@ namespace characters{
 
 
 
+int
+g_count;
+
+
 wall::
 wall(int  x, int  y) noexcept
 {
+  ++g_count;
+
   set_width( 24);
   set_height(48);
   set_offset(-12,-48);
@@ -35,18 +41,34 @@ wall(int  x, int  y) noexcept
 
 
 
+int
+get_count() noexcept
+{
+  return g_count;
+}
+
+
 void
 wall::
 do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
+    if(!other_side.get_destructive_power())
+    {
+      return;
+    }
+
+
   die();
 
+  --g_count;
+
+  other_side.hit(*this);
 
   auto  img_rect = get_image_rectangle();
 
   constexpr int  size = 4;
 
-  static uniform_rand  rand(0,4);
+  static uniform_rand  rand(1,5);
 
     for(int  y = 0;  y < 48;  y += size){
     for(int  x = 0;  x < 24;  x += size){
@@ -55,8 +77,8 @@ do_when_collided_with_bullet(bullet&  other_side, positions::position  position)
       bullet->set_width( size);
       bullet->set_height(size);
 
-      bullet->set_kinetic_energy_y(                             -rand());
-      bullet->set_kinetic_energy_x(is_facing_to_right()? rand():-rand());
+      bullet->set_kinetic_energy_y(                                        -rand());
+      bullet->set_kinetic_energy_x(other_side.is_facing_to_right()? rand():-rand());
 
       bullet->get_physics().enable();
 
@@ -79,11 +101,14 @@ do_when_collided_with_bullet(bullet&  other_side, positions::position  position)
     }}
 
 
-  auto  meat = new characters::meat;
+    if(g_count < 3)
+    {
+      auto  meat = new characters::meat;
 
-  meat->set_base_point(get_base_point()+real_point(0,-12));
+      meat->set_base_point(get_base_point()+real_point(0,-12));
 
-  g_character_space.append_with_deleter(*meat);
+      g_character_space.append_with_deleter(*meat);
+    }
 }
 
 

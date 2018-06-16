@@ -120,13 +120,15 @@ step() noexcept
 
           {
             auto   mon = new gbact::characters::lady_monitor(lady,0,0);
-            auto  wall = new gbact::characters::wall(200,80);
 
 
             lady.set_base_point(100,200);
 
             g_character_space.append(lady);
-            g_character_space.append_with_deleter(*wall);
+            g_character_space.append_with_deleter(*new gbact::characters::wall(30,80));
+            g_character_space.append_with_deleter(*new gbact::characters::wall(60,80));
+            g_character_space.append_with_deleter(*new gbact::characters::wall(180,40));
+            g_character_space.append_with_deleter(*new gbact::characters::wall(260,80));
 
             g_object_space.append_with_deleter(*mon);
           }
@@ -148,7 +150,11 @@ step() noexcept
             if(g_modified_input.test_start_button() &&
                         g_input.test_start_button())
             {
-              pausing = true;
+//              pausing = true;
+
+              auto&  v = gbact::characters::character::m_debug;
+
+              v = !v;
             }
 
           else
@@ -238,8 +244,6 @@ main(int  argc, char**  argv)
                   "</pre>"
   );
 #endif
-//  gbact::characters::character::m_debug = true;
-
 
 
   sdl::init(screen_width,screen_height,1.5);

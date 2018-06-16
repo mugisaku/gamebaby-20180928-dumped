@@ -34,7 +34,22 @@ render(point  offset, image_cursor  cur) noexcept
              :(l == 4)? point(48*1,48*3)
              :          point(48*0,48*3);
 
-  images::paste(g_image,rectangle(pt.x,pt.y,48,48),cur+point(get_base_point()));
+  images::paste(g_image,rectangle(pt.x,pt.y,48,48),cur+(offset+get_base_point()));
+
+
+    if(l > 1)
+    {
+      l -= 2;
+
+      int  x = 48;
+
+        while(l--)
+        {
+          images::paste(g_image,rectangle(48*5+24,24,24,24),cur+(offset+get_base_point()+point(x,24)));
+
+           x += 24;
+        }
+    }
 }
 
 

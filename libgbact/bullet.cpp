@@ -65,6 +65,17 @@ do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcep
 }
 
 
+void
+bullet::
+hit(character&  other_side) noexcept
+{
+    if(m_callback)
+    {
+      m_callback(*this,other_side);
+    }
+}
+
+
 
 
 }}

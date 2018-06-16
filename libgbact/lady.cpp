@@ -14,9 +14,9 @@ lady() noexcept:
 player(4)
 {
   set_width( 24);
-  set_height(48);
+  set_height(32);
 
-  set_offset(-12,-48);
+  set_offset(-12,-32);
 }
 
 
@@ -90,26 +90,34 @@ do_when_action_is_stand() noexcept
 {
     if(g_input.test_p_button())
     {
-//        if(get_life_level() > 2)
-        {
-//      add_life_level(-1);
-
-          m_action = action::kick;
+      m_action = action::kick;
 
 
-          auto  bullet = new characters::bullet(this,nullptr);
+      auto  bullet = new characters::bullet(this,nullptr);
 
-          bullet->set_base_point(get_base_point()+real_point(is_facing_to_right()? 20:-20,-20));
+      bullet->set_callback([](characters::bullet&  bullet, character&  other_side){
+        bullet.die();
 
-          bullet->set_width( 4);
-          bullet->set_height(4);
+        auto&  lady = *static_cast<characters::lady*>(bullet.get_shooter());
 
-          bullet->set_life_time(1000);
+        lady.add_life_level(-1);
+      });
 
-          bullet->get_physics().disable();
 
-          g_character_space.append_with_deleter(*bullet);
-        }
+      bullet->set_direction(get_direction());
+
+      bullet->set_base_point(get_base_point()+real_point(is_facing_to_right()? 20:-20,-20));
+
+      bullet->set_destructive_power((get_life_level() > 2)? 1:0);
+
+      bullet->set_width( 4);
+      bullet->set_height(4);
+
+      bullet->set_life_time(1000);
+
+      bullet->get_physics().disable();
+
+      g_character_space.append_with_deleter(*bullet);
     }
 
   else
