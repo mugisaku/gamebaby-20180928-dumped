@@ -10,10 +10,8 @@ namespace characters{
 
 
 meat::
-meat(int  x, int  y) noexcept
+meat() noexcept
 {
-  set_base_point(x,y);
-
   set_width(  8);
   set_height(24);
 
@@ -21,13 +19,8 @@ meat(int  x, int  y) noexcept
   set_rendering_offset(point(-12,-24));
 
   get_physics().enable();
-}
 
 
-void
-meat::
-update_graphics() noexcept
-{
   set_image(g_image);
 
   rectangle  rect;
@@ -38,7 +31,6 @@ update_graphics() noexcept
   rect.h = 24;
 
   set_image_rectangle(rect);
-
 }
 
 

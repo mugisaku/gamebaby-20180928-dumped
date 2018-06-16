@@ -90,9 +90,25 @@ do_when_action_is_stand() noexcept
 {
     if(g_input.test_p_button())
     {
-        if(get_life_level() > 2)
+//        if(get_life_level() > 2)
         {
+//      add_life_level(-1);
+
           m_action = action::kick;
+
+
+          auto  bullet = new characters::bullet(this,nullptr);
+
+          bullet->set_base_point(get_base_point()+real_point(is_facing_to_right()? 20:-20,-20));
+
+          bullet->set_width( 4);
+          bullet->set_height(4);
+
+          bullet->set_life_time(1000);
+
+          bullet->get_physics().disable();
+
+          g_character_space.append_with_deleter(*bullet);
         }
     }
 
@@ -220,8 +236,6 @@ do_when_action_is_kick() noexcept
 {
     if(check_last_animated_time(400))
     {
-      add_life_level(-1);
-
       reset_phase();
 
       m_action = action::stand;

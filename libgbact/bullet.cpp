@@ -14,10 +14,6 @@ bullet(character*  shooter, character*  target) noexcept:
 m_shooter(shooter),
 m_target(target)
 {
-  set_width( 16);
-  set_height(16);
-
-  set_offset(point(-8,-8));
 }
 
 
@@ -66,48 +62,6 @@ void
 bullet::
 do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept
 {
-}
-
-
-
-
-void
-bullet::
-update_core() noexcept
-{
-  character::update_core();
-
-  set_kinetic_energy_y(0);
-}
-
-
-void
-bullet::
-update_graphics() noexcept
-{
-  character::update_graphics();
-
-
-  set_image(g_image);
-
-  rectangle  rect;
-
-  auto&  src_point = static_cast<point&>(rect);
-
-  rect.w = 24;
-  rect.h = 24;
-
-  src_point = point(24*7,0);
-
-    if(get_direction() == direction::left)
-    {
-      rect.w = -rect.w;
-    }
-
-
-  set_image_rectangle(rect);
-
-  set_rendering_offset(point(-12,-12));
 }
 
 

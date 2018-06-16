@@ -19,6 +19,14 @@ m_debug;
 
 
 
+character::
+character() noexcept:
+m_creation_time(g_time)
+{
+  initialize();
+}
+
+
 void
 character::
 initialize() noexcept
@@ -286,6 +294,14 @@ void
 character::
 update_core() noexcept
 {
+    if((g_time-m_creation_time) >= m_life_time)
+    {
+      die();
+
+      return;
+    }
+
+
     if(m_blinking_status.valid)
     {
         if(g_time >= m_blinking_status.end_time)
@@ -295,10 +311,10 @@ update_core() noexcept
     }
 
 
-  auto  p = m_physics.get_parameter();
-
-    if(p)
+    if(m_physics)
     {
+      auto  p = m_physics.get_parameter();
+
       auto&  ene = get_kinetic_energy();
 
       ene.y += p->get_gravitation();
@@ -313,11 +329,7 @@ update_core() noexcept
 
   object::update_core();
 
-    if(m_physics)
-    {
-      step();
-    }
-
+  step();
 
   m_last_update_time = g_time;
 }

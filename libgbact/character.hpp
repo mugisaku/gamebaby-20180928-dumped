@@ -107,6 +107,9 @@ character: public spaces::image_object
 
   int  m_phase=0;
 
+  uint32_t  m_creation_time=0;
+  uint32_t  m_life_time=0xFFFFFFFF;
+
   uint32_t  m_last_animated_time=0;
 
   uint32_t  m_last_update_time=0;
@@ -114,9 +117,14 @@ character: public spaces::image_object
   void  check_contacted_squares() noexcept;
 
 public:
-  character() noexcept{initialize();}
+  character() noexcept;
 
   virtual void  initialize() noexcept;
+
+  uint32_t  get_creation_time() const noexcept{return m_creation_time;}
+
+  uint32_t  get_life_time(           ) const noexcept{return m_life_time    ;}
+  void      set_life_time(uint32_t  t)       noexcept{       m_life_time = t;}
 
         physics&  get_physics()       noexcept{return m_physics;}
   const physics&  get_physics() const noexcept{return m_physics;}
@@ -200,6 +208,9 @@ player: public character
 
 public:
   player(int  life=1) noexcept: m_life_level(life){get_physics().enable();}
+
+  bool  is_facing_to_left()  const noexcept{return get_direction() == direction::left;}
+  bool  is_facing_to_right() const noexcept{return get_direction() == direction::right;}
 
   bool     is_invincible() const noexcept{return m_invincible;}
   void    set_invincible() noexcept{m_invincible =  true;}
@@ -403,10 +414,7 @@ class
 meat: public item
 {
 public:
-  meat() noexcept{}
-  meat(int  x, int  y) noexcept;
-
-  void  update_graphics() noexcept override;
+  meat() noexcept;
 
 };
 
@@ -416,8 +424,6 @@ public:
 class
 bullet: public character
 {
-  uint32_t  m_time=0;
-
   int  m_x_distance=0;
   int  m_y_distance=0;
 
@@ -448,9 +454,6 @@ bullet: public character
 public:
   bullet(character*  shooter, character*  target) noexcept;
 
-  void      set_time(uint32_t  t)       noexcept{       m_time = t;}
-  uint32_t  get_time(           ) const noexcept{return m_time    ;}
-
   character*  get_shooter() const noexcept{return m_shooter;}
 
   void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
@@ -461,9 +464,6 @@ public:
 
   void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override;
   void  do_when_collided_with_square(boards::square&  sq) noexcept override;
-
-  void  update_core() noexcept override;
-  void  update_graphics() noexcept override;
 
 };
 
@@ -477,9 +477,6 @@ public:
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
 
   void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override{}
-
-  void  update_core() noexcept override;
-  void  update_graphics() noexcept override{}
 
 };
 
@@ -510,7 +507,7 @@ using characters::character;
 
 
 extern spaces::space<gbact::character>
-g_space;
+g_character_space;
 
 
 

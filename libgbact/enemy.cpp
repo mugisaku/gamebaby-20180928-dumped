@@ -89,7 +89,7 @@ update_core() noexcept
 
           m_action = action::attack;
 
-          g_space.append(bch.m_character);
+          g_character_space.append(bch.m_character);
         }
 
       else

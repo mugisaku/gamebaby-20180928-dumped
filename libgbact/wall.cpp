@@ -12,9 +12,9 @@ namespace characters{
 wall::
 wall(int  x, int  y) noexcept
 {
-  set_width( 48);
+  set_width( 24);
   set_height(48);
-  set_offset(-24,-48);
+  set_offset(-12,-48);
 
   set_base_point(x,y);
 
@@ -24,12 +24,12 @@ wall(int  x, int  y) noexcept
 
   rect.x = 48*5;
   rect.y = 48*1;
-  rect.w = 48;
+  rect.w = 24;
   rect.h = 48;
 
   set_image_rectangle(rect);
 
-  set_rendering_offset(point(-24,-48));
+  set_rendering_offset(point(-12,-48));
 }
 
 
@@ -39,6 +39,51 @@ void
 wall::
 do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
+  die();
+
+
+  auto  img_rect = get_image_rectangle();
+
+  constexpr int  size = 4;
+
+  static uniform_rand  rand(0,4);
+
+    for(int  y = 0;  y < 48;  y += size){
+    for(int  x = 0;  x < 24;  x += size){
+      auto  bullet = new characters::bullet(this,nullptr);
+
+      bullet->set_width( size);
+      bullet->set_height(size);
+
+      bullet->set_kinetic_energy_y(                             -rand());
+      bullet->set_kinetic_energy_x(is_facing_to_right()? rand():-rand());
+
+      bullet->get_physics().enable();
+
+      bullet->set_base_point(get_base_point()+real_point(-12+x,-48+y));
+
+
+      rectangle  rect;
+
+      rect.x = img_rect.x+x;
+      rect.y = img_rect.y+y;
+      rect.w = size;
+      rect.h = size;
+
+      bullet->set_image(get_image());
+      bullet->set_image_rectangle(rect);
+
+      bullet->set_life_time(4000);
+
+      g_character_space.append_with_deleter(*bullet);
+    }}
+
+
+  auto  meat = new characters::meat;
+
+  meat->set_base_point(get_base_point()+real_point(0,-12));
+
+  g_character_space.append_with_deleter(*meat);
 }
 
 

@@ -156,10 +156,12 @@ public:
   object(rectangle(point(),image_rect.w,image_rect.h)),
   m_image(&image), m_image_rectangle(image_rect), m_rendering_offset(rend_off){}
 
-  const image&  get_image(           ) const noexcept{return *m_image       ;}
-  void          set_image(image&  img)       noexcept{        m_image = &img;}
+  const image&  get_image(                 ) const noexcept{return *m_image       ;}
+  void          set_image(const image&  img)       noexcept{        m_image = &img;}
 
-  void  set_image_rectangle(rectangle  rect) noexcept{m_image_rectangle = rect;}
+
+  const rectangle&  get_image_rectangle(               ) const noexcept{return m_image_rectangle       ;}
+  void              set_image_rectangle(rectangle  rect)       noexcept{       m_image_rectangle = rect;}
 
   void  set_rendering_offset(point  off) noexcept{m_rendering_offset = off;}
 
@@ -217,11 +219,25 @@ space
 
   std::vector<element>          m_list;
   std::vector<element>  m_updated_list;
+  std::vector<element>  m_kept_list;
+
+  bool  m_locked=false;
+
+  static void  default_deleter(T*  ptr) noexcept{delete ptr;}
 
 public:
-  void  append(T&  o, void  (*deleter)(T*  ptr)=nullptr) noexcept
+  void  append(T&  o) noexcept
   {
-    m_list.emplace_back(element{&o,deleter});
+    (m_locked? m_kept_list:m_list).emplace_back(element{&o,nullptr});
+
+    o.be_alive();
+
+    o.update_area();
+  }
+
+  void  append_with_deleter(T&  o, void  (*deleter)(T*  ptr)=&default_deleter) noexcept
+  {
+    (m_locked? m_kept_list:m_list).emplace_back(element{&o,deleter});
 
     o.be_alive();
 
@@ -280,6 +296,14 @@ public:
 
   void  detect_collision() noexcept
   {
+       if(m_locked)
+       {
+         return;
+       }
+
+
+    m_locked = true;
+
        if(m_list.size() >= 2)
        {
          auto  a_current = m_list.begin();
@@ -309,10 +333,28 @@ public:
              ++a_current;
            }
        }
+
+
+    m_locked = false;
   }
 
   void  update() noexcept
   {
+       if(m_locked)
+       {
+         return;
+       }
+
+
+    m_locked = true;
+
+      for(auto&  e: m_kept_list)
+      {
+        m_list.emplace_back(e);
+      }
+
+
+    m_kept_list.clear();
     m_updated_list.clear();
 
       for(auto&  e: m_list)
@@ -341,10 +383,21 @@ public:
     m_list.clear();
 
     std::swap(m_list,m_updated_list);
+
+    m_locked = false;
   }
 
-  void  render(point  offset, image_cursor  cur) const noexcept
+  void  render(point  offset, image_cursor  cur) noexcept
   {
+       if(m_locked)
+       {
+         return;
+       }
+
+
+    m_locked = true;
+
+
       for(auto&  e: m_list)
       {
           if(e.data->is_visible())
@@ -356,6 +409,9 @@ public:
             e.data->add_rendering_counter(1);
           }
       }
+
+
+    m_locked = false;
   }
 
 };

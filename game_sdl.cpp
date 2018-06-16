@@ -120,19 +120,15 @@ step() noexcept
 
           {
             auto   mon = new gbact::characters::lady_monitor(lady,0,0);
-            auto  meat = new gbact::characters::meat(200,48);
             auto  wall = new gbact::characters::wall(200,80);
 
 
-            lady.set_base_point(30,120);
-
-            auto  del = [](gbact::character*  ptr){delete ptr;};
+            lady.set_base_point(100,200);
 
             g_character_space.append(lady);
-            g_character_space.append(*meat,del);
-            g_character_space.append(*wall,del);
+            g_character_space.append_with_deleter(*wall);
 
-            g_object_space.append(*mon,[](spaces::object*  ptr){delete ptr;});
+            g_object_space.append_with_deleter(*mon);
           }
 
 
@@ -242,7 +238,7 @@ main(int  argc, char**  argv)
                   "</pre>"
   );
 #endif
-  gbact::characters::character::m_debug = true;
+//  gbact::characters::character::m_debug = true;
 
 
 

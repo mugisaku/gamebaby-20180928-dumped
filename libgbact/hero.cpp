@@ -206,7 +206,7 @@ do_greeting() noexcept
 
       chr.m_character.set_base_point(get_base_point()+real_point(flag? 16:-16,-8));
 
-      g_space.append(chr.m_character);
+      g_character_space.append(chr.m_character);
 
       chr.m_character.get_physics().disable();
     }

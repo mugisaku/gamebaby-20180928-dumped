@@ -18,7 +18,7 @@ bullet(shooter,target)
 
   set_offset(point(-8,-40));
 
-  set_time(g_time+1000);
+  set_life_time(1000);
 }
 
 
@@ -28,19 +28,6 @@ void
 greeting_sphere::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
-}
-
-
-void
-greeting_sphere::
-update_core() noexcept
-{
-  bullet::update_core();
-
-    if(g_time >= get_time())
-    {
-      die();
-    }
 }
 
 
