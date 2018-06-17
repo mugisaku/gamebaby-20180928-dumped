@@ -74,16 +74,6 @@ blink(uint32_t  time) noexcept
 }
 
 
-bool
-character::
-test_if_can_move_into_square(boards::square&  sq) const noexcept
-{
-  auto  blk = sq.get_data<square_data>();
-
-  return !blk || !blk->is_block();
-}
-
-
 void
 character::
 block(character&  target, positions::position  position) const noexcept
@@ -101,6 +91,9 @@ block(character&  target, positions::position  position) const noexcept
       break;
   case(position::bottom):
       target.set_top(get_area().bottom+1);
+      break;
+  case(position::none):
+report;
       break;
     }
 }
@@ -127,7 +120,7 @@ detect_current_square() noexcept
 
               auto  sq = cur_sq->get_link(boards::links::right);
 
-                if(!sq || !test_if_can_move_into_square(*sq))
+                if(!sq)
                 {
                   new_sq_i.x = cur_sq_i.x;
 
@@ -154,7 +147,7 @@ detect_current_square() noexcept
 
               auto  sq = cur_sq->get_link(boards::links::left);
 
-                if(!sq || !test_if_can_move_into_square(*sq))
+                if(!sq)
                 {
                   new_sq_i.x = cur_sq_i.x;
 
@@ -180,7 +173,7 @@ detect_current_square() noexcept
 
               auto  sq = cur_sq->get_link(boards::links::down);
 
-                if(!sq || !test_if_can_move_into_square(*sq))
+                if(!sq || sq->get_data().get_gate().test_top())
                 {
                   new_sq_i.y = cur_sq_i.y;
 
@@ -206,7 +199,7 @@ detect_current_square() noexcept
 
               auto  sq = cur_sq->get_link(boards::links::up);
 
-                if(!sq || !test_if_can_move_into_square(*sq))
+                if(!sq)
                 {
                   new_sq_i.y = cur_sq_i.y;
 

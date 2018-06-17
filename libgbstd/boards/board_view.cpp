@@ -191,7 +191,7 @@ render_line(const rendering_context&  ctx) const noexcept
 
     for(;;)
     {
-      auto  dat = current_square++->get_data();
+      auto&  dat = current_square++->get_data();
 
         if(current_square >= end_square)
         {
@@ -199,39 +199,20 @@ render_line(const rendering_context&  ctx) const noexcept
         }
 
 
-        if(dat)
+      auto  srcimg_pt = dat.get_image_point();
+
+      auto  current_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x+x_offset       ,srcimg_pt.y+square_y);
+      auto      end_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x+ctx.square_size,srcimg_pt.y+square_y);
+
+      x_offset = 0;
+
+        while(current_src_pixel < end_src_pixel)
         {
-          auto  srcimg_pt = dat->get_image_point();
+          *current_dst_pixel++ = *current_src_pixel++;
 
-          auto  current_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x+x_offset       ,srcimg_pt.y+square_y);
-          auto      end_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x+ctx.square_size,srcimg_pt.y+square_y);
-
-          x_offset = 0;
-
-            while(current_src_pixel < end_src_pixel)
+            if(current_dst_pixel >= end_dst_pixel)
             {
-              *current_dst_pixel++ = *current_src_pixel++;
-
-                if(current_dst_pixel >= end_dst_pixel)
-                {
-                  return;
-                }
-            }
-        }
-
-      else
-        {
-          int  n = ctx.square_size-x_offset    ;
-                                   x_offset = 0;
-
-            while(n--)
-            {
-              *current_dst_pixel++ = pixel();
-
-                if(current_dst_pixel >= end_dst_pixel)
-                {
-                  return;
-                }
+              return;
             }
         }
     }

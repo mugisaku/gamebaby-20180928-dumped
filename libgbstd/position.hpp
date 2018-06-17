@@ -13,6 +13,7 @@ position
     left,
    right,
   bottom,
+    none,
 
 };
 
@@ -22,10 +23,11 @@ position
 constexpr position
 get_opposite(position  pos) noexcept
 {
-  return( (pos == position::top  )? position::bottom
-         :(pos == position::left )? position::right
-         :(pos == position::right)? position::left
-         :                          position::top);
+  return( (pos == position::top   )? position::bottom
+         :(pos == position::left  )? position::right
+         :(pos == position::right )? position::left
+         :(pos == position::bottom)? position::top
+         :                           position::none);
 }
 
 

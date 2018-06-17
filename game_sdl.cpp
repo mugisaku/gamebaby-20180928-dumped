@@ -249,14 +249,15 @@ main(int  argc, char**  argv)
   g_program.push(ctx);
 
 
+  static auto  nul_sqdat = gbact::square_data::null();
   static auto  blk_sqdat = gbact::square_data::block();
   static auto   l0_sqdat = gbact::square_data::ladder0();
 
-  g_board.build(12,8,24);
+  g_board.build(12,8,24,nul_sqdat);
 
-  g_board.put_to_around(&blk_sqdat);
+  g_board.put_to_around(blk_sqdat);
 
-  g_board.get_square(5,6).set_data(&l0_sqdat);
+  g_board.get_square(5,6).set_data(l0_sqdat);
 
 
   g_board_view.set_source_image(g_bg_image);

@@ -156,9 +156,9 @@ do_when_action_is_stand() noexcept
 
         if(sq)
         {
-          auto  dat = sq->get_data<square_data>();
+          auto&  dat = sq->get_data<square_data>();
 
-            if(dat && dat->is_ladder())
+            if(dat.is_ladder())
             {
               m_action = action::ladder;
             }
@@ -289,11 +289,19 @@ do_when_action_is_ladder() noexcept
     if(g_input.test_down_button())
     {
       add_base_point_y(1);
+
+      
+    }
+
+  else
+    if(!get_current_square()->get_data<square_data>().is_ladder())
+    {
+      m_action = action::stand;
     }
 
   else
     {
-      m_action = action::stand;
+      return;
     }
 
 

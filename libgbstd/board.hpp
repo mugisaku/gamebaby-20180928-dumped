@@ -10,6 +10,40 @@
 namespace gbstd{
 
 
+
+
+class
+gate
+{
+  int  m_bits=0;
+
+public:
+  constexpr gate(int  bits=0) noexcept: m_bits(bits){}
+
+  constexpr bool  test_left()   const noexcept{return m_bits&0b01000;}
+  constexpr bool  test_right()  const noexcept{return m_bits&0b00100;}
+  constexpr bool  test_top()    const noexcept{return m_bits&0b00010;}
+  constexpr bool  test_bottom() const noexcept{return m_bits&0b00001;}
+
+  constexpr gate  operator|(gate  rhs) const noexcept{return gate(m_bits|rhs.m_bits);}
+  constexpr gate  operator~() const noexcept{return gate(~m_bits);}
+
+  static constexpr gate  get_left()   noexcept{return gate(0b1000);}
+  static constexpr gate  get_right()  noexcept{return gate(0b0100);}
+  static constexpr gate  get_top()    noexcept{return gate(0b0010);}
+  static constexpr gate  get_bottom() noexcept{return gate(0b0001);}
+
+  static constexpr gate  get_all()  noexcept{return gate(0b1111);}
+  static constexpr gate  get_none() noexcept{return gate(0b0000);}
+
+  static constexpr gate  get_left_and_right() noexcept{return gate(0b1100);}
+  static constexpr gate  get_top_and_bottom() noexcept{return gate(0b0011);}
+
+};
+
+
+
+
 namespace spaces{
 class object;
 }
@@ -46,11 +80,16 @@ square_data
 {
   point  m_image_point;
 
+  gate  m_gate;
+
 public:
-  constexpr square_data(int  x=0, int  y=0) noexcept: m_image_point(x,y){}
+  constexpr square_data(int  x=0, int  y=0, gate  g=gate()) noexcept: m_image_point(x,y), m_gate(g){}
 
   constexpr point  get_image_point(         ) const noexcept{return m_image_point     ;}
   void             set_image_point(point  pt)       noexcept{       m_image_point = pt;}
+
+  constexpr gate  get_gate(       ) const noexcept{return m_gate    ;}
+  void            set_gate(gate  g)       noexcept{       m_gate = g;}
 
 };
 
@@ -76,11 +115,11 @@ public:
   square*  get_link(             int  i) const noexcept{return m_link_table[i]     ;}
   void     set_link(square*  sq, int  i)       noexcept{       m_link_table[i] = sq;}
 
-  square_data*  get_data(                 ) const noexcept{return m_data      ;}
-  void          set_data(square_data*  dat)       noexcept{       m_data = dat;}
+  square_data&  get_data(                 ) const noexcept{return *m_data       ;}
+  void          set_data(square_data&  dat)       noexcept{        m_data = &dat;}
 
   template<typename  T>
-  T*  get_data() const noexcept{return static_cast<T*>(m_data);}
+  T&  get_data() const noexcept{return *static_cast<T*>(m_data);}
 
 };
 
@@ -113,9 +152,9 @@ public:
         square&  get_square_by_object(const spaces::object&  o)       noexcept;
   const square&  get_square_by_object(const spaces::object&  o) const noexcept;
 
-  void  build(int  w, int  h, int  square_size) noexcept;
+  void  build(int  w, int  h, int  square_size, square_data&  default_data) noexcept;
 
-  void  put_to_around(square_data*  sqdat) noexcept;
+  void  put_to_around(square_data&  sqdat) noexcept;
 
   void  detect_collision(spaces::object&  o) noexcept;
 

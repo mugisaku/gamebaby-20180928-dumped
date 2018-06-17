@@ -87,17 +87,6 @@ do_when_ran_out_life() noexcept
 }
 
 
-bool
-player::
-test_if_can_move_into_square(boards::square&  sq) const noexcept
-{
-  auto  up_sq = sq.get_link(boards::links::up);
-
-  return character::test_if_can_move_into_square(sq) && up_sq &&
-         character::test_if_can_move_into_square(*up_sq); 
-}
-
-
 void
 player::
 do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept

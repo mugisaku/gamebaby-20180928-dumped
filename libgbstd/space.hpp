@@ -288,6 +288,11 @@ public:
         pos = position::bottom;
       }
 
+    else
+      {
+        pos = position::none;
+      }
+
 
     a.do_when_collided(b,pos);
     b.do_when_collided(a,get_opposite(pos));
