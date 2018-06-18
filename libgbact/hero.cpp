@@ -291,8 +291,6 @@ update_core() noexcept
 
               ene.y -= 6;
 
-              be_floating();
-
               do_stand();
             }
         }

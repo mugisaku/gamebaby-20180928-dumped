@@ -40,8 +40,6 @@ knockback() noexcept
 
   set_kinetic_energy(real_point((get_direction() == direction::left)? 8:-8,-4));
 
-  be_floating();
-
   blink(2000);
 }
 

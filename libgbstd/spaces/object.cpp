@@ -9,6 +9,19 @@ namespace spaces{
 
 
 
+void
+object::
+update_base_point() noexcept
+{
+  m_last_area = m_area;
+
+  m_last_base_point = m_base_point                    ;
+                      m_base_point += m_kinetic_energy;
+
+  update_area();
+}
+
+
 point
 object::
 get_point() const noexcept
@@ -88,21 +101,6 @@ get_rectangle() const noexcept
 }
 
 
-
-
-void
-object::
-update_core() noexcept
-{
-  save_area();
-
-
-  auto  ene = get_kinetic_energy();
-
-  add_base_point(ene);
-
-  update_area();
-}
 
 
 void

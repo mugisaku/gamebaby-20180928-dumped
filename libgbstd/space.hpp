@@ -18,7 +18,8 @@ class object;
 class
 object
 {
-  real_point  m_base_point;
+  real_point       m_base_point;
+  real_point  m_last_base_point;
 
   point  m_offset;
 
@@ -28,7 +29,7 @@ object
   real_point  m_kinetic_energy;
 
   area  m_area;
-  area  m_saved_area;
+  area  m_last_area;
 
   uint32_t  m_rendering_counter=0;
 
@@ -64,10 +65,8 @@ public:
   const uint32_t&  get_rendering_counter(      ) const noexcept{return m_rendering_counter     ;}
   void             add_rendering_counter(int  n)       noexcept{       m_rendering_counter += n;}
 
-  void  save_area() noexcept{m_saved_area = m_area;}
-
-  const area&  get_area()       const noexcept{return m_area;}
-  const area&  get_saved_area() const noexcept{return m_saved_area;}
+  const area&  get_area() const noexcept{return m_area;}
+  const area&  get_last_area() const noexcept{return m_last_area;}
 
   void  set_base_point(real_point  new_pt) noexcept{m_base_point = new_pt;}
   void  set_base_point(double  x, double  y) noexcept{m_base_point = real_point(x,y);}
@@ -79,7 +78,16 @@ public:
 
   void  add_base_point(double  x, double  y) noexcept{m_base_point += real_point(x,y);}
   void  add_base_point(real_point  pt) noexcept{m_base_point += pt;}
+
   const real_point&  get_base_point() const noexcept{return m_base_point;}
+  const real_point&  get_last_base_point() const noexcept{return m_last_base_point;}
+
+  void  update_base_point() noexcept;
+
+  bool  did_move_to_left()  const noexcept{return m_area.left   < m_last_area.left;}
+  bool  did_move_to_right() const noexcept{return m_area.right  > m_last_area.right;}
+  bool  did_move_to_up()    const noexcept{return m_area.top    < m_last_area.top;}
+  bool  did_move_to_down()  const noexcept{return m_area.bottom > m_last_area.bottom;}
 
   point  get_point() const noexcept;
 
@@ -103,6 +111,9 @@ public:
         real_point&  get_kinetic_energy()       noexcept{return m_kinetic_energy;}
   const real_point&  get_kinetic_energy() const noexcept{return m_kinetic_energy;}
 
+  void  set_kinetic_energy(double  x, double  y) noexcept{m_kinetic_energy  = real_point(x,y);}
+  void  add_kinetic_energy(double  x, double  y) noexcept{m_kinetic_energy += real_point(x,y);}
+
   void  set_kinetic_energy(real_point  pt) noexcept{m_kinetic_energy  = pt;}
   void  add_kinetic_energy(real_point  pt) noexcept{m_kinetic_energy += pt;}
 
@@ -112,11 +123,6 @@ public:
   void  set_kinetic_energy_x(double  v) noexcept{m_kinetic_energy.x = v;}
   void  set_kinetic_energy_y(double  v) noexcept{m_kinetic_energy.y = v;}
 
-
-  bool  is_moved_to_up()    const noexcept{return m_area.top  < m_saved_area.top;}
-  bool  is_moved_to_down()  const noexcept{return m_area.top  > m_saved_area.top;}
-  bool  is_moved_to_left()  const noexcept{return m_area.left < m_saved_area.left;}
-  bool  is_moved_to_right() const noexcept{return m_area.left > m_saved_area.left;}
 
   void  set_left(  int  v) noexcept;
   void  set_right( int  v) noexcept;
@@ -130,7 +136,7 @@ public:
 
   void  do_when_collided(object&  other_side, positions::position  position) noexcept{}
 
-  virtual void  update_core() noexcept;
+  virtual void  update_core() noexcept{}
   virtual void  update_graphics() noexcept{}
 
   virtual void  render(point  offset, image_cursor  cur) noexcept{}
@@ -260,30 +266,30 @@ public:
 
   void  process_collision(T&  a, T&  b) noexcept
   {
-    auto&   saved_area = a.get_saved_area();
+    auto&    last_area = a.get_last_area();
     auto&  target_area = b.get_area();
 
     position  pos;
 
-      if(saved_area.left >= target_area.right)
+      if(last_area.left >= target_area.right)
       {
         pos = position::left;
       }
 
     else
-      if(saved_area.right <= target_area.left)
+      if(last_area.right <= target_area.left)
       {
         pos = position::right;
       }
 
     else
-      if(saved_area.top >= target_area.bottom)
+      if(last_area.top >= target_area.bottom)
       {
         pos = position::top;
       }
 
     else
-      if(saved_area.bottom <= target_area.top)
+      if(last_area.bottom <= target_area.top)
       {
         pos = position::bottom;
       }
@@ -368,6 +374,8 @@ public:
           {
               if(!e.data->is_frozen())
               {
+                e.data->update_base_point();
+
                 e.data->update_core();
               }
 

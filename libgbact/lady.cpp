@@ -40,19 +40,36 @@ void
 lady::
 do_when_collided_with_item(item&  other_side, positions::position  position) noexcept
 {
-    if(get_life_level() < 5)
+    if((m_action == action::stand) ||
+       (m_action == action::walk))
     {
-      add_life_level(1);
+        if(get_life_level() < 5)
+        {
+          add_life_level(1);
 
-      m_action = action::eat;
+          m_action = action::eat;
 
-      check_last_animated_time(0);
+          check_last_animated_time(0);
 
-      reset_phase();
+          reset_phase();
+        }
+
+
+      other_side.die();
     }
+}
 
 
-  other_side.die();
+
+
+void
+lady::
+do_when_collided_with_square(boards::square&  sq) noexcept
+{
+    if(m_action == action::ladder)
+    {
+      m_action = action::stand;
+    }
 }
 
 
@@ -149,8 +166,7 @@ do_when_action_is_stand() noexcept
     }
 
   else
-    if(  g_input.test_up_button() ||
-       g_input.test_down_button())
+    if(g_input.test_up_button())
     {
       auto  sq = get_current_square();
 
@@ -160,7 +176,43 @@ do_when_action_is_stand() noexcept
 
             if(dat.is_ladder())
             {
+              auto  x = (static_cast<int>(get_base_point().x)/g_square_size*g_square_size)+(g_square_size/2);
+
+              set_square_point_offset_y(-(g_square_size/2));
+
+              set_base_point_x(x);
+
               m_action = action::ladder;
+
+              get_physics().disable();
+
+              hold();
+            }
+        }
+    }
+
+  else
+    if(g_input.test_down_button())
+    {
+      auto  sq = get_current_square();
+
+        if(sq)
+        {
+          auto&  dat = sq->get_link(boards::links::down)->get_data<square_data>();
+
+            if(dat.is_ladder())
+            {
+              auto  x = (static_cast<int>(get_base_point().x)/g_square_size*g_square_size)+(g_square_size/2);
+
+              set_square_point_offset_y(g_square_size/2);
+
+              set_base_point_x(x);
+
+              m_action = action::ladder;
+
+              get_physics().disable();
+
+              hold();
             }
         }
     }
@@ -283,6 +335,8 @@ do_when_action_is_ladder() noexcept
     if(g_input.test_up_button())
     {
       add_base_point_y(-1);
+
+      set_square_point_offset_y(-(g_square_size/2));
     }
 
   else
@@ -290,13 +344,7 @@ do_when_action_is_ladder() noexcept
     {
       add_base_point_y(1);
 
-      
-    }
-
-  else
-    if(!get_current_square()->get_data<square_data>().is_ladder())
-    {
-      m_action = action::stand;
+      set_square_point_offset_y(0);
     }
 
   else
@@ -305,6 +353,18 @@ do_when_action_is_ladder() noexcept
     }
 
 
+    if(!get_current_square()->get_data<square_data>().is_ladder())
+    {
+      m_action = action::stand;
+
+      set_square_point_offset_y(-(g_square_size/2));
+
+      get_physics().enable();
+
+      unhold();
+    }
+
+  else
     if(check_last_animated_time(400))
     {
         if(get_phase() > 1)

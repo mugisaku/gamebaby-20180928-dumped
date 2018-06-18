@@ -26,6 +26,9 @@ g_board;
 namespace gbact{
 
 
+constexpr int  g_square_size = 24;
+
+
 class
 square_data: public boards::square_data
 {
@@ -53,7 +56,7 @@ public:
 
   static constexpr square_data     null(){return square_data(kind::null  ,24*0,24*1, gate::get_none());}
   static constexpr square_data    block(){return square_data(kind::block ,24*0,24*0, gate::get_all());}
-  static constexpr square_data  ladder0(){return square_data(kind::ladder,24*1,24*0,~gate::get_top());}
+  static constexpr square_data  ladder0(){return square_data(kind::ladder,24*1,24*0, gate::get_top());}
   static constexpr square_data  ladder1(){return square_data(kind::ladder,24*1,24*1, gate::get_none());}
 
 };
@@ -133,10 +136,12 @@ character: public spaces::image_object
   boards::square*            m_current_square=nullptr;
   boards::square*     m_left_contacted_square=nullptr;
   boards::square*    m_right_contacted_square=nullptr;
-  boards::square*       m_up_contacted_square=nullptr;
-  boards::square*     m_down_contacted_square=nullptr;
+  boards::square*      m_top_contacted_square=nullptr;
+  boards::square*   m_bottom_contacted_square=nullptr;
 
   physics  m_physics;
+
+  point  m_square_point_offset;
 
   double  m_mass=0;
 
@@ -149,7 +154,7 @@ character: public spaces::image_object
 
   uint32_t  m_last_update_time=0;
 
-  void  check_contacted_squares() noexcept;
+  bool  m_holding=false;
 
 public:
   character() noexcept;
@@ -167,24 +172,16 @@ public:
         physics&  get_physics()       noexcept{return m_physics;}
   const physics&  get_physics() const noexcept{return m_physics;}
 
-  void             set_current_square(boards::square*  sq)       noexcept{       m_current_square = sq;}
-  boards::square*  get_current_square(                   ) const noexcept{return m_current_square     ;}
 
-  void  set_left_contacted_square(boards::square*  sq) noexcept{m_left_contacted_square = sq;}
-        boards::square*  get_left_contacted_square()       noexcept{return m_left_contacted_square;}
-  const boards::square*  get_left_contacted_square() const noexcept{return m_left_contacted_square;}
+  point  get_square_point_offset() const noexcept{return m_square_point_offset;}
+  void   set_square_point_offset_x(int  v) noexcept{m_square_point_offset.x = v;}
+  void   set_square_point_offset_y(int  v) noexcept{m_square_point_offset.y = v;}
 
-  void  set_right_contacted_square(boards::square*  sq) noexcept{m_right_contacted_square = sq;}
-        boards::square*  get_right_contacted_square()       noexcept{return m_right_contacted_square;}
-  const boards::square*  get_right_contacted_square() const noexcept{return m_right_contacted_square;}
-
-  void  set_up_contacted_square(boards::square*  sq) noexcept{m_up_contacted_square = sq;}
-        boards::square*  get_up_contacted_square()       noexcept{return m_up_contacted_square;}
-  const boards::square*  get_up_contacted_square() const noexcept{return m_up_contacted_square;}
-
-  void  set_down_contacted_square(boards::square*  sq) noexcept{m_down_contacted_square = sq;}
-        boards::square*  get_down_contacted_square()       noexcept{return m_down_contacted_square;}
-  const boards::square*  get_down_contacted_square() const noexcept{return m_down_contacted_square;}
+  boards::square*  get_current_square()          const noexcept{return m_current_square;}
+  boards::square*  get_left_contacted_square()   const noexcept{return m_left_contacted_square;}
+  boards::square*  get_right_contacted_square()  const noexcept{return m_right_contacted_square;}
+  boards::square*  get_top_contacted_square()    const noexcept{return m_top_contacted_square;}
+  boards::square*  get_bottom_contacted_square() const noexcept{return m_bottom_contacted_square;}
 
 
   void  reset_phase() noexcept{m_phase = 0;}
@@ -192,10 +189,15 @@ public:
 
   bool  check_last_animated_time(uint32_t  interval) noexcept;
 
-  bool  is_landing()  const noexcept{return get_down_contacted_square();}
-  bool  is_floating() const noexcept{return !is_landing();}
 
-  void  be_floating() noexcept{set_down_contacted_square(nullptr);}
+  void    hold() noexcept{m_holding =  true;}
+  void  unhold() noexcept{m_holding = false;}
+
+  bool  is_holding()  const noexcept{return m_holding;}
+
+
+  bool  is_landing()  const noexcept{return m_bottom_contacted_square;}
+  bool  is_floating() const noexcept{return !is_landing();}
 
   void       set_direction(direction  dir)       noexcept{       m_direction = dir;}
   direction  get_direction(              ) const noexcept{return m_direction      ;}
@@ -387,6 +389,8 @@ public:
   void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept override;
+
+  void  do_when_collided_with_square(boards::square&  sq) noexcept override;
 
   void  update_core() noexcept override;
   void  update_graphics() noexcept override;

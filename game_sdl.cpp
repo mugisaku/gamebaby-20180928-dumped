@@ -74,8 +74,11 @@ step() noexcept
   static bool  pausing;
 
   static gbact::characters::lady  lady;
+  static gbact::characters::meat  meat;
 
   static spaces::text_object  system_message("",styles::a_white_based_text_style);
+
+  static uint32_t  next_meat_time;
 
   static uint32_t  time;
 
@@ -121,9 +124,12 @@ step() noexcept
             lady.set_base_point(100,100);
 
             g_character_space.append(lady);
+
             g_character_space.append_with_deleter(*new gbact::characters::wall(30,80));
             g_character_space.append_with_deleter(*new gbact::characters::wall(60,80));
             g_character_space.append_with_deleter(*new gbact::characters::wall(180,100));
+            g_character_space.append_with_deleter(*new gbact::characters::wall(210,100));
+            g_character_space.append_with_deleter(*new gbact::characters::wall(240,100));
 
             g_object_space.append_with_deleter(*mon);
           }
@@ -154,6 +160,33 @@ step() noexcept
 
           else
             {
+                if(!meat.is_alive())
+                {
+                  static bool  set_timer;
+
+                    if(!set_timer)
+                    {
+                      next_meat_time = g_time+4000;
+
+                      set_timer = true;
+                    }
+
+                  else
+                    {
+                        if(g_time >= next_meat_time)
+                        {
+                          set_timer = false;
+
+                          new(&meat) gbact::characters::meat;
+
+                          meat.set_base_point(gbact::g_square_size*5,gbact::g_square_size*3);
+
+                          g_character_space.append(meat);
+                        }
+                    }
+                }
+
+
               g_object_space.update();
               g_character_space.update();
 
@@ -231,9 +264,12 @@ main(int  argc, char**  argv)
   set_description("<pre>"
                   "*キーボードで操作\n"
                   "*左右キーを押すと歩く\n"
+                  "*はしご付近で上下キーを押すと、はしごを移動\n"
+                  "*zまたはenterを押すとキック\n"
+                  "*体力（肉アイコン）があれば、キックで特定の壁を壊せる\n"
+                  "*xまたはctrlを押すとギブアップ\n"
 //                  "*上キーでジャンプ\n"
 //                  "*下キーでしゃがむ\n"
-//                  "*zまたはenterで、おじぎで攻撃\n"
                   "</pre>"
   );
 #endif
@@ -252,12 +288,14 @@ main(int  argc, char**  argv)
   static auto  nul_sqdat = gbact::square_data::null();
   static auto  blk_sqdat = gbact::square_data::block();
   static auto   l0_sqdat = gbact::square_data::ladder0();
+  static auto   l1_sqdat = gbact::square_data::ladder1();
 
-  g_board.build(12,8,24,nul_sqdat);
+  g_board.build(12,8,gbact::g_square_size,nul_sqdat);
 
   g_board.put_to_around(blk_sqdat);
 
-  g_board.get_square(5,6).set_data(l0_sqdat);
+  g_board.get_square(5,5).set_data(l0_sqdat);
+  g_board.get_square(5,6).set_data(l1_sqdat);
 
 
   g_board_view.set_source_image(g_bg_image);

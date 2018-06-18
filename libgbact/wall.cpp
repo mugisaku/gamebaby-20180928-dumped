@@ -101,6 +101,7 @@ do_when_collided_with_bullet(bullet&  other_side, positions::position  position)
     }}
 
 
+/*
     if(g_count < 3)
     {
       auto  meat = new characters::meat;
@@ -109,6 +110,7 @@ do_when_collided_with_bullet(bullet&  other_side, positions::position  position)
 
       g_character_space.append_with_deleter(*meat);
     }
+*/
 }
 
 

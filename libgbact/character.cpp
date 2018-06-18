@@ -43,6 +43,8 @@ initialize() noexcept
   m_physics.set_parameter(&p);
 
   show();
+
+  m_square_point_offset.y = -(g_square_size/2);
 }
 
 
@@ -103,182 +105,125 @@ void
 character::
 detect_current_square() noexcept
 {
-  auto*  new_sq = &g_board.get_square_by_object(*this);
-  auto*  cur_sq = get_current_square();
+  auto    left = get_area().left;
+  auto   right = get_area().right;
+  auto     top = get_area().top;
+  auto  bottom = get_area().bottom;
 
-    if(new_sq != cur_sq)
+  auto&  base_pt = get_base_point();
+
+  int  base_y = (static_cast<int>(base_pt.y)+m_square_point_offset.y)/g_square_size;
+
+    if(!is_holding())
     {
-        if(cur_sq)
+        if(did_move_to_left())
         {
-          auto  cur_sq_i = cur_sq->get_index();
-          auto  new_sq_i = new_sq->get_index();
+          auto  x = left/g_square_size;
 
-            if(cur_sq_i.x < new_sq_i.x)
+          auto&  sq = g_board.get_square(x,base_y);
+
+            if(sq.get_data().get_gate().test_right())
             {
-              set_left_contacted_square(nullptr);
-              set_down_contacted_square(nullptr);
+              set_left(sq.get_area().right);
 
-              auto  sq = cur_sq->get_link(boards::links::right);
+              m_left_contacted_square = &sq;
 
-                if(!sq)
-                {
-                  new_sq_i.x = cur_sq_i.x;
+              set_kinetic_energy_x(0);
 
-                  set_base_point_x(sq->get_area().left-1);
-
-                  update_area();
-
-                  set_right_contacted_square(sq);
-
-                  do_when_collided_with_square(*sq);
-                }
-
-              else
-                {
-                  set_right_contacted_square(nullptr);
-                }
+              do_when_collided_with_square(sq);
             }
 
           else
-            if(cur_sq_i.x > new_sq_i.x)
             {
-              set_right_contacted_square(nullptr);
-              set_down_contacted_square(nullptr);
-
-              auto  sq = cur_sq->get_link(boards::links::left);
-
-                if(!sq)
-                {
-                  new_sq_i.x = cur_sq_i.x;
-
-                  set_base_point_x(sq->get_area().right+1);
-
-                  update_area();
-
-                  set_left_contacted_square(sq);
-
-                  do_when_collided_with_square(*sq);
-                }
-
-              else
-                {
-                  set_left_contacted_square(nullptr);
-                }
-            }
-
-
-            if(cur_sq_i.y < new_sq_i.y)
-            {
-              set_up_contacted_square(nullptr);
-
-              auto  sq = cur_sq->get_link(boards::links::down);
-
-                if(!sq || sq->get_data().get_gate().test_top())
-                {
-                  new_sq_i.y = cur_sq_i.y;
-
-                  set_base_point_y(sq->get_area().top-1);
-
-                  update_area();
-
-                  set_down_contacted_square(sq);
-
-                  do_when_collided_with_square(*sq);
-                }
-
-              else
-                {
-                  set_down_contacted_square(nullptr);
-                }
-            }
-
-          else
-            if(cur_sq_i.y > new_sq_i.y)
-            {
-              set_down_contacted_square(nullptr);
-
-              auto  sq = cur_sq->get_link(boards::links::up);
-
-                if(!sq)
-                {
-                  new_sq_i.y = cur_sq_i.y;
-
-                  set_base_point_y(sq->get_area().bottom+1);
-
-                  update_area();
-
-                  set_up_contacted_square(sq);
-
-                  do_when_collided_with_square(*sq);
-                }
-
-              else
-                {
-                  set_up_contacted_square(nullptr);
-                }
-            }
-
-
-          new_sq = &g_board.get_square(new_sq_i.x,new_sq_i.y);
-
-            if(new_sq != cur_sq)
-            {
-              set_current_square(new_sq);
-
-              do_when_changed_square(new_sq,cur_sq);
+              m_left_contacted_square = nullptr;
             }
         }
 
       else
+        if(did_move_to_right())
         {
-          set_current_square(new_sq);
+          auto  x = right/g_square_size;
 
-          do_when_changed_square(new_sq,cur_sq);
+          auto&  sq = g_board.get_square(x,base_y);
+
+            if(sq.get_data().get_gate().test_left())
+            {
+              set_right(sq.get_area().left);
+
+              m_right_contacted_square = &sq;
+
+              set_kinetic_energy_x(0);
+
+              do_when_collided_with_square(sq);
+            }
+
+          else
+            {
+              m_right_contacted_square = nullptr;
+            }
         }
     }
-}
 
 
-void
-character::
-check_contacted_squares() noexcept
-{
-  auto&  ene = get_kinetic_energy();
+  int  base_x = (static_cast<int>(base_pt.x)+m_square_point_offset.x)/g_square_size;
 
-    if(ene.x < 0)
+    if(!is_holding())
     {
-        if(m_left_contacted_square)
+        if(did_move_to_up())
         {
-          ene.x = 0;
+          auto  y = top/g_square_size;
+
+          auto&  sq = g_board.get_square(base_x,y);
+
+            if(sq.get_data().get_gate().test_bottom())
+            {
+              set_top(sq.get_area().bottom);
+
+              m_top_contacted_square = &sq;
+
+              set_kinetic_energy_y(0);
+
+              do_when_collided_with_square(sq);
+            }
+
+          else
+            {
+              m_top_contacted_square = nullptr;
+            }
+        }
+
+      else
+        if(did_move_to_down())
+        {
+          auto  y = bottom/g_square_size;
+
+          auto&  sq = g_board.get_square(base_x,y);
+
+            if(sq.get_data().get_gate().test_top())
+            {
+              set_bottom(sq.get_area().top);
+
+              m_bottom_contacted_square = &sq;
+
+              set_kinetic_energy_y(0);
+
+              do_when_collided_with_square(sq);
+            }
+
+          else
+            {
+              m_bottom_contacted_square = nullptr;
+            }
         }
     }
 
-  else
-    if(ene.x > 0)
-    {
-        if(m_right_contacted_square)
-        {
-          ene.x = 0;
-        }
-    }
 
+  base_y = (static_cast<int>(base_pt.y)+m_square_point_offset.y)/g_square_size;
 
-    if(ene.y < 0)
-    {
-        if(m_up_contacted_square)
-        {
-          ene.y = 0;
-        }
-    }
+  auto  last_square = m_current_square                                     ;
+                      m_current_square = &g_board.get_square(base_x,base_y);
 
-  else
-    if(ene.y > 0)
-    {
-        if(m_down_contacted_square)
-        {
-          ene.y = 0;
-        }
-    }
+  do_when_changed_square(m_current_square,last_square);
 }
 
 
@@ -317,11 +262,13 @@ update_core() noexcept
     }
 
 
-  check_contacted_squares();
-
-  object::update_core();
-
   detect_current_square();
+
+    if(is_holding())
+    {
+      set_kinetic_energy(0,0);
+    }
+
 
   m_last_update_time = g_time;
 }
@@ -352,11 +299,9 @@ render(point  offset, image_cursor  cur) noexcept
       cur.draw_hline_safely(colors::red,base_pt.x-32-offset.x,base_pt.y   -offset.y,64);
 
 
-      auto  sq = get_current_square();
-
-        if(0 && sq)
+        if(m_current_square)
         {
-          auto&  area = sq->get_area();
+          auto&  area = m_current_square->get_area();
 
           cur.fill_rectangle_safely(colors::blue,area.left-offset.x,area.top-offset.y,24,24);
         }
