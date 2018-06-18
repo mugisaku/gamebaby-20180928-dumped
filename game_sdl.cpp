@@ -78,6 +78,8 @@ step() noexcept
 
   static spaces::text_object  system_message("",styles::a_white_based_text_style);
 
+  static bool  set_meat_timer;
+
   static uint32_t  next_meat_time;
 
   static uint32_t  time;
@@ -89,7 +91,7 @@ step() noexcept
   case(0):
       system_message.set_base_point(real_point(view_off.x+screen_width/2,view_off.y+screen_height/2));
 
-      system_message.set_string("PRESS [ Z or ENTER ] KEY TO START GAME");
+      system_message.set_string("PRESS [ Z or ENTER ] KEY");
 
       system_message.align_center();
 
@@ -135,6 +137,8 @@ step() noexcept
           }
 
 
+        set_meat_timer = false;
+
         add_pc(1);
   case(3):
         if(pausing)
@@ -162,20 +166,18 @@ step() noexcept
             {
                 if(!meat.is_alive())
                 {
-                  static bool  set_timer;
-
-                    if(!set_timer)
+                    if(!set_meat_timer)
                     {
                       next_meat_time = g_time+4000;
 
-                      set_timer = true;
+                      set_meat_timer = true;
                     }
 
                   else
                     {
                         if(g_time >= next_meat_time)
                         {
-                          set_timer = false;
+                          set_meat_timer = false;
 
                           new(&meat) gbact::characters::meat;
 
@@ -196,24 +198,11 @@ step() noexcept
 
                 if(!lady.is_alive())
                 {
-                  set_pc(4);
+                  g_character_space.remove_all();
+
+                  set_pc(0);
                 }
             }
-        }
-      break;
-  case(4):
-      g_object_space.update();
-
-      g_character_space.update();
-
-      g_character_space.detect_collision();
-
-      g_board_view.chase_object(lady,4);
-
-        if(g_time >= time)
-        {
-          g_character_space.remove_all();
-          set_pc(0);
         }
       break;
     }

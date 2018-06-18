@@ -254,6 +254,8 @@ public:
   {
       for(auto&  e: m_list)
       {
+        e.data->die();
+
           if(e.deleter)
           {
             e.deleter(e.data);
