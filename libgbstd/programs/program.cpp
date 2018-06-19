@@ -11,85 +11,57 @@ void
 program::
 clear() noexcept
 {
-    while(m_node_list.size())
-    {
-      pop();
-    }
+  m_stack.clear();
+
+  m_top = nullptr;
 }
 
 
 void
 program::
-push(context&  ctx, void  (*onpop)(context*  ctx)) noexcept
+push(context&  ctx) noexcept
 {
-  m_node_list.emplace_back(node{&ctx,onpop});
+  m_stack.emplace_back(&ctx);
 
   m_top = &ctx;
 
-  ctx.reset(*this);
+  ctx.reset();
 }
 
 
 void
 program::
-pop() noexcept
+pop(value  v) noexcept
 {
-  auto&  node = m_node_list.back();
-
-    if(node.onpop)
+    if(m_stack.size())
     {
-      node.onpop(node.context);
-    }
+      m_top->remove();
 
+      m_stack.pop_back();
 
-  m_node_list.pop_back();
-}
-
-
-void
-program::
-set_sleep_timer(uint32_t  ms) noexcept
-{
-  m_sleeping = true;
-
-  m_start_time = (m_current_time+ms);
-}
-
-
-void
-program::
-step(uint32_t  time) noexcept
-{
-  m_current_time = time;
-
-    if(m_sleeping)
-    {
-        if(m_current_time < m_start_time)
+        if(m_stack.size())
         {
-          return;
+          m_top = m_stack.back();
+
+          m_top->set_value(std::move(v));
         }
-
-
-      m_sleeping = false;
     }
+}
 
 
+void
+program::
+step() noexcept
+{
     if(m_top)
     {
-        if(m_top->is_stepping())
-        {
-          m_top->step();
-        }
+      m_top->step();
 
-      else
-        if(m_top->is_left())
+        if(m_top->is_halted())
         {
-          pop();
+          auto  v = m_top->get_value();
 
-            if(m_node_list.size())
-            {
-              m_top = m_node_list.back().context;
-            }
+          pop(std::move(v));
         }
     }
 }

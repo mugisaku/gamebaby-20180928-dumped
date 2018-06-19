@@ -14,9 +14,6 @@ namespace gbstd{
 namespace programs{
 
 
-class program;
-
-
 class
 value
 {
@@ -64,23 +61,23 @@ public:
 class
 context
 {
-  program*  m_program=nullptr;
-
   gbstd::string  m_name;
 
-  uint32_t  m_pc=0;
+  uint32_t  m_pc;
 
-  enum class state{
-    stepping,
-    stopping,
-    left,
-  } m_state=state::stepping;
+  value  m_value;
+
+  bool  m_halted;
+  bool  m_removed;
 
 public:
   context(                      ) noexcept{}
   context(gbstd::string_view  sv) noexcept: m_name(sv){}
 
   virtual ~context(){}
+
+  bool  is_halted() const noexcept{return m_halted;}
+  bool  is_removed() const noexcept{return m_removed;}
 
   const uint32_t&  get_pc() const noexcept{return m_pc;}
 
@@ -89,21 +86,18 @@ public:
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
 
-  bool  is_stepping() const noexcept{return m_state == state::stepping;}
-  bool  is_stopping() const noexcept{return m_state == state::stopping;}
-  bool  is_left()     const noexcept{return m_state == state::left;}
+  void  reset() noexcept;
 
-  void   stop() noexcept{m_state = state::stopping;}
-  void  start() noexcept{m_state = state::stepping;}
+  void   set_value(value&&  v) noexcept{m_value = std::move(v);}
+  value  get_value(          ) noexcept{return std::move(m_value);}
 
-  void  sleep(uint32_t  ms) const noexcept;
+  void  enter(context&  ctx) noexcept;
 
-  void  reset(program&  prog) noexcept;
+  void  halt(value  v=value()) noexcept;
 
-  value&  get_stored_value() const noexcept;
+  void  remove() noexcept;
 
-  void  enter(context&  ctx, void  (*onpop)(context*  ctx)) noexcept;
-  void  leave(value  v=value()) noexcept;
+  virtual void  do_when_removed() noexcept{}
 
   virtual void  step() noexcept{}
 
@@ -113,36 +107,20 @@ public:
 class
 program
 {
-  struct node{
-    programs::context*  context;
-    void  (*onpop)(programs::context*  ctx);
-  };
-
-  std::vector<node>  m_node_list;
+  std::vector<context*>  m_stack;
 
   context*  m_top=nullptr;
-
-  value  m_stored_value;
-
-  uint32_t  m_current_time;
-  uint32_t    m_start_time;
-
-  bool  m_sleeping=false;
 
 public:
   ~program(){clear();}
 
   void  clear() noexcept;
 
-  void  push(context&  ctx, void  (*onpop)(context*  ctx)=nullptr) noexcept;
-  void  pop() noexcept;
+  void  push(context&  ctx) noexcept;
 
-  void  set_sleep_timer(uint32_t  ms) noexcept;
+  void  pop(value  v=value()) noexcept;
 
-  void   store_value(value&&  v) noexcept{m_stored_value = std::move(v);}
-  value&   get_value() noexcept{return m_stored_value;}
-
-  void  step(uint32_t  time) noexcept;
+  void  step() noexcept;
 
 };
 

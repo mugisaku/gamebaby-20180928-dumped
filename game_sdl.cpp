@@ -31,6 +31,10 @@ images::image
 g_bg_image;
 
 
+images::image
+g_misc_image;
+
+
 spaces::space<gbact::characters::character>
 g_character_space;
 
@@ -59,6 +63,51 @@ g_board_view;
 
 
 class
+validity
+{
+  bool  m_value=true;
+
+public:
+  operator bool() const noexcept{return m_value;}
+
+  void   enable() noexcept{m_value =  true;}
+  void  disable() noexcept{m_value = false;}
+
+};
+
+
+validity  g_object_space_validity;
+validity  g_character_space_validity;
+validity  g_board_view_validity;
+
+
+class
+sleep_context: public programs::context
+{
+  uint32_t  m_time;
+
+public:
+  sleep_context(uint32_t  t=0) noexcept: m_time(g_time+t){}
+
+  void  operator()(uint32_t  t) noexcept
+  {
+    m_time = g_time+t;
+
+    g_program.push(*this);
+  }
+
+  void  step() noexcept override
+  {
+      if(g_time >= m_time)
+      {
+        halt();
+      }
+  }
+
+} sleep_ctx;
+
+
+class
 root_context: public programs::context
 {
 public:
@@ -67,8 +116,103 @@ public:
 } ctx;
 
 
+class
+edit_context: public programs::context
+{
+public:
+  void  step() noexcept override;
+
+} edit_ctx;
+
+
+class
+play_context: public programs::context
+{
+public:
+  void  step() noexcept override;
+
+} play_ctx;
+
+
 void
 root_context::
+step() noexcept
+{
+  static int  index;
+
+  static spaces::image_object*  cursor;
+
+    switch(get_pc())
+    {
+  case(0):
+      index = 0;
+
+      g_object_space_validity.enable();
+      g_character_space_validity.disable();
+      g_board_view_validity.disable();
+
+        {
+          auto  edit = new spaces::text_object("EDIT",styles::a_white_based_text_style);
+          auto  play = new spaces::text_object("PLAY",styles::a_white_based_text_style);
+
+          cursor = new spaces::image_object(g_misc_image,rectangle(0,0,24,24),point(-28,4));
+
+          edit->set_base_point(80, 80);
+          play->set_base_point(80,104);
+          cursor->set_base_point(80,80);
+
+          g_object_space.append_with_deleter(*edit);
+          g_object_space.append_with_deleter(*play);
+          g_object_space.append_with_deleter(*cursor);
+        }
+
+
+      add_pc(1);
+      break;
+  case(1):
+        if(g_modified_input.test_up_button() && g_input.test_up_button() && index)
+        {
+          --index;
+
+          cursor->add_base_point_y(-24);
+        }
+
+      else
+        if(g_modified_input.test_down_button() && g_input.test_down_button() && (index < 1))
+        {
+          ++index;
+
+          cursor->add_base_point_y(24);
+        }
+
+      else
+        if(g_modified_input.test_p_button() && g_input.test_p_button())
+        {
+          g_object_space.remove_all();
+
+            switch(index)
+            {
+          case(0):
+              break;
+          case(1):
+              g_program.push(play_ctx);
+              break;
+            }
+        }
+      break;
+    }
+}
+
+
+void
+edit_context::
+step() noexcept
+{
+}
+
+
+void
+play_context::
 step() noexcept
 {
   static bool  pausing;
@@ -89,6 +233,10 @@ step() noexcept
     switch(get_pc())
     {
   case(0):
+      g_board_view_validity.enable();
+      g_character_space_validity.enable();
+      g_object_space_validity.enable();
+
       system_message.set_base_point(real_point(view_off.x+screen_width/2,view_off.y+screen_height/2));
 
       system_message.set_string("PRESS [ Z or ENTER ] KEY");
@@ -109,7 +257,7 @@ step() noexcept
 
 //          system_message.align_right();
 
-          sleep(1000);
+          sleep_ctx(1000);
 
           add_pc(1);
         }
@@ -221,7 +369,7 @@ main_loop() noexcept
 
   g_time = condev.time;
 
-  g_program.step(condev.time);
+  g_program.step();
 
 
   static uint32_t  last;
@@ -232,10 +380,23 @@ main_loop() noexcept
 
       g_final_image.fill();
 
-      g_board_view.render(image_cursor(g_final_image,point(0,48)));
+        if(g_board_view_validity)
+        {
+          g_board_view.render(image_cursor(g_final_image,point(0,48)));
+        }
 
-      g_character_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
-      g_object_space.render(point(),image_cursor(g_final_image,point(0,0)));
+
+        if(g_character_space_validity)
+        {
+          g_character_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
+        }
+
+
+        if(g_object_space_validity)
+        {
+          g_object_space.render(point(),image_cursor(g_final_image,point(0,0)));
+        }
+
 
       sdl::update_screen(g_final_image);
     }
@@ -268,6 +429,7 @@ main(int  argc, char**  argv)
 
   gbact::characters::g_image.load_from_png("__resources/lady_and.png");
   g_bg_image.load_from_png("__resources/bg.png");
+  g_misc_image.load_from_png("__resources/misc.png");
 
   g_final_image = sdl::make_screen_image();
 
@@ -282,10 +444,6 @@ main(int  argc, char**  argv)
   g_board.build(12,8,gbact::g_square_size,nul_sqdat);
 
   g_board.put_to_around(blk_sqdat);
-
-  g_board.get_square(5,5).set_data(l0_sqdat);
-  g_board.get_square(5,6).set_data(l1_sqdat);
-
 
   g_board_view.set_source_image(g_bg_image);
   g_board_view.reset(g_board,screen_width,screen_height-48);

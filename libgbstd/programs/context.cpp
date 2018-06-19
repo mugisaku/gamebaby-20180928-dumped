@@ -9,41 +9,33 @@ namespace programs{
 
 void
 context::
-reset(program&  prog) noexcept
+reset() noexcept
 {
-  m_program = &prog;
-
   m_pc = 0;
 
-  m_state = state::stepping;
+  m_halted  = false;
+  m_removed = false;
 }
 
 
 void
 context::
-sleep(uint32_t  ms) const noexcept
+halt(value  v) noexcept
 {
-  m_program->set_sleep_timer(ms);
+  m_value = std::move(v);
+
+  m_halted = true;
 }
 
 
 void
 context::
-leave(value  v) noexcept
+remove() noexcept
 {
-  m_state = state::left;
+  m_removed = true;
 
-  m_program->store_value(std::move(v));
+  do_when_removed();
 }
-
-
-value&
-context::
-get_stored_value() const noexcept
-{
-  return m_program->get_value();
-}
-
 
 
 

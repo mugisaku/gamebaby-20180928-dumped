@@ -39,7 +39,8 @@ object
     static constexpr int visible = 4;
   };
 
-  int  m_state=0;
+
+  int  m_state=flags::visible;
 
   object&    set_flag(int  f) noexcept{  m_state |=  f;  return *this;}
   object&  unset_flag(int  f) noexcept{  m_state &= ~f;  return *this;}
@@ -227,7 +228,7 @@ space
   std::vector<element>  m_updated_list;
   std::vector<element>  m_kept_list;
 
-  bool  m_locked=false;
+  bool  m_locked  =false;
 
   static void  default_deleter(T*  ptr) noexcept{delete ptr;}
 
