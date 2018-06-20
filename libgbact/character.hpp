@@ -563,6 +563,10 @@ extern spaces::space<gbact::character>
 g_character_space;
 
 
+extern spaces::space<spaces::object>
+g_object_space;
+
+
 
 
 #endif

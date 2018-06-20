@@ -1,6 +1,9 @@
 
 
 set(SOURCES
+  routines/sleep_context.cpp
+  routines/chooser_context.cpp
+  stage.cpp
   character.cpp
   player.cpp
   hero.cpp

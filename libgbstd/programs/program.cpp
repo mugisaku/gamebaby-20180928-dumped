@@ -11,6 +11,12 @@ void
 program::
 clear() noexcept
 {
+    for(auto  ctx: m_stack)
+    {
+      ctx->remove();
+    }
+
+
   m_stack.clear();
 
   m_top = nullptr;
@@ -25,7 +31,7 @@ push(context&  ctx) noexcept
 
   m_top = &ctx;
 
-  ctx.reset();
+  ctx.reset(*this);
 }
 
 
@@ -43,7 +49,12 @@ pop(value  v) noexcept
         {
           m_top = m_stack.back();
 
-          m_top->set_value(std::move(v));
+          m_top->set_end_value(std::move(v));
+        }
+
+      else
+        {
+          m_top = nullptr;
         }
     }
 }
@@ -53,16 +64,15 @@ void
 program::
 step() noexcept
 {
-    if(m_top)
+  m_top->ready_to_step();
+
+  m_top->step();
+
+    if(m_top->is_ended())
     {
-      m_top->step();
+      auto  v = m_top->get_end_value();
 
-        if(m_top->is_halted())
-        {
-          auto  v = m_top->get_value();
-
-          pop(std::move(v));
-        }
+      pop(std::move(v));
     }
 }
 

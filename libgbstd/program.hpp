@@ -14,6 +14,9 @@ namespace gbstd{
 namespace programs{
 
 
+class program;
+
+
 class
 value
 {
@@ -61,13 +64,17 @@ public:
 class
 context
 {
+  program*  m_program;
+
   gbstd::string  m_name;
 
   uint32_t  m_pc;
 
-  value  m_value;
+  uint32_t  m_calling_count;
 
-  bool  m_halted;
+  value  m_end_value;
+
+  bool  m_ended;
   bool  m_removed;
 
 public:
@@ -76,7 +83,7 @@ public:
 
   virtual ~context(){}
 
-  bool  is_halted() const noexcept{return m_halted;}
+  bool  is_ended()   const noexcept{return m_ended;}
   bool  is_removed() const noexcept{return m_removed;}
 
   const uint32_t&  get_pc() const noexcept{return m_pc;}
@@ -86,18 +93,18 @@ public:
 
   const gbstd::string&  get_name() const noexcept{return m_name;}
 
-  void  reset() noexcept;
+  void  reset(programs::program&  program) noexcept;
 
-  void   set_value(value&&  v) noexcept{m_value = std::move(v);}
-  value  get_value(          ) noexcept{return std::move(m_value);}
+  void   set_end_value(value&&  v) noexcept{m_end_value = std::move(v);}
+  value  get_end_value(          ) noexcept{return std::move(m_end_value);}
 
-  void  enter(context&  ctx) noexcept;
+  void  call(context&  ctx) noexcept;
 
-  void  halt(value  v=value()) noexcept;
+  void  end(value  v=value()) noexcept;
 
   void  remove() noexcept;
 
-  virtual void  do_when_removed() noexcept{}
+  void  ready_to_step() noexcept{m_calling_count = 0;}
 
   virtual void  step() noexcept{}
 
@@ -115,6 +122,8 @@ public:
   ~program(){clear();}
 
   void  clear() noexcept;
+
+  operator bool() const noexcept{return m_top;}
 
   void  push(context&  ctx) noexcept;
 

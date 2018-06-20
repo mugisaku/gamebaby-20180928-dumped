@@ -9,22 +9,42 @@ namespace programs{
 
 void
 context::
-reset() noexcept
+reset(programs::program&  program) noexcept
 {
+  m_program = &program;
+
   m_pc = 0;
 
-  m_halted  = false;
+  m_ended   = false;
   m_removed = false;
 }
 
 
 void
 context::
-halt(value  v) noexcept
+call(context&  ctx) noexcept
 {
-  m_value = std::move(v);
+    if(!m_calling_count)
+    {
+      m_program->push(ctx);
 
-  m_halted = true;
+      ++m_calling_count;
+    }
+
+  else
+    {
+      printf("[context::call error] 多重コールはしてはならない\n");
+    }
+}
+
+
+void
+context::
+end(value  v) noexcept
+{
+  m_end_value = std::move(v);
+
+  m_ended = true;
 }
 
 
@@ -33,8 +53,6 @@ context::
 remove() noexcept
 {
   m_removed = true;
-
-  do_when_removed();
 }
 
 

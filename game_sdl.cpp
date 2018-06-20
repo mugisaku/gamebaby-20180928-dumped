@@ -5,6 +5,8 @@
 #include"libgbstd/direction.hpp"
 #include"sdl.hpp"
 #include"libgbact/character.hpp"
+#include"libgbact/stage.hpp"
+#include"libgbact/routine.hpp"
 #include<cmath>
 
 
@@ -14,6 +16,7 @@
 
 
 using namespace gbstd;
+using namespace gbact;
 
 
 constexpr int  screen_width  = 288;
@@ -50,12 +53,12 @@ g_board;
 namespace{
 
 
-images::image
-g_final_image;
-
-
 programs::program
 g_program;
+
+
+images::image
+g_final_image;
 
 
 boards::board_view
@@ -82,126 +85,37 @@ validity  g_board_view_validity;
 
 
 class
-sleep_context: public programs::context
-{
-  uint32_t  m_time;
-
-public:
-  sleep_context(uint32_t  t=0) noexcept: m_time(g_time+t){}
-
-  void  operator()(uint32_t  t) noexcept
-  {
-    m_time = g_time+t;
-
-    g_program.push(*this);
-  }
-
-  void  step() noexcept override
-  {
-      if(g_time >= m_time)
-      {
-        halt();
-      }
-  }
-
-} sleep_ctx;
-
-
-class
-root_context: public programs::context
-{
-public:
-  void  step() noexcept override;
-
-} ctx;
-
-
-class
 edit_context: public programs::context
 {
 public:
   void  step() noexcept override;
 
-} edit_ctx;
+};
 
 
 class
 play_context: public programs::context
 {
+  routines::chooser_context  m_chooser_context;
+
 public:
   void  step() noexcept override;
 
-} play_ctx;
+};
 
 
-void
-root_context::
-step() noexcept
+class
+root_context: public programs::context
 {
-  static int  index;
+  routines::chooser_context  m_chooser_context;
 
-  static spaces::image_object*  cursor;
+  edit_context  m_edit_context;
+  play_context  m_play_context;
 
-    switch(get_pc())
-    {
-  case(0):
-      index = 0;
+public:
+  void  step() noexcept override;
 
-      g_object_space_validity.enable();
-      g_character_space_validity.disable();
-      g_board_view_validity.disable();
-
-        {
-          auto  edit = new spaces::text_object("EDIT",styles::a_white_based_text_style);
-          auto  play = new spaces::text_object("PLAY",styles::a_white_based_text_style);
-
-          cursor = new spaces::image_object(g_misc_image,rectangle(0,0,24,24),point(-28,4));
-
-          edit->set_base_point(80, 80);
-          play->set_base_point(80,104);
-          cursor->set_base_point(80,80);
-
-          g_object_space.append_with_deleter(*edit);
-          g_object_space.append_with_deleter(*play);
-          g_object_space.append_with_deleter(*cursor);
-        }
-
-
-      add_pc(1);
-      break;
-  case(1):
-        if(g_modified_input.test_up_button() && g_input.test_up_button() && index)
-        {
-          --index;
-
-          cursor->add_base_point_y(-24);
-        }
-
-      else
-        if(g_modified_input.test_down_button() && g_input.test_down_button() && (index < 1))
-        {
-          ++index;
-
-          cursor->add_base_point_y(24);
-        }
-
-      else
-        if(g_modified_input.test_p_button() && g_input.test_p_button())
-        {
-          g_object_space.remove_all();
-
-            switch(index)
-            {
-          case(0):
-              break;
-          case(1):
-              g_program.push(play_ctx);
-              break;
-            }
-        }
-      break;
-    }
-}
+};
 
 
 void
@@ -209,6 +123,39 @@ edit_context::
 step() noexcept
 {
 }
+
+
+void
+root_context::
+step() noexcept
+{
+    switch(get_pc())
+    {
+  case(0):
+      new(&m_chooser_context) routines::chooser_context({
+        "EDIT",
+        "PLAY"
+      });
+
+
+      call(m_chooser_context);
+
+      add_pc(1);
+      break;
+  case(1):
+        switch(get_end_value().get_integer())
+        {
+      case(0): call(m_edit_context);break;
+      case(1): call(m_play_context);break;
+        }
+
+
+      set_pc(0);
+      break;
+    }
+};
+
+
 
 
 void
@@ -256,8 +203,6 @@ step() noexcept
 //          system_message.set_string("STAGE 0");
 
 //          system_message.align_right();
-
-          sleep_ctx(1000);
 
           add_pc(1);
         }
@@ -348,9 +293,31 @@ step() noexcept
                 {
                   g_character_space.remove_all();
 
-                  set_pc(0);
+                  set_pc(4);
                 }
             }
+        }
+      break;
+  case(4):
+      new(&m_chooser_context) routines::chooser_context({
+        "RESTART",
+        "EXIT",
+      });
+
+
+      call(m_chooser_context);
+
+      add_pc(1);
+      break;
+  case(5):
+        if(get_end_value().get_integer() == 0)
+        {
+          set_pc(0);
+        }
+
+      else
+        {
+          end();
         }
       break;
     }
@@ -369,7 +336,10 @@ main_loop() noexcept
 
   g_time = condev.time;
 
-  g_program.step();
+    if(g_program)
+    {
+      g_program.step();
+    }
 
 
   static uint32_t  last;
@@ -433,17 +403,15 @@ main(int  argc, char**  argv)
 
   g_final_image = sdl::make_screen_image();
 
-  g_program.push(ctx);
+  static root_context  root_ctx;
 
+  g_program.push(root_ctx);
 
-  static auto  nul_sqdat = gbact::square_data::null();
-  static auto  blk_sqdat = gbact::square_data::block();
-  static auto   l0_sqdat = gbact::square_data::ladder0();
-  static auto   l1_sqdat = gbact::square_data::ladder1();
+  using stage = gbact::stages::stage;
 
-  g_board.build(12,8,gbact::g_square_size,nul_sqdat);
+  g_board.build(12,8,gbact::g_square_size,stage::get_square_data(0));
 
-  g_board.put_to_around(blk_sqdat);
+  g_board.put_to_around(stage::get_square_data(1));
 
   g_board_view.set_source_image(g_bg_image);
   g_board_view.reset(g_board,screen_width,screen_height-48);
