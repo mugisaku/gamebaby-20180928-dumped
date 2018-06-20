@@ -5,6 +5,7 @@
 #include"libgbstd/string.hpp"
 #include"libgbstd/image.hpp"
 #include"libgbstd/utility.hpp"
+#include"libgbstd/control_device.hpp"
 #include<new>
 #include<utility>
 #include<cstdint>
@@ -25,12 +26,15 @@ value
     integer,
     string,
     real_number,
+    keyboard,
+
   } m_kind=kind::null;
 
   union data{
-    int  i;
+    int            i;
     gbstd::string  s;
-    double  r;
+    double         r;
+    keyboard     kbd;
 
     data(){}
    ~data(){}
@@ -41,12 +45,14 @@ public:
   value() noexcept{}
   value(int  i) noexcept{*this = i;}
   value(gbstd::string_view  sv) noexcept{*this = sv;}
+  value(keyboard  kbd)      noexcept{*this = kbd;}
   value(const value&   rhs) noexcept{*this = rhs;}
   value(      value&&  rhs) noexcept{*this = std::move(rhs);}
  ~value(){clear();}
 
   value&  operator=(int  i) noexcept;
   value&  operator=(gbstd::string_view  sv) noexcept;
+  value&  operator=(keyboard  kbd) noexcept;
   value&  operator=(const value&   rhs) noexcept;
   value&  operator=(      value&&  rhs) noexcept;
 
@@ -54,9 +60,11 @@ public:
 
   bool  is_integer() const noexcept{return m_kind == kind::integer;}
   bool  is_string()  const noexcept{return m_kind == kind::string;}
+  bool  is_keyboard() const noexcept{return m_kind == kind::keyboard;}
 
   int                   get_integer() const noexcept{return m_data.i;}
   const gbstd::string&  get_string()  const noexcept{return m_data.s;}
+  keyboard              get_keyboard()  const noexcept{return m_data.kbd;}
 
 };
 

@@ -190,11 +190,13 @@ text_object: public object
 {
   gbstd::u16string  m_string;
 
-  text_style  m_style;
+  text_style  m_style = styles::a_white_based_text_style;
 
   point  m_rendering_offset;
 
 public:
+  text_object() noexcept{}
+
   text_object(gbstd::string_view  sv, const text_style&  style) noexcept:
   m_style(style){set_string(sv);}
 

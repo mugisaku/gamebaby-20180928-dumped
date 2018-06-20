@@ -37,6 +37,20 @@ operator=(gbstd::string_view  sv) noexcept
 
 value&
 value::
+operator=(keyboard  kbd) noexcept
+{
+  clear();
+
+  new(&m_data) keyboard(kbd);
+
+  m_kind = kind::keyboard;
+
+  return *this;
+}
+
+
+value&
+value::
 operator=(const value&   rhs) noexcept
 {
     if(this != &rhs)
@@ -49,6 +63,7 @@ operator=(const value&   rhs) noexcept
         {
       case(kind::integer): m_data.i = rhs.m_data.i;break;
       case(kind::string ): new(&m_data) gbstd::string(rhs.m_data.s);break;
+      case(kind::keyboard): m_data.kbd = rhs.m_data.kbd;break;
         }
     }
 
@@ -69,8 +84,9 @@ operator=(value&&  rhs) noexcept
 
         switch(m_kind)
         {
-      case(kind::integer): m_data.i = rhs.m_data.i;break;
-      case(kind::string ): new(&m_data) gbstd::string(std::move(rhs.m_data.s));break;
+      case(kind::integer ): m_data.i = rhs.m_data.i;break;
+      case(kind::string  ): new(&m_data) gbstd::string(std::move(rhs.m_data.s));break;
+      case(kind::keyboard): m_data.kbd = rhs.m_data.kbd;break;
         }
     }
 

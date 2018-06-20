@@ -12,6 +12,10 @@ namespace gbact{
 namespace stages{
 
 
+extern std::vector<square_data>
+g_square_data_set;
+
+
 class
 stage
 {
@@ -31,8 +35,6 @@ public:
 
   int   get_index(        int  x, int  y) const noexcept{return m_table[(m_width*y)+x]    ;}
   void  set_index(int  i, int  x, int  y)       noexcept{       m_table[(m_width*y)+x] = i;}
-
-  static square_data&  get_square_data(int  i) noexcept;
 
 };
 

@@ -43,6 +43,27 @@ public:
 
 
 
+class
+indication_context: public programs::context
+{
+  spaces::image_object  m_hand_cursor;
+  spaces::image_object  m_rect_cursor;
+
+  point  m_point;
+
+  rectangle  m_rectangle;
+
+public:
+  indication_context(rectangle  rect=rectangle()) noexcept;
+
+  void  initialize(rectangle  rect) noexcept;
+
+  void  step() noexcept override;
+
+};
+
+
+
 }
 }
 

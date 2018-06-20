@@ -19,8 +19,8 @@ using namespace gbstd;
 using namespace gbact;
 
 
-constexpr int  screen_width  = 288;
-constexpr int  screen_height = 240;
+constexpr int  g_screen_width  = 288;
+constexpr int  g_screen_height = 240;
 
 
 uint32_t  g_time = 0;
@@ -87,6 +87,8 @@ validity  g_board_view_validity;
 class
 edit_context: public programs::context
 {
+  routines::indication_context  m_indication_context;
+
 public:
   void  step() noexcept override;
 
@@ -97,6 +99,19 @@ class
 play_context: public programs::context
 {
   routines::chooser_context  m_chooser_context;
+
+  bool  m_pausing;
+
+  characters::lady  m_lady;
+  characters::meat  m_meat;
+
+  spaces::text_object  m_system_message;
+
+  bool  m_set_meat_timer;
+
+  uint32_t  m_next_meat_time;
+
+  uint32_t  m_time;
 
 public:
   void  step() noexcept override;
@@ -122,6 +137,35 @@ void
 edit_context::
 step() noexcept
 {
+    switch(get_pc())
+    {
+  case(0):
+      m_indication_context.initialize(rectangle(0,0,g_screen_width-24,g_screen_height-24));
+
+      set_pc(1);
+      break;
+  case(1):
+      call(m_indication_context);
+
+      set_pc(2);
+      break;
+  case(2):
+        {
+          auto  kbd = get_end_value().get_keyboard();
+
+            if(kbd.test_p_button())
+            {
+            }
+
+          else
+            if(kbd.test_n_button())
+            {
+            }
+        }
+
+      set_pc(1);
+      break;
+    }
 }
 
 
@@ -162,19 +206,6 @@ void
 play_context::
 step() noexcept
 {
-  static bool  pausing;
-
-  static gbact::characters::lady  lady;
-  static gbact::characters::meat  meat;
-
-  static spaces::text_object  system_message("",styles::a_white_based_text_style);
-
-  static bool  set_meat_timer;
-
-  static uint32_t  next_meat_time;
-
-  static uint32_t  time;
-
   auto&  view_off = g_board_view.get_offset();
 
     switch(get_pc())
@@ -184,15 +215,15 @@ step() noexcept
       g_character_space_validity.enable();
       g_object_space_validity.enable();
 
-      system_message.set_base_point(real_point(view_off.x+screen_width/2,view_off.y+screen_height/2));
+      m_system_message.set_base_point(real_point(view_off.x+g_screen_width/2,view_off.y+g_screen_height/2));
 
-      system_message.set_string("PRESS [ Z or ENTER ] KEY");
+      m_system_message.set_string("PRESS [ Z or ENTER ] KEY");
 
-      system_message.align_center();
+      m_system_message.align_center();
 
-      system_message.show();
+      m_system_message.show();
 
-      g_object_space.append(system_message);
+      g_object_space.append(m_system_message);
 
       add_pc(1);
       break;
@@ -208,38 +239,38 @@ step() noexcept
         }
       break;
   case(2):
-        system_message.die();
+        m_system_message.die();
 
-        new(&lady) gbact::characters::lady;
+        new(&m_lady) gbact::characters::lady;
 
           {
-            auto   mon = new gbact::characters::lady_monitor(lady,0,0);
+            auto   mon = new characters::lady_monitor(m_lady,0,0);
 
 
-            lady.set_base_point(100,100);
+            m_lady.set_base_point(100,100);
 
-            g_character_space.append(lady);
+            g_character_space.append(m_lady);
 
-            g_character_space.append_with_deleter(*new gbact::characters::wall(30,80));
-            g_character_space.append_with_deleter(*new gbact::characters::wall(60,80));
-            g_character_space.append_with_deleter(*new gbact::characters::wall(180,100));
-            g_character_space.append_with_deleter(*new gbact::characters::wall(210,100));
-            g_character_space.append_with_deleter(*new gbact::characters::wall(240,100));
+            g_character_space.append_with_deleter(*new characters::wall(30,80));
+            g_character_space.append_with_deleter(*new characters::wall(60,80));
+            g_character_space.append_with_deleter(*new characters::wall(180,100));
+            g_character_space.append_with_deleter(*new characters::wall(210,100));
+            g_character_space.append_with_deleter(*new characters::wall(240,100));
 
             g_object_space.append_with_deleter(*mon);
           }
 
 
-        set_meat_timer = false;
+        m_set_meat_timer = false;
 
         add_pc(1);
   case(3):
-        if(pausing)
+        if(m_pausing)
         {
             if(g_modified_input.test_start_button() &&
                g_input.test_start_button())
             {
-              pausing = false;
+              m_pausing = false;
             }
         }
 
@@ -248,35 +279,35 @@ step() noexcept
             if(g_modified_input.test_start_button() &&
                         g_input.test_start_button())
             {
-//              pausing = true;
+//              m_pausing = true;
 
-              auto&  v = gbact::characters::character::m_debug;
+              auto&  v = characters::character::m_debug;
 
               v = !v;
             }
 
           else
             {
-                if(!meat.is_alive())
+                if(!m_meat.is_alive())
                 {
-                    if(!set_meat_timer)
+                    if(!m_set_meat_timer)
                     {
-                      next_meat_time = g_time+4000;
+                      m_next_meat_time = g_time+4000;
 
-                      set_meat_timer = true;
+                      m_set_meat_timer = true;
                     }
 
                   else
                     {
-                        if(g_time >= next_meat_time)
+                        if(g_time >= m_next_meat_time)
                         {
-                          set_meat_timer = false;
+                          m_set_meat_timer = false;
 
-                          new(&meat) gbact::characters::meat;
+                          new(&m_meat) characters::meat;
 
-                          meat.set_base_point(gbact::g_square_size*5,gbact::g_square_size*3);
+                          m_meat.set_base_point(gbact::g_square_size*5,gbact::g_square_size*3);
 
-                          g_character_space.append(meat);
+                          g_character_space.append(m_meat);
                         }
                     }
                 }
@@ -287,9 +318,9 @@ step() noexcept
 
               g_character_space.detect_collision();
 
-              g_board_view.chase_object(lady,4);
+              g_board_view.chase_object(m_lady,4);
 
-                if(!lady.is_alive())
+                if(!m_lady.is_alive())
                 {
                   g_character_space.remove_all();
 
@@ -395,7 +426,7 @@ main(int  argc, char**  argv)
 #endif
 
 
-  sdl::init(screen_width,screen_height,1.5);
+  sdl::init(g_screen_width,g_screen_height,1.5);
 
   gbact::characters::g_image.load_from_png("__resources/lady_and.png");
   g_bg_image.load_from_png("__resources/bg.png");
@@ -409,12 +440,12 @@ main(int  argc, char**  argv)
 
   using stage = gbact::stages::stage;
 
-  g_board.build(12,8,gbact::g_square_size,stage::get_square_data(0));
+  g_board.build(12,8,gbact::g_square_size,stages::g_square_data_set[0]);
 
-  g_board.put_to_around(stage::get_square_data(1));
+  g_board.put_to_around(stages::g_square_data_set[1]);
 
   g_board_view.set_source_image(g_bg_image);
-  g_board_view.reset(g_board,screen_width,screen_height-48);
+  g_board_view.reset(g_board,g_screen_width,g_screen_height-48);
 
 
 #ifdef EMSCRIPTEN

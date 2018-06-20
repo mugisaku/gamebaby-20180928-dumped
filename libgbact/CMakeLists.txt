@@ -3,6 +3,7 @@
 set(SOURCES
   routines/sleep_context.cpp
   routines/chooser_context.cpp
+  routines/indication_context.cpp
   stage.cpp
   character.cpp
   player.cpp
