@@ -12,8 +12,9 @@ namespace stages{
 std::vector<square_data>
 g_square_data_set ={
   square_data::null(),
-  square_data::block(),
   square_data::ladder0(),
+
+  square_data::block(),
   square_data::ladder1(),
 };
 

@@ -4,6 +4,8 @@ set(SOURCES
   routines/sleep_context.cpp
   routines/chooser_context.cpp
   routines/indication_context.cpp
+  routines/edit_context.cpp
+  routines/play_context.cpp
   stage.cpp
   character.cpp
   player.cpp

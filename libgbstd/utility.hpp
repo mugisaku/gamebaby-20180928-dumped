@@ -70,6 +70,20 @@ bool  is_webp(const void*  ptr) noexcept;
 void  printf_with_indent(int  indent, const char*  fmt, ...) noexcept;
 
 
+class
+validity
+{
+  bool  m_value=true;
+
+public:
+  operator bool() const noexcept{return m_value;}
+
+  void   enable() noexcept{m_value =  true;}
+  void  disable() noexcept{m_value = false;}
+
+};
+
+
 
 
 #ifdef EMSCRIPTEN

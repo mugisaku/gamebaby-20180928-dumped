@@ -45,27 +45,30 @@ step() noexcept
   case(1):
       constexpr int  speed = 2;
 
-        if(g_input.test_p_button() ||
-           g_input.test_n_button()
-           )
+           if(g_input.test_up_button()   && (m_point.y >= (m_rectangle.y+speed              ))){m_point.y -= speed;}
+      else if(g_input.test_down_button() && (m_point.y <= (m_rectangle.y+m_rectangle.h-speed))){m_point.y += speed;}
+
+           if(g_input.test_left_button()  && (m_point.x >= (m_rectangle.x                    ))){m_point.x -= speed;}
+      else if(g_input.test_right_button() && (m_point.x <= (m_rectangle.x+m_rectangle.w-speed))){m_point.x += speed;}
+
+
+      m_hand_cursor.set_base_point(m_point.x,m_point.y);
+
+      m_rect_cursor.set_base_point(m_point.x/g_square_size*g_square_size,
+                                   m_point.y/g_square_size*g_square_size);
+
+        if(g_input.test_p_button() && m_callback)
         {
-          end(g_input);
+          m_callback(*this,m_data);
         }
 
       else
+        if(g_input.test_n_button())
         {
+          m_hand_cursor.die();
+          m_rect_cursor.die();
 
-               if(g_input.test_up_button()   && (m_point.y >= (m_rectangle.y+speed              ))){m_point.y -= speed;}
-          else if(g_input.test_down_button() && (m_point.y <= (m_rectangle.y+m_rectangle.h-speed))){m_point.y += speed;}
-
-               if(g_input.test_left_button()  && (m_point.x >= (m_rectangle.x                    ))){m_point.x -= speed;}
-          else if(g_input.test_right_button() && (m_point.x <= (m_rectangle.x+m_rectangle.w-speed))){m_point.x += speed;}
-
-
-          m_hand_cursor.set_base_point(m_point.x,m_point.y);
-
-          m_rect_cursor.set_base_point(m_point.x/g_square_size*g_square_size,
-                                       m_point.y/g_square_size*g_square_size);
+          end(g_input);
         }
       break;
     }
