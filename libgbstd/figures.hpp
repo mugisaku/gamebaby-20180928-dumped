@@ -156,6 +156,15 @@ rectangle: public point
   w(w_),
   h(h_){}
 
+
+  constexpr bool  test_point(const point&  pt) const noexcept
+  {
+    return((pt.x >= (x  )) &&
+           (pt.y >= (y  )) &&
+           (pt.x <  (x+w)) &&
+           (pt.y <  (y+h)));
+  }
+
 };
 
 

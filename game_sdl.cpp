@@ -102,12 +102,24 @@ step() noexcept
       add_pc(1);
       break;
   case(1):
+      m_chooser_context.clean();
+
         switch(get_end_value().get_integer())
         {
-      case(0): call(m_edit_context);break;
-      case(1): call(m_play_context);break;
+      case(0): call(m_edit_context);  set_pc(2);break;
+      case(1): call(m_play_context);  set_pc(3);break;
         }
 
+
+      set_pc(0);
+      break;
+  case(2):
+      m_edit_context.clean();
+
+      set_pc(0);
+      break;
+  case(3):
+      m_play_context.clean();
 
       set_pc(0);
       break;
@@ -202,9 +214,9 @@ main(int  argc, char**  argv)
 
   using stage = gbact::stages::stage;
 
-  g_board.build(12,8,gbact::g_square_size,stages::g_square_data_set[0]);
+  g_board.build(12,10,gbact::g_square_size,stages::g_square_data_set[0]);
 
-  g_board.put_to_around(stages::g_square_data_set[2]);
+  g_board.put_to_around(stages::g_square_data_set[1]);
 
   g_board_view.set_source_image(g_bg_image);
   g_board_view.reset(g_board,g_screen_width,g_screen_height-48);

@@ -95,7 +95,6 @@ block(character&  target, positions::position  position) const noexcept
       target.set_top(get_area().bottom+1);
       break;
   case(position::none):
-report;
       break;
     }
 }

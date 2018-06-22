@@ -221,6 +221,38 @@ render_line(const rendering_context&  ctx) const noexcept
 
 void
 board_view::
+correct_offset() noexcept
+{
+  int  board_image_width  = m_board->get_image_width() ;
+  int  board_image_height = m_board->get_image_height();
+
+    if(m_offset.x < 0)
+    {
+      m_offset.x = 0;
+    }
+
+  else
+    if((m_offset.x+m_width) >= board_image_width)
+    {
+      m_offset.x = board_image_width-m_width;
+    }
+
+
+    if(m_offset.y < 0)
+    {
+      m_offset.y = 0;
+    }
+
+  else
+    if((m_offset.y+m_height) >= board_image_height)
+    {
+      m_offset.y = board_image_height-m_height;
+    }
+}
+
+
+void
+board_view::
 render(image_cursor  cur, void  (*callback)(board_view&  bv, int  output_line)) noexcept
 {
   rendering_context  ctx;

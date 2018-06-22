@@ -11,6 +11,17 @@ namespace routines{
 
 void
 play_context::
+clean() noexcept
+{
+  m_chooser_context.clean();
+
+  g_object_space.remove_all();
+  g_character_space.remove_all();
+}
+
+
+void
+play_context::
 step() noexcept
 {
   auto&  view_off = g_board_view.get_offset();
@@ -129,8 +140,6 @@ step() noexcept
 
                 if(!m_lady.is_alive())
                 {
-                  g_character_space.remove_all();
-
                   set_pc(4);
                 }
             }

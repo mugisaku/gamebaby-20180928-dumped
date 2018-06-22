@@ -55,7 +55,8 @@ public:
   void  be_ladder() noexcept{m_kind = kind::ladder;}
 
   static constexpr square_data     null(){return square_data(kind::null  ,24*0,24*0, gate::get_none());}
-  static constexpr square_data    block(){return square_data(kind::block ,24*0,24*1, gate::get_all());}
+  static constexpr square_data   block0(){return square_data(kind::block ,24*0,24*1, gate::get_all());}
+  static constexpr square_data   block1(){return square_data(kind::block ,24*2,24*0, gate::get_all());}
   static constexpr square_data  ladder0(){return square_data(kind::ladder,24*1,24*0, gate::get_top());}
   static constexpr square_data  ladder1(){return square_data(kind::ladder,24*1,24*1, gate::get_none());}
 
