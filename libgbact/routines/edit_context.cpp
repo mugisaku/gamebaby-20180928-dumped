@@ -128,9 +128,7 @@ clean() noexcept
   m_src_indication_context.clean();
   m_dst_indication_context.clean();
 
-  m_square_data_display.die();
-  m_src_square_cursor.die();
-  m_dst_square_cursor.die();
+  g_object_space.remove_all();
 }
 
 
@@ -141,6 +139,8 @@ step() noexcept
     switch(get_pc())
     {
   case(0):
+      g_object_space.remove_all();
+
       g_board_view.set_offset(0,0);
 
       m_square_data_display_rectangle = rectangle(0,0,(g_square_size*stages::g_square_data_set.size())-24,g_square_size-24);

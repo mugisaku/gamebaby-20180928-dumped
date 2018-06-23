@@ -109,9 +109,6 @@ step() noexcept
       case(0): call(m_edit_context);  set_pc(2);break;
       case(1): call(m_play_context);  set_pc(3);break;
         }
-
-
-      set_pc(0);
       break;
   case(2):
       m_edit_context.clean();

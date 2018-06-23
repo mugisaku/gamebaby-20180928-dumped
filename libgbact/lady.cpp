@@ -348,12 +348,44 @@ do_when_action_is_ladder() noexcept
     }
 
   else
+    if(g_input.test_left_button())
+    {
+      m_action = action::stand;
+
+      set_square_point_offset_y(-(g_square_size/2));
+
+      get_physics().enable();
+
+      unhold();
+    }
+
+  else
+    if(g_input.test_right_button())
+    {
+      m_action = action::stand;
+
+      set_square_point_offset_y(-(g_square_size/2));
+
+      get_physics().enable();
+
+      unhold();
+    }
+
+  else
     {
       return;
     }
 
 
-    if(!get_current_square()->get_data<square_data>().is_ladder())
+  auto  sq = get_current_square();
+
+    if(!sq)
+    {
+      die();
+    }
+
+  else
+    if(!sq->get_data<square_data>().is_ladder())
     {
       m_action = action::stand;
 

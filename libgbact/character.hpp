@@ -142,6 +142,8 @@ character: public spaces::image_object
 
   physics  m_physics;
 
+  area  m_life_area;
+
   point  m_square_point_offset;
 
   double  m_mass=0;
@@ -166,6 +168,10 @@ public:
   bool  is_facing_to_right() const noexcept{return get_direction() == direction::right;}
 
   uint32_t  get_creation_time() const noexcept{return m_creation_time;}
+
+
+  const area&  get_life_area(                 ) const noexcept{return m_life_area       ;}
+  void         set_life_area(const area&  area)       noexcept{       m_life_area = area;}
 
   uint32_t  get_life_time(           ) const noexcept{return m_life_time    ;}
   void      set_life_time(uint32_t  t)       noexcept{       m_life_time = t;}

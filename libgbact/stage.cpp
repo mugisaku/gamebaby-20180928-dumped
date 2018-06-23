@@ -32,6 +32,29 @@ resize(int  w, int  h) noexcept
 }
 
 
+void
+stage::
+set_prop(const prop&  pr, int  x, int  y) noexcept
+{
+  auto&  dst = get_prop(x,y);
+
+  dst = pr;
+
+    if(dst.is_player())
+    {
+        if(dst.get_index() == 0)
+        {
+          m_lady_prop = &dst;
+        }
+
+      else
+        if(dst.get_index() == 1)
+        {
+          m_boy_prop = &dst;
+        }
+    }
+}
+
 
 
 }}

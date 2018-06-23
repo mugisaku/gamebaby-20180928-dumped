@@ -163,18 +163,11 @@ public:
 class
 play_context: public programs::context
 {
-  routines::chooser_context  m_chooser_context;
+  chooser_context  m_chooser_context;
 
-  bool  m_pausing;
-
-  characters::lady  m_lady;
-  characters::meat  m_meat;
-
-  spaces::text_object  m_system_message;
-
-  bool  m_set_meat_timer;
-
-  uint32_t  m_next_meat_time;
+  characters::lady          m_lady;
+  characters::lady_monitor  m_lady_monitor;
+//  characters::lady  m_boy;
 
   uint32_t  m_time;
 

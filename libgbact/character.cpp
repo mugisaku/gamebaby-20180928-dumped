@@ -45,7 +45,14 @@ initialize() noexcept
   show();
 
   m_square_point_offset.y = -(g_square_size/2);
+
+  m_life_area.top    = 0;
+  m_life_area.left   = 0;
+  m_life_area.right  = g_board.get_image_width();
+  m_life_area.bottom = g_board.get_image_height();
 }
+
+
 
 
 bool
@@ -100,6 +107,24 @@ block(character&  target, positions::position  position) const noexcept
 }
 
 
+namespace{
+boards::square*
+get_square(int  x, int  y) noexcept
+{
+    if((x >= 0) &&
+       (y >= 0) &&
+       (x <  g_board.get_width()) &&
+       (y <  g_board.get_height()))
+    {
+      return &g_board.get_square(x,y);
+    }
+
+
+  return nullptr;
+}
+}
+
+
 void
 character::
 detect_current_square() noexcept
@@ -119,17 +144,17 @@ detect_current_square() noexcept
         {
           auto  x = left/g_square_size;
 
-          auto&  sq = g_board.get_square(x,base_y);
+          auto  sq = get_square(x,base_y);
 
-            if(sq.get_data().get_gate().test_right())
+            if(sq && sq->get_data().get_gate().test_right())
             {
-              set_left(sq.get_area().right);
+              set_left(sq->get_area().right);
 
-              m_left_contacted_square = &sq;
+              m_left_contacted_square = sq;
 
               set_kinetic_energy_x(0);
 
-              do_when_collided_with_square(sq);
+              do_when_collided_with_square(*sq);
             }
 
           else
@@ -143,17 +168,17 @@ detect_current_square() noexcept
         {
           auto  x = right/g_square_size;
 
-          auto&  sq = g_board.get_square(x,base_y);
+          auto  sq = get_square(x,base_y);
 
-            if(sq.get_data().get_gate().test_left())
+            if(sq && sq->get_data().get_gate().test_left())
             {
-              set_right(sq.get_area().left);
+              set_right(sq->get_area().left);
 
-              m_right_contacted_square = &sq;
+              m_right_contacted_square = sq;
 
               set_kinetic_energy_x(0);
 
-              do_when_collided_with_square(sq);
+              do_when_collided_with_square(*sq);
             }
 
           else
@@ -172,17 +197,17 @@ detect_current_square() noexcept
         {
           auto  y = top/g_square_size;
 
-          auto&  sq = g_board.get_square(base_x,y);
+          auto  sq = get_square(base_x,y);
 
-            if(sq.get_data().get_gate().test_bottom())
+            if(sq && sq->get_data().get_gate().test_bottom())
             {
-              set_top(sq.get_area().bottom);
+              set_top(sq->get_area().bottom);
 
-              m_top_contacted_square = &sq;
+              m_top_contacted_square = sq;
 
               set_kinetic_energy_y(0);
 
-              do_when_collided_with_square(sq);
+              do_when_collided_with_square(*sq);
             }
 
           else
@@ -196,17 +221,17 @@ detect_current_square() noexcept
         {
           auto  y = bottom/g_square_size;
 
-          auto&  sq = g_board.get_square(base_x,y);
+          auto  sq = get_square(base_x,y);
 
-            if(sq.get_data().get_gate().test_top())
+            if(sq && sq->get_data().get_gate().test_top())
             {
-              set_bottom(sq.get_area().top);
+              set_bottom(sq->get_area().top);
 
-              m_bottom_contacted_square = &sq;
+              m_bottom_contacted_square = sq;
 
               set_kinetic_energy_y(0);
 
-              do_when_collided_with_square(sq);
+              do_when_collided_with_square(*sq);
             }
 
           else
@@ -219,8 +244,8 @@ detect_current_square() noexcept
 
   base_y = (static_cast<int>(base_pt.y)+m_square_point_offset.y)/g_square_size;
 
-  auto  last_square = m_current_square                                     ;
-                      m_current_square = &g_board.get_square(base_x,base_y);
+  auto  last_square = m_current_square                            ;
+                      m_current_square = get_square(base_x,base_y);
 
   do_when_changed_square(m_current_square,last_square);
 }
@@ -231,6 +256,17 @@ character::
 update_core() noexcept
 {
     if((g_time-m_creation_time) >= m_life_time)
+    {
+      die();
+
+      return;
+    }
+
+
+    if((get_area().left   > m_life_area.right ) ||
+       (get_area().top    > m_life_area.bottom) ||
+       (get_area().right  < m_life_area.left  ) ||
+       (get_area().bottom < m_life_area.top   ))
     {
       die();
 
