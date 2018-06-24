@@ -18,6 +18,8 @@ class object;
 class
 object
 {
+  gbstd::string  m_name;
+
   real_point       m_base_point;
   real_point  m_last_base_point;
 
@@ -31,12 +33,13 @@ object
   area  m_area;
   area  m_last_area;
 
+  uint32_t*  m_dieing_counter=nullptr;
+
   uint32_t  m_rendering_counter=0;
 
   struct flags{
-    static constexpr int   alive = 1;
-    static constexpr int  frozen = 2;
-    static constexpr int visible = 4;
+    static constexpr int  frozen = 1;
+    static constexpr int visible = 2;
   };
 
 
@@ -52,7 +55,10 @@ public:
   m_height(rect.h){}
 
 
-  bool    is_alive() const noexcept{return m_state&flags::alive;}
+  void                  set_name(gbstd::string_view  sv)       noexcept{       m_name = sv;}
+  const gbstd::string&  get_name(                      ) const noexcept{return m_name     ;}
+
+  bool    is_alive() const noexcept{return m_dieing_counter;}
   bool   is_frozen() const noexcept{return m_state&flags::frozen;}
   bool  is_visible() const noexcept{return m_state&flags::visible;}
 
@@ -60,8 +66,9 @@ public:
   object&      hide() noexcept{return unset_flag(flags::visible);}
   object&    freeze() noexcept{return   set_flag(flags::frozen);}
   object&  unfreeze() noexcept{return unset_flag(flags::frozen);}
-  object&  be_alive() noexcept{return   set_flag(flags::alive);}
-  object&       die() noexcept{return unset_flag(flags::alive);}
+
+  void  be_alive(uint32_t&  v) noexcept;
+  void  die() noexcept;
 
   const uint32_t&  get_rendering_counter(      ) const noexcept{return m_rendering_counter     ;}
   void             add_rendering_counter(int  n)       noexcept{       m_rendering_counter += n;}
@@ -226,36 +233,50 @@ space
   };
 
 
-  std::vector<element>          m_list;
-  std::vector<element>  m_updated_list;
-  std::vector<element>  m_kept_list;
+  std::vector<element>  m_pool_list;
+  std::vector<element>  m_main_list;
+  std::vector<element>  m_keep_list;
 
-  bool  m_locked  =false;
+  std::vector<element>*  m_current_list=&m_main_list;
+
+  uint32_t  m_dieing_counter=0;
 
   static void  default_deleter(T*  ptr) noexcept{delete ptr;}
 
 public:
+  const std::vector<element>&  get_pool_list() const noexcept{return m_pool_list;}
+  const std::vector<element>&  get_main_list() const noexcept{return m_main_list;}
+
+  template<typename  U>
+  void  process(const U&  t) noexcept
+  {
+      for(auto&  e: m_main_list)
+      {
+        t(*e.data);
+      }
+  }
+
   void  append(T&  o) noexcept
   {
-    (m_locked? m_kept_list:m_list).emplace_back(element{&o,nullptr});
+    m_current_list->emplace_back(element{&o,nullptr});
 
-    o.be_alive();
+    o.be_alive(m_dieing_counter);
 
     o.update_area();
   }
 
   void  append_with_deleter(T&  o, void  (*deleter)(T*  ptr)=&default_deleter) noexcept
   {
-    (m_locked? m_kept_list:m_list).emplace_back(element{&o,deleter});
+    m_current_list->emplace_back(element{&o,deleter});
 
-    o.be_alive();
+    o.be_alive(m_dieing_counter);
 
     o.update_area();
   }
 
   void  remove_all() noexcept
   {
-      for(auto&  e: m_list)
+      for(auto&  e: m_pool_list)
       {
         e.data->die();
 
@@ -266,7 +287,51 @@ public:
       }
 
 
-    m_list.clear();
+      for(auto&  e: m_main_list)
+      {
+        e.data->die();
+
+          if(e.deleter)
+          {
+            e.deleter(e.data);
+          }
+      }
+
+
+    m_dieing_counter = 0;
+
+    m_pool_list.clear();
+    m_main_list.clear();
+  }
+
+  void  clean_dead_object() noexcept
+  {
+      if(m_dieing_counter)
+      {
+        m_keep_list.clear();
+
+          for(auto&  e: m_main_list)
+          {
+              if(e.data->is_alive())
+              {
+                m_keep_list.emplace_back(e);
+              }
+
+            else
+              {
+                  if(e.deleter)
+                  {
+                    e.deleter(e.data);
+                  }
+
+
+                --m_dieing_counter;
+              }
+          }
+
+
+        std::swap(m_main_list,m_keep_list);
+      }
   }
 
   void  process_collision(T&  a, T&  b) noexcept
@@ -312,68 +377,63 @@ public:
 
   void  detect_collision() noexcept
   {
-       if(m_locked)
-       {
-         return;
-       }
+    m_current_list = &m_pool_list;
+
+      for(auto&  e: m_pool_list)
+      {
+        m_main_list.emplace_back(e);
+      }
 
 
-    m_locked = true;
+    m_pool_list.clear();
 
-       if(m_list.size() >= 2)
-       {
-         auto  a_current = m_list.begin();
-         auto  b_base    = a_current+1;
+      if(m_main_list.size() >= 2)
+      {
+        auto  a_current = m_main_list.begin();
+        auto  b_base    = a_current+1;
 
-         auto  end = m_list.end();
+        auto  end = m_main_list.end();
 
-           while(b_base < end)
-           {
-             auto  b_current = b_base++;
+          while(b_base < end)
+          {
+            auto  b_current = b_base++;
 
-               while(b_current < end)
-               {
-                 auto&  a = *static_cast<T*>(a_current->data);
-                 auto&  b = *static_cast<T*>(b_current->data);
+              while(b_current < end)
+              {
+                auto&  a = *static_cast<T*>(a_current->data);
+                auto&  b = *static_cast<T*>(b_current->data);
 
-                   if(area::test_collision(a.get_area(),b.get_area()))
-                   {
-                     process_collision(a,b);
-                   }
-
-
-                 ++b_current;
-               }
+                  if(area::test_collision(a.get_area(),b.get_area()))
+                  {
+                    process_collision(a,b);
+                  }
 
 
-             ++a_current;
-           }
-       }
+                ++b_current;
+              }
 
 
-    m_locked = false;
+            ++a_current;
+          }
+      }
+
+
+    m_current_list = &m_main_list;
   }
 
   void  update() noexcept
   {
-       if(m_locked)
-       {
-         return;
-       }
+    m_current_list = &m_pool_list;
 
-
-    m_locked = true;
-
-      for(auto&  e: m_kept_list)
+      for(auto&  e: m_pool_list)
       {
-        m_list.emplace_back(e);
+        m_main_list.emplace_back(e);
       }
 
 
-    m_kept_list.clear();
-    m_updated_list.clear();
+    m_pool_list.clear();
 
-      for(auto&  e: m_list)
+      for(auto&  e: m_main_list)
       {
           if(e.data->is_alive())
           {
@@ -383,41 +443,24 @@ public:
 
                 e.data->update_core();
               }
-
-
-            m_updated_list.emplace_back(e);
-          }
-
-        else
-          {
-              if(e.deleter)
-              {
-                e.deleter(e.data);
-              }
           }
       }
 
 
-    m_list.clear();
-
-    std::swap(m_list,m_updated_list);
-
-    m_locked = false;
+    m_current_list = &m_main_list;
   }
 
   void  render(point  offset, image_cursor  cur) noexcept
   {
-       if(m_locked)
-       {
-         return;
-       }
+    clean_dead_object();
 
+    auto  it     = m_main_list.rbegin();
+    auto  it_end = m_main_list.rend();
 
-    m_locked = true;
-
-
-      for(auto&  e: m_list)
+      while(it != it_end)
       {
+        auto&  e = *it++;
+
           if(e.data->is_visible())
           {
             e.data->update_graphics();
@@ -427,9 +470,6 @@ public:
             e.data->add_rendering_counter(1);
           }
       }
-
-
-    m_locked = false;
   }
 
 };

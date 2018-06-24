@@ -91,7 +91,10 @@ step() noexcept
     switch(get_pc())
     {
   case(0):
-      new(&m_chooser_context) routines::chooser_context({
+      g_object_space_validity.enable();
+      g_board_view_validity.enable();
+
+      m_chooser_context.initialize({
         "EDIT",
         "PLAY"
       });
@@ -204,6 +207,7 @@ main(int  argc, char**  argv)
   g_misc_image.load_from_png("__resources/misc.png");
 
   g_final_image = sdl::make_screen_image();
+
 
   static root_context  root_ctx;
 

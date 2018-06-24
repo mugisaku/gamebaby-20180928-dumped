@@ -125,10 +125,7 @@ step() noexcept
 
           update();
 
-            if(m_callback)
-            {
-              m_callback(*this,m_data);
-            }
+          execute_callback();
         }
       break;
     }

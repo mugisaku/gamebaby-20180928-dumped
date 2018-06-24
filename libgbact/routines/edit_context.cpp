@@ -167,18 +167,21 @@ step() noexcept
 
       m_src_square_cursor.show();
 
-      g_object_space.append(m_square_data_display);
       g_object_space.append(m_src_square_cursor);
       g_object_space.append(m_dst_square_cursor);
+      g_object_space.append(m_square_data_display);
 
       set_pc(1);
       break;
   case(1):
-      m_dst_square_cursor.hide();
+        if(!g_input.test_p_button())
+        {
+          m_dst_square_cursor.hide();
 
-      call(m_src_indication_context);
+          call(m_src_indication_context);
 
-      set_pc(2);
+          set_pc(2);
+        }
       break;
   case(2):
         if(g_input.test_n_button())

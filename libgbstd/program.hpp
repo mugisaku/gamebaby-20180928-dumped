@@ -85,6 +85,10 @@ context
   bool  m_ended;
   bool  m_removed;
 
+  void  (*m_callback)(context&  ctx, void*  data)=nullptr;
+
+  void*  m_data=nullptr;
+
 public:
   context(                      ) noexcept{}
   context(gbstd::string_view  sv) noexcept: m_name(sv){}
@@ -113,6 +117,19 @@ public:
   void  remove() noexcept;
 
   void  ready_to_step() noexcept{m_calling_count = 0;}
+
+  template<typename  CTX, typename  T>
+  void  set_callback(void  (*callback)(CTX&  ctx, T*  data), T*  data) noexcept
+  {
+      if(std::is_base_of<context,CTX>::value)
+      {
+        m_callback = reinterpret_cast<void(*)(context&,void*)>(callback);
+        m_data     = data;
+      }
+  }
+
+
+  void  execute_callback() noexcept{if(m_callback){m_callback(*this,m_data);}}
 
   virtual void  step() noexcept{}
 

@@ -14,6 +14,7 @@ set(SOURCES
   lady.cpp
   lady_monitor.cpp
   item.cpp
+  boy.cpp
   wall.cpp
   meat.cpp
   bullet.cpp

@@ -14,8 +14,6 @@ lady_monitor(lady&  lady, int  x, int  y) noexcept:
 m_target(&lady)
 {
   set_base_point(x,y);
-
-  show();
 }
 
 
@@ -32,12 +30,13 @@ render(point  offset, image_cursor  cur) noexcept
              :(l == 2)? point(48*3,48*3)
              :(l == 3)? point(48*2,48*3)
              :(l == 4)? point(48*1,48*3)
-             :          point(48*0,48*3);
+             :(l == 5)? point(48*5,48*3)
+             :          point(48*5,48*2);
 
   images::paste(g_image,rectangle(pt.x,pt.y,48,48),cur+(offset+get_base_point()));
 
 
-    if(l > 1)
+    if((l > 1) && (l < 5))
     {
       l -= 2;
 

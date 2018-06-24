@@ -9,13 +9,40 @@ namespace routines{
 
 
 
+void
 chooser_context::
-chooser_context(std::initializer_list<gbstd::string_view>  ls) noexcept
+initialize(std::initializer_list<gbstd::string_view>  ls) noexcept
 {
+  m_index = 0;
+
+  int  y = 0;
+
+  m_cursor = spaces::image_object(g_misc_image,rectangle(0,0,24,24),point(-28,4));
+
+  m_cursor.set_base_point(80,y);
+
+  g_object_space.append(m_cursor);
+
     for(auto&  sv: ls)
     {
-      m_text_list.emplace_back(sv);
+      m_text_objects.emplace_back(sv,styles::a_white_based_text_style);
+
+      auto&  to = m_text_objects.back();
+
+      to.set_base_point(80,y);
+
+      y += 24;
     }
+
+
+
+    for(auto&  to: m_text_objects)
+    {
+      g_object_space.append(to);
+    }
+
+
+  g_object_space_validity.enable();
 }
 
 
@@ -28,8 +55,10 @@ clean() noexcept
     for(auto&  to: m_text_objects)
     {
       to.die();
-    }  
+    }
 
+
+  m_text_objects.clear();
 
   m_cursor.die();
 }
@@ -39,70 +68,31 @@ void
 chooser_context::
 step() noexcept
 {
-  int  i;
-  int  y;
-
-    switch(get_pc())
+    if(g_modified_input.test_up_button() && g_input.test_up_button() && m_index)
     {
-  case(0):
-      m_index = 0;
+      --m_index;
 
-      y = 0;
+      m_cursor.add_base_point_y(-24);
+    }
 
-      m_cursor = spaces::image_object(g_misc_image,rectangle(0,0,24,24),point(-28,4));
+  else
+    if(g_modified_input.test_down_button() && g_input.test_down_button() && (m_index < (m_text_objects.size()-1)))
+    {
+      ++m_index;
 
-      m_cursor.set_base_point(80,y);
+      m_cursor.add_base_point_y(24);
+    }
 
-      g_object_space.append(m_cursor);
+  else
+    if(g_modified_input.test_p_button() && g_input.test_p_button())
+    {
+      end(m_index);
+    }
 
-      i = 0;
-
-        for(auto&  s: m_text_list)
-        {
-          auto&  to = m_text_objects[i++];
-
-          to = spaces::text_object(s,styles::a_white_based_text_style);
-
-          to.set_base_point(80,y);
-
-          y += 24;
-
-          g_object_space.append(to);
-        }
-
-
-      add_pc(1);
-      break;
-  case(1):
-        if(g_modified_input.test_up_button() && g_input.test_up_button() && m_index)
-        {
-          --m_index;
-
-          m_cursor.add_base_point_y(-24);
-        }
-
-      else
-        if(g_modified_input.test_down_button() && g_input.test_down_button() && (m_index < (m_text_list.size()-1)))
-        {
-          ++m_index;
-
-          m_cursor.add_base_point_y(24);
-        }
-
-      else
-        if(g_modified_input.test_p_button() && g_input.test_p_button())
-        {
-          g_object_space.remove_all();
-
-          end(m_index);
-        }
-
-      else
-        if(g_modified_input.test_n_button() && g_input.test_n_button())
-        {
-          end();
-        }
-      break;
+  else
+    if(g_modified_input.test_n_button() && g_input.test_n_button())
+    {
+      end();
     }
 }
 

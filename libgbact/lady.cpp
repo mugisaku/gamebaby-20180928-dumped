@@ -13,6 +13,8 @@ lady::
 lady() noexcept:
 player(4)
 {
+  set_id(player_ids::lady);
+
   set_width( 24);
   set_height(32);
 
@@ -33,6 +35,17 @@ void
 lady::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
+    if(other_side.get_id() == player_ids::boy)
+    {
+        if(m_action != action::meet)
+        {
+          m_action = action::meet;
+
+          set_life_level(5);
+
+          set_kinetic_energy_y(-2);
+        }
+    }
 }
 
 
@@ -85,6 +98,7 @@ do_when_this_is_landing() noexcept
   case(action::walk  ): do_when_action_is_walk();break;
   case(action::turn  ): do_when_action_is_turn();break;
   case(action::eat   ): do_when_action_is_eat();break;
+  case(action::meet  ): do_when_action_is_meet();break;
   case(action::ladder): do_when_action_is_ladder();break;
   case(action::orz   ): do_when_action_is_orz();break;
   case(action::kick  ): do_when_action_is_kick();break;
@@ -423,6 +437,19 @@ do_when_action_is_eat() noexcept
 }
 
 
+void
+lady::
+do_when_action_is_meet() noexcept
+{
+    if(check_last_animated_time(400))
+    {
+        if(get_phase() > 2)
+        {
+        }
+    }
+}
+
+
 
 
 void
@@ -470,7 +497,7 @@ update_graphics() noexcept
 
       rect.w = 24;
 
-      set_rendering_offset(point(-12,-44));
+      set_rendering_offset(point(-12,-46));
 
       break;
   case(action::walk):
@@ -488,13 +515,14 @@ update_graphics() noexcept
 
 
       rect.w = 24;
-      set_rendering_offset(point(-12,-44));
+      set_rendering_offset(point(-12,-46));
       break;
   case(action::turn):
+  case(action::meet):
       src_point = point(48*0,48*1);
 
       rect.w = 24;
-      set_rendering_offset(point(-12,-44));
+      set_rendering_offset(point(-12,-46));
       break;
   case(action::kick):
       src_point = point(48*2,48*2);
@@ -507,21 +535,21 @@ update_graphics() noexcept
                  :              point(48*4,48*2);
 
       rect.w = 48;
-      set_rendering_offset(point(-24,-44));
+      set_rendering_offset(point(-24,-46));
       break;
   case(action::eat):
       src_point = (phase == 0)? point(48*0,48*2)
                  :              point(48*1,48*2);
 
       rect.w = 24;
-      set_rendering_offset(point(-12,-44));
+      set_rendering_offset(point(-12,-46));
       break;
   case(action::ladder):
       src_point = (phase == 0)? point(48*3,48*1)
                  :              point(48*4,48*1);
 
       rect.w = 24;
-      set_rendering_offset(point(-12,-44));
+      set_rendering_offset(point(-12,-46));
       break;
     }
 

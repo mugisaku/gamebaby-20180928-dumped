@@ -47,16 +47,16 @@ public:
 class
 chooser_context: public programs::context
 {
-  std::vector<gbstd::string>  m_text_list;
-
-  std::array<spaces::text_object,8>  m_text_objects;
+  std::vector<spaces::text_object>  m_text_objects;
 
   spaces::image_object  m_cursor;
 
   int  m_index;
-  
+
 public:
-  chooser_context(std::initializer_list<gbstd::string_view>  ls={}) noexcept;
+  void  initialize(std::initializer_list<gbstd::string_view>  ls={}) noexcept;
+
+  int  get_index() const noexcept{return m_index;}
 
   void  step() noexcept override;
 
@@ -83,23 +83,12 @@ indication_context: public programs::context
   uint32_t  m_wait_time=100;
   uint32_t  m_next_time=  0;
 
-  void  (*m_callback)(indication_context&  ctx, void*  data)=nullptr;
-
-  void*  m_data;
-
   void  update() noexcept;
 
 public:
   indication_context(rectangle  rect=rectangle()) noexcept;
 
   void  initialize(rectangle  rect) noexcept;
-
-  template<typename  T>
-  void  set_callback(void  (*callback)(indication_context&  ctx, T*  data), T*  data) noexcept
-  {
-    m_callback = reinterpret_cast<void(*)(indication_context&,void*)>(callback);
-    m_data     = data;
-  }
 
   point  get_point(              ) const noexcept{return m_point-static_cast<const point&>(m_rectangle);}
   void   set_point(int  x, int  y)       noexcept;
@@ -167,9 +156,11 @@ play_context: public programs::context
 
   characters::lady          m_lady;
   characters::lady_monitor  m_lady_monitor;
-//  characters::lady  m_boy;
+  characters::boy           m_boy;
 
   uint32_t  m_time;
+
+  static void  callback(indication_context&  ctx, play_context*  play) noexcept;
 
 public:
   void  step() noexcept override;

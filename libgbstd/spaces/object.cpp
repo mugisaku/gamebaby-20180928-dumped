@@ -11,6 +11,30 @@ namespace spaces{
 
 void
 object::
+be_alive(uint32_t&  v) noexcept
+{
+    if(!m_dieing_counter)
+    {
+      m_dieing_counter = &v;
+    }
+}
+
+
+void
+object::
+die() noexcept
+{
+    if(m_dieing_counter)
+    {
+      (*m_dieing_counter) += 1;
+
+      m_dieing_counter = nullptr;
+    }
+}
+
+
+void
+object::
 update_base_point() noexcept
 {
   m_last_area = m_area;
