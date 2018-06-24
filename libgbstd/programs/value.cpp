@@ -112,6 +112,21 @@ clear() noexcept
 }
 
 
+void
+value::
+print() const noexcept
+{
+    switch(m_kind)
+    {
+  case(kind::null): printf("null()");break;
+  case(kind::integer): printf("integer(%d)",m_data.i);break;
+  case(kind::string ): printf("string(%s)",m_data.s.data());break;
+  case(kind::keyboard): printf("keyboard()");break;
+  default: printf("unknown");break;
+    }
+}
+
+
 
 
 }}

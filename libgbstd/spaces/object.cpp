@@ -9,6 +9,78 @@ namespace spaces{
 
 
 
+/*
+object&
+object::
+assign(object&&  rhs) noexcept
+{
+    if(this != &rhs)
+    {
+      m_name = std::move(rhs.m_name);
+
+      m_base_point      = rhs.m_base_point;
+      m_last_base_point = rhs.m_last_base_point;
+
+      m_offset = rhs.m_offset;
+
+      m_width  = rhs.m_width;
+      m_height = rhs.m_height;
+
+      m_kinetic_energy = rhs.m_kinetic_energy;
+
+      m_area = rhs.m_area;
+      m_last_area = rhs.m_last_area;
+
+      std::swap(m_dieing_counter,rhs.m_dieing_counter);
+
+      m_rendering_counter = rhs.m_rendering_counter;
+
+      m_state =  = rhs.m_stte;
+    }
+
+
+  return *this;
+}
+
+
+object&
+object::
+assign(const object&  rhs) noexcept
+{
+    if(this != &rhs)
+    {
+      die();
+
+      m_name = rhs.m_name;
+
+      m_base_point      = rhs.m_base_point;
+      m_last_base_point = rhs.m_last_base_point;
+
+      m_offset = rhs.m_offset;
+
+      m_width  = rhs.m_width;
+      m_height = rhs.m_height;
+
+      m_kinetic_energy = rhs.m_kinetic_energy;
+
+      m_area = rhs.m_area;
+      m_last_area = rhs.m_last_area;
+
+      m_dieing_counter,rhs.m_dieing_counter);
+
+      m_rendering_counter = rhs.m_rendering_counter;
+
+      m_state =  = rhs.m_stte;
+    }
+
+
+  return *this;
+}
+*/
+
+
+
+
 void
 object::
 be_alive(uint32_t&  v) noexcept

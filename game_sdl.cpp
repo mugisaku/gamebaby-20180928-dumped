@@ -91,18 +91,21 @@ step() noexcept
     switch(get_pc())
     {
   case(0):
-      g_object_space_validity.enable();
-      g_board_view_validity.enable();
+        if(!g_input.test_p_button())
+        {
+          g_object_space_validity.enable();
+          g_board_view_validity.enable();
 
-      m_chooser_context.initialize({
-        "EDIT",
-        "PLAY"
-      });
+          m_chooser_context.initialize({
+            "EDIT",
+            "PLAY"
+          });
 
 
-      call(m_chooser_context);
+          call(m_chooser_context);
 
-      add_pc(1);
+          add_pc(1);
+        }
       break;
   case(1):
       m_chooser_context.clean();

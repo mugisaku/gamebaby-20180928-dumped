@@ -26,6 +26,20 @@ player(4)
 
 void
 lady::
+initialize() noexcept
+{
+  character::initialize();
+
+  m_action = action::stand;
+
+  reset_phase();
+
+  set_life_level(4);
+}
+
+
+void
+lady::
 do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
 }
@@ -35,7 +49,7 @@ void
 lady::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
-    if(other_side.get_id() == player_ids::boy)
+    if((other_side.get_id() == player_ids::boy) && other_side.is_landing())
     {
         if(m_action != action::meet)
         {
@@ -110,6 +124,12 @@ void
 lady::
 do_when_this_is_floating() noexcept
 {
+    if(g_input.test_n_button())
+    {
+      m_action = action::orz;
+
+      set_life_level(0);
+    }
 }
 
 

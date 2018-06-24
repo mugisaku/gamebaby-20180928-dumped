@@ -55,6 +55,20 @@ public:
   m_height(rect.h){}
 
 
+/*
+  object(      object&&  rhs) noexcept{*this = std::move(rhs);}
+  object(const object&   rhs) noexcept{*this = rhs;}
+
+
+  object&  operator=(      object&&  rhs) noexcept{assign(std::move(rhs));}
+  object&  operator=(const object&   rhs) noexcept{assign(rhs);}
+
+
+  object&  assign(      object&&  rhs) noexcept;
+  object&  assign(const object&   rhs) noexcept;
+*/
+
+
   void                  set_name(gbstd::string_view  sv)       noexcept{       m_name = sv;}
   const gbstd::string&  get_name(                      ) const noexcept{return m_name     ;}
 
@@ -258,20 +272,26 @@ public:
 
   void  append(T&  o) noexcept
   {
-    m_current_list->emplace_back(element{&o,nullptr});
+      if(!o.is_alive())
+      {
+        m_current_list->emplace_back(element{&o,nullptr});
 
-    o.be_alive(m_dieing_counter);
+        o.be_alive(m_dieing_counter);
 
-    o.update_area();
+        o.update_area();
+      }
   }
 
   void  append_with_deleter(T&  o, void  (*deleter)(T*  ptr)=&default_deleter) noexcept
   {
-    m_current_list->emplace_back(element{&o,deleter});
+      if(!o.is_alive())
+      {
+        m_current_list->emplace_back(element{&o,deleter});
 
-    o.be_alive(m_dieing_counter);
+        o.be_alive(m_dieing_counter);
 
-    o.update_area();
+        o.update_area();
+      }
   }
 
   void  remove_all() noexcept

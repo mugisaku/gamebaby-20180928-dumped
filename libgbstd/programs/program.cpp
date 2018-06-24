@@ -70,9 +70,9 @@ step() noexcept
 
     if(m_top->is_ended())
     {
-      auto  v = m_top->get_end_value();
+      auto&  v = m_top->get_end_value();
 
-      pop(std::move(v));
+      pop(value(v));
     }
 }
 

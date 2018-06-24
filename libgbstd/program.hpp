@@ -66,6 +66,8 @@ public:
   const gbstd::string&  get_string()  const noexcept{return m_data.s;}
   keyboard              get_keyboard()  const noexcept{return m_data.kbd;}
 
+  void  print() const noexcept;
+
 };
 
 
@@ -107,8 +109,8 @@ public:
 
   void  reset(programs::program&  program) noexcept;
 
-  void   set_end_value(value&&  v) noexcept{m_end_value = std::move(v);}
-  value  get_end_value(          ) noexcept{return std::move(m_end_value);}
+  void          set_end_value(value&&  v)       noexcept{       m_end_value = std::move(v);}
+  const value&  get_end_value(          ) const noexcept{return m_end_value               ;}
 
   void  call(context&  ctx) noexcept;
 

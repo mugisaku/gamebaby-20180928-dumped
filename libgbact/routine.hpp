@@ -158,7 +158,7 @@ play_context: public programs::context
   characters::lady_monitor  m_lady_monitor;
   characters::boy           m_boy;
 
-  uint32_t  m_time;
+  uint32_t  m_timer;
 
   static void  callback(indication_context&  ctx, play_context*  play) noexcept;
 

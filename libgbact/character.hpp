@@ -261,17 +261,11 @@ player: public character
 
   int  m_blocking_bits=0;
 
-  bool  m_invincible=false;
-
 public:
   player(int  life=1) noexcept: m_life_level(life){get_physics().enable();}
 
   void      set_id(uint32_t  id)       noexcept{       m_id = id;}
   uint32_t  get_id(            ) const noexcept{return m_id     ;}
-
-  bool     is_invincible() const noexcept{return m_invincible;}
-  void    set_invincible() noexcept{m_invincible =  true;}
-  void  unset_invincible() noexcept{m_invincible = false;}
 
   int   get_blocking_bits(      ) const noexcept{return m_blocking_bits    ;}
   void  set_blocking_bits(int  v)       noexcept{       m_blocking_bits = v;}
@@ -408,6 +402,8 @@ lady: public player
 
 public:
   lady() noexcept;
+
+  void  initialize() noexcept override;
 
   void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;

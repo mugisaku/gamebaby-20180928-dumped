@@ -40,6 +40,9 @@ step() noexcept
       g_character_space_validity.enable();
       g_object_space_validity.enable();
 
+      m_lady = characters::lady();
+      m_boy  =  characters::boy();
+
       m_lady_monitor = characters::lady_monitor(m_lady,0,0);
 
       g_object_space.append(m_lady_monitor);
@@ -47,10 +50,9 @@ step() noexcept
       add_pc(1);
       break;
   case(1):
-      m_lady = characters::lady();
-      m_boy  =  characters::boy();
-
+      m_lady.initialize();
       m_lady.set_base_point(100,120);
+
       m_boy.set_base_point(200,120);
 
       g_character_space.append(m_lady);
@@ -66,11 +68,23 @@ step() noexcept
 
       g_board_view.chase_object(m_lady,4);
 
-        if(!m_lady.is_alive())
+        if(!m_lady.is_alive() || (m_lady.get_life_level() == 5))
         {
-          m_boy.die();
+          m_timer = g_time+1000;
 
+          set_pc(3);
+        }
+      break;
+  case(3):
+        if(g_time >= m_timer)
+        {
           set_pc(4);
+        }
+
+      else
+        {
+          g_object_space.update();
+          g_character_space.update();
         }
       break;
   case(4):
@@ -88,6 +102,8 @@ step() noexcept
         }
       break;
   case(5):
+      m_chooser_context.clean();
+
         if(get_end_value().is_integer())
         {
             if(get_end_value().get_integer() == 0)

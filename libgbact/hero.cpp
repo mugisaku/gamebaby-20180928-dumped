@@ -219,7 +219,7 @@ void
 hero::
 do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
-    if(!is_invincible() && (this != other_side.get_shooter()) && !is_blinking())
+    if((this != other_side.get_shooter()) && !is_blinking())
     {
       add_life_level(-1);
 
@@ -232,7 +232,7 @@ void
 hero::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
-    if(!is_invincible() && !is_blinking())
+    if(!is_blinking())
     {
       add_life_level(-1);
 

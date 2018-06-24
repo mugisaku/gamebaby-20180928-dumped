@@ -50,6 +50,23 @@ initialize() noexcept
   m_life_area.left   = 0;
   m_life_area.right  = g_board.get_image_width();
   m_life_area.bottom = g_board.get_image_height();
+
+  m_creation_time = g_time;
+
+  m_left_contacted_square   = nullptr;
+  m_right_contacted_square  = nullptr;
+  m_top_contacted_square    = nullptr;
+  m_bottom_contacted_square = nullptr;
+
+  m_current_square = nullptr;
+
+  m_blinking_status.valid    = false;
+  m_blinking_status.visible  = false;
+  m_blinking_status.end_time = 0;
+
+  m_holding = false;
+
+  set_kinetic_energy(0,0);
 }
 
 

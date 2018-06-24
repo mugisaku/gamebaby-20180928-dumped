@@ -36,9 +36,9 @@ void
 player::
 knockback() noexcept
 {
-  add_base_point(real_point((get_direction() == direction::left)? 8:-8,-4));
+  add_base_point(real_point((get_direction() == direction::left)? 2:-2,-4));
 
-  set_kinetic_energy(real_point((get_direction() == direction::left)? 8:-8,-4));
+  set_kinetic_energy(real_point((get_direction() == direction::left)? 2:-2,-4));
 
   blink(2000);
 }
