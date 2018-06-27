@@ -11,6 +11,9 @@
 extern int  g_screen_width ;
 extern int  g_screen_height;
 
+extern int  g_board_width ;
+extern int  g_board_height;
+
 extern validity  g_object_space_validity;
 extern validity  g_character_space_validity;
 extern validity  g_board_view_validity;
@@ -24,6 +27,14 @@ g_board;
 
 extern boards::board_view
 g_board_view;
+
+
+extern std::vector<gbact::stages::stage>
+g_stage_table;
+
+
+extern int
+g_stage_index;
 
 
 namespace gbact{
@@ -134,7 +145,11 @@ edit_context: public programs::context
   spaces::image_object  m_dst_square_cursor;
 
   boards::square*  get_square() const noexcept;
-  square_data*     get_square_data() const noexcept;
+  prop             get_prop() const noexcept;
+
+  void  initialize() noexcept;
+
+  void  save() noexcept;
 
   void  update() noexcept;
 
@@ -154,13 +169,16 @@ play_context: public programs::context
 {
   chooser_context  m_chooser_context;
 
-  characters::lady          m_lady;
   characters::lady_monitor  m_lady_monitor;
-  characters::boy           m_boy;
+
+  character_set  m_character_set;
 
   uint32_t  m_timer;
 
   static void  callback(indication_context&  ctx, play_context*  play) noexcept;
+
+  void   load_stage() noexcept;
+  void  clean_stage() noexcept;
 
 public:
   void  step() noexcept override;

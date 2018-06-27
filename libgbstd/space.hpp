@@ -343,14 +343,13 @@ public:
                   {
                     e.deleter(e.data);
                   }
-
-
-                --m_dieing_counter;
               }
           }
 
 
         std::swap(m_main_list,m_keep_list);
+
+        m_dieing_counter = 0;
       }
   }
 

@@ -37,6 +37,20 @@ boy() noexcept
 
 void
 boy::
+reset() noexcept
+{
+  character::initialize();
+
+  reset_phase();
+
+  set_kinetic_energy(0,0);
+
+  blink(0);
+}
+
+
+void
+boy::
 do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
   knockback();

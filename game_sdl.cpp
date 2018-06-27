@@ -22,6 +22,8 @@ using namespace gbact;
 int  g_screen_width  = 288;
 int  g_screen_height = 240;
 
+int  g_board_width  = 12;
+int  g_board_height = 10;
 
 uint32_t  g_time = 0;
 
@@ -52,6 +54,14 @@ g_board;
 
 boards::board_view
 g_board_view;
+
+
+std::vector<gbact::stages::stage>
+g_stage_table(1);
+
+
+int
+g_stage_index;
 
 
 validity  g_object_space_validity;
@@ -218,7 +228,7 @@ main(int  argc, char**  argv)
 
   using stage = gbact::stages::stage;
 
-  g_board.build(12,10,gbact::g_square_size,stages::g_square_data_set[0]);
+  g_board.build(g_board_width,g_board_height,gbact::g_square_size,stages::g_square_data_set[0]);
 
   g_board.put_to_around(stages::g_square_data_set[1]);
 

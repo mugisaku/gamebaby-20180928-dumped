@@ -15,6 +15,8 @@ clean() noexcept
 {
   m_chooser_context.clean();
 
+  clean_stage();
+
   g_object_space.remove_all();
   g_character_space.remove_all();
 }
@@ -24,6 +26,59 @@ void
 play_context::
 callback(indication_context&  ctx, play_context*  play) noexcept
 {
+}
+
+
+void
+play_context::
+load_stage() noexcept
+{
+  auto&  stg = g_stage_table[g_stage_index];
+
+  stg.restore(m_character_set);
+
+  m_character_set.m_lady.reset();
+  m_character_set.m_boy.reset();
+
+  g_character_space.append(m_character_set.m_lady);
+  g_character_space.append(m_character_set.m_boy);
+
+    for(auto&  meat: m_character_set.m_meats)
+    {
+      g_character_space.append(meat);
+    }
+
+
+    for(auto&  wall: m_character_set.m_walls)
+    {
+      g_character_space.append(wall);
+    }
+}
+
+
+void
+play_context::
+clean_stage() noexcept
+{
+  m_character_set.m_lady.die();
+  m_character_set.m_boy.die();
+
+    for(auto&  meat: m_character_set.m_meats)
+    {
+      meat.die();
+    }
+
+
+    for(auto&  wall: m_character_set.m_walls)
+    {
+      wall.die();
+    }
+
+
+  m_character_set.m_meats.clear();
+  m_character_set.m_walls.clear();
+
+  g_character_space.clean_dead_object();
 }
 
 
@@ -40,23 +95,18 @@ step() noexcept
       g_character_space_validity.enable();
       g_object_space_validity.enable();
 
-      m_lady = characters::lady();
-      m_boy  =  characters::boy();
+      m_character_set.m_lady = characters::lady();
+      m_character_set.m_boy  =  characters::boy();
 
-      m_lady_monitor = characters::lady_monitor(m_lady,0,0);
+      m_lady_monitor = characters::lady_monitor(m_character_set.m_lady,0,0);
 
       g_object_space.append(m_lady_monitor);
 
       add_pc(1);
       break;
   case(1):
-      m_lady.initialize();
-      m_lady.set_base_point(100,120);
-
-      m_boy.set_base_point(200,120);
-
-      g_character_space.append(m_lady);
-      g_character_space.append(m_boy);
+      clean_stage();
+       load_stage();
 
       add_pc(1);
       break;
@@ -66,9 +116,9 @@ step() noexcept
 
       g_character_space.detect_collision();
 
-      g_board_view.chase_object(m_lady,4);
+      g_board_view.chase_object(m_character_set.m_lady,4);
 
-        if(!m_lady.is_alive() || (m_lady.get_life_level() == 5))
+        if(!m_character_set.m_lady.is_alive() || (m_character_set.m_lady.get_life_level() == 5))
         {
           m_timer = g_time+1000;
 

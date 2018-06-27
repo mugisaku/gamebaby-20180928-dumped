@@ -16,32 +16,21 @@ extern std::vector<square_data>
 g_square_data_set;
 
 
-enum class
-prop_kind
-{
-  block,
-  player,
-  item,
-
-};
-
-
 class
 prop
 {
-  prop_kind  m_kind;
-
-  int  m_index;
+  int   m_block_index=0;
+  int  m_object_index=0;
 
 public:
-  constexpr prop(prop_kind  k=prop_kind::block, int  i=0) noexcept:
-  m_kind(k), m_index(i){}
+  prop() noexcept{}
+  prop(int  blki, int  obji) noexcept: m_block_index(blki), m_object_index(obji){}
 
-  constexpr bool  is_block()  const noexcept{return m_kind == prop_kind::block;}
-  constexpr bool  is_player() const noexcept{return m_kind == prop_kind::player;}
-  constexpr bool  is_item()   const noexcept{return m_kind == prop_kind::item;}
+  int  get_block_index() const noexcept{return m_block_index;}
+  int  get_object_index() const noexcept{return m_object_index;}
 
-  constexpr int  get_index() const noexcept{return m_index;}
+  void  set_block_index(int  i) noexcept{m_block_index = i;}
+  void  set_object_index(int  i) noexcept{m_object_index = i;}
 
 };
 
@@ -57,9 +46,11 @@ stage
   prop*  m_lady_prop=nullptr;
   prop*  m_boy_prop=nullptr;
 
+  point  m_lady_point;
+  point   m_boy_point;
+
 public:
-  stage() noexcept{}
-  stage(int  w, int  h) noexcept{resize(w,h);}
+  stage() noexcept;
 
   void  resize(int  w, int  h) noexcept;
 
@@ -72,13 +63,27 @@ public:
   const prop*  get_lady_prop() const noexcept{return m_lady_prop;}
   const prop*  get_boy_prop() const noexcept{return m_boy_prop;}
 
+  point  get_lady_point() const noexcept{return m_lady_point;}
+  point  get_boy_point() const noexcept{return m_boy_point;}
+
   void  set_prop(const prop&  pr, int  x, int  y) noexcept;
+
+  void  set_block_index(int  i, int  x, int  y) noexcept;
+  void  set_object(     int  i, int  x, int  y) noexcept;
+
+  void  restore(character_set&  chset) const noexcept;
 
 };
 
 
 
 }
+
+
+using prop = stages::prop;
+using stage = stages::stage;
+
+
 }
 
 

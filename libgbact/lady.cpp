@@ -26,7 +26,7 @@ player(4)
 
 void
 lady::
-initialize() noexcept
+reset() noexcept
 {
   character::initialize();
 
@@ -35,6 +35,10 @@ initialize() noexcept
   reset_phase();
 
   set_life_level(4);
+
+  set_kinetic_energy(0,0);
+
+  blink(0);
 }
 
 

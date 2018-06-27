@@ -43,15 +43,15 @@ get_square() const noexcept
 }
 
 
-square_data*
+prop
 edit_context::
-get_square_data() const noexcept
+get_prop() const noexcept
 {
   auto  pt = m_src_indication_context.get_point();
 
   int  x = pt.x/g_square_size;
 
-  return &stages::g_square_data_set[x];
+  return prop(0,x);
 }
 
 
@@ -87,12 +87,7 @@ dst_callback(indication_context&  ctx, edit_context*  ed) noexcept
 
         if(sq)
         {
-          auto  dat = ed->get_square_data();
-
-            if(dat)
-            {
-              sq->set_data(*dat);
-            }
+          auto  pr = ed->get_prop();
         }
     }
 
@@ -123,6 +118,53 @@ update() noexcept
 
 void
 edit_context::
+save() noexcept
+{
+}
+
+
+void
+edit_context::
+initialize() noexcept
+{
+  g_object_space.remove_all();
+
+  g_board_view.set_offset(0,0);
+
+  m_square_data_display_rectangle = rectangle(0,0,(g_square_size*stages::g_square_data_set.size())-24,g_square_size-24);
+
+  m_src_indication_context.initialize(m_square_data_display_rectangle);
+
+  m_src_indication_context.set_callback(src_callback,this);
+
+  m_src_indication_context.set_speed(g_square_size);
+
+  m_dst_indication_context.initialize(rectangle(0,48,g_screen_width-24,g_screen_height-48-24));
+
+  m_dst_indication_context.set_callback(dst_callback,this);
+
+  m_dst_indication_context.set_speed(g_square_size);
+
+
+  m_src_square_cursor = spaces::image_object(g_misc_image,rectangle(24,0,24,24),point());
+  m_dst_square_cursor = spaces::image_object(g_misc_image,rectangle(24,0,24,24),point());
+
+
+  m_src_indication_context.hide_hand_cursor();
+  m_dst_indication_context.hide_hand_cursor();
+
+  m_src_square_cursor.show();
+
+  g_object_space.append(m_src_square_cursor);
+  g_object_space.append(m_dst_square_cursor);
+  g_object_space.append(m_square_data_display);
+
+  
+}
+
+
+void
+edit_context::
 clean() noexcept
 {
   m_src_indication_context.clean();
@@ -139,37 +181,7 @@ step() noexcept
     switch(get_pc())
     {
   case(0):
-      g_object_space.remove_all();
-
-      g_board_view.set_offset(0,0);
-
-      m_square_data_display_rectangle = rectangle(0,0,(g_square_size*stages::g_square_data_set.size())-24,g_square_size-24);
-
-      m_src_indication_context.initialize(m_square_data_display_rectangle);
-
-      m_src_indication_context.set_callback(src_callback,this);
-
-      m_src_indication_context.set_speed(g_square_size);
-
-      m_dst_indication_context.initialize(rectangle(0,48,g_screen_width-24,g_screen_height-48-24));
-
-      m_dst_indication_context.set_callback(dst_callback,this);
-
-      m_dst_indication_context.set_speed(g_square_size);
-
-
-      m_src_square_cursor = spaces::image_object(g_misc_image,rectangle(24,0,24,24),point());
-      m_dst_square_cursor = spaces::image_object(g_misc_image,rectangle(24,0,24,24),point());
-
-
-      m_src_indication_context.hide_hand_cursor();
-      m_dst_indication_context.hide_hand_cursor();
-
-      m_src_square_cursor.show();
-
-      g_object_space.append(m_src_square_cursor);
-      g_object_space.append(m_dst_square_cursor);
-      g_object_space.append(m_square_data_display);
+      initialize();
 
       set_pc(1);
       break;

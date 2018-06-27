@@ -403,7 +403,7 @@ lady: public player
 public:
   lady() noexcept;
 
-  void  initialize() noexcept override;
+  void  reset() noexcept;
 
   void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
@@ -438,6 +438,8 @@ boy: public player
 {
 public:
   boy() noexcept;
+
+  void  reset() noexcept;
 
   void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
@@ -583,6 +585,18 @@ any_character
 
 
 }
+
+
+struct
+character_set
+{
+  characters::lady  m_lady;
+  characters::boy   m_boy;
+
+  std::vector<characters::meat>  m_meats;
+  std::vector<characters::wall>  m_walls;
+
+};
 
 
 using characters::character;
