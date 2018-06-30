@@ -322,6 +322,12 @@ update_core() noexcept
     }
 
 
+    if(is_landing())
+    {
+      set_kinetic_energy_x(0);
+    }
+
+
   m_last_update_time = g_time;
 }
 

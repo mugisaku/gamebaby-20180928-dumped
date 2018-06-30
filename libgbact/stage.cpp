@@ -41,8 +41,8 @@ stage() noexcept
     }
 
 
-  set_prop(prop(0,1),4,4);
-  set_prop(prop(0,2),8,4);
+  put_prop(prop(0,1),4,4);
+  put_prop(prop(0,2),8,4);
 }
 
 
@@ -61,58 +61,53 @@ resize(int  w, int  h) noexcept
 
 void
 stage::
-set_prop(const prop&  pr, int  x, int  y) noexcept
+put_prop(const prop&  pr, int  x, int  y) noexcept
 {
   auto&  dst = get_prop(x,y);
 
-  dst = pr;
+  auto  dst_obji = dst.get_object_index();
+  auto  src_obji =  pr.get_object_index();
 
-    if(dst.get_object_index() == 1)
+    if(src_obji == 0)
     {
+      dst.set_block_index(pr.get_block_index());
+    }
+
+  else
+    if(src_obji == 1)
+    {
+        if(m_lady_prop)
+        {
+          m_lady_prop->set_object_index(0);
+        }
+
+
+      dst.set_object_index(1);
+
       m_lady_prop = &dst;
 
       m_lady_point = point(x,y);
     }
 
   else
-    if(dst.get_object_index() == 2)
+    if(src_obji == 2)
     {
+        if(m_boy_prop)
+        {
+          m_boy_prop->set_object_index(0);
+        }
+
+
+      dst.set_object_index(2);
+
       m_boy_prop = &dst;
 
       m_boy_point = point(x,y);
-    }
-}
-
-
-void
-stage::
-set_block_index(int  i, int  x, int  y) noexcept
-{
-  get_prop(x,y).set_block_index(i);
-}
-
-
-void
-stage::
-set_object(int  i, int  x, int  y) noexcept
-{
-  auto&  dst = get_prop(x,y);
-
-  dst.set_object_index(i);
-
-    if(dst.get_object_index() == 1)
-    {
-      m_lady_prop = &dst;
-
-      m_lady_point = point(x,y);
     }
 
   else
-    if(dst.get_object_index() == 2)
     {
-      m_boy_prop = &dst;
-
-      m_boy_point = point(x,y);
+      dst.set_object_index((dst_obji == src_obji)? 0:src_obji);
     }
 }
 
@@ -131,16 +126,20 @@ restore(character_set&  chset) const noexcept
 
       sq.set_data(g_square_data_set[pr.get_block_index()]);
 
-      real_point  pt(g_square_size*x,g_square_size*y);
+      real_point  pt(g_square_size*x+g_square_size/2,g_square_size*y);
 
       spaces::object*  obj = nullptr;
 
         switch(pr.get_object_index())
         {
       case(1):
+          pt.y += 24;
+
           obj = &chset.m_lady;
           break;
       case(2):
+          pt.y += 24;
+
           obj = &chset.m_boy;
           break;
       case(3):
@@ -149,6 +148,8 @@ restore(character_set&  chset) const noexcept
           obj = &chset.m_meats.back();
           break;
       case(4):
+          pt.y += 24;
+
           chset.m_walls.emplace_back(characters::wall());
 
           obj = &chset.m_walls.back();

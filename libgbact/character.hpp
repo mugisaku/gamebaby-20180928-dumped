@@ -613,6 +613,10 @@ extern spaces::space<spaces::object>
 g_object_space;
 
 
+extern spaces::space<spaces::object>
+g_screen_object_space;
+
+
 
 
 #endif

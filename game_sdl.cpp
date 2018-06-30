@@ -32,6 +32,10 @@ keyboard  g_modified_input;
 keyboard           g_input;
 
 
+point
+g_object_space_offset;
+
+
 images::image
 g_bg_image;
 
@@ -46,6 +50,10 @@ g_character_space;
 
 spaces::space<spaces::object>
 g_object_space;
+
+
+spaces::space<spaces::object>
+g_screen_object_space;
 
 
 boards::board
@@ -64,6 +72,7 @@ int
 g_stage_index;
 
 
+validity  g_screen_object_space_validity;
 validity  g_object_space_validity;
 validity  g_character_space_validity;
 validity  g_board_view_validity;
@@ -120,10 +129,18 @@ step() noexcept
   case(1):
       m_chooser_context.clean();
 
-        switch(get_end_value().get_integer())
+        if(get_end_value().is_integer())
         {
-      case(0): call(m_edit_context);  set_pc(2);break;
-      case(1): call(m_play_context);  set_pc(3);break;
+            switch(get_end_value().get_integer())
+            {
+          case(0): call(m_edit_context);  set_pc(2);break;
+          case(1): call(m_play_context);  set_pc(3);break;
+            }
+        }
+
+      else
+        {
+          set_pc(0);
         }
       break;
   case(2):
@@ -182,7 +199,13 @@ main_loop() noexcept
 
         if(g_object_space_validity)
         {
-          g_object_space.render(point(),image_cursor(g_final_image,point(0,0)));
+          g_object_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
+        }
+
+
+        if(g_screen_object_space_validity)
+        {
+          g_screen_object_space.render(point(),image_cursor(g_final_image,point(0,0)));
         }
 
 

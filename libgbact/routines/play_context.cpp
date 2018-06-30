@@ -17,6 +17,7 @@ clean() noexcept
 
   clean_stage();
 
+  g_screen_object_space.remove_all();
   g_object_space.remove_all();
   g_character_space.remove_all();
 }
@@ -60,25 +61,10 @@ void
 play_context::
 clean_stage() noexcept
 {
-  m_character_set.m_lady.die();
-  m_character_set.m_boy.die();
-
-    for(auto&  meat: m_character_set.m_meats)
-    {
-      meat.die();
-    }
-
-
-    for(auto&  wall: m_character_set.m_walls)
-    {
-      wall.die();
-    }
-
-
   m_character_set.m_meats.clear();
   m_character_set.m_walls.clear();
 
-  g_character_space.clean_dead_object();
+  g_character_space.remove_all();
 }
 
 
@@ -86,21 +72,20 @@ void
 play_context::
 step() noexcept
 {
-  auto&  view_off = g_board_view.get_offset();
-
     switch(get_pc())
     {
   case(0):
       g_board_view_validity.enable();
       g_character_space_validity.enable();
       g_object_space_validity.enable();
+      g_screen_object_space_validity.enable();
 
       m_character_set.m_lady = characters::lady();
       m_character_set.m_boy  =  characters::boy();
 
       m_lady_monitor = characters::lady_monitor(m_character_set.m_lady,0,0);
 
-      g_object_space.append(m_lady_monitor);
+      g_screen_object_space.append(m_lady_monitor);
 
       add_pc(1);
       break;
@@ -111,7 +96,14 @@ step() noexcept
       add_pc(1);
       break;
   case(2):
-      g_object_space.update();
+        if(g_input.test_start_button() &&
+           g_modified_input.test_start_button())
+        {
+          character::m_debug = !character::m_debug;
+        }
+
+
+      g_screen_object_space.update();
       g_character_space.update();
 
       g_character_space.detect_collision();
@@ -133,7 +125,7 @@ step() noexcept
 
       else
         {
-          g_object_space.update();
+          g_screen_object_space.update();
           g_character_space.update();
         }
       break;

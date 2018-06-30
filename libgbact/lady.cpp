@@ -168,7 +168,7 @@ do_when_action_is_stand() noexcept
       bullet->set_width( 4);
       bullet->set_height(4);
 
-      bullet->set_life_time(1000);
+      bullet->set_life_time(200);
 
       bullet->get_physics().disable();
 

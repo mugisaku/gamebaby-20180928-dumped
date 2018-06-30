@@ -14,9 +14,9 @@ boy() noexcept
 {
   set_id(player_ids::boy);
 
-  set_width( 24);
-  set_height(48);
-  set_offset(-12,-48);
+  set_width( 4);
+  set_height(32);
+  set_offset(-2,-32);
 
   set_image(g_image);
 

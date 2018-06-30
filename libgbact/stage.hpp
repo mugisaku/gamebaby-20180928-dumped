@@ -66,10 +66,7 @@ public:
   point  get_lady_point() const noexcept{return m_lady_point;}
   point  get_boy_point() const noexcept{return m_boy_point;}
 
-  void  set_prop(const prop&  pr, int  x, int  y) noexcept;
-
-  void  set_block_index(int  i, int  x, int  y) noexcept;
-  void  set_object(     int  i, int  x, int  y) noexcept;
+  void  put_prop(const prop&  pr, int  x, int  y) noexcept;
 
   void  restore(character_set&  chset) const noexcept;
 

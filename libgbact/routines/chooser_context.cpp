@@ -21,7 +21,7 @@ initialize(std::initializer_list<gbstd::string_view>  ls) noexcept
 
   m_cursor.set_base_point(80,y);
 
-  g_object_space.append(m_cursor);
+  g_screen_object_space.append(m_cursor);
 
     for(auto&  sv: ls)
     {
@@ -38,11 +38,11 @@ initialize(std::initializer_list<gbstd::string_view>  ls) noexcept
 
     for(auto&  to: m_text_objects)
     {
-      g_object_space.append(to);
+      g_screen_object_space.append(to);
     }
 
 
-  g_object_space_validity.enable();
+  g_screen_object_space_validity.enable();
 }
 
 

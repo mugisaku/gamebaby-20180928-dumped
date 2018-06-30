@@ -107,7 +107,7 @@ step() noexcept
     switch(get_pc())
     {
   case(0):
-      g_object_space.append(m_hand_cursor);
+      g_screen_object_space.append(m_hand_cursor);
 
       set_pc(1);
       break;

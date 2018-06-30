@@ -9,17 +9,46 @@ namespace routines{
 
 
 
+namespace{
+struct
+entry
+{
+  prop  m_prop;
+
+  const image*  m_image;
+
+  rectangle  m_image_rectangle;
+
+};
+
+
+const entry
+g_entries[] = 
+{
+  {prop(0,0),&g_bg_image,rectangle(24*0,24*0,24,24)},
+  {prop(1,0),&g_bg_image,rectangle(24*0,24*1,24,24)},
+  {prop(2,0),&g_bg_image,rectangle(24*2,24*0,24,24)},
+  {prop(3,0),&g_bg_image,rectangle(24*1,24*0,24,24)},
+  {prop(4,0),&g_bg_image,rectangle(24*1,24*1,24,24)},
+
+  {prop(0,1),&characters::g_image,rectangle(point(24* 0,48*1   ),24,48)},
+  {prop(0,2),&characters::g_image,rectangle(point(24*10,48*0   ),24,48)},
+  {prop(0,3),&characters::g_image,rectangle(point(24*11,48*0+24),24,24)},
+  {prop(0,4),&characters::g_image,rectangle(point(24*11,48*1   ),24,48)},
+
+};
+}
+
+
 void
-edit_context::square_data_display::
+edit_context::entry_display::
 render(point  offset, image_cursor  cur) noexcept
 {
   int  x = 0;
 
-    for(auto&  dat: stages::g_square_data_set)
+    for(auto&  ent: g_entries)
     {
-      auto  pt = dat.get_image_point();
-
-      images::paste(g_bg_image,rectangle(pt,g_square_size,g_square_size),cur+point(x,0));
+      images::paste(*ent.m_image,ent.m_image_rectangle,cur+point(x,0));
 
       x += g_square_size;
     }
@@ -28,9 +57,9 @@ render(point  offset, image_cursor  cur) noexcept
 
 
 
-boards::square*
+point
 edit_context::
-get_square() const noexcept
+get_square_index() const noexcept
 {
   auto  pt = m_dst_indication_context.get_point();
 
@@ -39,7 +68,7 @@ get_square() const noexcept
   int  x = (bv_off.x+pt.x)/g_square_size;
   int  y = (bv_off.y+pt.y)/g_square_size;
 
-  return &g_board.get_square(x,y);
+  return point(x,y);
 }
 
 
@@ -51,7 +80,7 @@ get_prop() const noexcept
 
   int  x = pt.x/g_square_size;
 
-  return prop(0,x);
+  return g_entries[x].m_prop;
 }
 
 
@@ -79,15 +108,73 @@ dst_callback(indication_context&  ctx, edit_context*  ed) noexcept
 
   g_board_view.correct_offset();
 
-  auto  pt = ctx.get_point();
-
     if(g_input.test_p_button())
     {
-      auto  sq = ed->get_square();
+      auto  pt = ed->get_square_index();
 
-        if(sq)
+      auto&  stg = g_stage_table[g_stage_index];
+
+      auto&  sq = g_board.get_square(pt.x,pt.y);
+
+      auto  src_pr = ed->get_prop();
+
+        if(src_pr.get_object_index() == 0)
         {
-          auto  pr = ed->get_prop();
+          sq.set_data(stages::g_square_data_set[src_pr.get_block_index()]);
+        }
+
+
+      stg.put_prop(src_pr,pt.x,pt.y);
+
+
+      auto&  imgo = ed->m_object_table[g_board_width*pt.y+pt.x];
+
+      auto  obji = stg.get_prop(pt.x,pt.y).get_object_index();
+
+      point  obj_pt(g_square_size*pt.x,g_square_size*pt.y);
+
+        if(obji == 0)
+        {
+          imgo.die();
+
+          g_object_space.clean_dead_object();
+        }
+
+      else
+        if(obji == 1)
+        {
+          obj_pt.y += 24;
+
+          ed->m_lady_object.set_base_point(obj_pt);
+        }
+
+      else
+        if(obji == 2)
+        {
+          obj_pt.y += 24;
+
+          ed->m_boy_object.set_base_point(obj_pt);
+        }
+
+      else
+        {
+            if(obji == 3)
+            {
+              imgo = spaces::image_object(characters::g_image,g_entries[7].m_image_rectangle,point());
+            }
+
+          else
+            if(obji == 4)
+            {
+              obj_pt.y -= 24;
+
+              imgo = spaces::image_object(characters::g_image,g_entries[8].m_image_rectangle,point());
+            }
+
+
+          imgo.set_base_point(obj_pt);
+
+          g_object_space.append(imgo);
         }
     }
 
@@ -127,13 +214,13 @@ void
 edit_context::
 initialize() noexcept
 {
-  g_object_space.remove_all();
+  m_object_table.resize(g_board_width*g_board_height);
 
   g_board_view.set_offset(0,0);
 
-  m_square_data_display_rectangle = rectangle(0,0,(g_square_size*stages::g_square_data_set.size())-24,g_square_size-24);
+  m_display_rectangle = rectangle(0,0,(g_square_size*(stages::g_square_data_set.size()+4))-24,g_square_size-24);
 
-  m_src_indication_context.initialize(m_square_data_display_rectangle);
+  m_src_indication_context.initialize(m_display_rectangle);
 
   m_src_indication_context.set_callback(src_callback,this);
 
@@ -155,11 +242,70 @@ initialize() noexcept
 
   m_src_square_cursor.show();
 
-  g_object_space.append(m_src_square_cursor);
-  g_object_space.append(m_dst_square_cursor);
-  g_object_space.append(m_square_data_display);
 
-  
+  m_lady_object = spaces::image_object(characters::g_image,g_entries[5].m_image_rectangle,point(0,-48));
+  m_boy_object  = spaces::image_object(characters::g_image,g_entries[6].m_image_rectangle,point(0,-48));
+
+
+  auto&  stg = g_stage_table[g_stage_index];
+
+    for(int  y = 0;  y < stg.get_height();  ++y){
+    for(int  x = 0;  x < stg.get_width() ;  ++x){
+      auto&  pr = stg.get_prop(x,y);
+
+      point  pt(g_square_size*x,g_square_size*y);
+
+      auto&  o = m_object_table[g_board_width*y+x];
+
+        switch(pr.get_object_index())
+        {
+      case(1):
+          pt.y -= 24;
+
+          m_lady_object.set_base_point(pt);
+
+          g_object_space.append(m_lady_object);
+          break;
+      case(2):
+          pt.y -= 24;
+          m_boy_object.set_base_point(pt);
+
+          g_object_space.append(m_boy_object);
+          break;
+      case(3):
+          o = spaces::image_object(characters::g_image,g_entries[7].m_image_rectangle,point());
+
+          o.set_base_point(pt);
+
+          g_object_space.append(o);
+          break;
+      case(4):
+          pt.y -= 24;
+
+          o = spaces::image_object(characters::g_image,g_entries[8].m_image_rectangle,point());
+
+          o.set_base_point(pt);
+
+          g_object_space.append(o);
+          break;
+        }
+    }}
+
+   
+  auto  lady_pt = stg.get_lady_point();
+  auto   boy_pt = stg.get_boy_point();
+
+  m_lady_object.set_base_point(point(g_square_size*lady_pt.x,g_square_size*lady_pt.y));
+  m_boy_object.set_base_point(point(g_square_size*boy_pt.x,g_square_size*boy_pt.y));
+
+  g_object_space.append(m_lady_object);
+  g_object_space.append(m_boy_object);
+
+
+  g_screen_object_space.append(m_src_square_cursor);
+  g_screen_object_space.append(m_dst_square_cursor);
+  g_screen_object_space.append(m_entry_display);
+ 
 }
 
 
@@ -170,6 +316,7 @@ clean() noexcept
   m_src_indication_context.clean();
   m_dst_indication_context.clean();
 
+  g_screen_object_space.remove_all();
   g_object_space.remove_all();
 }
 

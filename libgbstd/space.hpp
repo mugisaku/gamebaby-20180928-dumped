@@ -18,7 +18,7 @@ class object;
 class
 object
 {
-  gbstd::string  m_name;
+  const char*  m_name;
 
   real_point       m_base_point;
   real_point  m_last_base_point;
@@ -69,8 +69,8 @@ public:
 */
 
 
-  void                  set_name(gbstd::string_view  sv)       noexcept{       m_name = sv;}
-  const gbstd::string&  get_name(                      ) const noexcept{return m_name     ;}
+  void                set_name(const char*  name)       noexcept{m_name = name;}
+  gbstd::string_view  get_name(                 ) const noexcept{return gbstd::string_view(m_name);}
 
   bool    is_alive() const noexcept{return m_dieing_counter;}
   bool   is_frozen() const noexcept{return m_state&flags::frozen;}

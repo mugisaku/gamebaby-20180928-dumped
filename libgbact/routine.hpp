@@ -14,6 +14,7 @@ extern int  g_screen_height;
 extern int  g_board_width ;
 extern int  g_board_height;
 
+extern validity  g_screen_object_space_validity;
 extern validity  g_object_space_validity;
 extern validity  g_character_space_validity;
 extern validity  g_board_view_validity;
@@ -126,26 +127,34 @@ class
 edit_context: public programs::context
 {
   class
-  square_data_display: public spaces::object
+  entry_display: public spaces::object
   {
   public:
     void  render(point  offset, image_cursor  cur) noexcept override;
 
-  } m_square_data_display;
+  } m_entry_display;
 
 
   routines::indication_context  m_src_indication_context;
   routines::indication_context  m_dst_indication_context;
 
-  rectangle  m_square_data_display_rectangle;
+  rectangle  m_display_rectangle;
 
   spaces::image_object  m_character_image_object;
 
   spaces::image_object  m_src_square_cursor;
   spaces::image_object  m_dst_square_cursor;
 
-  boards::square*  get_square() const noexcept;
-  prop             get_prop() const noexcept;
+
+  spaces::image_object   m_lady_object;
+  spaces::image_object   m_boy_object;
+
+  std::vector<spaces::image_object>  m_object_table;
+
+
+
+  point  get_square_index() const noexcept;
+  prop  get_prop() const noexcept;
 
   void  initialize() noexcept;
 
