@@ -11,15 +11,13 @@ namespace routines{
 
 void
 chooser_context::
-initialize(std::initializer_list<gbstd::string_view>  ls) noexcept
+initialize(std::initializer_list<gbstd::string_view>  ls, int  x, int  y) noexcept
 {
   m_index = 0;
 
-  int  y = 0;
-
   m_cursor = spaces::image_object(g_misc_image,rectangle(0,0,24,24),point(-28,4));
 
-  m_cursor.set_base_point(80,y);
+  m_cursor.set_base_point(x,y);
 
   g_screen_object_space.append(m_cursor);
 
@@ -29,7 +27,7 @@ initialize(std::initializer_list<gbstd::string_view>  ls) noexcept
 
       auto&  to = m_text_objects.back();
 
-      to.set_base_point(80,y);
+      to.set_base_point(x,y);
 
       y += 24;
     }

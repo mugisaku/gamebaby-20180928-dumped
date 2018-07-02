@@ -11,14 +11,14 @@ namespace characters{
 
 lady::
 lady() noexcept:
-player(4)
+player(2)
 {
-  set_id(player_ids::lady);
+  set_minor(player_ids::lady);
 
-  set_width( 24);
+  set_width( 8);
   set_height(32);
 
-  set_offset(-12,-32);
+  set_offset(-4,-32);
 }
 
 
@@ -30,11 +30,12 @@ reset() noexcept
 {
   character::initialize();
 
-  m_action = action::stand;
-
   reset_phase();
 
-  set_life_level(4);
+  set_life_level(3);
+
+  m_action = action::stand;
+  m_state = state::challenging;
 
   set_kinetic_energy(0,0);
 
@@ -53,13 +54,14 @@ void
 lady::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
-    if((other_side.get_id() == player_ids::boy) && other_side.is_landing())
+    if((other_side.get_major() == major_ids::player) &&
+       (other_side.get_minor() == player_ids::boy) && other_side.is_landing())
     {
         if(m_action != action::meet)
         {
           m_action = action::meet;
 
-          set_life_level(5);
+          m_state = state::rejoicing;
 
           set_kinetic_energy_y(-2);
         }
@@ -74,7 +76,7 @@ do_when_collided_with_item(item&  other_side, positions::position  position) noe
     if((m_action == action::stand) ||
        (m_action == action::walk))
     {
-        if(get_life_level() < 5)
+        if(get_life_level() < 2)
         {
           add_life_level(1);
 
@@ -132,6 +134,8 @@ do_when_this_is_floating() noexcept
     {
       m_action = action::orz;
 
+      m_state = state::crying;
+
       set_life_level(0);
     }
 }
@@ -153,17 +157,24 @@ do_when_action_is_stand() noexcept
       bullet->set_callback([](characters::bullet&  bullet, character&  other_side){
         bullet.die();
 
-        auto&  lady = *static_cast<characters::lady*>(bullet.get_shooter());
+          if((other_side.get_major() == major_ids::player) &&
+             (other_side.get_minor() == player_ids::wall))
+          {
+            auto&  lady = *static_cast<characters::lady*>(bullet.get_shooter());
 
-        lady.add_life_level(-1);
+            lady.add_life_level(-1);
+          }
       });
 
+
+
+      bullet->set_minor(bullet_ids::kick);
 
       bullet->set_direction(get_direction());
 
       bullet->set_base_point(get_base_point()+real_point(is_facing_to_right()? 20:-20,-20));
 
-      bullet->set_destructive_power((get_life_level() > 2)? 1:0);
+      bullet->set_destructive_power((get_life_level() > 0)? 1:0);
 
       bullet->set_width( 4);
       bullet->set_height(4);
@@ -260,7 +271,7 @@ do_when_action_is_stand() noexcept
     {
       m_action = action::orz;
 
-      set_life_level(0);
+      m_state = state::crying;
     }
 
 

@@ -16,7 +16,26 @@ class object;
 
 
 class
-object
+object_id
+{
+  int  m_major=0;
+  int  m_minor=0;
+
+public:
+  constexpr object_id() noexcept{}
+  constexpr object_id(int  maj, int  min) noexcept: m_major(maj), m_minor(min){}
+
+  constexpr int  get_major() const noexcept{return m_major;}
+  constexpr int  get_minor() const noexcept{return m_minor;}
+
+  void  set_major(int  n) noexcept{m_major = n;}
+  void  set_minor(int  n) noexcept{m_minor = n;}
+
+};
+
+
+class
+object: public object_id
 {
   const char*  m_name;
 
@@ -417,18 +436,24 @@ public:
           {
             auto  b_current = b_base++;
 
-              while(b_current < end)
+              if(!a_current->data->is_frozen())
               {
-                auto&  a = *static_cast<T*>(a_current->data);
-                auto&  b = *static_cast<T*>(b_current->data);
-
-                  if(area::test_collision(a.get_area(),b.get_area()))
+                  while(b_current < end)
                   {
-                    process_collision(a,b);
+                      if(!b_current->data->is_frozen())
+                      {
+                        auto&  a = *static_cast<T*>(a_current->data);
+                        auto&  b = *static_cast<T*>(b_current->data);
+
+                          if(area::test_collision(a.get_area(),b.get_area()))
+                          {
+                            process_collision(a,b);
+                          }
+                      }
+
+
+                    ++b_current;
                   }
-
-
-                ++b_current;
               }
 
 

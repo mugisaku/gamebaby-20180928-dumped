@@ -1,5 +1,6 @@
 #include"libgbstd/program.hpp"
 #include"libgbstd/task.hpp"
+#include"libgbstd/text.hpp"
 #include"libgbstd/space.hpp"
 #include"libgbstd/board.hpp"
 #include"libgbstd/direction.hpp"
@@ -118,7 +119,7 @@ step() noexcept
           m_chooser_context.initialize({
             "EDIT",
             "PLAY"
-          });
+          },120,120);
 
 
           call(m_chooser_context);
@@ -206,6 +207,14 @@ main_loop() noexcept
         if(g_screen_object_space_validity)
         {
           g_screen_object_space.render(point(),image_cursor(g_final_image,point(0,0)));
+        }
+
+
+        if(characters::character::m_debug)
+        {
+          string_form  sf;
+
+          g_final_image.draw_text(sf("chr %4d",g_character_space.get_main_list().size()),styles::a_white_based_text_style,0,0);
         }
 
 

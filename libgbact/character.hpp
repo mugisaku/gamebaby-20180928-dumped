@@ -63,7 +63,20 @@ public:
 };
 
 
+
+
+namespace major_ids
+{
+  constexpr int  player =  1;
+  constexpr int  bullet =  2;
+  constexpr int    item =  3;
+
+}
+
+
 namespace characters{
+
+
 
 
 extern images::image
@@ -249,23 +262,19 @@ namespace player_ids{
 constexpr uint32_t  unknown = 0;
 constexpr uint32_t     lady = 1;
 constexpr uint32_t      boy = 2;
+constexpr uint32_t     wall = 3;
 }
 
 
 class
 player: public character
 {
-  uint32_t  m_id=0;
-
   int  m_life_level=1;
 
   int  m_blocking_bits=0;
 
 public:
-  player(int  life=1) noexcept: m_life_level(life){get_physics().enable();}
-
-  void      set_id(uint32_t  id)       noexcept{       m_id = id;}
-  uint32_t  get_id(            ) const noexcept{return m_id     ;}
+  player(int  life=1) noexcept;
 
   int   get_blocking_bits(      ) const noexcept{return m_blocking_bits    ;}
   void  set_blocking_bits(int  v)       noexcept{       m_blocking_bits = v;}
@@ -388,6 +397,13 @@ lady: public player
   } m_action=action::stand;
 
 
+  enum class state{
+    challenging,
+    rejoicing,
+    crying,
+  } m_state=state::challenging;
+
+
   void  do_when_this_is_landing() noexcept;
   void  do_when_this_is_floating() noexcept;
 
@@ -402,6 +418,10 @@ lady: public player
 
 public:
   lady() noexcept;
+
+  bool  is_challenging() const noexcept{return m_state == state::challenging;}
+  bool  is_rejoicing()   const noexcept{return m_state == state::rejoicing;}
+  bool  is_crying()      const noexcept{return m_state == state::crying;}
 
   void  reset() noexcept;
 
@@ -469,7 +489,7 @@ class
 item: public character
 {
 public:
-  item() noexcept{}
+  item() noexcept;
 
   void  do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
@@ -493,6 +513,11 @@ public:
 
 
 
+namespace bullet_ids{
+constexpr int  kick = 1;
+}
+
+
 class
 bullet: public character
 {
@@ -506,7 +531,6 @@ private:
   character*  m_shooter=nullptr;
   character*   m_target=nullptr;
 
-/*
   struct flags{
     static constexpr int          heat = 0x0001;
     static constexpr int           ice = 0x0002;
@@ -520,10 +544,9 @@ private:
     static constexpr int      chemical = 0x0200;
     static constexpr int       presure = 0x0400;
     static constexpr int       cutting = 0x0800;
-    static constexpr int      radowave = 0x1000;
+    static constexpr int     radiowave = 0x1000;
 
   };
-*/
 
   int  m_attribute=0;
 
@@ -533,6 +556,8 @@ private:
 
 public:
   bullet(character*  shooter, character*  target) noexcept;
+
+  void  set_dust_flag() noexcept{m_attribute |= flags::dust;}
 
   void  set_destructive_power(int  v)       noexcept{       m_destructive_power = v;}
   int   get_destructive_power(      ) const noexcept{return m_destructive_power    ;}

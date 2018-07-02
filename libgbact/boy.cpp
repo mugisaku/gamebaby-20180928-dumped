@@ -12,11 +12,11 @@ namespace characters{
 boy::
 boy() noexcept
 {
-  set_id(player_ids::boy);
+  set_minor(player_ids::boy);
 
-  set_width( 4);
+  set_width( 16);
   set_height(32);
-  set_offset(-2,-32);
+  set_offset(-8,-32);
 
   set_image(g_image);
 
@@ -53,7 +53,10 @@ void
 boy::
 do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
-  knockback();
+    if(other_side.get_destructive_power())
+    {
+      knockback();
+    }
 }
 
 

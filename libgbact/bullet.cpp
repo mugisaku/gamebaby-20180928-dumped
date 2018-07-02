@@ -14,6 +14,7 @@ bullet(character*  shooter, character*  target) noexcept:
 m_shooter(shooter),
 m_target(target)
 {
+  set_major(major_ids::bullet);
 }
 
 

@@ -66,7 +66,7 @@ chooser_context: public programs::context
   int  m_index;
 
 public:
-  void  initialize(std::initializer_list<gbstd::string_view>  ls={}) noexcept;
+  void  initialize(std::initializer_list<gbstd::string_view>  ls, int  x, int  y) noexcept;
 
   int  get_index() const noexcept{return m_index;}
 
@@ -134,6 +134,8 @@ edit_context: public programs::context
 
   } m_entry_display;
 
+
+  bool  m_lock=false;
 
   routines::indication_context  m_src_indication_context;
   routines::indication_context  m_dst_indication_context;

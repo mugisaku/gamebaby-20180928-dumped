@@ -22,6 +22,12 @@ g_square_data_set ={
 
 
 
+constexpr int  index_of_lady = 1;
+constexpr int  index_of_boy  = 2;
+constexpr int  index_of_meat = 3;
+constexpr int  index_of_wall = 4;
+
+
 stage::
 stage() noexcept
 {
@@ -41,8 +47,14 @@ stage() noexcept
     }
 
 
-  put_prop(prop(0,1),4,4);
-  put_prop(prop(0,2),8,4);
+  put_prop(prop(0,index_of_lady),4,4);
+  put_prop(prop(0,index_of_boy),8,4);
+
+
+  put_prop(prop(0,index_of_wall),2,4);
+  put_prop(prop(0,index_of_wall),3,4);
+  put_prop(prop(0,index_of_wall),6,4);
+  put_prop(prop(0,index_of_wall),7,4);
 }
 
 
@@ -74,7 +86,7 @@ put_prop(const prop&  pr, int  x, int  y) noexcept
     }
 
   else
-    if(src_obji == 1)
+    if(src_obji == index_of_lady)
     {
         if(m_lady_prop)
         {
@@ -82,7 +94,7 @@ put_prop(const prop&  pr, int  x, int  y) noexcept
         }
 
 
-      dst.set_object_index(1);
+      dst.set_object_index(index_of_lady);
 
       m_lady_prop = &dst;
 
@@ -90,7 +102,7 @@ put_prop(const prop&  pr, int  x, int  y) noexcept
     }
 
   else
-    if(src_obji == 2)
+    if(src_obji == index_of_boy)
     {
         if(m_boy_prop)
         {
@@ -98,7 +110,7 @@ put_prop(const prop&  pr, int  x, int  y) noexcept
         }
 
 
-      dst.set_object_index(2);
+      dst.set_object_index(src_obji);
 
       m_boy_prop = &dst;
 
@@ -132,22 +144,22 @@ restore(character_set&  chset) const noexcept
 
         switch(pr.get_object_index())
         {
-      case(1):
+      case(index_of_lady):
           pt.y += 24;
 
           obj = &chset.m_lady;
           break;
-      case(2):
+      case(index_of_boy):
           pt.y += 24;
 
           obj = &chset.m_boy;
           break;
-      case(3):
+      case(index_of_meat):
           chset.m_meats.emplace_back(characters::meat());
 
           obj = &chset.m_meats.back();
           break;
-      case(4):
+      case(index_of_wall):
           pt.y += 24;
 
           chset.m_walls.emplace_back(characters::wall());

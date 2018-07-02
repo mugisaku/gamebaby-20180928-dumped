@@ -18,6 +18,8 @@ wall(int  x, int  y) noexcept
 {
   ++g_count;
 
+  set_minor(player_ids::wall);
+
   set_width( 24);
   set_height(48);
   set_offset(-12,-48);
@@ -52,11 +54,13 @@ void
 wall::
 do_when_collided_with_bullet(bullet&  other_side, positions::position  position) noexcept
 {
-    if(!other_side.get_destructive_power())
+    if(!other_side.get_destructive_power() || (other_side.get_minor() != bullet_ids::kick))
     {
       return;
     }
 
+
+  freeze();
 
   die();
 
@@ -99,18 +103,6 @@ do_when_collided_with_bullet(bullet&  other_side, positions::position  position)
 
       g_character_space.append_with_deleter(*bullet);
     }}
-
-
-/*
-    if(g_count < 3)
-    {
-      auto  meat = new characters::meat;
-
-      meat->set_base_point(get_base_point()+real_point(0,-12));
-
-      g_character_space.append_with_deleter(*meat);
-    }
-*/
 }
 
 

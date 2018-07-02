@@ -9,6 +9,18 @@ namespace characters{
 
 
 
+player::
+player(int  life) noexcept:
+m_life_level(life)
+{
+  set_major(major_ids::player);
+
+  get_physics().enable();
+}
+
+
+
+
 void
 player::
 set_life_level(int  v) noexcept
@@ -83,7 +95,6 @@ void
 player::
 do_when_ran_out_life() noexcept
 {
-  die();
 }
 
 

@@ -88,10 +88,15 @@ void
 edit_context::
 src_callback(indication_context&  ctx, edit_context*  ed) noexcept
 {
-    if(g_input.test_p_button() ||
-       g_input.test_n_button())
+    if(g_input.test_p_button())
     {
-      ctx.end();
+      ctx.end(1);
+    }
+
+  else
+    if(g_input.test_n_button())
+    {
+      ctx.end(0);
     }
 
 
@@ -110,13 +115,22 @@ dst_callback(indication_context&  ctx, edit_context*  ed) noexcept
 
     if(g_input.test_p_button())
     {
+        if(ed->m_lock)
+        {
+          return;
+        }
+
+
+      auto  src_pr = ed->get_prop();
+
+      ed->m_lock = src_pr.get_object_index();
+
+
       auto  pt = ed->get_square_index();
 
       auto&  stg = g_stage_table[g_stage_index];
 
       auto&  sq = g_board.get_square(pt.x,pt.y);
-
-      auto  src_pr = ed->get_prop();
 
         if(src_pr.get_object_index() == 0)
         {
@@ -125,7 +139,6 @@ dst_callback(indication_context&  ctx, edit_context*  ed) noexcept
 
 
       stg.put_prop(src_pr,pt.x,pt.y);
-
 
       auto&  imgo = ed->m_object_table[g_board_width*pt.y+pt.x];
 
@@ -179,9 +192,13 @@ dst_callback(indication_context&  ctx, edit_context*  ed) noexcept
     }
 
   else
-    if(g_input.test_n_button())
     {
-      ctx.end();
+      ed->m_lock = false;
+
+        if(g_input.test_n_button())
+        {
+          ctx.end();
+        }
     }
 
 
@@ -343,18 +360,27 @@ step() noexcept
         }
       break;
   case(2):
-        if(g_input.test_n_button())
+        if(!g_input.test_p_button() &&
+           !g_input.test_n_button())
         {
-          end();
+            if(get_end_value().get_integer())
+            {
+              m_dst_square_cursor.show();
+
+              call(m_dst_indication_context);
+
+              set_pc(3);
+            }
+
+          else
+            {
+              end();
+            }
         }
-
-      else
-        if(!g_input.test_p_button())
+      break;
+  case(3):
+        if(!g_input.test_n_button())
         {
-          m_dst_square_cursor.show();
-
-          call(m_dst_indication_context);
-
           set_pc(1);
         }
       break;

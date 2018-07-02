@@ -110,9 +110,11 @@ step() noexcept
 
       g_board_view.chase_object(m_character_set.m_lady,4);
 
-        if(!m_character_set.m_lady.is_alive() || (m_character_set.m_lady.get_life_level() == 5))
+        if(!m_character_set.m_lady.is_alive() ||
+           m_character_set.m_lady.is_crying() ||
+           m_character_set.m_lady.is_rejoicing())
         {
-          m_timer = g_time+1000;
+          m_timer = g_time+2000;
 
           set_pc(3);
         }
@@ -135,7 +137,7 @@ step() noexcept
           m_chooser_context.initialize({
             "RESTART",
             "EXIT",
-          });
+          },120,120);
 
 
           call(m_chooser_context);
