@@ -77,13 +77,14 @@ do_when_collided_with_item(item&  other_side, positions::position  position) noe
         if(get_life_level() < 3)
         {
           add_life_level(1);
-
-          m_action = action::eat;
-
-          check_last_animated_time(0);
-
-          reset_phase();
         }
+
+
+      m_action = action::eat;
+
+      check_last_animated_time(0);
+
+      reset_phase();
 
 
       other_side.die();

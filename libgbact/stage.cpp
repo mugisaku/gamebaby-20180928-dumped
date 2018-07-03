@@ -82,12 +82,6 @@ put_prop(const prop&  pr, int  x, int  y) noexcept
   auto  dst_obji = dst.get_object_index();
   auto  src_obji =  pr.get_object_index();
 
-    if(src_obji == 0)
-    {
-      dst.set_block_index(pr.get_block_index());
-    }
-
-  else
     if(src_obji == index_of_lady)
     {
         if(m_lady_prop)
@@ -123,6 +117,9 @@ put_prop(const prop&  pr, int  x, int  y) noexcept
     {
       dst.set_object_index((dst_obji == src_obji)? 0:src_obji);
     }
+
+
+  dst.set_block_index(pr.get_block_index());
 }
 
 

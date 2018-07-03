@@ -12,7 +12,7 @@
 #include<cmath>
 
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include<emscripten.h>
 #endif
 
@@ -110,7 +110,7 @@ save_stage() noexcept
 {
   auto  s = g_stage_table[g_stage_index].make_string();
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #else
   gbstd::save_file("__stage.txt",s);
 #endif
@@ -132,7 +132,9 @@ step() noexcept
           m_chooser_context.initialize({
             "EDIT",
             "PLAY",
+#ifndef __EMSCRIPTEN__
             "SAVE"
+#endif
           },120,120);
 
 
@@ -269,6 +271,8 @@ main(int  argc, char**  argv)
                   "*zまたはenterを押すとキック\n"
                   "*体力（肉アイコン）があれば、キックで特定の壁を壊せる\n"
                   "*xまたはctrlを押すとギブアップ\n"
+                  "*\n"
+                  "*立ち塞がる壁を壊しながら、彼氏のいるところへ辿り着くのが目標\n"
 //                  "*上キーでジャンプ\n"
 //                  "*下キーでしゃがむ\n"
                   "</pre>"
@@ -298,6 +302,10 @@ main(int  argc, char**  argv)
   g_board_view.set_source_image(g_bg_image);
   g_board_view.reset(g_board,g_screen_width,g_screen_height-48);
 
+
+  auto&  stg = g_stage_table[g_stage_index];
+
+  stg.build_from_string("CA101010101010101010101010100000000000000000000010100003000304000303040010102020302020202020202010100000400000000000000010100004400000040003000310103020202020202020202010104000000000000000000010104103030404040404040210101010101010101010101010");
 
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop,0,false);
