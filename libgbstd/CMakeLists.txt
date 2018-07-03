@@ -24,6 +24,7 @@ set(SOURCES
   ios/riff_chunk.cpp
   ios/riff_subchunk_view.cpp
   ios/wave.cpp
+  ios/io.cpp
   utility.cpp
   environment.cpp
 )

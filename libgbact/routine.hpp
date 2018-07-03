@@ -160,8 +160,6 @@ edit_context: public programs::context
 
   void  initialize() noexcept;
 
-  void  save() noexcept;
-
   void  update() noexcept;
 
   static void  src_callback(indication_context&  ctx, edit_context*  ed) noexcept;

@@ -110,7 +110,11 @@ void
 wall::
 do_when_collided_with_player(player&  other_side, positions::position  position) noexcept
 {
-  block(other_side,position);
+    if((position == position::left) ||
+       (position == position::right))
+    {
+      block(other_side,position);
+    }
 }
 
 

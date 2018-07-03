@@ -70,6 +70,10 @@ public:
 
   void  restore(character_set&  chset) const noexcept;
 
+  gbstd::string  make_string() const noexcept;
+
+  void  build_from_string(gbstd::string_view  sv) noexcept;
+
 };
 
 

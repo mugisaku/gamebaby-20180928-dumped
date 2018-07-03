@@ -4,6 +4,7 @@
 #include"libgbstd/space.hpp"
 #include"libgbstd/board.hpp"
 #include"libgbstd/direction.hpp"
+#include"libgbstd/io.hpp"
 #include"sdl.hpp"
 #include"libgbact/character.hpp"
 #include"libgbact/stage.hpp"
@@ -105,6 +106,18 @@ public:
 
 
 void
+save_stage() noexcept
+{
+  auto  s = g_stage_table[g_stage_index].make_string();
+
+#ifdef EMSCRIPTEN
+#else
+  gbstd::save_file("__stage.txt",s);
+#endif
+}
+
+
+void
 root_context::
 step() noexcept
 {
@@ -118,7 +131,8 @@ step() noexcept
 
           m_chooser_context.initialize({
             "EDIT",
-            "PLAY"
+            "PLAY",
+            "SAVE"
           },120,120);
 
 
@@ -136,6 +150,11 @@ step() noexcept
             {
           case(0): call(m_edit_context);  set_pc(2);break;
           case(1): call(m_play_context);  set_pc(3);break;
+
+          case(2):
+              save_stage();
+              set_pc(0);
+              break;
             }
         }
 
@@ -164,6 +183,18 @@ void
 main_loop() noexcept
 {
   auto&  condev = sdl::update_control_device();
+
+    if(condev.dropped_file_content.size())
+    {
+      auto&  v = condev.dropped_file_content;
+
+      auto&  stg = g_stage_table[g_stage_index];
+
+      stg.build_from_string(gbstd::string_view(reinterpret_cast<const char*>(v.data()),v.size()));
+
+      v.clear();
+    }
+
 
   g_previous_input = g_input                  ;
                      g_input = condev.keyboard;

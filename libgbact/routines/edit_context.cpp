@@ -179,9 +179,9 @@ dst_callback(indication_context&  ctx, edit_context*  ed) noexcept
           else
             if(obji == 4)
             {
-              obj_pt.y -= 24;
+              obj_pt.y += 24;
 
-              imgo = spaces::image_object(characters::g_image,g_entries[8].m_image_rectangle,point());
+              imgo = spaces::image_object(characters::g_image,g_entries[8].m_image_rectangle,point(0,-48));
             }
 
 
@@ -217,13 +217,6 @@ update() noexcept
 
   m_src_square_cursor.set_base_point(src_pt);
   m_dst_square_cursor.set_base_point(dst_pt);
-}
-
-
-void
-edit_context::
-save() noexcept
-{
 }
 
 
@@ -270,6 +263,8 @@ initialize() noexcept
     for(int  x = 0;  x < stg.get_width() ;  ++x){
       auto&  pr = stg.get_prop(x,y);
 
+      g_board.get_square(x,y).set_data(stages::g_square_data_set[pr.get_block_index()]);
+
       point  pt(g_square_size*x,g_square_size*y);
 
       auto&  o = m_object_table[g_board_width*y+x];
@@ -277,16 +272,9 @@ initialize() noexcept
         switch(pr.get_object_index())
         {
       case(1):
-          pt.y -= 24;
-
-          m_lady_object.set_base_point(pt);
-
           g_object_space.append(m_lady_object);
           break;
       case(2):
-          pt.y -= 24;
-          m_boy_object.set_base_point(pt);
-
           g_object_space.append(m_boy_object);
           break;
       case(3):
@@ -312,8 +300,8 @@ initialize() noexcept
   auto  lady_pt = stg.get_lady_point();
   auto   boy_pt = stg.get_boy_point();
 
-  m_lady_object.set_base_point(point(g_square_size*lady_pt.x,g_square_size*lady_pt.y));
-  m_boy_object.set_base_point(point(g_square_size*boy_pt.x,g_square_size*boy_pt.y));
+  m_lady_object.set_base_point(point(g_square_size*lady_pt.x,g_square_size*lady_pt.y+24));
+  m_boy_object.set_base_point(point(g_square_size*boy_pt.x,g_square_size*boy_pt.y   +24));
 
   g_object_space.append(m_lady_object);
   g_object_space.append(m_boy_object);

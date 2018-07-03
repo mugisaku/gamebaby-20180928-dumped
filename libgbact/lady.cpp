@@ -35,11 +35,9 @@ reset() noexcept
   set_life_level(3);
 
   m_action = action::stand;
-  m_state = state::challenging;
+  m_state  = state::challenging;
 
-  set_kinetic_energy(0,0);
-
-  blink(0);
+  get_physics().enable();
 }
 
 
@@ -76,7 +74,7 @@ do_when_collided_with_item(item&  other_side, positions::position  position) noe
     if((m_action == action::stand) ||
        (m_action == action::walk))
     {
-        if(get_life_level() < 2)
+        if(get_life_level() < 3)
         {
           add_life_level(1);
 

@@ -47,14 +47,16 @@ stage() noexcept
     }
 
 
-  put_prop(prop(0,index_of_lady),4,4);
-  put_prop(prop(0,index_of_boy),8,4);
+  put_prop(prop(0,index_of_lady),              1,g_board_height-2);
+  put_prop(prop(0,index_of_boy ),g_board_width-2,g_board_height-2);
 
 
+/*
   put_prop(prop(0,index_of_wall),2,4);
   put_prop(prop(0,index_of_wall),3,4);
   put_prop(prop(0,index_of_wall),6,4);
   put_prop(prop(0,index_of_wall),7,4);
+*/
 }
 
 
@@ -130,6 +132,8 @@ void
 stage::
 restore(character_set&  chset) const noexcept
 {
+  chset.m_lady.reset();
+
     for(int  y = 0;  y < m_height;  ++y){
     for(int  x = 0;  x < m_width ;  ++x){
       auto&  pr = get_prop(x,y);
@@ -174,6 +178,61 @@ restore(character_set&  chset) const noexcept
           obj->set_base_point(pt);
           obj->set_kinetic_energy(0,0);
         }
+    }}
+}
+
+
+namespace{
+int
+to_char(int  i) noexcept
+{
+  return((i < 10)? '0':('A'-10))+i;
+}
+int
+to_int(char  c) noexcept
+{
+  return( ((c >= '0') && (c <= '9'))? (   (c-'0'))
+         :((c >= 'A') && (c <= 'F'))? (10+(c-'A'))
+         :                                       0);
+}
+}
+
+
+gbstd::string
+stage::
+make_string() const noexcept
+{
+  gbstd::string  s;
+
+  s.append(to_char(get_width()));
+  s.append(to_char(get_height()));
+
+    for(auto&  pr: m_table)
+    {
+      s.append(to_char(pr.get_block_index() ));
+      s.append(to_char(pr.get_object_index()));
+    }
+
+
+  return std::move(s);
+}
+
+
+void
+stage::
+build_from_string(gbstd::string_view  sv) noexcept
+{
+  auto  it = sv.begin();
+
+  m_width  = to_int(*it++);
+  m_height = to_int(*it++);
+
+    for(int  y = 0;  y < m_height;  ++y){
+    for(int  x = 0;  x < m_width ;  ++x){
+      int  blk_i = to_int(*it++);
+      int  obj_i = to_int(*it++);
+
+      put_prop(prop(blk_i,obj_i),x,y);
     }}
 }
 
