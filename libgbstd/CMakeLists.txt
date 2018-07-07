@@ -19,8 +19,6 @@ set(SOURCES
   programs/program.cpp
   spaces/object.cpp
   spaces/text_object.cpp
-  boards/board.cpp
-  boards/board_view.cpp
   ios/riff_chunk.cpp
   ios/riff_subchunk_view.cpp
   ios/wave.cpp

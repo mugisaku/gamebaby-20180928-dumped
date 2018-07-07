@@ -22,11 +22,11 @@ extern validity  g_board_view_validity;
 extern images::image  g_bg_image;
 extern images::image  g_misc_image;
 
-extern boards::board
+extern board
 g_board;
 
 
-extern boards::board_view
+extern board_view
 g_board_view;
 
 

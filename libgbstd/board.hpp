@@ -54,23 +54,6 @@ namespace boards{
 
 
 
-struct
-links
-{
-  static constexpr int     up = 0;
-  static constexpr int   left = 1;
-  static constexpr int  right = 2;
-  static constexpr int   down = 3;
-
-  static constexpr int   upper_left = 4;
-  static constexpr int  upper_right = 5;
-  static constexpr int   lower_left = 6;
-  static constexpr int  lower_right = 7;
-
-
-};
-
-
 class square;
 class piece;
 
@@ -95,25 +78,65 @@ public:
 
 
 class
+piece
+{
+  square*  m_square=nullptr;
+
+  int  m_mv    =0;
+  int  m_mv_max=1;
+
+public:
+  void     set_square(square*  sq)       noexcept{       m_square = sq;}
+  square*  get_square(           ) const noexcept{return m_square     ;}
+
+  int  get_mv() const noexcept{return m_mv;}
+
+  void  set_mv(int  v) noexcept{m_mv  = v;}
+  void  add_mv(int  v) noexcept{m_mv += v;}
+
+  int  get_mv_max() const noexcept{return m_mv_max;}
+
+  void  set_mv_max(int  v) noexcept{m_mv_max  = v;}
+  void  add_mv_max(int  v) noexcept{m_mv_max += v;}
+
+  void  reset_mv() noexcept{m_mv = m_mv_max;}
+
+  virtual int  get_mv_consumption(const square&  sq) const noexcept{return 0;}
+
+};
+
+
+class
 square
 {
   point  m_index;
 
   area  m_area;
 
-  square*  m_link_table[8];
+  piece*  m_piece=nullptr;
+
+  uint32_t  m_route_code=0;
 
   square_data*  m_data=nullptr;
 
 public:
+  static constexpr int  size = 24;
+
+  uint32_t  get_mv(           ) const noexcept{return m_route_code>>1;}
+  void      set_mv(uint32_t  v)       noexcept{m_route_code = (v<<1)|1;}
+
+  bool  test_mark() const noexcept{return m_route_code&1;}
+
+  void  reset_route_code() noexcept{m_route_code = 0;}
+
   const point&  get_index(         ) const noexcept{return m_index     ;}
   void          set_index(point  pt)       noexcept{       m_index = pt;}
 
   const area&  get_area(          ) const noexcept{return m_area       ;}
   void         set_area(area  area)       noexcept{       m_area = area;}
 
-  square*  get_link(             int  i) const noexcept{return m_link_table[i]     ;}
-  void     set_link(square*  sq, int  i)       noexcept{       m_link_table[i] = sq;}
+  piece*  get_piece(         ) const noexcept{return m_piece    ;}
+  void    set_piece(piece*  p)       noexcept{       m_piece = p;}
 
   square_data&  get_data(                 ) const noexcept{return *m_data       ;}
   void          set_data(square_data&  dat)       noexcept{        m_data = &dat;}
@@ -121,50 +144,65 @@ public:
   template<typename  T>
   T&  get_data() const noexcept{return *static_cast<T*>(m_data);}
 
+  point  get_image_base_point() const noexcept{return m_data? m_data->get_image_point():point();}
+
 };
 
 
+template<typename  squareT>
 class
-board
+basic_board
 {
+  static constexpr int  m_square_size = squareT::size;
+
   int  m_width =0;
   int  m_height=0;
-
-  int  m_square_size=0;
 
   int  m_image_width =0;
   int  m_image_height=0;
 
-  std::vector<square>   m_square_table;
+  std::vector<squareT>   m_square_table;
+
+  std::vector<squareT*>   m_routing_stack;
 
 public:
   int  get_width()  const noexcept{return m_width;}
   int  get_height() const noexcept{return m_height;}
 
-  int  get_square_size() const noexcept{return m_square_size;}
+  constexpr int  get_square_size() const noexcept{return m_square_size;}
 
   int  get_image_width()  const noexcept{return m_image_width;}
   int  get_image_height() const noexcept{return m_image_height;}
 
-        square&  get_square(int  x, int  y)       noexcept{return m_square_table[(m_width*y)+x];}
-  const square&  get_square(int  x, int  y) const noexcept{return m_square_table[(m_width*y)+x];}
+  bool  test_index(point  i) const noexcept;
 
-        square&  get_square_by_object(const spaces::object&  o)       noexcept;
-  const square&  get_square_by_object(const spaces::object&  o) const noexcept;
+        squareT&  get_square(int  x, int  y)       noexcept{return m_square_table[(m_width*y)+x];}
+  const squareT&  get_square(int  x, int  y) const noexcept{return m_square_table[(m_width*y)+x];}
 
-  void  build(int  w, int  h, int  square_size, square_data&  default_data) noexcept;
+        squareT&  get_square(point  i)       noexcept{return get_square(i.x,i.y);}
+  const squareT&  get_square(point  i) const noexcept{return get_square(i.x,i.y);}
 
-  void  put_to_around(square_data&  sqdat) noexcept;
+        squareT*  try_get_square(point  i)       noexcept{return test_index(i)? &get_square(i):nullptr;}
+  const squareT*  try_get_square(point  i) const noexcept{return test_index(i)? &get_square(i):nullptr;}
 
-  void  detect_collision(spaces::object&  o) noexcept;
+        squareT&  get_square_by_object(const spaces::object&  o)       noexcept;
+  const squareT&  get_square_by_object(const spaces::object&  o) const noexcept;
+
+  void  build(int  w, int  h) noexcept;
+
+  void  search_route(const piece&  p, point  a, point  b) noexcept;
 
 };
 
 
+#include"libgbstd/boards/basic_board.tcpp"
+
+
+template<typename  squareT>
 class
-board_view
+basic_board_view
 {
-  const board*  m_board=nullptr;
+  const basic_board<squareT>*  m_board=nullptr;
 
   const image*  m_source_image=nullptr;
 
@@ -178,14 +216,14 @@ board_view
   void  render_line(const rendering_context&  ctx) const noexcept;
 
 public:
-  board_view(                                 ) noexcept{}
-  board_view(const board&  brd, int  w, int  h) noexcept{reset(brd,w,h);}
+  basic_board_view(                                                ) noexcept{}
+  basic_board_view(const basic_board<squareT>&  brd, int  w, int  h) noexcept{reset(brd,w,h);}
 
   void  set_source_image(const image&  img) noexcept{m_source_image = &img;}
 
   void  chase_object(const spaces::object&  obj, int speed) noexcept;
 
-  void  reset(const board&  brd, int  w, int  h) noexcept;
+  void  reset(const basic_board<squareT>&  brd, int  w, int  h) noexcept;
 
   int  get_width()  const noexcept{return m_width;}
   int  get_height() const noexcept{return m_height;}
@@ -197,12 +235,21 @@ public:
 
   void  correct_offset() noexcept;
 
-  void  render(image_cursor  cur, void  (*callback)(board_view&  bv, int  output_line)=nullptr) noexcept;
+  void  render(image_cursor  cur, void  (*callback)(basic_board_view<squareT>&  bv, int  output_line)=nullptr) noexcept;
 
 };
 
 
+#include"libgbstd/boards/basic_board_view.tcpp"
+
+
 }
+
+
+using square     = boards::square;
+using board      = boards::basic_board<boards::square>;
+using board_view = boards::basic_board_view<boards::square>;
+
 
 
 }

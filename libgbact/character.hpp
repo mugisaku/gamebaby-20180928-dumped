@@ -19,14 +19,11 @@ extern keyboard  g_modified_input;
 extern keyboard           g_input;
 
 
-extern boards::board
+extern board
 g_board;
 
 
 namespace gbact{
-
-
-constexpr int  g_square_size = 24;
 
 
 class

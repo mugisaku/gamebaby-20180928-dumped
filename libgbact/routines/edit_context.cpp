@@ -50,7 +50,7 @@ render(point  offset, image_cursor  cur) noexcept
     {
       images::paste(*ent.m_image,ent.m_image_rectangle,cur+point(x,0));
 
-      x += g_square_size;
+      x += square::size;
     }
 }
 
@@ -65,8 +65,8 @@ get_square_index() const noexcept
 
   auto&  bv_off = g_board_view.get_offset();
 
-  int  x = (bv_off.x+pt.x)/g_square_size;
-  int  y = (bv_off.y+pt.y)/g_square_size;
+  int  x = (bv_off.x+pt.x)/square::size;
+  int  y = (bv_off.y+pt.y)/square::size;
 
   return point(x,y);
 }
@@ -78,7 +78,7 @@ get_prop() const noexcept
 {
   auto  pt = m_src_indication_context.get_point();
 
-  int  x = pt.x/g_square_size;
+  int  x = pt.x/square::size;
 
   return g_entries[x].m_prop;
 }
@@ -144,7 +144,7 @@ dst_callback(indication_context&  ctx, edit_context*  ed) noexcept
 
       auto  obji = stg.get_prop(pt.x,pt.y).get_object_index();
 
-      point  obj_pt(g_square_size*pt.x,g_square_size*pt.y);
+      point  obj_pt(square::size*pt.x,square::size*pt.y);
 
         if(obji == 0)
         {
@@ -212,8 +212,8 @@ update() noexcept
 {
   auto&  bv_off = g_board_view.get_offset();
 
-  auto  src_pt =             (m_src_indication_context.get_point()/g_square_size*g_square_size);
-  auto  dst_pt = point(0,48)+(m_dst_indication_context.get_point()/g_square_size*g_square_size);
+  auto  src_pt =             (m_src_indication_context.get_point()/square::size*square::size);
+  auto  dst_pt = point(0,48)+(m_dst_indication_context.get_point()/square::size*square::size);
 
   m_src_square_cursor.set_base_point(src_pt);
   m_dst_square_cursor.set_base_point(dst_pt);
@@ -228,19 +228,19 @@ initialize() noexcept
 
   g_board_view.set_offset(0,0);
 
-  m_display_rectangle = rectangle(0,0,(g_square_size*(stages::g_square_data_set.size()+4))-24,g_square_size-24);
+  m_display_rectangle = rectangle(0,0,(square::size*(stages::g_square_data_set.size()+4))-24,square::size-24);
 
   m_src_indication_context.initialize(m_display_rectangle);
 
   m_src_indication_context.set_callback(src_callback,this);
 
-  m_src_indication_context.set_speed(g_square_size);
+  m_src_indication_context.set_speed(square::size);
 
   m_dst_indication_context.initialize(rectangle(0,48,g_screen_width-24,g_screen_height-48-24));
 
   m_dst_indication_context.set_callback(dst_callback,this);
 
-  m_dst_indication_context.set_speed(g_square_size);
+  m_dst_indication_context.set_speed(square::size);
 
 
   m_src_square_cursor = spaces::image_object(g_misc_image,rectangle(24,0,24,24),point());
@@ -265,7 +265,7 @@ initialize() noexcept
 
       g_board.get_square(x,y).set_data(stages::g_square_data_set[pr.get_block_index()]);
 
-      point  pt(g_square_size*x,g_square_size*y);
+      point  pt(square::size*x,square::size*y);
 
       auto&  o = m_object_table[g_board_width*y+x];
 
@@ -300,8 +300,8 @@ initialize() noexcept
   auto  lady_pt = stg.get_lady_point();
   auto   boy_pt = stg.get_boy_point();
 
-  m_lady_object.set_base_point(point(g_square_size*lady_pt.x,g_square_size*lady_pt.y+24));
-  m_boy_object.set_base_point(point(g_square_size*boy_pt.x,g_square_size*boy_pt.y   +24));
+  m_lady_object.set_base_point(point(square::size*lady_pt.x,square::size*lady_pt.y+24));
+  m_boy_object.set_base_point(point(square::size*boy_pt.x,square::size*boy_pt.y   +24));
 
   g_object_space.append(m_lady_object);
   g_object_space.append(m_boy_object);

@@ -139,7 +139,7 @@ restore(character_set&  chset) const noexcept
 
       sq.set_data(g_square_data_set[pr.get_block_index()]);
 
-      real_point  pt(g_square_size*x+g_square_size/2,g_square_size*y);
+      real_point  pt(square::size*x+square::size/2,square::size*y);
 
       spaces::object*  obj = nullptr;
 
@@ -223,6 +223,8 @@ build_from_string(gbstd::string_view  sv) noexcept
 
   m_width  = to_int(*it++);
   m_height = to_int(*it++);
+
+  m_table.resize(m_width*m_height);
 
     for(int  y = 0;  y < m_height;  ++y){
     for(int  x = 0;  x < m_width ;  ++x){

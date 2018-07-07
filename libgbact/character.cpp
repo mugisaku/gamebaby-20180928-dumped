@@ -44,7 +44,7 @@ initialize() noexcept
 
   show();
 
-  m_square_point_offset.y = -(g_square_size/2);
+  m_square_point_offset.y = -(square::size/2);
 
   m_life_area.top    = 0;
   m_life_area.left   = 0;
@@ -153,13 +153,13 @@ detect_current_square() noexcept
 
   auto&  base_pt = get_base_point();
 
-  int  base_y = (static_cast<int>(base_pt.y)+m_square_point_offset.y)/g_square_size;
+  int  base_y = (static_cast<int>(base_pt.y)+m_square_point_offset.y)/square::size;
 
     if(!is_holding())
     {
         if(did_move_to_left())
         {
-          auto  x = left/g_square_size;
+          auto  x = left/square::size;
 
           auto  sq = get_square(x,base_y);
 
@@ -183,7 +183,7 @@ detect_current_square() noexcept
       else
         if(did_move_to_right())
         {
-          auto  x = right/g_square_size;
+          auto  x = right/square::size;
 
           auto  sq = get_square(x,base_y);
 
@@ -206,13 +206,13 @@ detect_current_square() noexcept
     }
 
 
-  int  base_x = (static_cast<int>(base_pt.x)+m_square_point_offset.x)/g_square_size;
+  int  base_x = (static_cast<int>(base_pt.x)+m_square_point_offset.x)/square::size;
 
     if(!is_holding())
     {
         if(did_move_to_up())
         {
-          auto  y = top/g_square_size;
+          auto  y = top/square::size;
 
           auto  sq = get_square(base_x,y);
 
@@ -236,7 +236,7 @@ detect_current_square() noexcept
       else
         if(did_move_to_down())
         {
-          auto  y = bottom/g_square_size;
+          auto  y = bottom/square::size;
 
           auto  sq = get_square(base_x,y);
 
@@ -259,7 +259,7 @@ detect_current_square() noexcept
     }
 
 
-  base_y = (static_cast<int>(base_pt.y)+m_square_point_offset.y)/g_square_size;
+  base_y = (static_cast<int>(base_pt.y)+m_square_point_offset.y)/square::size;
 
   auto  last_square = m_current_square                            ;
                       m_current_square = get_square(base_x,base_y);

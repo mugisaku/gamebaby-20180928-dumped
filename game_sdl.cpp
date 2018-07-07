@@ -58,11 +58,11 @@ spaces::space<spaces::object>
 g_screen_object_space;
 
 
-boards::board
+board
 g_board;
 
 
-boards::board_view
+board_view
 g_board_view;
 
 
@@ -295,9 +295,7 @@ main(int  argc, char**  argv)
 
   using stage = gbact::stages::stage;
 
-  g_board.build(g_board_width,g_board_height,gbact::g_square_size,stages::g_square_data_set[0]);
-
-  g_board.put_to_around(stages::g_square_data_set[1]);
+  g_board.build(g_board_width,g_board_height);
 
   g_board_view.set_source_image(g_bg_image);
   g_board_view.reset(g_board,g_screen_width,g_screen_height-48);

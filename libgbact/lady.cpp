@@ -224,9 +224,9 @@ do_when_action_is_stand() noexcept
 
             if(dat.is_ladder())
             {
-              auto  x = (static_cast<int>(get_base_point().x)/g_square_size*g_square_size)+(g_square_size/2);
+              auto  x = (static_cast<int>(get_base_point().x)/square::size*square::size)+(square::size/2);
 
-              set_square_point_offset_y(-(g_square_size/2));
+              set_square_point_offset_y(-(square::size/2));
 
               set_base_point_x(x);
 
@@ -246,21 +246,26 @@ do_when_action_is_stand() noexcept
 
         if(sq)
         {
-          auto&  dat = sq->get_link(boards::links::down)->get_data<square_data>();
+          auto  dst_sq = g_board.try_get_square(sq->get_index()+point(0,1));
 
-            if(dat.is_ladder())
+            if(dst_sq)
             {
-              auto  x = (static_cast<int>(get_base_point().x)/g_square_size*g_square_size)+(g_square_size/2);
+              auto&  dat = dst_sq->get_data<square_data>();
 
-              set_square_point_offset_y(g_square_size/2);
+                if(dat.is_ladder())
+                {
+                  auto  x = (static_cast<int>(get_base_point().x)/square::size*square::size)+(square::size/2);
 
-              set_base_point_x(x);
+                  set_square_point_offset_y(square::size/2);
 
-              m_action = action::ladder;
+                  set_base_point_x(x);
 
-              get_physics().disable();
+                  m_action = action::ladder;
 
-              hold();
+                  get_physics().disable();
+
+                  hold();
+                }
             }
         }
     }
@@ -384,7 +389,7 @@ do_when_action_is_ladder() noexcept
     {
       add_base_point_y(-1);
 
-      set_square_point_offset_y(-(g_square_size/2));
+      set_square_point_offset_y(-(square::size/2));
     }
 
   else
@@ -400,7 +405,7 @@ do_when_action_is_ladder() noexcept
     {
       m_action = action::stand;
 
-      set_square_point_offset_y(-(g_square_size/2));
+      set_square_point_offset_y(-(square::size/2));
 
       get_physics().enable();
 
@@ -412,7 +417,7 @@ do_when_action_is_ladder() noexcept
     {
       m_action = action::stand;
 
-      set_square_point_offset_y(-(g_square_size/2));
+      set_square_point_offset_y(-(square::size/2));
 
       get_physics().enable();
 
@@ -437,7 +442,7 @@ do_when_action_is_ladder() noexcept
     {
       m_action = action::stand;
 
-      set_square_point_offset_y(-(g_square_size/2));
+      set_square_point_offset_y(-(square::size/2));
 
       get_physics().enable();
 
