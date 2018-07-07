@@ -250,29 +250,32 @@ void
 basic_board_view<squareT>::
 render(image_cursor  cur, void  (*callback)(basic_board_view<squareT>&  bv, int  output_line)) noexcept
 {
-  rendering_context  ctx;
-
-  ctx.board_width  = m_board->get_width() ;
-  ctx.board_height = m_board->get_height();
-
-  ctx.board_image_width  = m_board->get_image_width() ;
-  ctx.board_image_height = m_board->get_image_height();
-
-  ctx.target = cur;
-
-  ctx.output_line = 0;
-
-    while(ctx.output_line < m_height)
+    if(is_visible())
     {
-        if(callback)
+      rendering_context  ctx;
+
+      ctx.board_width  = m_board->get_width() ;
+      ctx.board_height = m_board->get_height();
+
+      ctx.board_image_width  = m_board->get_image_width() ;
+      ctx.board_image_height = m_board->get_image_height();
+
+      ctx.target = cur;
+
+      ctx.output_line = 0;
+
+        while(ctx.output_line < m_height)
         {
-          callback(*this,ctx.output_line);
+            if(callback)
+            {
+              callback(*this,ctx.output_line);
+            }
+
+
+          render_line(ctx);
+
+          ++ctx.output_line;
         }
-
-
-      render_line(ctx);
-
-      ++ctx.output_line;
     }
 }
 

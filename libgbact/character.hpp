@@ -6,17 +6,11 @@
 #include"libgbstd/board.hpp"
 #include"libgbstd/control_device.hpp"
 #include"libgbstd/direction.hpp"
+#include"libgbstd/routine.hpp"
 #include<new>
 
 
 using namespace gbstd;
-
-
-extern uint32_t  g_time;
-
-extern keyboard  g_previous_input;
-extern keyboard  g_modified_input;
-extern keyboard           g_input;
 
 
 extern board

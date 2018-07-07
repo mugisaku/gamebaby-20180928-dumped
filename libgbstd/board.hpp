@@ -5,6 +5,7 @@
 #include"libgbstd/image.hpp"
 #include"libgbstd/position.hpp"
 #include"libgbstd/area.hpp"
+#include"libgbstd/space.hpp"
 
 
 namespace gbstd{
@@ -42,11 +43,6 @@ public:
 };
 
 
-
-
-namespace spaces{
-class object;
-}
 
 
 namespace boards{
@@ -211,6 +207,8 @@ basic_board_view
 
   point  m_offset;
 
+  bool  m_visible=true;
+
   struct rendering_context;
 
   void  render_line(const rendering_context&  ctx) const noexcept;
@@ -218,6 +216,11 @@ basic_board_view
 public:
   basic_board_view(                                                ) noexcept{}
   basic_board_view(const basic_board<squareT>&  brd, int  w, int  h) noexcept{reset(brd,w,h);}
+
+  bool  is_visible() const noexcept{return m_visible;}
+
+  void  show() noexcept{m_visible =  true;}
+  void  hide() noexcept{m_visible = false;}
 
   void  set_source_image(const image&  img) noexcept{m_source_image = &img;}
 

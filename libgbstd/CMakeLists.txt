@@ -19,6 +19,10 @@ set(SOURCES
   programs/program.cpp
   spaces/object.cpp
   spaces/text_object.cpp
+  routines/common.cpp
+  routines/sleep_context.cpp
+  routines/indication_context.cpp
+  routines/chooser_context.cpp
   ios/riff_chunk.cpp
   ios/riff_subchunk_view.cpp
   ios/wave.cpp

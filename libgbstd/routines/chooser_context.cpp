@@ -1,9 +1,9 @@
-#include"libgbact/routine.hpp"
+#include"libgbstd/routine.hpp"
 
 
 
 
-namespace gbact{
+namespace gbstd{
 namespace routines{
 
 
@@ -40,7 +40,7 @@ initialize(std::initializer_list<gbstd::string_view>  ls, int  x, int  y) noexce
     }
 
 
-  g_screen_object_space_validity.enable();
+  g_screen_object_space.show();
 }
 
 

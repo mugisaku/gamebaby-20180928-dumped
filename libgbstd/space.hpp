@@ -274,9 +274,16 @@ space
 
   uint32_t  m_dieing_counter=0;
 
+  bool  m_visible=true;
+
   static void  default_deleter(T*  ptr) noexcept{delete ptr;}
 
 public:
+  bool  is_visible() const noexcept{return m_visible;}
+
+  void  show() noexcept{m_visible =  true;}
+  void  hide() noexcept{m_visible = false;}
+
   const std::vector<element>&  get_pool_list() const noexcept{return m_pool_list;}
   const std::vector<element>&  get_main_list() const noexcept{return m_main_list;}
 
@@ -289,234 +296,27 @@ public:
       }
   }
 
-  void  append(T&  o) noexcept
-  {
-      if(!o.is_alive())
-      {
-        m_current_list->emplace_back(element{&o,nullptr});
 
-        o.be_alive(m_dieing_counter);
+  void  append(T&  o) noexcept;
 
-        o.update_area();
-      }
-  }
+  void  append_with_deleter(T&  o, void  (*deleter)(T*  ptr)=&default_deleter) noexcept;
 
-  void  append_with_deleter(T&  o, void  (*deleter)(T*  ptr)=&default_deleter) noexcept
-  {
-      if(!o.is_alive())
-      {
-        m_current_list->emplace_back(element{&o,deleter});
+  void  remove_all() noexcept;
 
-        o.be_alive(m_dieing_counter);
+  void  clean_dead_object() noexcept;
 
-        o.update_area();
-      }
-  }
+  void  process_collision(T&  a, T&  b) noexcept;
 
-  void  remove_all() noexcept
-  {
-      for(auto&  e: m_pool_list)
-      {
-        e.data->die();
+  void  detect_collision() noexcept;
 
-          if(e.deleter)
-          {
-            e.deleter(e.data);
-          }
-      }
+  void  update() noexcept;
 
-
-      for(auto&  e: m_main_list)
-      {
-        e.data->die();
-
-          if(e.deleter)
-          {
-            e.deleter(e.data);
-          }
-      }
-
-
-    m_dieing_counter = 0;
-
-    m_pool_list.clear();
-    m_main_list.clear();
-  }
-
-  void  clean_dead_object() noexcept
-  {
-      if(m_dieing_counter)
-      {
-        m_keep_list.clear();
-
-          for(auto&  e: m_main_list)
-          {
-              if(e.data->is_alive())
-              {
-                m_keep_list.emplace_back(e);
-              }
-
-            else
-              {
-                  if(e.deleter)
-                  {
-                    e.deleter(e.data);
-                  }
-              }
-          }
-
-
-        std::swap(m_main_list,m_keep_list);
-
-        m_dieing_counter = 0;
-      }
-  }
-
-  void  process_collision(T&  a, T&  b) noexcept
-  {
-    auto&    last_area = a.get_last_area();
-    auto&  target_area = b.get_area();
-
-    position  pos;
-
-      if(last_area.left >= target_area.right)
-      {
-        pos = position::left;
-      }
-
-    else
-      if(last_area.right <= target_area.left)
-      {
-        pos = position::right;
-      }
-
-    else
-      if(last_area.top >= target_area.bottom)
-      {
-        pos = position::top;
-      }
-
-    else
-      if(last_area.bottom <= target_area.top)
-      {
-        pos = position::bottom;
-      }
-
-    else
-      {
-        pos = position::none;
-      }
-
-
-    a.do_when_collided(b,pos);
-    b.do_when_collided(a,get_opposite(pos));
-  }
-
-
-  void  detect_collision() noexcept
-  {
-    m_current_list = &m_pool_list;
-
-      for(auto&  e: m_pool_list)
-      {
-        m_main_list.emplace_back(e);
-      }
-
-
-    m_pool_list.clear();
-
-      if(m_main_list.size() >= 2)
-      {
-        auto  a_current = m_main_list.begin();
-        auto  b_base    = a_current+1;
-
-        auto  end = m_main_list.end();
-
-          while(b_base < end)
-          {
-            auto  b_current = b_base++;
-
-              if(!a_current->data->is_frozen())
-              {
-                  while(b_current < end)
-                  {
-                      if(!b_current->data->is_frozen())
-                      {
-                        auto&  a = *static_cast<T*>(a_current->data);
-                        auto&  b = *static_cast<T*>(b_current->data);
-
-                          if(area::test_collision(a.get_area(),b.get_area()))
-                          {
-                            process_collision(a,b);
-                          }
-                      }
-
-
-                    ++b_current;
-                  }
-              }
-
-
-            ++a_current;
-          }
-      }
-
-
-    m_current_list = &m_main_list;
-  }
-
-  void  update() noexcept
-  {
-    m_current_list = &m_pool_list;
-
-      for(auto&  e: m_pool_list)
-      {
-        m_main_list.emplace_back(e);
-      }
-
-
-    m_pool_list.clear();
-
-      for(auto&  e: m_main_list)
-      {
-          if(e.data->is_alive())
-          {
-              if(!e.data->is_frozen())
-              {
-                e.data->update_base_point();
-
-                e.data->update_core();
-              }
-          }
-      }
-
-
-    m_current_list = &m_main_list;
-  }
-
-  void  render(point  offset, image_cursor  cur) noexcept
-  {
-    clean_dead_object();
-
-    auto  it     = m_main_list.rbegin();
-    auto  it_end = m_main_list.rend();
-
-      while(it != it_end)
-      {
-        auto&  e = *it++;
-
-          if(e.data->is_visible())
-          {
-            e.data->update_graphics();
-
-            e.data->render(offset,cur);
-
-            e.data->add_rendering_counter(1);
-          }
-      }
-  }
+  void  render(point  offset, image_cursor  cur) noexcept;
 
 };
+
+
+#include"libgbstd/spaces/space.tcpp"
 
 
 }

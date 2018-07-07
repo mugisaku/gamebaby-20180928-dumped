@@ -76,7 +76,7 @@ bool
 character::
 check_last_animated_time(uint32_t  interval) noexcept
 {
-    if(g_time >= (m_last_animated_time+interval))
+    if(gbstd::g_time >= (m_last_animated_time+interval))
     {
       m_last_animated_time = g_time;
 
@@ -272,7 +272,7 @@ void
 character::
 update_core() noexcept
 {
-    if((g_time-m_creation_time) >= m_life_time)
+    if((gbstd::g_time-m_creation_time) >= m_life_time)
     {
       die();
 
@@ -293,7 +293,7 @@ update_core() noexcept
 
     if(m_blinking_status.valid)
     {
-        if(g_time >= m_blinking_status.end_time)
+        if(gbstd::g_time >= m_blinking_status.end_time)
         {
           m_blinking_status.valid = false;
         }
@@ -328,7 +328,7 @@ update_core() noexcept
     }
 
 
-  m_last_update_time = g_time;
+  m_last_update_time = gbstd::g_time;
 }
 
 

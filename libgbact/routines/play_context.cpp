@@ -17,7 +17,7 @@ clean() noexcept
 
   clean_stage();
 
-  g_screen_object_space.remove_all();
+  gbstd::g_screen_object_space.remove_all();
   g_object_space.remove_all();
   g_character_space.remove_all();
 }
@@ -25,7 +25,7 @@ clean() noexcept
 
 void
 play_context::
-callback(indication_context&  ctx, play_context*  play) noexcept
+callback(gbstd::routines::indication_context&  ctx, play_context*  play) noexcept
 {
 }
 
@@ -76,16 +76,16 @@ step() noexcept
     {
   case(0):
       g_board_view_validity.enable();
-      g_character_space_validity.enable();
-      g_object_space_validity.enable();
-      g_screen_object_space_validity.enable();
+      g_character_space.show();
+      g_object_space.show();
+      gbstd::g_screen_object_space.show();
 
       m_character_set.m_lady = characters::lady();
       m_character_set.m_boy  =  characters::boy();
 
       m_lady_monitor = characters::lady_monitor(m_character_set.m_lady,0,0);
 
-      g_screen_object_space.append(m_lady_monitor);
+      gbstd::g_screen_object_space.append(m_lady_monitor);
 
       add_pc(1);
       break;
@@ -96,14 +96,14 @@ step() noexcept
       add_pc(1);
       break;
   case(2):
-        if(g_input.test_start_button() &&
-           g_modified_input.test_start_button())
+        if(gbstd::g_input.test_start_button() &&
+           gbstd::g_modified_input.test_start_button())
         {
           character::m_debug = !character::m_debug;
         }
 
 
-      g_screen_object_space.update();
+      gbstd::g_screen_object_space.update();
       g_character_space.update();
 
       g_character_space.detect_collision();
@@ -127,7 +127,7 @@ step() noexcept
 
       else
         {
-          g_screen_object_space.update();
+          gbstd::g_screen_object_space.update();
           g_character_space.update();
         }
       break;

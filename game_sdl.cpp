@@ -8,6 +8,7 @@
 #include"sdl.hpp"
 #include"libgbact/character.hpp"
 #include"libgbact/stage.hpp"
+#include"libgbstd/routine.hpp"
 #include"libgbact/routine.hpp"
 #include<cmath>
 
@@ -27,12 +28,6 @@ int  g_screen_height = 240;
 int  g_board_width  = 12;
 int  g_board_height = 10;
 
-uint32_t  g_time = 0;
-
-keyboard  g_previous_input;
-keyboard  g_modified_input;
-keyboard           g_input;
-
 
 point
 g_object_space_offset;
@@ -42,20 +37,12 @@ images::image
 g_bg_image;
 
 
-images::image
-g_misc_image;
-
-
 spaces::space<gbact::characters::character>
 g_character_space;
 
 
 spaces::space<spaces::object>
 g_object_space;
-
-
-spaces::space<spaces::object>
-g_screen_object_space;
 
 
 board
@@ -74,9 +61,6 @@ int
 g_stage_index;
 
 
-validity  g_screen_object_space_validity;
-validity  g_object_space_validity;
-validity  g_character_space_validity;
 validity  g_board_view_validity;
 
 
@@ -94,10 +78,10 @@ g_final_image;
 class
 root_context: public programs::context
 {
-  routines::chooser_context  m_chooser_context;
+  gbstd::routines::chooser_context  m_chooser_context;
 
-  routines::edit_context  m_edit_context;
-  routines::play_context  m_play_context;
+  gbact::routines::edit_context  m_edit_context;
+  gbact::routines::play_context  m_play_context;
 
 public:
   void  step() noexcept override;
@@ -126,7 +110,7 @@ step() noexcept
   case(0):
         if(!g_input.test_p_button())
         {
-          g_object_space_validity.enable();
+          g_object_space.show();
           g_board_view_validity.enable();
 
           m_chooser_context.initialize({
@@ -225,23 +209,9 @@ main_loop() noexcept
         }
 
 
-        if(g_character_space_validity)
-        {
-          g_character_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
-        }
-
-
-        if(g_object_space_validity)
-        {
-          g_object_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
-        }
-
-
-        if(g_screen_object_space_validity)
-        {
-          g_screen_object_space.render(point(),image_cursor(g_final_image,point(0,0)));
-        }
-
+      g_character_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
+      g_object_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
+      gbstd::g_screen_object_space.render(point(),image_cursor(g_final_image,point(0,0)));
 
         if(characters::character::m_debug)
         {
@@ -284,7 +254,7 @@ main(int  argc, char**  argv)
 
   gbact::characters::g_image.load_from_png("__resources/lady_and.png");
   g_bg_image.load_from_png("__resources/bg.png");
-  g_misc_image.load_from_png("__resources/misc.png");
+  gbstd::g_misc_image.load_from_png("__resources/misc.png");
 
   g_final_image = sdl::make_screen_image();
 

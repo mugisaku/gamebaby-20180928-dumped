@@ -54,7 +54,8 @@ set(SDL_SOURCES
 
 add_subdirectory(libgbstd)
 add_subdirectory(libgbact)
-add_subdirectory(libgbgui)
+#add_subdirectory(libgbwar)
+#add_subdirectory(libgbgui)
 #add_subdirectory(libgbsnd)
 #add_subdirectory(libgbscr)
 

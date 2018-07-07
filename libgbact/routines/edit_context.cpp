@@ -86,7 +86,7 @@ get_prop() const noexcept
 
 void
 edit_context::
-src_callback(indication_context&  ctx, edit_context*  ed) noexcept
+src_callback(gbstd::routines::indication_context&  ctx, edit_context*  ed) noexcept
 {
     if(g_input.test_p_button())
     {
@@ -106,7 +106,7 @@ src_callback(indication_context&  ctx, edit_context*  ed) noexcept
 
 void
 edit_context::
-dst_callback(indication_context&  ctx, edit_context*  ed) noexcept
+dst_callback(gbstd::routines::indication_context&  ctx, edit_context*  ed) noexcept
 {
   g_board_view.add_offset(ctx.get_x_pooling(),
                           ctx.get_y_pooling());
@@ -243,8 +243,8 @@ initialize() noexcept
   m_dst_indication_context.set_speed(square::size);
 
 
-  m_src_square_cursor = spaces::image_object(g_misc_image,rectangle(24,0,24,24),point());
-  m_dst_square_cursor = spaces::image_object(g_misc_image,rectangle(24,0,24,24),point());
+  m_src_square_cursor = spaces::image_object(gbstd::g_misc_image,rectangle(24,0,24,24),point());
+  m_dst_square_cursor = spaces::image_object(gbstd::g_misc_image,rectangle(24,0,24,24),point());
 
 
   m_src_indication_context.hide_hand_cursor();
@@ -307,9 +307,9 @@ initialize() noexcept
   g_object_space.append(m_boy_object);
 
 
-  g_screen_object_space.append(m_src_square_cursor);
-  g_screen_object_space.append(m_dst_square_cursor);
-  g_screen_object_space.append(m_entry_display);
+  gbstd::g_screen_object_space.append(m_src_square_cursor);
+  gbstd::g_screen_object_space.append(m_dst_square_cursor);
+  gbstd::g_screen_object_space.append(m_entry_display);
  
 }
 
@@ -321,7 +321,7 @@ clean() noexcept
   m_src_indication_context.clean();
   m_dst_indication_context.clean();
 
-  g_screen_object_space.remove_all();
+  gbstd::g_screen_object_space.remove_all();
   g_object_space.remove_all();
 }
 
@@ -338,7 +338,7 @@ step() noexcept
       set_pc(1);
       break;
   case(1):
-        if(!g_input.test_p_button())
+        if(!gbstd::g_input.test_p_button())
         {
           m_dst_square_cursor.hide();
 
@@ -348,8 +348,8 @@ step() noexcept
         }
       break;
   case(2):
-        if(!g_input.test_p_button() &&
-           !g_input.test_n_button())
+        if(!gbstd::g_input.test_p_button() &&
+           !gbstd::g_input.test_n_button())
         {
             if(get_end_value().get_integer())
             {
@@ -367,7 +367,7 @@ step() noexcept
         }
       break;
   case(3):
-        if(!g_input.test_n_button())
+        if(!gbstd::g_input.test_n_button())
         {
           set_pc(1);
         }
