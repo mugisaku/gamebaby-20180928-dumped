@@ -1,8 +1,8 @@
 
 
 set(SOURCES
-  routines/edit_context.cpp
-  routines/play_context.cpp
+  processes/edit.cpp
+  processes/play.cpp
   stage.cpp
   character.cpp
   player.cpp

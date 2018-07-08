@@ -8,8 +8,7 @@
 #include"sdl.hpp"
 #include"libgbact/character.hpp"
 #include"libgbact/stage.hpp"
-#include"libgbstd/routine.hpp"
-#include"libgbact/routine.hpp"
+#include"libgbact/process.hpp"
 #include<cmath>
 
 
@@ -76,12 +75,12 @@ g_final_image;
 
 
 class
-root_context: public programs::context
+root_process: public programs::process
 {
-  gbstd::routines::chooser_context  m_chooser_context;
+  programs::chooser  m_chooser;
 
-  gbact::routines::edit_context  m_edit_context;
-  gbact::routines::play_context  m_play_context;
+  gbact::processes::edit  m_edit;
+  gbact::processes::play  m_play;
 
 public:
   void  step() noexcept override;
@@ -102,7 +101,7 @@ save_stage() noexcept
 
 
 void
-root_context::
+root_process::
 step() noexcept
 {
     switch(get_pc())
@@ -113,7 +112,7 @@ step() noexcept
           g_object_space.show();
           g_board_view_validity.enable();
 
-          m_chooser_context.initialize({
+          m_chooser.initialize({
             "EDIT",
             "PLAY",
 #ifndef __EMSCRIPTEN__
@@ -122,20 +121,20 @@ step() noexcept
           },120,120);
 
 
-          call(m_chooser_context);
+          call(m_chooser);
 
           add_pc(1);
         }
       break;
   case(1):
-      m_chooser_context.clean();
+      m_chooser.clean();
 
         if(get_end_value().is_integer())
         {
             switch(get_end_value().get_integer())
             {
-          case(0): call(m_edit_context);  set_pc(2);break;
-          case(1): call(m_play_context);  set_pc(3);break;
+          case(0): call(m_edit);  set_pc(2);break;
+          case(1): call(m_play);  set_pc(3);break;
 
           case(2):
               save_stage();
@@ -150,12 +149,12 @@ step() noexcept
         }
       break;
   case(2):
-      m_edit_context.clean();
+      m_edit.clean();
 
       set_pc(0);
       break;
   case(3):
-      m_play_context.clean();
+      m_play.clean();
 
       set_pc(0);
       break;
@@ -259,9 +258,9 @@ main(int  argc, char**  argv)
   g_final_image = sdl::make_screen_image();
 
 
-  static root_context  root_ctx;
+  static root_process  root_prc;
 
-  g_program.push(root_ctx);
+  g_program.push(root_prc);
 
   using stage = gbact::stages::stage;
 

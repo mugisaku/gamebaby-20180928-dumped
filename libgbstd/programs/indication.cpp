@@ -1,16 +1,16 @@
-#include"libgbstd/routine.hpp"
+#include"libgbstd/program.hpp"
 
 
 
 
 namespace gbstd{
-namespace routines{
+namespace programs{
 
 
 
 
-indication_context::
-indication_context(rectangle  rect) noexcept:
+indication::
+indication(rectangle  rect) noexcept:
 m_point(rect),
 m_rectangle(rect),
 m_hand_cursor(g_misc_image,rectangle(0,0,24,24),point(-24,-4))
@@ -21,7 +21,7 @@ m_hand_cursor(g_misc_image,rectangle(0,0,24,24),point(-24,-4))
 
 
 void
-indication_context::
+indication::
 initialize(rectangle  rect) noexcept
 {
   m_point     = rect;
@@ -30,7 +30,7 @@ initialize(rectangle  rect) noexcept
 
 
 void
-indication_context::
+indication::
 set_point(int  x, int  y) noexcept
 {
   m_point.x = m_rectangle.x+x;
@@ -41,7 +41,7 @@ set_point(int  x, int  y) noexcept
 
 
 void
-indication_context::
+indication::
 update() noexcept
 {
     if(m_point.x < m_rectangle.x)
@@ -93,7 +93,7 @@ update() noexcept
 
 
 void
-indication_context::
+indication::
 clean() noexcept
 {
   m_hand_cursor.die();
@@ -101,7 +101,7 @@ clean() noexcept
 
 
 void
-indication_context::
+indication::
 step() noexcept
 {
     switch(get_pc())

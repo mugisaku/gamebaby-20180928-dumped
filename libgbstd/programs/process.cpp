@@ -8,7 +8,7 @@ namespace programs{
 
 
 void
-context::
+process::
 reset(programs::program&  program) noexcept
 {
   m_program = &program;
@@ -21,25 +21,25 @@ reset(programs::program&  program) noexcept
 
 
 void
-context::
-call(context&  ctx) noexcept
+process::
+call(process&  prc) noexcept
 {
     if(!m_calling_count)
     {
-      m_program->push(ctx);
+      m_program->push(prc);
 
       ++m_calling_count;
     }
 
   else
     {
-      printf("[context::call error] 多重コールはしてはならない\n");
+      printf("[process::call error] 多重コールはしてはならない\n");
     }
 }
 
 
 void
-context::
+process::
 end(value  v) noexcept
 {
   m_end_value = std::move(v);
@@ -49,7 +49,7 @@ end(value  v) noexcept
 
 
 void
-context::
+process::
 remove() noexcept
 {
   m_removed = true;

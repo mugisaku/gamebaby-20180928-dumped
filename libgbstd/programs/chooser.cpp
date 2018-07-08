@@ -1,16 +1,16 @@
-#include"libgbstd/routine.hpp"
+#include"libgbstd/program.hpp"
 
 
 
 
 namespace gbstd{
-namespace routines{
+namespace programs{
 
 
 
 
 void
-chooser_context::
+chooser::
 initialize(std::initializer_list<gbstd::string_view>  ls, int  x, int  y) noexcept
 {
   m_index = 0;
@@ -47,7 +47,7 @@ initialize(std::initializer_list<gbstd::string_view>  ls, int  x, int  y) noexce
 
 
 void
-chooser_context::
+chooser::
 clean() noexcept
 {
     for(auto&  to: m_text_objects)
@@ -63,7 +63,7 @@ clean() noexcept
 
 
 void
-chooser_context::
+chooser::
 step() noexcept
 {
     if(g_modified_input.test_up_button() && g_input.test_up_button() && m_index)

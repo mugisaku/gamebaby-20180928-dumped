@@ -11,9 +11,9 @@ void
 program::
 clear() noexcept
 {
-    for(auto  ctx: m_stack)
+    for(auto  prc: m_stack)
     {
-      ctx->remove();
+      prc->remove();
     }
 
 
@@ -25,13 +25,13 @@ clear() noexcept
 
 void
 program::
-push(context&  ctx) noexcept
+push(process&  prc) noexcept
 {
-  m_stack.emplace_back(&ctx);
+  m_stack.emplace_back(&prc);
 
-  m_top = &ctx;
+  m_top = &prc;
 
-  ctx.reset(*this);
+  prc.reset(*this);
 }
 
 

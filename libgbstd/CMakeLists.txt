@@ -15,14 +15,14 @@ set(SOURCES
   texts/string_form.cpp
   tasks/task_manager.cpp
   programs/value.cpp
-  programs/context.cpp
+  programs/process.cpp
   programs/program.cpp
+  programs/common.cpp
+  programs/sleep.cpp
+  programs/indication.cpp
+  programs/chooser.cpp
   spaces/object.cpp
   spaces/text_object.cpp
-  routines/common.cpp
-  routines/sleep_context.cpp
-  routines/indication_context.cpp
-  routines/chooser_context.cpp
   ios/riff_chunk.cpp
   ios/riff_subchunk_view.cpp
   ios/wave.cpp
