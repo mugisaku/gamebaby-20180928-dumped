@@ -2,9 +2,9 @@
 
 
 
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 bool
-basic_board<squareT>::
+basic_board<squareT,W,H>::
 test_index(point  i) const noexcept
 {
   return((i.x >= 0       ) &&
@@ -14,58 +14,9 @@ test_index(point  i) const noexcept
 }
 
 
-template<typename  squareT>
-void
-basic_board<squareT>::
-build(int  w, int  h) noexcept
-{
-  m_width  = w;
-  m_height = h;
-
-  m_image_width  = squareT::size*w;
-  m_image_height = squareT::size*h;
-
-  m_square_table.resize(w*h);
-
-    for(int  y = 0;  y < h;  ++y){
-    for(int  x = 0;  x < w;  ++x){
-      auto&  sq = get_square(x,y);
-
-      areas::area  area;
-
-      area.top    = y*squareT::size;
-      area.left   = x*squareT::size;
-      area.right  = area.left+squareT::size-1;
-      area.bottom = area.top +squareT::size-1;
-
-      sq.set_area(area);
-
-      sq.set_index(point(x,y));
-/*
-      bool  u = (y               );
-      bool  l = (x               );
-      bool  r = (x < (m_width -1));
-      bool  d = (y < (m_height-1));
-
-      sq.link(u? &get_square(x  ,y-1):&get_square(x  ,h-1),links::up   );
-      sq.link(l? &get_square(x-1,y  ):&get_square(w-1,y  ),links::left );
-      sq.link(r? &get_square(x+1,y  ):&get_square(  0,y  ),links::right);
-      sq.link(d? &get_square(x  ,y+1):&get_square(x  ,0  ),links::down );
-
-      sq.link((u && l)? &get_square(x-1,y-1):&get_square(w-1,h-1),links::upper_left );
-      sq.link((u && r)? &get_square(x+1,y-1):&get_square(0  ,h-1),links::upper_right);
-      sq.link((d && l)? &get_square(x-1,y+1):&get_square(w-1,  0),links::lower_left );
-      sq.link((d && r)? &get_square(x+1,y+1):&get_square(0  ,  0),links::lower_right);
-*/
-    }}
-}
-
-
-
-
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 squareT&
-basic_board<squareT>::
+basic_board<squareT,W,H>::
 get_square_by_object(const spaces::object&  o) noexcept
 {
   auto  x = (static_cast<int>(o.get_base_point().x)%m_image_width );
@@ -87,9 +38,9 @@ get_square_by_object(const spaces::object&  o) noexcept
 }
 
 
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 const squareT&
-basic_board<squareT>::
+basic_board<squareT,W,H>::
 get_square_by_object(const spaces::object&  o) const noexcept
 {
   auto  x = (static_cast<int>(o.get_base_point().x)%m_image_width );
@@ -108,71 +59,6 @@ get_square_by_object(const spaces::object&  o) const noexcept
 
 
   return get_square(x/squareT::size,y/squareT::size);
-}
-
-
-
-
-template<typename  squareT>
-void
-basic_board<squareT>::
-search_route(const piece&  p, point  a, point  b) noexcept
-{
-    for(auto&  sq: m_square_table)
-    {
-      sq.reset_route_code();
-    }
-
-
-  auto&  start = get_square(a.x,a.y);
-  auto&   goal = get_square(b.x,b.y);
-
-  int  index = 0;
-
-
-  m_routing_stack.clear();
-
-  start.set_mv(p.get_mv()-p.get_mv_consumption(start));
-
-  m_routing_stack.emplace_back(&start);
-
-    while(index < m_routing_stack.size())
-    {
-      auto&  sq = *(m_routing_stack[index++]);
-
-      auto  mv = sq.get_mv();
-
-        if(mv > 0)
-        {
-          constexpr point  offset_table[] = {
-            point(-1,-1),
-            point( 0,-1),
-            point( 1,-1),
-            point(-1, 0),
-            point( 1, 0),
-            point(-1, 1),
-            point( 0, 1),
-            point( 1, 1),
-          };
-
-            for(auto&  off: offset_table)
-            {
-              auto  i = sq.get_index()+off;
-
-                if(test_index(i))
-                {
-                  auto&  dst = get_square(i.x,i.y);
-
-                    if(!dst.test_mark())
-                    {
-                      dst.set_mv(mv-p.get_mv_consumption(dst));
-
-                      m_routing_stack.emplace_back(&dst);
-                    }
-                }
-            }
-        }
-    }
 }
 
 

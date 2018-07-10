@@ -24,9 +24,6 @@ using namespace gbact;
 int  g_screen_width  = 288;
 int  g_screen_height = 240;
 
-int  g_board_width  = 12;
-int  g_board_height = 10;
-
 
 point
 g_object_space_offset;
@@ -44,23 +41,12 @@ spaces::space<spaces::object>
 g_object_space;
 
 
-board
-g_board;
-
-
-board_view
-g_board_view;
-
-
 std::vector<gbact::stages::stage>
 g_stage_table(1);
 
 
 int
 g_stage_index;
-
-
-validity  g_board_view_validity;
 
 
 namespace{
@@ -110,7 +96,7 @@ step() noexcept
         if(!g_input.test_p_button())
         {
           g_object_space.show();
-          g_board_view_validity.enable();
+          g_board_view.show();
 
           m_chooser.initialize({
             "EDIT",
@@ -202,10 +188,7 @@ main_loop() noexcept
 
       g_final_image.fill();
 
-        if(g_board_view_validity)
-        {
-          g_board_view.render(image_cursor(g_final_image,point(0,48)));
-        }
+      g_board_view.render(image_cursor(g_final_image,point(0,48)));
 
 
       g_character_space.render(g_board_view.get_offset(),image_cursor(g_final_image,point(0,48)));
@@ -264,7 +247,7 @@ main(int  argc, char**  argv)
 
   using stage = gbact::stages::stage;
 
-  g_board.build(g_board_width,g_board_height);
+  gbact::reset_board();
 
   g_board_view.set_source_image(g_bg_image);
   g_board_view.reset(g_board,g_screen_width,g_screen_height-48);

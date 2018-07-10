@@ -7,51 +7,14 @@
 #include"libgbstd/control_device.hpp"
 #include"libgbstd/direction.hpp"
 #include"libgbstd/program.hpp"
+#include"libgbact/board.hpp"
 #include<new>
 
 
 using namespace gbstd;
 
 
-extern board
-g_board;
-
-
 namespace gbact{
-
-
-class
-square_data: public boards::square_data
-{
-protected:
-  enum class kind{
-    null,
-    block,
-    ladder,
-
-  } m_kind=kind::null;
-
-
-  constexpr square_data(kind  k, int  x, int  y, gate  g) noexcept: boards::square_data(x,y,g), m_kind(k){}
-
-public:
-  square_data() noexcept{}
-
-  constexpr bool  is_null()   const noexcept{return m_kind == kind::null;}
-  constexpr bool  is_block()  const noexcept{return m_kind == kind::block;}
-  constexpr bool  is_ladder() const noexcept{return m_kind == kind::ladder;}
-
-  void  be_null()   noexcept{m_kind = kind::null;}
-  void  be_block()  noexcept{m_kind = kind::block;}
-  void  be_ladder() noexcept{m_kind = kind::ladder;}
-
-  static constexpr square_data     null(){return square_data(kind::null  ,24*0,24*0, gate::get_none());}
-  static constexpr square_data   block0(){return square_data(kind::block ,24*0,24*1, gate::get_all());}
-  static constexpr square_data   block1(){return square_data(kind::block ,24*2,24*0, gate::get_all());}
-  static constexpr square_data  ladder0(){return square_data(kind::ladder,24*1,24*0, gate::get_top());}
-  static constexpr square_data  ladder1(){return square_data(kind::ladder,24*1,24*1, gate::get_none());}
-
-};
 
 
 
@@ -138,11 +101,11 @@ character: public spaces::image_object
   } m_blinking_status;
 
 
-  boards::square*            m_current_square=nullptr;
-  boards::square*     m_left_contacted_square=nullptr;
-  boards::square*    m_right_contacted_square=nullptr;
-  boards::square*      m_top_contacted_square=nullptr;
-  boards::square*   m_bottom_contacted_square=nullptr;
+  square*            m_current_square=nullptr;
+  square*     m_left_contacted_square=nullptr;
+  square*    m_right_contacted_square=nullptr;
+  square*      m_top_contacted_square=nullptr;
+  square*   m_bottom_contacted_square=nullptr;
 
   physics  m_physics;
 
@@ -188,11 +151,11 @@ public:
   void   set_square_point_offset_x(int  v) noexcept{m_square_point_offset.x = v;}
   void   set_square_point_offset_y(int  v) noexcept{m_square_point_offset.y = v;}
 
-  boards::square*  get_current_square()          const noexcept{return m_current_square;}
-  boards::square*  get_left_contacted_square()   const noexcept{return m_left_contacted_square;}
-  boards::square*  get_right_contacted_square()  const noexcept{return m_right_contacted_square;}
-  boards::square*  get_top_contacted_square()    const noexcept{return m_top_contacted_square;}
-  boards::square*  get_bottom_contacted_square() const noexcept{return m_bottom_contacted_square;}
+  square*  get_current_square()          const noexcept{return m_current_square;}
+  square*  get_left_contacted_square()   const noexcept{return m_left_contacted_square;}
+  square*  get_right_contacted_square()  const noexcept{return m_right_contacted_square;}
+  square*  get_top_contacted_square()    const noexcept{return m_top_contacted_square;}
+  square*  get_bottom_contacted_square() const noexcept{return m_bottom_contacted_square;}
 
 
   void  reset_phase() noexcept{m_phase = 0;}
@@ -229,12 +192,12 @@ public:
   virtual void  do_when_collided(character&  other_side, positions::position  position) noexcept{}
 
 
-  virtual void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept{}
+  virtual void  do_when_changed_square(square*  new_sq, square*  old_sq) noexcept{}
 
 
   void  detect_current_square() noexcept;
 
-  virtual void  do_when_collided_with_square(boards::square&  sq) noexcept{}
+  virtual void  do_when_collided_with_square(square&  sq) noexcept{}
 
   void  update_core() noexcept override;
 
@@ -287,7 +250,7 @@ public:
 
   virtual void  do_when_ran_out_life() noexcept;
 
-  void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override;
+  void  do_when_changed_square(square*  new_sq, square*  old_sq) noexcept override;
 
 };
 
@@ -420,7 +383,7 @@ public:
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
   void  do_when_collided_with_item(    item&  other_side, positions::position  position) noexcept override;
 
-  void  do_when_collided_with_square(boards::square&  sq) noexcept override;
+  void  do_when_collided_with_square(square&  sq) noexcept override;
 
   void  update_core() noexcept override;
   void  update_graphics() noexcept override;
@@ -561,8 +524,8 @@ public:
 
   void  do_when_collided(character&  other_side, positions::position  position) noexcept override;
 
-  void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override;
-  void  do_when_collided_with_square(boards::square&  sq) noexcept override;
+  void  do_when_changed_square(square*  new_sq, square*  old_sq) noexcept override;
+  void  do_when_collided_with_square(square&  sq) noexcept override;
 
   void  set_callback(callback  cb) noexcept{m_callback = cb;}
 
@@ -579,7 +542,7 @@ public:
 
   void  do_when_collided_with_player(player&  other_side, positions::position  position) noexcept override;
 
-  void  do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept override{}
+  void  do_when_changed_square(square*  new_sq, square*  old_sq) noexcept override{}
 
 };
 

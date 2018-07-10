@@ -125,7 +125,7 @@ block(character&  target, positions::position  position) const noexcept
 
 
 namespace{
-boards::square*
+square*
 get_square(int  x, int  y) noexcept
 {
     if((x >= 0) &&

@@ -53,7 +53,7 @@ do_when_collided(character&  other_side, positions::position  position) noexcept
 
 void
 bullet::
-do_when_collided_with_square(boards::square&  sq) noexcept
+do_when_collided_with_square(square&  sq) noexcept
 {
   die();
 }
@@ -61,7 +61,7 @@ do_when_collided_with_square(boards::square&  sq) noexcept
 
 void
 bullet::
-do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept
+do_when_changed_square(square*  new_sq, square*  old_sq) noexcept
 {
 }
 

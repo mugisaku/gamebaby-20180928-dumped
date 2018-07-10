@@ -100,7 +100,7 @@ do_when_ran_out_life() noexcept
 
 void
 player::
-do_when_changed_square(boards::square*  new_sq, boards::square*  old_sq) noexcept
+do_when_changed_square(square*  new_sq, square*  old_sq) noexcept
 {
 }
 

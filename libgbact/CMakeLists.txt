@@ -3,6 +3,7 @@
 set(SOURCES
   processes/edit.cpp
   processes/play.cpp
+  board.cpp
   stage.cpp
   character.cpp
   player.cpp

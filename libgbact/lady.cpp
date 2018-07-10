@@ -96,7 +96,7 @@ do_when_collided_with_item(item&  other_side, positions::position  position) noe
 
 void
 lady::
-do_when_collided_with_square(boards::square&  sq) noexcept
+do_when_collided_with_square(square&  sq) noexcept
 {
     if(m_action == action::ladder)
     {

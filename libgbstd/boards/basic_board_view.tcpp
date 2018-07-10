@@ -2,9 +2,9 @@
 
 
 
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 void
-basic_board_view<squareT>::
+basic_board_view<squareT,W,H>::
 chase_object(const spaces::object&  obj, int  speed) noexcept
 {
   auto&  base_point = obj.get_base_point();
@@ -86,10 +86,10 @@ chase_object(const spaces::object&  obj, int  speed) noexcept
 
 
 
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 void
-basic_board_view<squareT>::
-reset(const basic_board<squareT>&  brd, int  w, int  h) noexcept
+basic_board_view<squareT,W,H>::
+reset(const basic_board<squareT,W,H>&  brd, int  w, int  h) noexcept
 {
   m_board = &brd;
 
@@ -115,9 +115,9 @@ get_corrected_value(int  value, int  size) noexcept
 }
 
 
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 struct
-basic_board_view<squareT>::
+basic_board_view<squareT,W,H>::
 rendering_context
 {
   int  board_width ;
@@ -133,9 +133,9 @@ rendering_context
 };
 
 
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 void
-basic_board_view<squareT>::
+basic_board_view<squareT,W,H>::
 render_line(const rendering_context&  ctx) const noexcept
 {
   int  point_x = (m_offset.x%ctx.board_image_width);
@@ -212,9 +212,9 @@ render_line(const rendering_context&  ctx) const noexcept
 }
 
 
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 void
-basic_board_view<squareT>::
+basic_board_view<squareT,W,H>::
 correct_offset() noexcept
 {
   int  board_image_width  = m_board->get_image_width() ;
@@ -245,10 +245,10 @@ correct_offset() noexcept
 }
 
 
-template<typename  squareT>
+template<typename  squareT, int  W, int  H>
 void
-basic_board_view<squareT>::
-render(image_cursor  cur, void  (*callback)(basic_board_view<squareT>&  bv, int  output_line)) noexcept
+basic_board_view<squareT,W,H>::
+render(image_cursor  cur, void  (*callback)(basic_board_view<squareT,W,H>&  bv, int  output_line)) noexcept
 {
     if(is_visible())
     {
