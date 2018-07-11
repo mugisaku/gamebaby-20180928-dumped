@@ -54,7 +54,7 @@ set(SDL_SOURCES
 
 add_subdirectory(libgbstd)
 add_subdirectory(libgbact)
-#add_subdirectory(libgbwar)
+add_subdirectory(libgbwar)
 #add_subdirectory(libgbgui)
 #add_subdirectory(libgbsnd)
 #add_subdirectory(libgbscr)
@@ -93,7 +93,7 @@ add_executable("warwar_sdl${EXECUTABLE_EXTENSION}" warwar_sdl.cpp ${SDL_SOURCES}
 #target_link_libraries("winmantester${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("growin${EXECUTABLE_EXTENSION}" "gbstd")
 target_link_libraries("game_sdl${EXECUTABLE_EXTENSION}" "gbact" "gbstd" "png" "z")
-target_link_libraries("warwar_sdl${EXECUTABLE_EXTENSION}" "gbstd" "png" "z")
+target_link_libraries("warwar_sdl${EXECUTABLE_EXTENSION}" "gbwar" "gbstd" "png" "z")
 #target_link_libraries("landriser${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("gbsnd_test${EXECUTABLE_EXTENSION}" "gbsnd" "tok" "gbstd")
 #target_link_libraries("gbsnd_sdl${EXECUTABLE_EXTENSION}" "gbsnd" "tok" "gbstd")

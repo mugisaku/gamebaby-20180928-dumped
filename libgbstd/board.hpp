@@ -59,8 +59,6 @@ basic_board
 
   squareT  m_square_table[W*H];
 
-  std::vector<squareT*>   m_routing_stack;
-
 public:
   constexpr int  get_width()  const noexcept{return m_width;}
   constexpr int  get_height() const noexcept{return m_height;}
