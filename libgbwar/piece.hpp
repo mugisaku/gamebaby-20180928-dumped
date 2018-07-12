@@ -4,6 +4,7 @@
 
 #include"libgbstd/space.hpp"
 #include"libgbstd/direction.hpp"
+#include"libgbstd/program.hpp"
 #include"libgbwar/board.hpp"
 
 
@@ -22,6 +23,10 @@ class
 piece_object: public spaces::object
 {
   piece*  m_target=nullptr;
+
+  int  m_pause_counter=0;
+
+  uint32_t  m_last_time=0;
 
 public:
   piece_object(piece&  p) noexcept: m_target(&p){}
@@ -100,10 +105,16 @@ public:
 
   team_color  get_team_color() const noexcept{return m_team_color;}
 
+
+  void   seek_route() const noexcept;
+
   int  get_mv_consumption(const square&  sq) const noexcept
   {
     return 1;
   }
+
+
+  static image  g_image;
 
 };
 
@@ -117,7 +128,8 @@ public:
   piece_info() noexcept{}
 
 
-  void  set_target(piece*  p) noexcept{m_target = p;}
+  void    set_target(piece*  p)       noexcept{       m_target = p;}
+  piece*  get_target(         ) const noexcept{return m_target    ;}
 
   void  update_core() noexcept override;
 

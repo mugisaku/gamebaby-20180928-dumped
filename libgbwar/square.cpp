@@ -23,5 +23,13 @@ set_piece(piece*  p) noexcept
 }
 
 
+point
+square::
+get_image_base_point() const noexcept
+{
+  return (m_mv_consumption < 0)? point():point(24,0);
+}
+
+
 
 

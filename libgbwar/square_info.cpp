@@ -31,11 +31,14 @@ render(point  offset, image_cursor  cur) noexcept
       y += 16;
 
 
-      sf("mv: %2d",m_target->get_mv());
+        if(m_target->get_mv_consumption() >= 0)
+        {
+          sf("mv: %2d, しょうひmv: %2d",m_target->get_mv(),m_target->get_mv_consumption());
 
-      cur.draw_text(*sf,styles::a_white_based_text_style,offset.x,offset.y+y);
+          cur.draw_text(*sf,styles::a_white_based_text_style,offset.x,offset.y+y);
 
-      y += 16;
+          y += 16;
+       }
     }
 }
 

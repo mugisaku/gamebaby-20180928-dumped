@@ -7,66 +7,6 @@
 void
 search_route(const piece&  p, point  a, point  b) noexcept
 {
-    for(int  y = 0;  y < g_board_height;  ++y){
-    for(int  x = 0;  x < g_board_width ;  ++x){
-      auto&  sq = g_board.get_square(x,y);
-
-      sq.clear_distance();
-
-      sq.set_mv(0);
-    }}
-
-
-  auto&  start = g_board.get_square(a.x,a.y);
-  auto&   goal = g_board.get_square(b.x,b.y);
-
-  int  index = 0;
-
-  static std::vector<square*>  routing_stack;
-
-  routing_stack.clear();
-
-  start.set_mv(p.get_mv()-p.get_mv_consumption(start));
-
-  routing_stack.emplace_back(&start);
-
-    while(index < routing_stack.size())
-    {
-      auto&  sq = *(routing_stack[index++]);
-
-      auto  mv = sq.get_mv();
-
-        if(mv > 0)
-        {
-          constexpr point  offset_table[] = {
-            point(-1,-1),
-            point( 0,-1),
-            point( 1,-1),
-            point(-1, 0),
-            point( 1, 0),
-            point(-1, 1),
-            point( 0, 1),
-            point( 1, 1),
-          };
-
-            for(auto&  off: offset_table)
-            {
-              auto  i = sq.get_index()+off;
-
-                if(g_board.test_index(i))
-                {
-                  auto&  dst = g_board.get_square(i.x,i.y);
-
-                    if(!dst.test_mark())
-                    {
-                      dst.set_mv(mv-p.get_mv_consumption(dst));
-
-                      routing_stack.emplace_back(&dst);
-                    }
-                }
-            }
-        }
-    }
 }
 
 
@@ -96,6 +36,22 @@ reset_board() noexcept
       sq.link((d && l)? &get_square(x-1,y+1):&get_square(w-1,  0),links::lower_left );
       sq.link((d && r)? &get_square(x+1,y+1):&get_square(0  ,  0),links::lower_right);
 */
+    }}
+}
+
+
+void
+clean_board() noexcept
+{
+    for(int  y = 0;  y < g_board_height;  ++y){
+    for(int  x = 0;  x < g_board_width ;  ++x){
+      auto&  sq = g_board.get_square(x,y);
+
+      sq.set_distance(0);
+
+      sq.set_mv_consumption(-1);
+
+      sq.set_mv(0);
     }}
 }
 

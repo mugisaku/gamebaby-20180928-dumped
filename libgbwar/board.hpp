@@ -55,20 +55,21 @@ square
 
   uint32_t  m_mv=0;
 
+  int  m_mv_consumption=-1;
+
   square_data*  m_data=nullptr;
 
 public:
   static constexpr int  size = 24;
 
-  void  clear_distance() noexcept{m_distance = 0;}
-
   void      set_mv(uint32_t  v)       noexcept{       m_mv = v;}
   uint32_t  get_mv(           ) const noexcept{return m_mv    ;}
 
-  void      set_distance(uint32_t  v)       noexcept{m_distance = (v<<1)|1;}
-  uint32_t  get_distance(           ) const noexcept{return m_distance>>1;}
+  void  set_mv_consumption(int  v)       noexcept{       m_mv_consumption = v;}
+  int   get_mv_consumption(      ) const noexcept{return m_mv_consumption    ;}
 
-  bool  test_mark() const noexcept{return m_distance&1;}
+  void      set_distance(uint32_t  v)       noexcept{       m_distance = v;}
+  uint32_t  get_distance(           ) const noexcept{return m_distance    ;}
 
   const point&  get_index(         ) const noexcept{return m_index     ;}
   void          set_index(point  pt)       noexcept{       m_index = pt;}
@@ -82,7 +83,7 @@ public:
   template<typename  T>
   T&  get_data() const noexcept{return *static_cast<T*>(m_data);}
 
-  point  get_image_base_point() const noexcept{return m_data? m_data->get_image_point():point();}
+  point  get_image_base_point() const noexcept;
 
 };
 
@@ -107,6 +108,7 @@ public:
 void  search_route(const piece&  p, point  a, point  b) noexcept;
 
 void  reset_board() noexcept;
+void  clean_board() noexcept;
 
 
 extern basic_board<square,g_board_width,g_board_height>
