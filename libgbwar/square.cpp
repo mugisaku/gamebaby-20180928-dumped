@@ -27,7 +27,7 @@ point
 square::
 get_image_base_point() const noexcept
 {
-  return (m_mv_consumption < 0)? point():point(24,0);
+  return m_lighting? point(24,0):point();
 }
 
 

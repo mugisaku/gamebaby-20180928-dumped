@@ -31,9 +31,18 @@ render(point  offset, image_cursor  cur) noexcept
       y += 16;
 
 
-        if(m_target->get_mv_consumption() >= 0)
+      auto  total_mv_consum = m_target->get_total_mv_consumption();
+
+        if(total_mv_consum)
         {
-          sf("mv: %2d, しょうひmv: %2d",m_target->get_mv(),m_target->get_mv_consumption());
+          sf("しょうひmv: %2d",total_mv_consum);
+
+          cur.draw_text(*sf,styles::a_white_based_text_style,offset.x,offset.y+y);
+
+          y += 16;
+
+
+          sf("きょり: %4d",m_target->get_distance());
 
           cur.draw_text(*sf,styles::a_white_based_text_style,offset.x,offset.y+y);
 

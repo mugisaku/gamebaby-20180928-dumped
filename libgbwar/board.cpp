@@ -4,9 +4,18 @@
 
 
 
-void
-search_route(const piece&  p, point  a, point  b) noexcept
+route
+search_route(const square&  start, const square&  goal) noexcept
 {
+  return route{};
+}
+
+
+route
+search_route(point  start, point  goal) noexcept
+{
+  return search_route(g_board.get_square(start.x,start.y),
+                      g_board.get_square( goal.x, goal.y));
 }
 
 
@@ -49,9 +58,9 @@ clean_board() noexcept
 
       sq.set_distance(0);
 
-      sq.set_mv_consumption(-1);
+      sq.set_total_mv_consumption(0);
 
-      sq.set_mv(0);
+      sq.unlighten();
     }}
 }
 

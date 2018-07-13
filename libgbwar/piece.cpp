@@ -41,16 +41,10 @@ seek_route() const noexcept
 
   routing_stack.clear();
 
-  start.set_mv(get_mv());
-
   routing_stack.emplace_back(&start);
 
     while(index < routing_stack.size())
     {
-      auto&  sq = *(routing_stack[index++]);
-
-      auto  mv = sq.get_mv();
-
       constexpr point  offset_table[] = {
         point(-1,-1),
         point( 0,-1),
@@ -62,6 +56,11 @@ seek_route() const noexcept
         point( 1, 1),
       };
 
+
+      auto&  sq = *(routing_stack[index++]);
+
+      auto  current_value = sq.get_total_mv_consumption();
+
         for(auto&  off: offset_table)
         {
           auto  dst_i = sq.get_index()+off;
@@ -70,19 +69,34 @@ seek_route() const noexcept
             {
               auto&  dst = g_board.get_square(dst_i.x,dst_i.y);
 
-                if(dst.get_mv_consumption() < 0)
+                if(&dst != &start)
                 {
-                  dst.set_mv_consumption(get_mv_consumption(dst));
-                }
+                  auto  dst_value = dst.get_total_mv_consumption();
+
+                  auto  next_value = current_value+get_mv_consumption(dst);
+
+                    if(!dst_value || (dst_value > next_value))
+                    {
+                      dst.set_total_mv_consumption(next_value);
+
+                      dst_value = next_value;
+                    }
 
 
-              auto  mv_consumption = dst.get_mv_consumption();
+                    if((dst_value > current_value) && (dst_value <= get_mv()))
+                    {
+                      auto  new_dist = sq.get_distance()+((off.x && off.y)? 133:100);
 
-                if((mv_consumption <= mv) && (dst.get_mv() < mv))
-                {
-                  dst.set_mv(mv-mv_consumption);
+                        if(!dst.get_distance() || (new_dist < dst.get_distance()))
+                        {
+                          dst.set_distance(new_dist);
+                        }
 
-                  routing_stack.emplace_back(&dst);
+
+                      dst.lighten();
+
+                      routing_stack.emplace_back(&dst);
+                    }
                 }
             }
         }

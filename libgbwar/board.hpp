@@ -53,20 +53,22 @@ square
 
   uint32_t  m_distance=0;
 
-  uint32_t  m_mv=0;
+  uint32_t  m_total_mv_consumption=0;
 
-  int  m_mv_consumption=-1;
+  bool  m_lighting=false;
 
   square_data*  m_data=nullptr;
 
 public:
   static constexpr int  size = 24;
 
-  void      set_mv(uint32_t  v)       noexcept{       m_mv = v;}
-  uint32_t  get_mv(           ) const noexcept{return m_mv    ;}
+  void    lighten() noexcept{m_lighting =  true;}
+  void  unlighten() noexcept{m_lighting = false;}
 
-  void  set_mv_consumption(int  v)       noexcept{       m_mv_consumption = v;}
-  int   get_mv_consumption(      ) const noexcept{return m_mv_consumption    ;}
+  bool  is_lightened() const noexcept{return m_lighting;}
+
+  void       set_total_mv_consumption(uint32_t  v)       noexcept{       m_total_mv_consumption = v;}
+  uint32_t   get_total_mv_consumption(           ) const noexcept{return m_total_mv_consumption    ;}
 
   void      set_distance(uint32_t  v)       noexcept{       m_distance = v;}
   uint32_t  get_distance(           ) const noexcept{return m_distance    ;}
@@ -105,7 +107,35 @@ public:
 };
 
 
-void  search_route(const piece&  p, point  a, point  b) noexcept;
+enum class
+instruction
+{
+  movu,
+  movul,
+  movur,
+
+  movl,
+  movr,
+
+  movd,
+  movdl,
+  movdr,
+
+};
+
+
+struct
+route
+{
+  uint32_t  distance;
+
+  std::vector<instruction>  codes;
+
+};
+
+
+route  search_route(const square&  start, const square&  goal) noexcept;
+route  search_route(point  start, point  goal) noexcept;
 
 void  reset_board() noexcept;
 void  clean_board() noexcept;

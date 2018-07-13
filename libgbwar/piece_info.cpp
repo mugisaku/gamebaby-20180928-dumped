@@ -35,6 +35,13 @@ render(point  offset, image_cursor  cur) noexcept
       cur.draw_text(*sf,styles::a_white_based_text_style,offset.x,offset.y+y);
 
       y += 16;
+
+
+      sf("MV %2d/%2d",m_target->get_mv(),m_target->get_mv_max());
+
+      cur.draw_text(*sf,styles::a_white_based_text_style,offset.x,offset.y+y);
+
+      y += 16;
     }
 }
 
