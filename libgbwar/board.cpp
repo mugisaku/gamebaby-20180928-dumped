@@ -37,7 +37,7 @@ search_route(const square&  start, const square&  goal) noexcept
             {
               auto&  dst = g_board.get_square(dst_i.x,dst_i.y);
 
-//                if(dst.is_lightened())
+                if((&dst == &start) || dst.is_lightened())
                 {
                   auto  a = ptr->get_distance();
                   auto  b =  dst.get_distance();
