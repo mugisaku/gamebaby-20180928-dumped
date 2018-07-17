@@ -87,18 +87,21 @@ public:
 
   point  get_image_base_point() const noexcept;
 
+  void  print() const noexcept;
+
 };
 
 
 class
 square_info: public spaces::object
 {
-  const square*  m_target=nullptr;
+  square*  m_target=nullptr;
 
 public:
   square_info() noexcept{}
 
-  void  set_target(square*  sq) noexcept{m_target = sq;}
+  void     set_target(square*  sq)       noexcept{       m_target = sq;}
+  square*  get_target(           ) const noexcept{return m_target     ;}
 
   void  update_core() noexcept override;
 
@@ -110,6 +113,8 @@ public:
 enum class
 instruction
 {
+  nop,
+
   movu,
   movul,
   movur,
@@ -127,8 +132,6 @@ instruction
 struct
 route
 {
-  uint32_t  distance;
-
   std::vector<instruction>  codes;
 
 };

@@ -31,5 +31,13 @@ get_image_base_point() const noexcept
 }
 
 
+void
+square::
+print() const noexcept
+{
+  printf("square{ index{%2d,%2d}, }",m_index.x,m_index.y);
+}
+
+
 
 

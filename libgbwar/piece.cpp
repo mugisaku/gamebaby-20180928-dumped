@@ -24,6 +24,39 @@ set_square(square*  sq) noexcept
 
 void
 piece::
+seek_route_internal(std::vector<square*>&  stack, square&  base, square&  dst, uint32_t  new_dist) const noexcept
+{
+  auto  current_value = base.get_total_mv_consumption();
+
+  auto  dst_value = dst.get_total_mv_consumption();
+
+  auto  next_value = current_value+get_mv_consumption(dst);
+
+    if(!dst_value || (dst_value > next_value))
+    {
+      dst.set_total_mv_consumption(next_value);
+
+      dst_value = next_value;
+    }
+
+
+    if((dst_value > current_value) && (dst_value <= get_mv()))
+    {
+        if(!dst.get_distance() || (new_dist < dst.get_distance()))
+        {
+          dst.set_distance(new_dist);
+        }
+
+
+      dst.lighten();
+
+      stack.emplace_back(&dst);
+    }
+}
+
+
+void
+piece::
 seek_route() const noexcept
 {
     if(!m_square)
@@ -57,13 +90,11 @@ seek_route() const noexcept
       };
 
 
-      auto&  sq = *(routing_stack[index++]);
-
-      auto  current_value = sq.get_total_mv_consumption();
+      auto&  base = *(routing_stack[index++]);
 
         for(auto&  off: offset_table)
         {
-          auto  dst_i = sq.get_index()+off;
+          auto  dst_i = base.get_index()+off;
 
             if(g_board.test_index(dst_i))
             {
@@ -71,32 +102,9 @@ seek_route() const noexcept
 
                 if(&dst != &start)
                 {
-                  auto  dst_value = dst.get_total_mv_consumption();
+                  auto  dist = base.get_distance()+((off.x && off.y)? 133:100);
 
-                  auto  next_value = current_value+get_mv_consumption(dst);
-
-                    if(!dst_value || (dst_value > next_value))
-                    {
-                      dst.set_total_mv_consumption(next_value);
-
-                      dst_value = next_value;
-                    }
-
-
-                    if((dst_value > current_value) && (dst_value <= get_mv()))
-                    {
-                      auto  new_dist = sq.get_distance()+((off.x && off.y)? 133:100);
-
-                        if(!dst.get_distance() || (new_dist < dst.get_distance()))
-                        {
-                          dst.set_distance(new_dist);
-                        }
-
-
-                      dst.lighten();
-
-                      routing_stack.emplace_back(&dst);
-                    }
+                  seek_route_internal(routing_stack,base,dst,dist);
                 }
             }
         }

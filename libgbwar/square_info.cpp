@@ -30,12 +30,9 @@ render(point  offset, image_cursor  cur) noexcept
 
       y += 16;
 
-
-      auto  total_mv_consum = m_target->get_total_mv_consumption();
-
-        if(total_mv_consum)
+        if(m_target->is_lightened())
         {
-          sf("しょうひmv: %2d",total_mv_consum);
+          sf("しょうひmv: %2d",m_target->get_total_mv_consumption());
 
           cur.draw_text(*sf,styles::a_white_based_text_style,offset.x,offset.y+y);
 

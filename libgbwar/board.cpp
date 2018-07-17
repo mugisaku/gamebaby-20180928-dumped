@@ -7,7 +7,71 @@
 route
 search_route(const square&  start, const square&  goal) noexcept
 {
-  return route{};
+  auto  ptr = &goal;
+
+  route  r;
+
+    for(;;)
+    {
+      constexpr std::pair<point,instruction>  table[] = {
+        std::make_pair(point(-1,-1),instruction::movdr),
+        std::make_pair(point( 0,-1),instruction::movd),
+        std::make_pair(point( 1,-1),instruction::movdl),
+        std::make_pair(point(-1, 0),instruction::movr),
+        std::make_pair(point( 1, 0),instruction::movl),
+        std::make_pair(point(-1, 1),instruction::movur),
+        std::make_pair(point( 0, 1),instruction::movu),
+        std::make_pair(point( 1, 1),instruction::movul),
+      };
+
+
+      auto  last_ptr = ptr;
+
+      instruction  instr;
+
+        for(auto&  e: table)
+        {
+          auto  dst_i = last_ptr->get_index()+e.first;
+
+            if(g_board.test_index(dst_i))
+            {
+              auto&  dst = g_board.get_square(dst_i.x,dst_i.y);
+
+//                if(dst.is_lightened())
+                {
+                  auto  a = ptr->get_distance();
+                  auto  b =  dst.get_distance();
+
+                    if(a > b)
+                    {
+                      ptr = &dst;
+
+                      instr = e.second;
+                    }
+                }
+            }
+        }
+
+
+        if(ptr == last_ptr)
+        {
+            if(ptr != &start)
+            {
+              printf("search_route error\n");
+            }
+
+
+          break;
+        }
+
+      else
+        {
+          r.codes.emplace_back(instr);
+        }
+    }
+
+
+  return std::move(r);
 }
 
 

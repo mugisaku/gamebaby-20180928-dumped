@@ -61,6 +61,10 @@ piece
 
   square*  m_square=nullptr;
 
+  program  m_program;
+
+  void  seek_route_internal(std::vector<square*>&  stack, square&  base, square&  dst, uint32_t  new_dist) const noexcept;
+
 public:
   piece() noexcept: m_object(*this){}
 
@@ -105,6 +109,8 @@ public:
 
   team_color  get_team_color() const noexcept{return m_team_color;}
 
+
+  program&  get_program() noexcept{return m_program;}
 
   void   seek_route() const noexcept;
 
