@@ -102,9 +102,14 @@ seek_route() const noexcept
 
                 if(&dst != &start)
                 {
-                  auto  dist = base.get_distance()+((off.x && off.y)? 133:100);
+                  auto  dst_piece = dst.get_piece();
 
-                  seek_route_internal(routing_stack,base,dst,dist);
+                    if(!dst_piece || (dst_piece->get_team_color() == get_team_color()))
+                    {
+                      auto  dist = base.get_distance()+((off.x && off.y)? 133:100);
+ 
+                      seek_route_internal(routing_stack,base,dst,dist);
+                    }
                 }
             }
         }

@@ -107,7 +107,8 @@ public:
   square*  get_square(           ) const noexcept{return m_square     ;}
   void     set_square(square*  sq)       noexcept;
 
-  team_color  get_team_color() const noexcept{return m_team_color;}
+  team_color  get_team_color(                 ) const noexcept{return m_team_color        ;}
+  void        set_team_color(team_color  color)       noexcept{       m_team_color = color;}
 
 
   program&  get_program() noexcept{return m_program;}

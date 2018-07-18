@@ -19,6 +19,8 @@ set_piece(piece*  p) noexcept
     if(p)
     {
       p->set_square(this);
+
+      p->get_object().set_base_point(size*m_index.x,size*m_index.y);
     }
 }
 
