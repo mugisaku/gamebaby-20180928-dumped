@@ -44,6 +44,9 @@ public:
 };
 
 
+extern image  g_bg_image;
+
+
 class
 square
 {
@@ -61,6 +64,8 @@ square
 
 public:
   static constexpr int  size = 24;
+
+  operator raster_view() const noexcept{return raster_view(g_bg_image.cbegin(),g_bg_image.get_width());}
 
   void    lighten() noexcept{m_lighting =  true;}
   void  unlighten() noexcept{m_lighting = false;}

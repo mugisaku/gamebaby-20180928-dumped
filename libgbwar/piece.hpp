@@ -17,6 +17,7 @@ team_color
 
 
 class piece;
+class team;
 
 
 class
@@ -49,6 +50,10 @@ piece
 
   gbstd::string  m_name;
 
+  team*  m_team=nullptr;
+
+  bool  m_alive=false;
+
   int  m_hp=0;
   int  m_hp_max=0;
 
@@ -67,6 +72,13 @@ piece
 
 public:
   piece() noexcept: m_object(*this){}
+
+  operator bool() const noexcept{return m_alive;}
+
+  bool  is_alive() const noexcept{return m_alive;}
+
+  void       die() noexcept{m_alive = false;}
+  void  be_alive() noexcept{m_alive =  true;}
 
   operator piece_object&() noexcept{return m_object;}
 

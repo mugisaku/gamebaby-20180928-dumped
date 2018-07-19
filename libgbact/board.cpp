@@ -8,6 +8,15 @@ namespace gbact{
 
 
 
+images::image
+g_bg_image;
+
+
+const pixel
+square::
+m_dummy_line[24*24];
+
+
 void
 reset_board() noexcept
 {

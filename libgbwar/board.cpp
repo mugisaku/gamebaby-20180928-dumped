@@ -4,6 +4,12 @@
 
 
 
+image
+g_bg_image;
+
+
+
+
 route
 search_route(const square&  start, const square&  goal) noexcept
 {

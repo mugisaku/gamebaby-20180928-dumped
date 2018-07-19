@@ -29,10 +29,6 @@ point
 g_object_space_offset;
 
 
-images::image
-g_bg_image;
-
-
 spaces::space<gbact::characters::character>
 g_character_space;
 
@@ -235,7 +231,7 @@ main(int  argc, char**  argv)
   sdl::init(g_screen_width,g_screen_height,1.5);
 
   gbact::characters::g_image.load_from_png("__resources/lady_and.png");
-  g_bg_image.load_from_png("__resources/bg.png");
+  gbact::g_bg_image.load_from_png("__resources/bg.png");
   gbstd::g_misc_image.load_from_png("__resources/misc.png");
 
   g_final_image = sdl::make_screen_image();
@@ -249,7 +245,6 @@ main(int  argc, char**  argv)
 
   gbact::reset_board();
 
-  g_board_view.set_source_image(g_bg_image);
   g_board_view.reset(g_board,g_screen_width,g_screen_height-48);
 
 

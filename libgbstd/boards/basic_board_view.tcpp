@@ -192,10 +192,10 @@ render_line(const rendering_context&  ctx) const noexcept
         }
 
 
-      auto  srcimg_pt = sq.get_image_base_point();
+      auto  rv = static_cast<raster_view>(sq);
 
-      auto  current_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x+x_offset       ,srcimg_pt.y+square_y);
-      auto      end_src_pixel = &m_source_image->get_const_pixel(srcimg_pt.x+squareT::size,srcimg_pt.y+square_y);
+      auto  current_src_pixel = &rv.get_pixel(x_offset,square_y);
+      auto      end_src_pixel = current_src_pixel+squareT::size;
 
       x_offset = 0;
 

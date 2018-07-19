@@ -72,6 +72,9 @@ public:
   pixel*  begin() noexcept{return &m_pixels.front();}
   pixel*    end() noexcept{return &m_pixels.back()+1;}
 
+  const pixel*  cbegin() const noexcept{return &m_pixels.front();}
+  const pixel*    cend() const noexcept{return &m_pixels.back()+1;}
+
         pixel&        get_pixel(int  x, int  y)       noexcept{return m_pixels[m_width*y+x];}
   const pixel&  get_const_pixel(int  x, int  y) const noexcept{return m_pixels[m_width*y+x];}
 

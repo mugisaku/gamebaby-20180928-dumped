@@ -23,6 +23,14 @@ class square;
 class piece;
 
 
+
+
+extern images::image
+g_bg_image;
+
+
+
+
 class
 square_data
 {
@@ -61,6 +69,13 @@ public:
   constexpr point  get_image_point(         ) const noexcept{return m_image_point     ;}
   void             set_image_point(point  pt)       noexcept{       m_image_point = pt;}
 
+  raster_view  get_raster_view() const noexcept
+  {
+    auto&  pix = g_bg_image.get_pixel(m_image_point.x,m_image_point.y);
+
+    return raster_view(&pix,g_bg_image.get_width());
+  }
+
   constexpr gate  get_gate(       ) const noexcept{return m_gate    ;}
   void            set_gate(gate  g)       noexcept{       m_gate = g;}
 
@@ -76,8 +91,12 @@ square
 
   square_data*  m_data=nullptr;
 
+  static const pixel  m_dummy_line[24*24];
+
 public:
   static constexpr int  size = 24;
+
+  operator raster_view() const noexcept{return m_data? m_data->get_raster_view():raster_view(m_dummy_line,size);}
 
   const point&  get_index(         ) const noexcept{return m_index     ;}
   void          set_index(point  pt)       noexcept{       m_index = pt;}
@@ -90,8 +109,6 @@ public:
 
   template<typename  T>
   T&  get_data() const noexcept{return *static_cast<T*>(m_data);}
-
-  point  get_image_base_point() const noexcept{return m_data? m_data->get_image_point():point();}
 
 };
 

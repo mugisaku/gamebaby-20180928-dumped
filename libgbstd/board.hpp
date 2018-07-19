@@ -14,6 +14,25 @@ namespace gbstd{
 
 
 class
+raster_view
+{
+  const pixel*  m_base=nullptr;
+
+  int  m_pitch=0;
+
+public:
+  constexpr raster_view() noexcept{}
+  constexpr raster_view(const pixel*  base, int  pitch) noexcept: m_base(base), m_pitch(pitch){}
+
+  constexpr const pixel*  get_base() const noexcept{return m_base;}
+  constexpr int  get_pitch() const noexcept{return m_pitch;}
+
+  constexpr const pixel&  get_pixel(int  x, int  y) const noexcept{return m_base[(m_pitch*y)+x];}
+
+};
+
+
+class
 gate
 {
   int  m_bits=0;
@@ -94,8 +113,6 @@ basic_board_view
 {
   const basic_board<squareT,W,H>*  m_board=nullptr;
 
-  const image*  m_source_image=nullptr;
-
   int  m_width =0;
   int  m_height=0;
 
@@ -115,8 +132,6 @@ public:
 
   void  show() noexcept{m_visible =  true;}
   void  hide() noexcept{m_visible = false;}
-
-  void  set_source_image(const image&  img) noexcept{m_source_image = &img;}
 
   void  chase_object(const spaces::object&  obj, int speed) noexcept;
 
