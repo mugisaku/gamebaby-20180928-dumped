@@ -2,14 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 project(gmbb)
 
 
-if(SLEEP)
-  set(SEEP_CMD "sleep 1;")
-endif()
-
-
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${SLEEP_CMD} CCACHE_DIR=/tmp/ccachedir ccache")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "sleep 2; CCACHE_DIR=/tmp/ccachedir ccache")
 endif(CCACHE_FOUND)
 
 
@@ -58,7 +53,7 @@ set(SDL_SOURCES
 add_subdirectory(libgbstd)
 add_subdirectory(libgbact)
 add_subdirectory(libgbwar)
-#add_subdirectory(libgbgui)
+add_subdirectory(libgbgui)
 #add_subdirectory(libgbsnd)
 #add_subdirectory(libgbscr)
 
@@ -67,7 +62,7 @@ include_directories(/usr/include/SDL2)
 #add_executable("mkfont_sdl${EXECUTABLE_EXTENSION}" mkfont_sdl.cpp ${SDL_SOURCES})
 #add_executable("mkicon_sdl${EXECUTABLE_EXTENSION}" mkicon_sdl.cpp ${SDL_SOURCES})
 #add_executable("mkforest_sdl${EXECUTABLE_EXTENSION}" mkforest_sdl.cpp ${SDL_SOURCES})
-#add_executable("mkanigra_sdl${EXECUTABLE_EXTENSION}" mkanigra_sdl.cpp ${SDL_SOURCES})
+add_executable("mkanigra_sdl${EXECUTABLE_EXTENSION}" mkanigra_sdl.cpp ${SDL_SOURCES})
 #add_executable("mkpatgra_sdl${EXECUTABLE_EXTENSION}" mkpatgra_sdl.cpp ${SDL_SOURCES})
 add_executable("game_sdl${EXECUTABLE_EXTENSION}" game_sdl.cpp ${SDL_SOURCES})
 add_executable("warwar_sdl${EXECUTABLE_EXTENSION}" warwar_sdl.cpp ${SDL_SOURCES})
@@ -90,7 +85,7 @@ add_executable("warwar_sdl${EXECUTABLE_EXTENSION}" warwar_sdl.cpp ${SDL_SOURCES}
 #target_link_libraries("mkfont_sdl${EXECUTABLE_EXTENSION}" "gbstd")
 #target_link_libraries("mkicon_sdl${EXECUTABLE_EXTENSION}" "gbgui" "gbstd")
 #target_link_libraries("mkforest_sdl${EXECUTABLE_EXTENSION}" "gbstd")
-#target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbgui" "gbstd" "png" "z" "webp" "pthread")
+target_link_libraries("mkanigra_sdl${EXECUTABLE_EXTENSION}" "gbgui" "gbstd" "png" "z" "webp" "pthread")
 #target_link_libraries("mkpatgra_sdl${EXECUTABLE_EXTENSION}" "gbgui" "gbstd" "png" "z" "webp" "pthread")
 #target_link_libraries("markit_sdl${EXECUTABLE_EXTENSION}" "gbstd" "markit")
 #target_link_libraries("winmantester${EXECUTABLE_EXTENSION}" "gbstd")

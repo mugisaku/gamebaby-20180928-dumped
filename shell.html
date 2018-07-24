@@ -7,7 +7,7 @@
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: monospace; width: 80%; }
-      div.emscripten { text-align: center; }
+      div.emscripten { text-align: left; }
       div.emscripten_border { border: 1px solid black; }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
       canvas.emscripten { border: 0px none; background-color: black; }
@@ -60,19 +60,18 @@ var  g_dropped_file_is_image = false;
 </script>
   </head>
   <body>
+<table><tr><td>
     <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>  
     </div>
-<table>
-<tr>
-<td>
+
     <div class="emscripten_border">
       <canvas class="emscripten" width="32" height="32" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
-</td>
-<td>
+
+
     <div class="emscripten">
       <!--input type="checkbox" id="resize">Resize canvas
       <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
@@ -80,18 +79,20 @@ var  g_dropped_file_is_image = false;
       <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
       -->
     </div>
-</td>
-<td>
-    <table align="left">
+</td></tr></table>
+
+    <div>
+    <table>
     <tr>
     <td><div id="caption">no caption</div></td>
     </tr>
     <tr><td><div id="description">no description</div></td></tr>
     <tr><td>ソースコードは<a href="https://github.com/mugisaku/gamebaby">こちら</a></td></tr>
     </table>
-</td>
-</tr>
-</table>
+    </div><br>
+<hr>
+<a href="./index.htm">return to home</a>
+<hr>
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');

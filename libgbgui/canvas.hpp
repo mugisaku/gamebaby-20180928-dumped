@@ -54,6 +54,8 @@ canvas: public widget
 
   image  m_clipped_image;
 
+  const std::vector<point>*  m_underlay_point_list=nullptr;
+
   int  m_pointing_count=0;
 
   point  m_current_point;
@@ -74,7 +76,10 @@ public:
   canvas() noexcept;
   canvas(image&  img, int  w, int  h, void  (*callback)(canvas&  cv, canvas_event  evt)) noexcept;
 
-  void  set_cursor_offset(int  x, int  y) noexcept;
+  void  set_underlay_point_list(const std::vector<point>*  ls) noexcept{m_underlay_point_list = ls;}
+
+  point  get_cursor_offset(              ) const noexcept{return m_image_cursor.get_offset();}
+  void   set_cursor_offset(int  x, int  y) noexcept;
 
   void  set_editing_size(int  w, int  h) noexcept;
 

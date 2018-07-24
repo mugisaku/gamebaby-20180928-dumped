@@ -23,8 +23,82 @@ widgets::root
 root;
 
 
+constexpr int  g_cell_size = 48;
+
+
 presets::graphics_editor*
 ge;
+
+
+namespace underlay{
+
+
+widgets::frame*
+g_widget_frame;
+
+
+widgets::label*
+g_counter_label;
+
+
+std::vector<point>
+g_point_stack;
+
+
+
+
+void
+onpush(widgets::button&  btn) noexcept
+{
+    if(btn.is_released())
+    {
+      g_point_stack.emplace_back(ge->m_canvas->get_cursor_offset());
+
+      string_form  sf;
+
+      g_counter_label->set_text(sf("%2d",g_point_stack.size()));
+
+
+      ge->m_canvas->need_to_redraw();
+    }
+}
+
+
+void
+onpop(widgets::button&  btn) noexcept
+{
+    if(btn.is_released())
+    {
+        if(g_point_stack.size())
+        {
+          g_point_stack.pop_back();
+
+          string_form  sf;
+
+          g_counter_label->set_text(sf("%2d",g_point_stack.size()));
+
+
+          ge->m_canvas->need_to_redraw();
+        }
+    }
+}
+
+
+void
+build() noexcept
+{
+  auto  psh_btn = new widgets::button(new widgets::label(u"push"),onpush);
+  auto  pop_btn = new widgets::button(new widgets::label(u"pop"),onpop);
+
+  g_counter_label = new widgets::label(u" 0",styles::a_white_based_text_style);
+
+  auto  tbl = new widgets::table_column({g_counter_label,psh_btn,pop_btn});
+
+  g_widget_frame = new widgets::frame(tbl,"underlay");
+}
+
+
+}
 
 
 namespace animator{
@@ -105,6 +179,12 @@ public:
 
       if(index < stack.size())
       {
+          for(auto&  pt: underlay::g_point_stack)
+          {
+            images::overlay(ge->m_source_image,rectangle(pt,g_cell_size,g_cell_size),cur);
+          }
+
+
         images::overlay(ge->m_source_image,ge->get_rect(stack[index]),cur);
       }
   }
@@ -226,16 +306,35 @@ main(int  argc, char**  argv)
   set_description("<pre>"
                   "*マウスの左ボタンで、任意色を置き、\n"
                   " 右ボタンで透明色を置く\n"
-                  "*PNGファイルをドラッグ・アンド・ドロップで読み込む"
+                  "*画像の編集単位をセルと呼ぶ\n"
+                  "*PNGファイルをドラッグ・アンド・ドロップで読み込む\n"
+                  "<tool>\n"
+                  "  *selectはundoを除くoperationの適用範囲を、変更する\n"
+                  "   開始時は全体が範囲\n"
+                  "  *select時、右クリックで範囲を全体に戻す\n"
+                  "  *pasteは保持されたセルを透明色も含めて、貼り付ける\n"
+                  "  *layerは保持されたセルを透明色を除いて、貼り付ける\n"
+                  "<operation>\n"
+                  "  *undoは最後の編集操作を取り消す。セルを移ると記録はクリアされる\n"
+                  "  *copyは現在のセルを複製して、保持する\n"
+                  "<animation>\n"
+                  "  *pushはアニメーションの最後尾に、現在のセルを付け加える\n"
+                  "  *popはアニメーションの最後尾から、ひとつ取り除く\n"
+                  "<underlay>\n"
+                  "  *pushは下敷きの最上段に、現在のセルを付け加える\n"
+                  "  *popは下敷きの最上段から、ひとつ取り除く\n"
                   "</pre>"
   );
 #endif
 
-  ge = presets::create_graphics_editor(48,48,6,2);
+  ge = presets::create_graphics_editor(g_cell_size,g_cell_size,6,2);
 
   auto  ani = create_animation_widget();
   
 
+  underlay::build();
+
+  ge->m_canvas->set_underlay_point_list(&underlay::g_point_stack);
 
   ge->m_callback = [](){animator::view.need_to_redraw();};
 
@@ -243,8 +342,10 @@ main(int  argc, char**  argv)
 
   auto  to_col = new widgets::table_column({ge->m_tool_widget_frame,ge->m_operation_widget_frame});
 
+  auto  last_w = new widgets::table_row({ge->m_cell_table_frame,underlay::g_widget_frame});
+
   auto  right_upper = new widgets::table_row({ge->m_color_holder_frame,coloring_widget,to_col});
-  auto  right       = new widgets::table_column({right_upper,ge->m_cell_table_frame});
+  auto  right       = new widgets::table_column({right_upper,last_w});
 
 
   auto  left = new widgets::table_column({ge->m_canvas_frame,ge->m_save_button});

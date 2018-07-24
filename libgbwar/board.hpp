@@ -63,7 +63,7 @@ square
   square_data*  m_data=nullptr;
 
 public:
-  static constexpr int  size = 24;
+  static constexpr int  size = 1;
 
   operator raster_view() const noexcept{return raster_view(g_bg_image.cbegin(),g_bg_image.get_width());}
 

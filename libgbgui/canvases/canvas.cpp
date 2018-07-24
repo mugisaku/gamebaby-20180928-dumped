@@ -283,6 +283,25 @@ render(image_cursor  cur) noexcept
 
   render_background(cur);
 
+    if(m_underlay_point_list)
+    {
+        for(auto&  pt: *m_underlay_point_list)
+        {
+          auto&  img = m_image_cursor.get_image();
+
+            for(int  y = 0;  y < h;  ++y){
+            for(int  x = 0;  x < w;  ++x){
+              auto&  pix = img.get_pixel(pt.x+x,pt.y+y);
+
+                if(pix.color)
+                {
+                  cur.fill_rectangle(pix.color,m_pixel_size*x,m_pixel_size*y,m_pixel_size,m_pixel_size);
+                }
+            }}
+        }
+    }
+
+
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
       auto&  pix = m_image_cursor.get_pixel(x,y);

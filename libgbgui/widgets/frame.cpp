@@ -33,6 +33,9 @@ reform(point  base_pt) noexcept
   m_width  = margin;
   m_height = margin;
 
+
+  auto  target_width = 0;
+
     if(m_target)
     {
       m_target->set_relative_point(point(margin,margin));
@@ -42,17 +45,21 @@ reform(point  base_pt) noexcept
 
       auto  rel_pt = m_target->get_relative_point();
 
-      m_width  += rel_pt.x+m_target->get_width() ;
+      target_width = rel_pt.x+m_target->get_width();
+
       m_height += rel_pt.y+m_target->get_height();
     }
 
 
   auto  l = font_width*u8slen(m_text);
 
-    if(m_width < l)
+    if(target_width < l)
     {
-      m_width = l;
+      target_width = l;
     }
+
+
+  m_width += target_width;
 }
 
 
