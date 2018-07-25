@@ -76,7 +76,8 @@ public:
   canvas() noexcept;
   canvas(image&  img, int  w, int  h, void  (*callback)(canvas&  cv, canvas_event  evt)) noexcept;
 
-  void  set_underlay_point_list(const std::vector<point>*  ls) noexcept{m_underlay_point_list = ls;}
+  const std::vector<point>*  get_underlay_point_list(                             ) const noexcept{return m_underlay_point_list     ;}
+  void                       set_underlay_point_list(const std::vector<point>*  ls)       noexcept{       m_underlay_point_list = ls;}
 
   point  get_cursor_offset(              ) const noexcept{return m_image_cursor.get_offset();}
   void   set_cursor_offset(int  x, int  y) noexcept;

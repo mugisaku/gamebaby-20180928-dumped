@@ -31,73 +31,8 @@ ge;
 
 
 namespace underlay{
-
-
-widgets::frame*
-g_widget_frame;
-
-
-widgets::label*
-g_counter_label;
-
-
 std::vector<point>
 g_point_stack;
-
-
-
-
-void
-onpush(widgets::button&  btn) noexcept
-{
-    if(btn.is_released())
-    {
-      g_point_stack.emplace_back(ge->m_canvas->get_cursor_offset());
-
-      string_form  sf;
-
-      g_counter_label->set_text(sf("%2d",g_point_stack.size()));
-
-
-      ge->m_canvas->need_to_redraw();
-    }
-}
-
-
-void
-onpop(widgets::button&  btn) noexcept
-{
-    if(btn.is_released())
-    {
-        if(g_point_stack.size())
-        {
-          g_point_stack.pop_back();
-
-          string_form  sf;
-
-          g_counter_label->set_text(sf("%2d",g_point_stack.size()));
-
-
-          ge->m_canvas->need_to_redraw();
-        }
-    }
-}
-
-
-void
-build() noexcept
-{
-  auto  psh_btn = new widgets::button(new widgets::label(u"push"),onpush);
-  auto  pop_btn = new widgets::button(new widgets::label(u"pop"),onpop);
-
-  g_counter_label = new widgets::label(u" 0",styles::a_white_based_text_style);
-
-  auto  tbl = new widgets::table_column({g_counter_label,psh_btn,pop_btn});
-
-  g_widget_frame = new widgets::frame(tbl,"underlay");
-}
-
-
 }
 
 
@@ -177,14 +112,17 @@ public:
   {
     widget::render_background(cur);
 
-      if(index < stack.size())
+      if(ge->m_canvas->get_underlay_point_list())
       {
           for(auto&  pt: underlay::g_point_stack)
           {
             images::overlay(ge->m_source_image,rectangle(pt,g_cell_size,g_cell_size),cur);
           }
+      }
 
 
+      if(index < stack.size())
+      {
         images::overlay(ge->m_source_image,ge->get_rect(stack[index]),cur);
       }
   }
@@ -210,6 +148,115 @@ check_time(uint32_t  now) noexcept
           view.advance();
         }
     }
+}
+
+
+}
+
+
+namespace underlay{
+
+
+widgets::frame*
+g_widget_frame;
+
+
+widgets::label*
+g_counter_label;
+
+
+widgets::label*
+g_switching_label;
+
+
+
+
+void
+onpush(widgets::button&  btn) noexcept
+{
+    if(btn.is_released() && btn.get_count())
+    {
+      btn.reset_count();
+
+      g_point_stack.emplace_back(ge->m_canvas->get_cursor_offset());
+
+      string_form  sf;
+
+      g_counter_label->set_text(sf("%2d",g_point_stack.size()));
+
+
+      ge->m_canvas->need_to_redraw();
+      animator::view.need_to_redraw();
+    }
+}
+
+
+void
+onpop(widgets::button&  btn) noexcept
+{
+    if(btn.is_released() && btn.get_count())
+    {
+      btn.reset_count();
+
+        if(g_point_stack.size())
+        {
+          g_point_stack.pop_back();
+
+          string_form  sf;
+
+          g_counter_label->set_text(sf("%2d",g_point_stack.size()));
+
+
+          ge->m_canvas->need_to_redraw();
+          animator::view.need_to_redraw();
+        }
+    }
+}
+
+
+void
+onswitch(widgets::button&  btn) noexcept
+{
+    if(btn.is_released() && btn.get_count())
+    {
+      btn.reset_count();
+
+        if(ge->m_canvas->get_underlay_point_list())
+        {
+          ge->m_canvas->set_underlay_point_list(nullptr);
+
+          g_switching_label->modify_text(u"show");
+        }
+
+      else
+        {
+          ge->m_canvas->set_underlay_point_list(&g_point_stack);
+
+          g_switching_label->modify_text(u"hide");
+        }
+
+
+      ge->m_canvas->need_to_redraw();
+      animator::view.need_to_redraw();
+    }
+}
+
+
+void
+build() noexcept
+{
+  g_switching_label = new widgets::label(u"hide");
+
+
+  auto  psh_btn = new widgets::button(new widgets::label(u"push"),onpush);
+  auto  pop_btn = new widgets::button(new widgets::label(u"pop"),onpop);
+  auto  swi_btn = new widgets::button(g_switching_label,onswitch);
+
+  g_counter_label = new widgets::label(u" 0",styles::a_white_based_text_style);
+
+  auto  tbl = new widgets::table_column({g_counter_label,psh_btn,pop_btn,swi_btn});
+
+  g_widget_frame = new widgets::frame(tbl,"underlay");
 }
 
 
@@ -308,21 +355,23 @@ main(int  argc, char**  argv)
                   " 右ボタンで透明色を置く\n"
                   "*画像の編集単位をセルと呼ぶ\n"
                   "*PNGファイルをドラッグ・アンド・ドロップで読み込む\n"
-                  "<tool>\n"
-                  "  *selectはundoを除くoperationの適用範囲を、変更する\n"
+                  "◇tool\n"
+                  "  *fill areaは指定地点と同色の領域を新たな色で塗りつぶす\n"
+                  "  *selectはundoを除くoperationの有効範囲を変更する\n"
                   "   開始時は全体が範囲\n"
                   "  *select時、右クリックで範囲を全体に戻す\n"
-                  "  *pasteは保持されたセルを透明色も含めて、貼り付ける\n"
-                  "  *layerは保持されたセルを透明色を除いて、貼り付ける\n"
-                  "<operation>\n"
-                  "  *undoは最後の編集操作を取り消す。セルを移ると記録はクリアされる\n"
-                  "  *copyは現在のセルを複製して、保持する\n"
-                  "<animation>\n"
-                  "  *pushはアニメーションの最後尾に、現在のセルを付け加える\n"
+                  "  *pasteは保持されたセルを透明色も含めて貼り付ける\n"
+                  "  *layerは保持されたセルを透明色を除いて貼り付ける\n"
+                  "◇operation\n"
+                  "  *undoは最後の編集操作を取り消す。セルを移ると編集操作記録はクリアされる\n"
+                  "  *copyは現在のセルから指定範囲を複製して保持する\n"
+                  "◇animation\n"
+                  "  *pushはアニメーションの最後尾に現在のセルを付け加える\n"
                   "  *popはアニメーションの最後尾から、ひとつ取り除く\n"
-                  "<underlay>\n"
-                  "  *pushは下敷きの最上段に、現在のセルを付け加える\n"
+                  "◇underlay\n"
+                  "  *pushは下敷きの最上段に現在のセルを乗せる\n"
                   "  *popは下敷きの最上段から、ひとつ取り除く\n"
+                  "  *show/hideは下敷きの有効/無効を切り替える\n"
                   "</pre>"
   );
 #endif
