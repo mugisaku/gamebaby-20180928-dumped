@@ -51,13 +51,20 @@ react(const control_device&  condev) noexcept
 {
   m_node.reform_if_needed(point());
 
-  m_old_mouse = m_mouse               ;
-                m_mouse = condev.mouse;
+  auto  m = condev.mouse;
 
-  m_mouse.point -= m_offset;
+    for(auto&  pt: condev.point_list)
+    {
+      m.point = pt;
+
+      m_old_mouse = m_mouse    ;
+                    m_mouse = m;
+
+      m_mouse.point -= m_offset;
 
 
-  m_node.update();
+      m_node.update();
+    }
 
 
   m_node.reform_if_needed(point());

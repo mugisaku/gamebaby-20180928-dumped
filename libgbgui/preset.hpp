@@ -61,6 +61,12 @@ graphics_editor
 
   void  load(const std::vector<uint8_t>&  bin) noexcept;
 
+  std::vector<point>  m_animation_points;
+
+  uint32_t  m_animation_delay=1000;
+
+  void  save_as_webp() const noexcept;
+
 };
 
 

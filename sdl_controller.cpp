@@ -117,9 +117,11 @@ process_key_up(const SDL_KeyboardEvent&  evt, gbstd::keyboard&  kbd) noexcept
 
 
 void
-process_mouse_button(const SDL_MouseButtonEvent&  evt, gbstd::mouse&  m, bool&  flag) noexcept
+process_mouse_button(const SDL_MouseButtonEvent&  evt, gbstd::mouse&  m, std::vector<gbstd::point>&  pts, bool&  flag) noexcept
 {
   m.point = gbstd::point(evt.x,evt.y);
+
+  pts.emplace_back(m.point);
 
     if(evt.state == SDL_PRESSED)
     {
@@ -136,9 +138,11 @@ process_mouse_button(const SDL_MouseButtonEvent&  evt, gbstd::mouse&  m, bool&  
 
 
 void
-process_mouse_motion(const SDL_MouseMotionEvent&  evt, gbstd::mouse&  m, bool&  flag) noexcept
+process_mouse_motion(const SDL_MouseMotionEvent&  evt, gbstd::mouse&  m, std::vector<gbstd::point>&  pts, bool&  flag) noexcept
 {
   m.point = gbstd::point(evt.x,evt.y);
+
+  pts.emplace_back(m.point);
 
     if(evt.state&SDL_BUTTON_LMASK){m.left_button.press(flag);}
   else                            {m.left_button.release(flag);}
@@ -240,15 +244,17 @@ update_control_device() noexcept
 
   auto&  mf = dev.mouse_state_modify_flag;
 
+  dev.point_list.clear();
+
     while(SDL_PollEvent(&evt))
     {
         switch(evt.type)
         {
       case(SDL_KEYDOWN): process_key_down(evt.key,dev.keyboard);break;
       case(SDL_KEYUP  ): process_key_up(  evt.key,dev.keyboard);break;
-      case(SDL_MOUSEBUTTONUP  ): process_mouse_button(evt.button,dev.mouse,mf);break;
-      case(SDL_MOUSEBUTTONDOWN): process_mouse_button(evt.button,dev.mouse,mf);break;
-      case(SDL_MOUSEMOTION): process_mouse_motion(evt.motion,dev.mouse,mf);break;
+      case(SDL_MOUSEBUTTONUP  ): process_mouse_button(evt.button,dev.mouse,dev.point_list,mf);break;
+      case(SDL_MOUSEBUTTONDOWN): process_mouse_button(evt.button,dev.mouse,dev.point_list,mf);break;
+      case(SDL_MOUSEMOTION): process_mouse_motion(evt.motion,dev.mouse,dev.point_list,mf);break;
       case(SDL_WINDOWEVENT):
              switch(evt.window.event)
              {

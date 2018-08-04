@@ -39,10 +39,6 @@ g_point_stack;
 namespace animator{
 
 
-std::vector<images::point>
-stack;
-
-
 int
 index;
 
@@ -56,17 +52,13 @@ state_label;
 
 
 uint32_t
-interval_time = 1000;
-
-
-uint32_t
 last_time;
 
 
 void
 update_state_label() noexcept
 {
-    if(stack.empty())
+    if(ge->m_animation_points.empty())
     {
       state_label->set_text("  / 0");
     }
@@ -75,7 +67,7 @@ update_state_label() noexcept
     {
       string_form  sf;
 
-      state_label->set_text(sf("%2d/%2d",index+1,stack.size()));
+      state_label->set_text(sf("%2d/%2d",index+1,ge->m_animation_points.size()));
     }
 }
 
@@ -88,7 +80,7 @@ public:
 
   void  advance() noexcept
   {
-      if(++index >= stack.size())
+      if(++index >= ge->m_animation_points.size())
       {
         index = 0;
       }
@@ -121,9 +113,9 @@ public:
       }
 
 
-      if(index < stack.size())
+      if(index < ge->m_animation_points.size())
       {
-        images::overlay(ge->m_source_image,ge->get_rect(stack[index]),cur);
+        images::overlay(ge->m_source_image,ge->get_rect(ge->m_animation_points[index]),cur);
       }
   }
 
@@ -139,9 +131,9 @@ view;
 void
 check_time(uint32_t  now) noexcept
 {
-    if(stack.size())
+    if(ge->m_animation_points.size())
     {
-        if(now >= (last_time+interval_time))
+        if(now >= (last_time+ge->m_animation_delay))
         {
           last_time = now;
 
@@ -295,7 +287,7 @@ create_animation_widget() noexcept
   animator::interval_dial = new widgets::dial(1,4,[](widgets::dial&  d, int  old_value, int  new_value){
     static const uint32_t  table[] = {1000,600,200,80};
 
-    animator::interval_time = table[new_value-1];
+    ge->m_animation_delay = table[new_value-1];
   });
 
   auto  psh_btn = new widgets::button(new widgets::label(u"Push"),[](widgets::button&  btn){
@@ -303,7 +295,7 @@ create_animation_widget() noexcept
       {
         btn.reset_count();
 
-        animator::stack.emplace_back(ge->m_current_index);
+        ge->m_animation_points.emplace_back(ge->m_current_index);
 
         animator::view.need_to_redraw();
       }
@@ -314,9 +306,9 @@ create_animation_widget() noexcept
       {
         btn.reset_count();
 
-          if(animator::stack.size())
+          if(ge->m_animation_points.size())
           {
-            animator::stack.pop_back();
+            ge->m_animation_points.pop_back();
 
             animator::update_state_label();
 

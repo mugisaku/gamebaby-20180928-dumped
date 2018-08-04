@@ -383,6 +383,8 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
         download_image();
 #else
         ge->m_source_image.save_to_png("__anigra.png");
+
+//        ge->m_canvas->save_as_webp(ge->m_animation_points,ge->m_animation_delay);
 #endif
       }
   });

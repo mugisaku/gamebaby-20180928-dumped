@@ -22,6 +22,7 @@ set(SOURCES
   canvases/canvas.cpp
   canvases/canvas__update.cpp
   canvases/canvas__draw.cpp
+  canvases/canvas__save.cpp
   canvases/canvas__operate.cpp
   canvases/canvas__create_sub_widget.cpp
   windows/window.cpp
@@ -33,7 +34,7 @@ set(SOURCES
 
 include_directories(./)
 include_directories(../)
-add_library("gbgui" ${SOURCES})
+add_library("gbgui" SHARED ${SOURCES})
 
 
 

@@ -138,6 +138,8 @@ control_device
 
   bool  mouse_state_modify_flag;
 
+  std::vector<point>  point_list;
+
   std::vector<uint8_t>  dropped_file_content;
 
   bool  needed_to_redraw;
