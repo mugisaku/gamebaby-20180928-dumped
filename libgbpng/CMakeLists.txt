@@ -12,13 +12,16 @@ set(CMAKE_CXX_FLAGS "-std=c++1z -Werror -I/usr/include/SDL2")
 
 
 set(SOURCES
-  png_file.cpp
-  png_file__unfilter.cpp
+  png.cpp
+  png_binary.cpp
+  png_picture.cpp
+  png_chunk_list.cpp
   png_chunk.cpp
   png_chunk__calculate_crc.cpp
   png_palette.cpp
   png_image.cpp
   png_image_data.cpp
+  png_image_data__unfilter.cpp
   png_image_header.cpp
 )
 

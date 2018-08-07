@@ -25,7 +25,7 @@ update_screen(const image&  img) noexcept
 
         for(int  y = 0;  y < img.get_height();  ++y)
         {
-          SDL_memcpy(dst,img.get_pixel(0,y),4*img.get_width());
+          SDL_memcpy(dst,img.get_rgba_pointer(0,y),4*img.get_width());
 
           dst += pitch;
         }
@@ -46,32 +46,28 @@ update_screen(const image&  img) noexcept
 int
 main(int  argc, char**  argv)
 {
-  auto  f = fopen(argv[1],"rb");
+  chunk_list  chkls;
 
-  std::vector<uint8_t>  buf;
+  read_png_from_file(chkls,argv[1]);
 
-    for(;;)
+
+  chkls.print();
+
+
+  image  img(chkls);
+
+    if(!img.get_width() || !img.get_height())
     {
-      int  c = fgetc(f);
-
-        if(feof(f))
-        {
-          break;
-        }
-
-
-      buf.emplace_back(c);
+      return 0;
     }
 
 
-  file  png;
+  chunk_list  tmp(img);
 
-  png.load(buf.data());
+  tmp.print();
 
-  png.print();
+  write_png_to_file(tmp,"output.png");
 
-
-  auto  img = png.make_image();
 
   SDL_Init(SDL_INIT_VIDEO);
 
@@ -96,6 +92,9 @@ main(int  argc, char**  argv)
         {
             switch(evt.type)
             {
+          case(SDL_WINDOWEVENT):
+              update_screen(img);
+              break;
           case(SDL_QUIT):
               goto QUIT;
               break;

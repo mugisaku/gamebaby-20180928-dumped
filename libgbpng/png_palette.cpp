@@ -45,7 +45,7 @@ chunk
 palette::
 make_chunk() const noexcept
 {
-  return chunk(3*m_number_of_colors,chunk_name("PLTE"),&m_colors);
+  return chunk(binary(&m_colors,3*m_number_of_colors),chunk_name("PLTE"));
 }
 
 

@@ -1,11 +1,21 @@
 #include"libgbpng/png.hpp"
 #include<cstdlib>
 #include<cstring>
+#include<zlib.h>
 
 
 
 
 namespace gbpng{
+
+
+
+
+image::
+image(const image_header&  ihdr) noexcept
+{
+  resize(ihdr.get_width(),ihdr.get_height());
+}
 
 
 
@@ -16,7 +26,7 @@ operator=(const image&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      assign(rhs.get_width(),rhs.get_height(),rhs.get_pixel(0,0));
+      assign(rhs.get_width(),rhs.get_height(),rhs.m_data);
     }
 
 
@@ -30,12 +40,12 @@ operator=(image&&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      delete[] m_rgba_buffer          ;
-               m_rgba_buffer = nullptr;
+      delete[] m_data          ;
+               m_data = nullptr;
 
       std::swap(m_width ,rhs.m_width );
       std::swap(m_height,rhs.m_height);
-      std::swap(m_rgba_buffer,rhs.m_rgba_buffer);
+      std::swap(m_data,rhs.m_data);
     }
 
 
@@ -51,8 +61,8 @@ assign(int  w, int  h, uint8_t*  data) noexcept
 {
     if(data)
     {
-      delete[] m_rgba_buffer       ;
-               m_rgba_buffer = data;
+      delete[] m_data       ;
+               m_data = data;
 
 
       m_width  = w;
@@ -77,8 +87,88 @@ assign(int  w, int  h, const uint8_t*  src_data) noexcept
 
     if(src_data)
     {
-      std::memcpy(m_rgba_buffer,src_data,4*w*h);
+      std::memcpy(m_data,src_data,4*w*h);
     }
+
+
+  return *this;
+}
+
+
+image&
+image::
+assign(const chunk_list&  ls) noexcept
+{
+  auto  ihdr_chunk = ls.get_chunk("IHDR");
+
+    if(!ihdr_chunk)
+    {
+      printf("make_image error: no image header\n");
+
+      return *this;
+    }
+
+
+  auto  ihdr = image_header(*ihdr_chunk);
+
+  uint8_t*  data_ptr;
+
+  ls.extract(ihdr,data_ptr);
+
+
+  int  w = ihdr.get_width() ;
+  int  h = ihdr.get_height();
+
+  resize(w,h);
+
+    if(ihdr.does_use_palette())
+    {
+      auto  plte_chunk = ls.get_chunk("PLTE");
+
+        if(!plte_chunk)
+        {
+          printf("png make image error: not found palette\n");
+        }
+
+      else
+        {
+          palette  plte(*plte_chunk);
+
+          map_color(data_ptr,plte);
+        }
+    }
+
+  else
+    {
+        if(ihdr.does_use_color())
+        {
+            if(ihdr.does_use_alpha())
+            {
+              copy_rgba(data_ptr);
+            }
+
+          else
+            {
+              copy_rgb(data_ptr);
+            }
+        }
+
+      else
+        {
+            if(ihdr.does_use_alpha())
+            {
+              copy_gray_with_alpha(data_ptr);
+            }
+
+          else
+            {
+              copy_gray(data_ptr);
+            }
+        }
+    }
+
+
+  delete[] data_ptr;
 
 
   return *this;
@@ -91,7 +181,7 @@ void
 image::
 clear() noexcept
 {
-  std::memset(m_rgba_buffer,0,4*m_width*m_height);
+  std::memset(m_data,0,4*m_width*m_height);
 }
 
 
@@ -101,14 +191,207 @@ resize(int  w, int  h) noexcept
 {
   const size_t  size = 4*w*h;
 
-  delete[] m_rgba_buffer                    ;
-           m_rgba_buffer = new uint8_t[size];
+  delete[] m_data                    ;
+           m_data = new uint8_t[size];
 
   m_width  = w;
   m_height = h;
 
-  std::memset(m_rgba_buffer,0,size);
+  clear();
 }
+
+
+void
+image::
+get_filtered_data(uint8_t*&  ptr, size_t&  size) const noexcept
+{
+  int  w = get_width() ;
+  int  h = get_height();
+
+  size = ((4*w)+1)*h;
+
+  ptr = new uint8_t[size];
+
+  auto  dst = ptr;
+  auto  src = m_data;
+
+    for(int  y = 0;  y < h;  ++y)
+    {
+      *dst++ = 0;
+
+        for(int  x = 0;  x < w;  ++x)
+        {
+          *dst++ = *src++;
+          *dst++ = *src++;
+          *dst++ = *src++;
+          *dst++ = *src++;
+        }
+    }
+}
+
+
+
+
+void
+image::
+map_color(const uint8_t*  src, const palette&  plte) noexcept
+{
+  int  w = get_width() ;
+  int  h = get_height();
+
+  auto  dst = get_rgba_pointer(0,0);
+
+    for(int  y = 0;  y < h;  ++y){
+    for(int  x = 0;  x < w;  ++x){
+      auto&  color = plte.get_color(*src++);
+
+      *dst++ = color.r;
+      *dst++ = color.g;
+      *dst++ = color.b;
+      *dst++ =     255;
+    }}
+}
+
+
+void
+image::
+copy_rgb(const uint8_t*  src) noexcept
+{
+  int  w = get_width() ;
+  int  h = get_height();
+
+  auto  dst = get_rgba_pointer(0,0);
+
+    for(int  y = 0;  y < h;  ++y){
+    for(int  x = 0;  x < w;  ++x){
+      *dst++ = *src++;
+      *dst++ = *src++;
+      *dst++ = *src++;
+      *dst++ =    255;
+    }}
+}
+
+
+void
+image::
+copy_rgba(const uint8_t*  src) noexcept
+{
+  int  w = get_width() ;
+  int  h = get_height();
+
+  auto  dst = get_rgba_pointer(0,0);
+
+    for(int  y = 0;  y < h;  ++y){
+    for(int  x = 0;  x < w;  ++x){
+      auto  r = *src++;
+      auto  g = *src++;
+      auto  b = *src++;
+      auto  a = *src++;
+
+        if(!a)
+        {
+          *dst++ = 0;
+          *dst++ = 0;
+          *dst++ = 0;
+          *dst++ = 0;
+        }
+
+      else
+        {
+          *dst++ = r;
+          *dst++ = g;
+          *dst++ = b;
+          *dst++ = a;
+        }
+    }}
+}
+
+
+void
+image::
+copy_gray(const uint8_t*  src) noexcept
+{
+  int  w = get_width() ;
+  int  h = get_height();
+
+  auto  dst = get_rgba_pointer(0,0);
+
+    for(int  y = 0;  y < h;  ++y){
+    for(int  x = 0;  x < w;  ++x){
+      auto  l = *src++;
+
+      *dst++ =   l;
+      *dst++ =   l;
+      *dst++ =   l;
+      *dst++ = 255;
+    }}
+}
+
+
+void
+image::
+copy_gray_with_alpha(const uint8_t*  src) noexcept
+{
+  int  w = get_width() ;
+  int  h = get_height();
+
+  auto  dst = get_rgba_pointer(0,0);
+
+    for(int  y = 0;  y < h;  ++y){
+    for(int  x = 0;  x < w;  ++x){
+      auto  l = *src++;
+      auto  a = *src++;
+
+        if(!a)
+        {
+          l = 0;
+        }
+
+      
+      *dst++ = l;
+      *dst++ = l;
+      *dst++ = l;
+      *dst++ = a;
+    }}
+}
+
+
+
+
+image_header
+image::
+make_image_header() const noexcept
+{
+  return image_header(get_width(),get_height());
+}
+
+
+image_data
+image::
+make_image_data() const noexcept
+{
+  uint8_t*  src     ;
+  size_t    src_size;
+
+  get_filtered_data(src,src_size);
+
+
+  unsigned long  dst_size = (src_size*2)+12;
+
+  auto  dst = new uint8_t[dst_size];
+
+    if(compress(dst,&dst_size,src,src_size) != Z_OK)
+    {
+      printf("image make_image_data error\n");
+    }
+
+
+  delete[] src;
+
+  return image_data(dst,dst_size);
+}
+
+
 
 
 }

@@ -71,9 +71,9 @@ calculate_crc() const noexcept
     }
 
 
-    for(int  n = 0;  n < m_data_size;  n++)
+    for(int  n = 0;  n < get_data_size();  n++)
     {
-      c = g_table[(c^m_data[n])&0xFF]^(c>>8);
+      c = g_table[(c^get_data()[n])&0xFF]^(c>>8);
     }
 
 

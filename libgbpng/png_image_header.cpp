@@ -80,7 +80,7 @@ make_chunk() const noexcept
   *p++ = 0;
   *p++ = 0;
 
-  return chunk(size,chunk_name("IHDR"),buffer);
+  return chunk(binary(buffer,size),chunk_name("IHDR"));
 }
 
 

@@ -78,7 +78,7 @@ unfilter_average(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, 
           auto    up =   *up_src++;
           auto  left = *left_src++;
 
-          *dst++ = cur-((left+up)/2);
+          *dst++ = cur+((left+up)/2);
         }
 
 
@@ -141,7 +141,7 @@ unfilter_paeth(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, ui
 
 
 void
-file::
+image_data::
 unfilter(const uint8_t*   src, const image_header&  ihdr,
                uint8_t*&  dst) noexcept
 {

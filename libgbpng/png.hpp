@@ -7,6 +7,7 @@
 #include<utility>
 #include<list>
 #include<vector>
+#include<memory>
 
 
 #ifndef report
@@ -15,6 +16,19 @@
 
 
 namespace gbpng{
+
+
+inline
+uint16_t
+get_be16(const uint8_t*&  p) noexcept
+{
+  uint16_t  i;
+
+  i  = (*p++<<8);
+  i |= (*p++   );
+
+  return i;
+}
 
 
 inline
@@ -34,6 +48,15 @@ get_be32(const uint8_t*&  p) noexcept
 
 inline
 void
+put_be16(uint16_t  i, uint8_t*&  p) noexcept
+{
+  *p++ = i>>8;
+  *p++ = i   ;
+}
+
+
+inline
+void
 put_be32(uint32_t  i, uint8_t*&  p) noexcept
 {
   *p++ = i>>24;
@@ -41,6 +64,58 @@ put_be32(uint32_t  i, uint8_t*&  p) noexcept
   *p++ = i>>8 ;
   *p++ = i    ;
 }
+
+
+
+
+
+
+
+class chunk_list;
+class image;
+class image_header;
+class picture;
+class palette;
+
+
+
+
+
+
+
+
+class
+binary
+{
+  uint32_t  m_data_size=0;
+
+  uint8_t*  m_data=nullptr;
+
+public:
+ constexpr binary() noexcept{}
+   binary(const void*  ptr, uint32_t  size) noexcept{assign(ptr,size);}
+   binary(const binary&   rhs) noexcept{assign(rhs);}
+   binary(      binary&&  rhs) noexcept{assign(std::move(rhs));}
+  ~binary(){clear_data();}
+
+  const uint8_t&  operator[](int  i) const noexcept{return m_data[i];}
+
+  binary&  operator=(const binary&   rhs) noexcept{return assign(rhs);}
+  binary&  operator=(      binary&&  rhs) noexcept{return assign(std::move(rhs));}
+
+  binary&  assign(const binary&   rhs) noexcept;
+  binary&  assign(      binary&&  rhs) noexcept;
+  binary&  assign(const void*  ptr, uint32_t  size) noexcept;
+
+  void  clear_data() noexcept;
+
+  const uint8_t*  get_data() const noexcept{return m_data;}
+
+  uint32_t  get_data_size() const noexcept{return m_data_size;}
+
+};
+
+
 
 
 class
@@ -73,48 +148,106 @@ public:
 
 
 class
-chunk
+chunk: public binary
 {
-  uint32_t  m_data_size=0;
-
   chunk_name  m_name;
-
-  uint8_t*  m_data=nullptr;
 
   uint32_t  m_crc=0;
 
   uint32_t  calculate_crc() const noexcept;
 
 public:
-  constexpr chunk() noexcept: m_data_size(0), m_name(), m_data(nullptr), m_crc(0){}
-  chunk(uint32_t  data_size, chunk_name  name, const void*  data) noexcept;
+  chunk() noexcept{}
+  chunk(const binary&   bin, chunk_name  name) noexcept;
+  chunk(      binary&&  bin, chunk_name  name) noexcept;
   chunk(const chunk&   rhs) noexcept{*this = rhs;}
   chunk(      chunk&&  rhs) noexcept{*this = std::move(rhs);}
-
-  ~chunk(){clear_data();}
 
   chunk&  operator=(const chunk&   rhs) noexcept;
   chunk&  operator=(      chunk&&  rhs) noexcept;
 
 
-  constexpr uint32_t   get_data_size() const noexcept{return m_data_size;}
-  constexpr chunk_name      get_name() const noexcept{return m_name;}
-  constexpr const uint8_t*  get_data() const noexcept{return m_data;}
-  constexpr uint32_t         get_crc() const noexcept{return m_crc;}
+  const chunk_name&  get_name() const noexcept{return m_name;}
+  uint32_t            get_crc() const noexcept{return m_crc;}
 
-  constexpr uint32_t  get_binary_size() const noexcept{return 12+m_data_size;}
+  uint32_t  get_file_size() const noexcept{return 12+get_data_size();}
 
   void  save(      uint8_t*  dst) const noexcept;
   void  load(const uint8_t*  src)       noexcept;
-
-  void  copy_data(const uint8_t*  src, uint32_t  size) noexcept;
-  void  clear_data() noexcept;
 
   void  update_crc() noexcept{m_crc = calculate_crc();}
 
   bool  test_crc() const noexcept{return m_crc == calculate_crc();}
 
   void  print() const noexcept;
+
+};
+
+
+
+
+class
+image_data: public binary
+{
+
+public:
+  using binary::binary;
+
+  chunk  make_chunk() const noexcept;
+
+  void  print() const noexcept;
+
+  static void  unfilter(const uint8_t*  src, const image_header&  ihdr, uint8_t*&  dst) noexcept;
+
+};
+
+
+
+
+class
+image
+{
+  int  m_width =0;
+  int  m_height=0;
+
+  uint8_t*  m_data=nullptr;
+
+  void  map_color(const uint8_t*  src, const palette&  plte) noexcept;
+  void  copy_rgb(const uint8_t*  src) noexcept;
+  void  copy_rgba(const uint8_t*  src) noexcept;
+  void  copy_gray(const uint8_t*  src) noexcept;
+  void  copy_gray_with_alpha(const uint8_t*  src) noexcept;
+
+public:
+   image() noexcept{}
+   image(const image_header&  ihdr) noexcept;
+   image(const chunk_list&  ls) noexcept{assign(ls);}
+   image(const image&   rhs) noexcept{*this = rhs;}
+   image(      image&&  rhs) noexcept{*this = std::move(rhs);}
+  ~image(){delete[] m_data;}
+
+   image&  operator=(const image&   rhs) noexcept;
+   image&  operator=(      image&&  rhs) noexcept;
+   image&  operator=(const chunk_list&  ls) noexcept{return assign(ls);}
+
+  image&  assign(int  w, int  h,       uint8_t*      data) noexcept;
+  image&  assign(int  w, int  h, const uint8_t*  src_data) noexcept;
+  image&  assign(const chunk_list&  ls) noexcept;
+
+  void  resize(int  w, int  h) noexcept;
+
+  void  clear() noexcept;
+
+  int  get_width()  const noexcept{return m_width ;}
+  int  get_height() const noexcept{return m_height;}
+
+        uint8_t*  get_rgba_pointer(int  x, int  y)       noexcept{return &m_data[(4*m_width*y)+(4*x)];}
+  const uint8_t*  get_rgba_pointer(int  x, int  y) const noexcept{return &m_data[(4*m_width*y)+(4*x)];}
+
+  void  get_filtered_data(uint8_t*&  ptr, size_t&  size) const noexcept;
+
+  image_header  make_image_header() const noexcept;
+  image_data    make_image_data() const noexcept;
 
 };
 
@@ -212,79 +345,140 @@ public:
 };
 
 
-class
-image_data
+
+
+enum class
+dispose_type
 {
-  size_t  m_data_size=0;
+  none,
+  background,
+  previous,
 
-  uint8_t*  m_data=nullptr;
+};
 
-public:
-  image_data(const chunk&  chk) noexcept;
-  ~image_data(){delete[] m_data;}
 
-  chunk  make_chunk() const noexcept;
-
-  void  print() const noexcept;
+enum class
+blend_type
+{
+  source,
+  over,
 
 };
 
 
 class
-image
+animation_frame: public image
 {
-  int  m_width =0;
-  int  m_height=0;
+  uint32_t  m_x_offset;
+  uint32_t  m_y_offset;
 
-  uint8_t*  m_rgba_buffer=nullptr;
+  uint16_t  m_delay_numerator;
+  uint16_t  m_delay_denominator;
+
+  dispose_type  m_dispose_type=dispose_type::none;
+  blend_type    m_blend_type  =blend_type::source;
 
 public:
-   image() noexcept{}
-   image(const image&   rhs) noexcept{*this = rhs;}
-   image(      image&&  rhs) noexcept{*this = std::move(rhs);}
-   image(const image_header&  ihdr) noexcept{resize(ihdr.get_width(),ihdr.get_height());}
-  ~image(){delete[] m_rgba_buffer;}
 
-   image&  operator=(const image&   rhs) noexcept;
-   image&  operator=(      image&&  rhs) noexcept;
+};
 
-  image&  assign(int  w, int  h,       uint8_t*      data) noexcept;
-  image&  assign(int  w, int  h, const uint8_t*  src_data) noexcept;
 
-  void  resize(int  w, int  h) noexcept;
+
+
+class
+picture: public image
+{
+  uint32_t  m_number_of_frames;
+  uint32_t  m_loop_count;
+
+  std::vector<animation_frame>  m_frame_list;
+
+public:
+
+};
+
+
+
+
+class
+chunk_list
+{
+  struct node{
+    gbpng::chunk  chunk;
+
+    node*  previous;
+    node*  next;
+  };
+
+  node*  m_first=nullptr;
+  node*  m_last =nullptr;
+
+  void  concatenate(uint8_t*&  ptr, size_t&  size) const noexcept;
+
+public:
+  class iterator{
+    node*  ptr;
+
+  public:
+    iterator(node*  nd=nullptr) noexcept: ptr(nd){}
+
+    bool  operator!=(const iterator&  rhs) const noexcept{return ptr && (ptr != rhs.ptr);}
+
+    const chunk&  operator*() noexcept{return ptr->chunk;}
+
+    iterator&  operator++() noexcept
+    {
+      ptr = ptr->next;
+
+      return *this;
+    }
+  };
+
+
+  chunk_list() noexcept{}
+  chunk_list(const image&  img) noexcept{assign(img);}
+  chunk_list(const chunk_list&   rhs) noexcept{*this = rhs;}
+  chunk_list(      chunk_list&&  rhs) noexcept{*this = std::move(rhs);}
+  ~chunk_list(){clear();}
+
+  chunk_list&  operator=(const chunk_list&   rhs) noexcept{return assign(rhs);}
+  chunk_list&  operator=(      chunk_list&&  rhs) noexcept{return assign(std::move(rhs));}
+  chunk_list&  operator=(const image&  img)       noexcept{return assign(img);}
 
   void  clear() noexcept;
 
-  int  get_width()  const noexcept{return m_width ;}
-  int  get_height() const noexcept{return m_height;}
-
-        uint8_t*  get_pixel(int  x, int  y)       noexcept{return &m_rgba_buffer[(4*m_width*y)+(4*x)];}
-  const uint8_t*  get_pixel(int  x, int  y) const noexcept{return &m_rgba_buffer[(4*m_width*y)+(4*x)];}
-
-};
-
-
-class
-file
-{
-  std::list<chunk>  m_chunk_list;
-
-public:
   const chunk*  get_chunk(chunk_name  name) const noexcept;
   void          put_chunk(chunk&&  chk) noexcept;
 
-  uint32_t  calculate_binary_size() const noexcept;
+  chunk_list&  assign(const chunk_list&   rhs) noexcept;
+  chunk_list&  assign(      chunk_list&&  rhs) noexcept;
+  chunk_list&  assign(const image&  img)       noexcept;
+  chunk_list&  assign(const uint8_t*  src)     noexcept;
+  chunk_list&  assign(const picture&  pic)     noexcept;
 
-  void  save(      uint8_t*  dst) const noexcept;
-  void  load(const uint8_t*  src)       noexcept;
+  chunk_list&  append(const uint8_t*  src) noexcept;
 
-  image  make_image() const noexcept;
+  iterator  begin() const noexcept{return iterator(m_first);}
+  iterator    end() const noexcept{return iterator(       );}
+
+  void  write(uint8_t*  ptr) const noexcept;
+
+  static const chunk&  get_end_chunk() noexcept;
+
+  void  extract(const image_header&  ihdr, uint8_t*&  dst_ptr) const noexcept;
 
   void  print() const noexcept;
 
-  static void  unfilter(const uint8_t*  src, const image_header&  ihdr, uint8_t*&  dst) noexcept;
-
 };
+
+
+uint32_t  calculate_png_stream_size(const chunk_list&  ls) noexcept;
+
+bool  read_png_from_stream(      chunk_list&  ls, const uint8_t*  ptr) noexcept;
+bool   write_png_to_stream(const chunk_list&  ls,       uint8_t*  ptr) noexcept;
+
+bool  read_png_from_file(      chunk_list&  ls, const char*  path) noexcept;
+bool   write_png_to_file(const chunk_list&  ls, const char*  path) noexcept;
 
 
 }

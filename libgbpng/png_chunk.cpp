@@ -8,15 +8,22 @@
 namespace gbpng{
 
 
+
+
 chunk::
-chunk(uint32_t  data_size, chunk_name  name, const void*  data) noexcept:
-m_data_size(data_size),
+chunk(const binary&  bin, chunk_name  name) noexcept:
+binary(bin),
 m_name(name)
 {
-  m_data = new uint8_t[data_size];
+  update_crc();
+}
 
-  std::memcpy(m_data,data,data_size);
 
+chunk::
+chunk(binary&&  bin, chunk_name  name) noexcept:
+binary(std::move(bin)),
+m_name(name)
+{
   update_crc();
 }
 
@@ -25,19 +32,13 @@ m_name(name)
 
 chunk&
 chunk::
-operator=(const chunk&   rhs) noexcept
+operator=(const chunk&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      clear_data();
-
-      m_data_size = rhs.m_data_size;
+      binary::assign(rhs);
 
       m_name = rhs.m_name;
-
-      m_data = new uint8_t[rhs.m_data_size];
-
-      std::memcpy(m_data,rhs.m_data,rhs.m_data_size);
 
       m_crc = rhs.m_crc;
     }
@@ -53,13 +54,9 @@ operator=(chunk&&  rhs) noexcept
 {
     if(this != &rhs)
     {
-      clear_data();
-
-      std::swap(m_data_size,rhs.m_data_size);
+      binary::assign(std::move(rhs));
 
       m_name = rhs.m_name;
-
-      std::swap(m_data,rhs.m_data);
 
       m_crc = rhs.m_crc;
     }
@@ -75,7 +72,7 @@ void
 chunk::
 save(uint8_t*  dst) const noexcept
 {
-  put_be32(m_data_size,dst);
+  put_be32(get_data_size(),dst);
 
 
   char  buf[5];
@@ -87,9 +84,9 @@ save(uint8_t*  dst) const noexcept
   *dst++ = buf[2];
   *dst++ = buf[3];
 
-    for(int  i = 0;  i < m_data_size;  ++i)
+    for(int  i = 0;  i < get_data_size();  ++i)
     {
-      *dst++ = m_data[i];
+      *dst++ = get_data()[i];
     }
 
 
@@ -104,16 +101,17 @@ load(const uint8_t*  src) noexcept
   auto  size = get_be32(src);
 
 
-  char  buf[4];
+  char  buf[5];
 
   buf[0] = *src++;
   buf[1] = *src++;
   buf[2] = *src++;
   buf[3] = *src++;
+  buf[4] = 0;
 
   m_name = chunk_name(buf[0],buf[1],buf[2],buf[3]);
 
-  copy_data(src,size);
+  binary::assign(src,size);
 
   src += size;
 
@@ -130,38 +128,13 @@ load(const uint8_t*  src) noexcept
 
 void
 chunk::
-copy_data(const uint8_t*  src, uint32_t  size) noexcept
-{
-  clear_data();
-
-  m_data = new uint8_t[size];
-
-  std::memcpy(m_data,src,size);
-
-  m_data_size = size;
-}
-
-
-void
-chunk::
-clear_data() noexcept
-{
-  delete[] m_data          ;
-           m_data = nullptr;
-
-  m_data_size = 0;
-}
-
-
-void
-chunk::
 print() const noexcept
 {
   char  buf[5];
 
   m_name.print(buf);
 
-  printf("data_size: %d\n",m_data_size);
+  printf("data_size: %d\n",get_data_size());
   printf("name: %s\n",buf);
   printf("crc: 0x%08X\n",m_crc);
 
