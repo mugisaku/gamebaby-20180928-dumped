@@ -97,44 +97,28 @@ assign(int  w, int  h, const uint8_t*  src_data) noexcept
 
 image&
 image::
-assign(const chunk_list&  ls) noexcept
+assign(const image_header&  ihdr, const palette*  plte, const image_data&  idat) noexcept
 {
-  auto  ihdr_chunk = ls.get_chunk("IHDR");
-
-    if(!ihdr_chunk)
-    {
-      printf("make_image error: no image header\n");
-
-      return *this;
-    }
-
-
-  auto  ihdr = image_header(*ihdr_chunk);
-
-  uint8_t*  data_ptr;
-
-  ls.extract(ihdr,data_ptr);
-
-
   int  w = ihdr.get_width() ;
   int  h = ihdr.get_height();
 
   resize(w,h);
 
+  auto  uncompressed = idat.get_uncompressed();
+  auto    unfiltered = uncompressed.get_unfiltered(ihdr);
+
+  auto  ptr = unfiltered.begin();
+
     if(ihdr.does_use_palette())
     {
-      auto  plte_chunk = ls.get_chunk("PLTE");
-
-        if(!plte_chunk)
+        if(!plte)
         {
           printf("png make image error: not found palette\n");
         }
 
       else
         {
-          palette  plte(*plte_chunk);
-
-          map_color(data_ptr,plte);
+          map_color(ptr,*plte);
         }
     }
 
@@ -144,12 +128,12 @@ assign(const chunk_list&  ls) noexcept
         {
             if(ihdr.does_use_alpha())
             {
-              copy_rgba(data_ptr);
+              copy_rgba(ptr);
             }
 
           else
             {
-              copy_rgb(data_ptr);
+              copy_rgb(ptr);
             }
         }
 
@@ -157,21 +141,79 @@ assign(const chunk_list&  ls) noexcept
         {
             if(ihdr.does_use_alpha())
             {
-              copy_gray_with_alpha(data_ptr);
+              copy_gray_with_alpha(ptr);
             }
 
           else
             {
-              copy_gray(data_ptr);
+              copy_gray(ptr);
             }
         }
     }
 
 
-  delete[] data_ptr;
-
-
   return *this;
+}
+
+
+image&
+image::
+assign(const chunk_list&  ls) noexcept
+{
+  auto  it = ls.begin();
+
+    if(!it || (*it != "IHDR"))
+    {
+      printf("image assign error: have no IHDR chunk\n");
+
+      return *this;
+    }
+
+
+  image_header  ihdr(*it++);
+
+  const palette*  plte_ptr = nullptr;
+
+  palette  plte;
+
+  std::vector<const binary*>  idat_list;
+
+    while(it)
+    {
+        if(*it == "PLTE")
+        {
+          plte = palette(*it++);
+
+          plte_ptr = &plte;
+        }
+
+      else
+        if(*it == "IDAT")
+        {
+          idat_list.emplace_back(&*it++);
+
+            while(it && (*it == "IDAT"))
+            {
+              idat_list.emplace_back(&*it++);
+            }
+        }
+
+      else
+        if(*it == "IEND")
+        {
+          break;
+        }
+
+      else
+        {
+          ++it;
+        }
+    }
+
+
+  image_data  idat(idat_list);
+
+  return assign(ihdr,plte_ptr,idat);
 }
 
 
@@ -198,35 +240,6 @@ resize(int  w, int  h) noexcept
   m_height = h;
 
   clear();
-}
-
-
-void
-image::
-get_filtered_data(uint8_t*&  ptr, size_t&  size) const noexcept
-{
-  int  w = get_width() ;
-  int  h = get_height();
-
-  size = ((4*w)+1)*h;
-
-  ptr = new uint8_t[size];
-
-  auto  dst = ptr;
-  auto  src = m_data;
-
-    for(int  y = 0;  y < h;  ++y)
-    {
-      *dst++ = 0;
-
-        for(int  x = 0;  x < w;  ++x)
-        {
-          *dst++ = *src++;
-          *dst++ = *src++;
-          *dst++ = *src++;
-          *dst++ = *src++;
-        }
-    }
 }
 
 
@@ -370,25 +383,13 @@ image_data
 image::
 make_image_data() const noexcept
 {
-  uint8_t*  src     ;
-  size_t    src_size;
+  auto  ihdr = make_image_header();
 
-  get_filtered_data(src,src_size);
+  auto  src = binary(m_data,4*m_width*m_height);
 
+  auto  filtered = src.get_filtered(ihdr);
 
-  unsigned long  dst_size = (src_size*2)+12;
-
-  auto  dst = new uint8_t[dst_size];
-
-    if(compress(dst,&dst_size,src,src_size) != Z_OK)
-    {
-      printf("image make_image_data error\n");
-    }
-
-
-  delete[] src;
-
-  return image_data(dst,dst_size);
+  return image_data(filtered.get_compressed());
 }
 
 

@@ -1,6 +1,7 @@
 #include"libgbpng/png.hpp"
 #include<cstdlib>
 #include<cstring>
+#include<zlib.h>
 
 
 
@@ -137,13 +138,16 @@ unfilter_paeth(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, ui
       up_left_src = up_src-bpp;
     }
 }
+
+
 }
 
 
-void
-image_data::
-unfilter(const uint8_t*   src, const image_header&  ihdr,
-               uint8_t*&  dst) noexcept
+
+
+binary
+binary::
+get_unfiltered(const image_header&  ihdr) const noexcept
 {
   constexpr int     none = 0;
   constexpr int      sub = 1;
@@ -159,11 +163,12 @@ unfilter(const uint8_t*   src, const image_header&  ihdr,
   int  pitch = bpp*w;
 
 
-  auto  ptr = new uint8_t[pitch*h];
+  binary  tmp(pitch*h);
 
-  std::memset(ptr,0,pitch*h);
+  auto  dst = tmp.begin();
+  auto  src =     begin();
 
-  dst = ptr;
+  std::memset(dst,0,pitch*h);
 
 
   const uint8_t  dummy_line[pitch] = {0};
@@ -234,13 +239,13 @@ unfilter(const uint8_t*   src, const image_header&  ihdr,
     }
 
 
-  dst = ptr;
-
   printf("   none: %6d\n",   none_count);
   printf("    sub: %6d\n",    sub_count);
   printf("     up: %6d\n",     up_count);
   printf("average: %6d\n",average_count);
   printf("  paeth: %6d\n",  paeth_count);
+
+  return std::move(tmp);
 }
 
 

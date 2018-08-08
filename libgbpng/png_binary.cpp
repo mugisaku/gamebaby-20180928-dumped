@@ -1,6 +1,7 @@
 #include"libgbpng/png.hpp"
 #include<cstdlib>
 #include<cstring>
+#include<zlib.h>
 
 
 
@@ -63,15 +64,35 @@ binary&
 binary::
 assign(const void*  ptr, uint32_t  size) noexcept
 {
-  m_data_size = size;
+  resize(size);
 
-  delete[] m_data                           ;
-           m_data = new uint8_t[m_data_size];
-
-  std::memcpy(m_data,ptr,m_data_size);
+  std::memcpy(m_data,ptr,size);
 
 
   return *this;
+}
+
+
+void
+binary::
+resize(uint32_t  size) noexcept
+{
+    if(m_data_size < size)
+    {
+      delete[] m_data                    ;
+               m_data = new uint8_t[size];
+    }
+
+
+  m_data_size = size;
+}
+
+
+void
+binary::
+write(const uint8_t*  ptr, size_t  size, uint32_t  i) noexcept
+{
+  std::memcpy(m_data+i,ptr,size);
 }
 
 
@@ -83,6 +104,52 @@ clear_data() noexcept
 
   delete[] m_data          ;
            m_data = nullptr;
+}
+
+
+
+
+binary
+binary::
+get_compressed() const noexcept
+{
+  binary  tmp((m_data_size*2)+12);
+
+  unsigned long  dst_size = tmp.m_data_size;
+
+    if(compress(tmp.m_data,&dst_size,m_data,m_data_size) != Z_OK)
+    {
+      printf("image make_image_data error\n");
+    }
+
+
+  return std::move(tmp);
+}
+
+
+binary
+binary::
+get_uncompressed() const noexcept
+{
+  binary  tmp(m_data_size*2);
+
+    for(;;)
+    {
+      unsigned long int  size = tmp.m_data_size;
+
+        if(uncompress(tmp.m_data,&size,m_data,m_data_size) == Z_OK)
+        {
+          tmp.resize(size);
+
+          break;
+        }
+
+
+      tmp.resize(tmp.m_data_size*2);
+    }
+
+
+  return std::move(tmp);
 }
 
 

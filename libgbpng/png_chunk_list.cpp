@@ -1,8 +1,6 @@
 #include"libgbpng/png.hpp"
 #include<cstdlib>
 #include<cstring>
-#include<png.h>
-#include<zlib.h>
 
 
 
@@ -116,11 +114,30 @@ assign(const picture&  pic) noexcept
 {
   clear();
 
+  put_chunk(pic.make_control_chunk());
+
+  auto  inc_flag = pic.does_use_main_image_as_first_frame();
+
+    if(inc_flag)
+    {
+      put_chunk(pic.make_frame_control_chunk());
+    }
+
+
   auto  ihdr = pic.make_image_header();
   auto  idat = pic.make_image_data();
 
   put_chunk(ihdr.make_chunk());
   put_chunk(idat.make_chunk());
+
+  uint32_t  seq_num = inc_flag? 1:0;
+
+    for(auto&  frm: pic.get_frame_list())
+    {
+      put_chunk(frm.make_control_chunk(seq_num  ));
+      put_chunk(frm.make_chunk(        seq_num++));
+    }
+
 
   return *this;
 }
@@ -224,100 +241,6 @@ write(uint8_t*  dst) const noexcept
 
 
   g_end_chunk.save(dst);
-}
-
-
-
-
-namespace{
-
-
-void
-uncompress_(const uint8_t*   src_ptr, size_t   src_size,
-                 uint8_t*&  dst_ptr, size_t&  dst_size) noexcept
-{
-  dst_size = src_size*2;
-
-  dst_ptr = nullptr;
-
-    for(;;)
-    {
-      unsigned long int  size = dst_size;
-
-      delete[] dst_ptr                    ;
-               dst_ptr = new uint8_t[size];
-
-        if(uncompress(dst_ptr,&size,src_ptr,src_size) == Z_OK)
-        {
-          dst_size = size;
-
-          break;
-        }
-
-
-      dst_size *= 2;
-    }
-}
-
-
-}
-
-
-
-
-void
-chunk_list::
-concatenate(uint8_t*&  ptr, size_t&  size) const noexcept
-{
-  size = 0;
-
-    for(auto&  chk: *this)
-    {
-        if(chk.get_name() == chunk_name("IDAT"))
-        {
-          size += chk.get_data_size();
-        }
-    }
-
-
-  ptr = new uint8_t[size];
-
-  auto  p = ptr;
-
-    for(auto&  chk: *this)
-    {
-        if(chk.get_name() == chunk_name("IDAT"))
-        {
-          auto  current_size = chk.get_data_size();
-
-          std::memcpy(p,chk.get_data(),current_size);
-
-          p += current_size;
-        }
-    }
-}
-
-
-void
-chunk_list::
-extract(const image_header&  ihdr, uint8_t*&  dst_ptr) const noexcept
-{
-  uint8_t*  concatenated_data_ptr;
-  size_t    concatenated_data_size;
-
-  concatenate(concatenated_data_ptr,concatenated_data_size);
-
-
-  uint8_t*  uncompressed_data_ptr;
-  size_t    uncompressed_data_size;
-
-  uncompress_(concatenated_data_ptr,concatenated_data_size,
-              uncompressed_data_ptr,uncompressed_data_size);
-
-  image_data::unfilter(uncompressed_data_ptr,ihdr,dst_ptr);
-
-  delete[] concatenated_data_ptr;
-  delete[] uncompressed_data_ptr;
 }
 
 

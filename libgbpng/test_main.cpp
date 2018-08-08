@@ -62,11 +62,11 @@ main(int  argc, char**  argv)
     }
 
 
-  chunk_list  tmp(img);
+//  chunk_list  tmp(img);
 
-  tmp.print();
+//  tmp.print();
 
-  write_png_to_file(tmp,"output.png");
+//  write_png_to_file(tmp,"output.png");
 
 
   SDL_Init(SDL_INIT_VIDEO);
