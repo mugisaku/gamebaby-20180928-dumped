@@ -158,62 +158,12 @@ assign(const image_header&  ihdr, const palette*  plte, const image_data&  idat)
 
 image&
 image::
-assign(const chunk_list&  ls) noexcept
+assign(const chunk_set&  set) noexcept
 {
-  auto  it = ls.begin();
+  image_header  ihdr = set.get_image_header();
+  image_data    idat = set.get_image_data();
 
-    if(!it || (*it != "IHDR"))
-    {
-      printf("image assign error: have no IHDR chunk\n");
-
-      return *this;
-    }
-
-
-  image_header  ihdr(*it++);
-
-  const palette*  plte_ptr = nullptr;
-
-  palette  plte;
-
-  std::vector<const binary*>  idat_list;
-
-    while(it)
-    {
-        if(*it == "PLTE")
-        {
-          plte = palette(*it++);
-
-          plte_ptr = &plte;
-        }
-
-      else
-        if(*it == "IDAT")
-        {
-          idat_list.emplace_back(&*it++);
-
-            while(it && (*it == "IDAT"))
-            {
-              idat_list.emplace_back(&*it++);
-            }
-        }
-
-      else
-        if(*it == "IEND")
-        {
-          break;
-        }
-
-      else
-        {
-          ++it;
-        }
-    }
-
-
-  image_data  idat(idat_list);
-
-  return assign(ihdr,plte_ptr,idat);
+  return assign(ihdr,nullptr,idat);
 }
 
 

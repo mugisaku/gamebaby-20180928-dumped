@@ -68,9 +68,9 @@ operator=(chunk&&  rhs) noexcept
 
 
 
-void
+uint8_t*
 chunk::
-save(uint8_t*  dst) const noexcept
+write(uint8_t*  dst) const noexcept
 {
   put_be32(get_data_size(),dst);
 
@@ -91,12 +91,14 @@ save(uint8_t*  dst) const noexcept
 
 
   put_be32(m_crc,dst);
+
+  return dst;
 }
 
 
-void
+const uint8_t*
 chunk::
-load(const uint8_t*  src) noexcept
+read(const uint8_t*  src) noexcept
 {
   auto  size = get_be32(src);
 
@@ -120,7 +122,12 @@ load(const uint8_t*  src) noexcept
     if(!test_crc())
     {
       printf("png chunk load error: crc not matched\n");
+
+      src = nullptr;
     }
+
+
+  return src;
 }
 
 

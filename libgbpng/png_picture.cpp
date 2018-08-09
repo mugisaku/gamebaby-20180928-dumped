@@ -10,75 +10,44 @@ namespace gbpng{
 
 
 
-void
+picture&
 picture::
-seek_for_idat(chunk_list::iterator&  it, const chunk*&  actl, const chunk*&  fctl, const chunk*&  idat) noexcept
+assign(const chunk_set&  set) noexcept
 {
-  actl = nullptr;
-  fctl = nullptr;
-  idat = nullptr;
 
-    while(it)
-    {
-      auto&  chk = *it++;
-
-        if(chk == "acTL")
-        {
-          actl = &chk;
-        }
-
-      else
-        if(chk == "fcTL")
-        {
-          fctl = &chk;
-        }
-
-      else
-        if(chk == "IDAT")
-        {
-          idat = &chk;
-
-          break;
-        }
-
-      else
-        if(chk == "IEND")
-        {
-          break;
-        }
-    }
+  return *this;
 }
 
 
-picture&
-picture::
-assign(const chunk_list&  ls) noexcept
+/*
+chunk_list&
+chunk_list::
+assign(const picture&  pic) noexcept
 {
-  m_frame_list.clear();
+  clear();
 
-  auto  it = ls.begin();
+  put_chunk(pic.make_control_chunk());
 
-    if(!it || (*it != "IHDR"))
+  auto  inc_flag = pic.does_use_main_image_as_first_frame();
+
+    if(inc_flag)
     {
-      printf("picture assign error: have no IHDR chunk\n");
-
-      return *this;
+      put_chunk(pic.make_frame_control_chunk());
     }
 
 
-  const image_header  ihdr(*it++);
+  auto  ihdr = pic.make_image_header();
+  auto  idat = pic.make_image_data();
 
-  const chunk*  actl;
-  const chunk*  fctl;
-  const chunk*  idat;
+  put_chunk(ihdr.make_chunk());
+  put_chunk(idat.make_chunk());
 
-  seek_for_idat(it,actl,fctl,idat);
+  uint32_t  seq_num = inc_flag? 1:0;
 
-    if(!idat)
+    for(auto&  frm: pic.get_frame_list())
     {
-      printf("picture assign error: have no IDAT chunk\n");
-
-      return *this;
+      put_chunk(frm.make_control_chunk(seq_num  ));
+      put_chunk(frm.make_chunk(        seq_num++));
     }
 
 
@@ -86,6 +55,9 @@ assign(const chunk_list&  ls) noexcept
 }
 
 
+
+
+*/
 
 
 chunk

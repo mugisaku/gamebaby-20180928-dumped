@@ -70,7 +70,7 @@ put_be32(uint32_t  i, uint8_t*&  p) noexcept
 
 
 
-class chunk_list;
+class chunk_set;
 class image;
 class image_header;
 class picture;
@@ -186,10 +186,10 @@ public:
   const chunk_name&  get_name() const noexcept{return m_name;}
   uint32_t            get_crc() const noexcept{return m_crc;}
 
-  uint32_t  get_file_size() const noexcept{return 12+get_data_size();}
+  uint32_t  get_stream_size() const noexcept{return 12+get_data_size();}
 
-  void  save(      uint8_t*  dst) const noexcept;
-  void  load(const uint8_t*  src)       noexcept;
+        uint8_t*  write(      uint8_t*  dst) const noexcept;
+  const uint8_t*   read(const uint8_t*  src)       noexcept;
 
   void  update_crc() noexcept{m_crc = calculate_crc();}
 
@@ -301,9 +301,9 @@ image_data: public binary
 public:
   using binary::binary;
 
-  image_data(const std::vector<const binary*>&  ls) noexcept{assign(ls);}
+  image_data(const std::vector<chunk>&  ls) noexcept{assign(ls);}
 
-  image_data&  assign(const std::vector<const binary*>&  ls) noexcept;
+  image_data&  assign(const std::vector<chunk>&  ls) noexcept;
 
   chunk  make_chunk() const noexcept;
 
@@ -331,19 +331,19 @@ image
 public:
    image() noexcept{}
    image(const image_header&  ihdr) noexcept;
-   image(const chunk_list&  ls) noexcept{assign(ls);}
+   image(const chunk_set&  set) noexcept{assign(set);}
    image(const image&   rhs) noexcept{*this = rhs;}
    image(      image&&  rhs) noexcept{*this = std::move(rhs);}
   ~image(){delete[] m_data;}
 
    image&  operator=(const image&   rhs) noexcept;
    image&  operator=(      image&&  rhs) noexcept;
-   image&  operator=(const chunk_list&  ls) noexcept{return assign(ls);}
+   image&  operator=(const chunk_set&  set) noexcept{return assign(set);}
 
   image&  assign(int  w, int  h,       uint8_t*      data) noexcept;
   image&  assign(int  w, int  h, const uint8_t*  src_data) noexcept;
   image&  assign(const image_header&  ihdr, const palette*  plte, const image_data&  idat) noexcept;
-  image&  assign(const chunk_list&  ls) noexcept;
+  image&  assign(const chunk_set&  set) noexcept;
 
   void  resize(int  w, int  h) noexcept;
 
@@ -424,79 +424,35 @@ public:
 
 
 class
-chunk_list
+chunk_set
 {
-  struct node{
-    gbpng::chunk  chunk;
+  bool  read_between_ihdr_and_idat(const uint8_t*&  p) noexcept;
+  bool  read_idat(                 const uint8_t*&  p) noexcept;
+  void  read_after_idat(           const uint8_t*&  p) noexcept;
 
-    node*  previous;
-    node*  next;
-  };
+  chunk  m_ihdr;
 
-  node*  m_first=nullptr;
-  node*  m_last =nullptr;
+  std::vector<chunk>  m_between_ihdr_and_idat;
+
+  std::vector<chunk>  m_idat;
+
+  std::vector<chunk>  m_after_idat;
 
 public:
-  class iterator{
-    node*  ptr;
-
-  public:
-    iterator(node*  nd=nullptr) noexcept: ptr(nd){}
-
-    operator bool() const noexcept{return ptr;}
-
-    bool  operator!=(const iterator&  rhs) const noexcept{return ptr && (ptr != rhs.ptr);}
-
-    const chunk*  operator->() const noexcept{return &ptr->chunk;}
-    const chunk&  operator*()  const noexcept{return  ptr->chunk;}
-
-    iterator&  operator++() noexcept
-    {
-      ptr = ptr->next;
-
-      return *this;
-    }
-
-    iterator  operator++(int) noexcept
-    {
-      auto  cur = *this;
-
-      ptr = ptr->next;
-
-      return cur;
-    }
-  };
-
-
-  chunk_list() noexcept{}
-  chunk_list(const image&  img) noexcept{assign(img);}
-  chunk_list(const chunk_list&   rhs) noexcept{*this = rhs;}
-  chunk_list(      chunk_list&&  rhs) noexcept{*this = std::move(rhs);}
-  ~chunk_list(){clear();}
-
-  chunk_list&  operator=(const chunk_list&   rhs) noexcept{return assign(rhs);}
-  chunk_list&  operator=(      chunk_list&&  rhs) noexcept{return assign(std::move(rhs));}
-  chunk_list&  operator=(const image&  img)       noexcept{return assign(img);}
+  chunk_set() noexcept{clear();}
 
   void  clear() noexcept;
 
-  const chunk*  get_chunk(chunk_name  name) const noexcept;
-  void          put_chunk(chunk&&  chk) noexcept;
+  image_header  get_image_header() const noexcept{return image_header(m_ihdr);}
+  image_data    get_image_data()   const noexcept{return image_data(m_idat);}
 
-  chunk_list&  assign(const chunk_list&   rhs) noexcept;
-  chunk_list&  assign(      chunk_list&&  rhs) noexcept;
-  chunk_list&  assign(const image&  img)       noexcept;
-  chunk_list&  assign(const uint8_t*  src)     noexcept;
-  chunk_list&  assign(const picture&  pic)     noexcept;
+  size_t  calculate_stream_size() const noexcept;
 
-  chunk_list&  append(const uint8_t*  src) noexcept;
+  bool  read_png_from_stream(const uint8_t*  ptr) noexcept;
+  bool  read_png_from_file(const char*  path) noexcept;
 
-  iterator  begin() const noexcept{return iterator(m_first);}
-  iterator    end() const noexcept{return iterator(       );}
-
-  void  write(uint8_t*  ptr) const noexcept;
-
-  static const chunk&  get_end_chunk() noexcept;
+  bool  write_png_to_file(const char*  path) const noexcept;
+  bool  write_png_to_stream(uint8_t*  ptr) const noexcept;
 
   void  print() const noexcept;
 
@@ -512,15 +468,13 @@ picture: public image
 
   std::vector<animation_frame>  m_frame_list;
 
-  void  seek_for_idat(chunk_list::iterator&  it, const chunk*&  actl, const chunk*&  fctl, const chunk*&  idat) noexcept;
-
 public:
   using image::image;
 
-  picture(const chunk_list&  ls) noexcept{assign(ls);}
+  picture(const chunk_set&  set) noexcept{assign(set);}
 
-  picture&  operator=(const chunk_list&  ls) noexcept{return assign(ls);}
-  picture&  assign(const chunk_list&  ls) noexcept;
+  picture&  operator=(const chunk_set&  set) noexcept{return assign(set);}
+  picture&  assign(const chunk_set&  set) noexcept;
 
   uint32_t  get_number_of_plays(           ) const noexcept{return m_number_of_plays    ;}
   void      set_number_of_plays(uint32_t  n)       noexcept{       m_number_of_plays = n;}
@@ -535,17 +489,6 @@ public:
   const std::vector<animation_frame>&  get_frame_list() const noexcept{return m_frame_list;}
 
 };
-
-
-
-
-uint32_t  calculate_png_stream_size(const chunk_list&  ls) noexcept;
-
-bool  read_png_from_stream(      chunk_list&  ls, const uint8_t*  ptr) noexcept;
-bool   write_png_to_stream(const chunk_list&  ls,       uint8_t*  ptr) noexcept;
-
-bool  read_png_from_file(      chunk_list&  ls, const char*  path) noexcept;
-bool   write_png_to_file(const chunk_list&  ls, const char*  path) noexcept;
 
 
 }

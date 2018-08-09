@@ -12,13 +12,13 @@ namespace gbpng{
 
 image_data&
 image_data::
-assign(const std::vector<const binary*>&  ls) noexcept
+assign(const std::vector<chunk>&  ls) noexcept
 {
   size_t  size = 0;
 
-    for(auto  bin: ls)
+    for(auto&  chk: ls)
     {
-      size += bin->get_data_size();
+      size += chk.get_data_size();
     }
 
 
@@ -26,11 +26,11 @@ assign(const std::vector<const binary*>&  ls) noexcept
 
   auto  p = begin();
 
-    for(auto  bin: ls)
+    for(auto&  chk: ls)
     {
-      auto  current_size = bin->get_data_size();
+      auto  current_size = chk.get_data_size();
 
-      std::memcpy(p,bin->begin(),current_size);
+      std::memcpy(p,chk.begin(),current_size);
 
       p += current_size;
     }

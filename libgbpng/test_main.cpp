@@ -46,15 +46,15 @@ update_screen(const image&  img) noexcept
 int
 main(int  argc, char**  argv)
 {
-  chunk_list  chkls;
+  chunk_set  chkset;
 
-  read_png_from_file(chkls,argv[1]);
+    if(!chkset.read_png_from_file(argv[1]))
+    {
+      chkset.print();
+    }
 
 
-  chkls.print();
-
-
-  image  img(chkls);
+  image  img(chkset);
 
     if(!img.get_width() || !img.get_height())
     {
