@@ -17,6 +17,10 @@ set(SOURCES
   png_binary__filter.cpp
   png_picture.cpp
   png_animation_frame.cpp
+  png_animation_control.cpp
+  png_frame_control.cpp
+  png_frame_data.cpp
+  png_chunk_list.cpp
   png_chunk_set.cpp
   png_chunk.cpp
   png_chunk__calculate_crc.cpp

@@ -158,8 +158,10 @@ assign(const image_header&  ihdr, const palette*  plte, const image_data&  idat)
 
 image&
 image::
-assign(const chunk_set&  set) noexcept
+assign(const chunk_list&  ls) noexcept
 {
+  chunk_set  set(ls);
+
   image_header  ihdr = set.get_image_header();
   image_data    idat = set.get_image_data();
 

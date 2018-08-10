@@ -70,6 +70,7 @@ put_be32(uint32_t  i, uint8_t*&  p) noexcept
 
 
 
+class chunk_list;
 class chunk_set;
 class image;
 class image_header;
@@ -301,9 +302,130 @@ image_data: public binary
 public:
   using binary::binary;
 
-  image_data(const std::vector<chunk>&  ls) noexcept{assign(ls);}
+  image_data(const std::vector<const chunk*>&  ls) noexcept{assign(ls);}
 
-  image_data&  assign(const std::vector<chunk>&  ls) noexcept;
+  image_data&  assign(const std::vector<const chunk*>&  ls) noexcept;
+
+  chunk  make_chunk() const noexcept;
+
+  void  print() const noexcept;
+
+};
+
+
+class
+frame_data: public image_data
+{
+  uint32_t  m_sequence_number=0;
+
+public:
+  frame_data(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept{assign(seq_num,ls);}
+  frame_data(const chunk&  chk) noexcept{assign(chk);}
+
+  frame_data&  assign(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept;
+  frame_data&  assign(const chunk&  chk) noexcept;
+
+  uint32_t  get_sequence_number() const noexcept{return m_sequence_number;}
+
+  chunk  make_chunk() const noexcept;
+
+  void  print() const noexcept;
+
+};
+
+
+
+
+class
+animation_control
+{
+  uint32_t  m_number_of_frames=0;
+  uint32_t  m_number_of_plays=0;
+
+public:
+  animation_control() noexcept{}
+  animation_control(const chunk&  chk) noexcept{assign(chk);}
+
+  animation_control&  operator=(const chunk&  chk) noexcept{return assign(chk);}
+  animation_control&  assign(const chunk&  chk) noexcept;
+
+  uint32_t  get_number_of_frames() const noexcept{return m_number_of_frames;}
+  uint32_t  get_number_of_plays()  const noexcept{return m_number_of_plays;}
+
+  chunk  make_chunk() const noexcept;
+
+  void  print() const noexcept;
+
+};
+
+
+
+
+enum class
+dispose_type
+{
+  none,
+  background,
+  previous,
+
+};
+
+
+enum class
+blend_type
+{
+  source,
+  over,
+
+};
+
+
+class
+frame_control
+{
+  uint32_t  m_sequence_number=0;
+
+  uint32_t  m_x_offset=0;
+  uint32_t  m_y_offset=0;
+
+  uint32_t  m_width=0;
+  uint32_t  m_height=0;
+
+  uint16_t  m_delay_numerator=0;
+  uint16_t  m_delay_denominator=0;
+
+  dispose_type  m_dispose_type=dispose_type::none;
+  blend_type    m_blend_type  =blend_type::source;
+
+public:
+  frame_control() noexcept{}
+  frame_control(const chunk&  chk) noexcept{assign(chk);}
+
+  frame_control&  operator=(const chunk&  chk) noexcept{return assign(chk);}
+  frame_control&  assign(const chunk&  chk) noexcept;
+
+  uint32_t  get_sequence_number() const noexcept{return m_sequence_number;}
+
+  uint32_t  get_x_offset() const noexcept{return m_x_offset;}
+  uint32_t  get_y_offset() const noexcept{return m_y_offset;}
+
+  void  set_x_offset(uint32_t  v) noexcept{m_x_offset = v;}
+  void  set_y_offset(uint32_t  v) noexcept{m_y_offset = v;}
+
+  uint32_t  get_width()  const noexcept{return m_width;}
+  uint32_t  get_height() const noexcept{return m_height;}
+
+  uint16_t  get_delay_numerator()   const noexcept{return m_delay_numerator;}
+  uint16_t  get_delay_denominator() const noexcept{return m_delay_denominator;}
+
+  void  set_delay_numerator(uint16_t  v)   noexcept{m_delay_numerator   = v;}
+  void  set_delay_denominator(uint16_t  v) noexcept{m_delay_denominator = v;}
+
+  dispose_type  get_dispose_type() const noexcept{return m_dispose_type;}
+  blend_type    get_blend_type()   const noexcept{return m_blend_type;}
+
+  void  get_dispose_type(dispose_type  t) noexcept{m_dispose_type = t;}
+  void    get_blend_type(blend_type  t)   noexcept{m_blend_type   = t;}
 
   chunk  make_chunk() const noexcept;
 
@@ -331,19 +453,19 @@ image
 public:
    image() noexcept{}
    image(const image_header&  ihdr) noexcept;
-   image(const chunk_set&  set) noexcept{assign(set);}
+   image(const chunk_list&  ls) noexcept{assign(ls);}
    image(const image&   rhs) noexcept{*this = rhs;}
    image(      image&&  rhs) noexcept{*this = std::move(rhs);}
   ~image(){delete[] m_data;}
 
    image&  operator=(const image&   rhs) noexcept;
    image&  operator=(      image&&  rhs) noexcept;
-   image&  operator=(const chunk_set&  set) noexcept{return assign(set);}
+   image&  operator=(const chunk_list&  ls) noexcept{return assign(ls);}
 
   image&  assign(int  w, int  h,       uint8_t*      data) noexcept;
   image&  assign(int  w, int  h, const uint8_t*  src_data) noexcept;
   image&  assign(const image_header&  ihdr, const palette*  plte, const image_data&  idat) noexcept;
-  image&  assign(const chunk_set&  set) noexcept;
+  image&  assign(const chunk_list&  ls) noexcept;
 
   void  resize(int  w, int  h) noexcept;
 
@@ -363,23 +485,13 @@ public:
 
 
 
-enum class
-dispose_type
+class
+animation_chunk_set
 {
-  none,
-  background,
-  previous,
 
 };
 
 
-enum class
-blend_type
-{
-  source,
-  over,
-
-};
 
 
 class
@@ -424,35 +536,78 @@ public:
 
 
 class
+animation_element
+{
+  const chunk*  m_fctl;
+
+  std::vector<const chunk*>  m_fdat;
+
+public:
+  animation_element(const chunk*  fctl) noexcept: m_fctl(fctl){}
+
+  void  append(const chunk*  fdat) noexcept{m_fdat.emplace_back(fdat);}
+
+};
+
+
+
+
+class
+chunk_list
+{
+  std::vector<chunk>  m_container;
+
+public:
+  uint32_t  calculate_stream_size() const noexcept;
+
+  bool  read_png_from_stream(const uint8_t*  p) noexcept;
+  bool  read_png_from_file(const char*  path) noexcept;
+
+  bool  write_png_to_stream(uint8_t*  p) const noexcept;
+  bool  write_png_to_file(const char*  path) const noexcept;
+
+  const chunk*  begin() const noexcept{return m_container.data();}
+  const chunk*    end() const noexcept{return m_container.data()+m_container.size();}
+  
+  void  print() const noexcept;
+
+};
+
+
+
+
+class
 chunk_set
 {
-  bool  read_between_ihdr_and_idat(const uint8_t*&  p) noexcept;
-  bool  read_idat(                 const uint8_t*&  p) noexcept;
-  void  read_after_idat(           const uint8_t*&  p) noexcept;
+  void  read_after_ihdr(const chunk*&  it, const chunk*  it_end) noexcept;
+  void  read_idat(      const chunk*&  it, const chunk*  it_end) noexcept;
+  void  read_after_idat(const chunk*&  it, const chunk*  it_end) noexcept;
+  void  read_fdat(      const chunk*&  it, const chunk*  it_end, animation_element*  e) noexcept;
 
-  chunk  m_ihdr;
+  const chunk*  m_ihdr=nullptr;
 
-  std::vector<chunk>  m_between_ihdr_and_idat;
+  std::vector<const chunk*>  m_between_ihdr_and_idat;
 
-  std::vector<chunk>  m_idat;
+  const chunk*  m_actl=nullptr;
+  const chunk*  m_plte=nullptr;
+  const chunk*  m_top_fctl=nullptr;
 
-  std::vector<chunk>  m_after_idat;
+  std::vector<const chunk*>  m_idat;
+
+  std::vector<const chunk*>  m_after_idat;
+
+  std::vector<animation_element>  m_animation_elements;
 
 public:
   chunk_set() noexcept{clear();}
+  chunk_set(const chunk_list&  ls) noexcept{assign(ls);}
+
+  chunk_set&  assign(const chunk_list&  ls) noexcept;
 
   void  clear() noexcept;
 
-  image_header  get_image_header() const noexcept{return image_header(m_ihdr);}
+  image_header  get_image_header() const noexcept{return image_header(*m_ihdr);}
   image_data    get_image_data()   const noexcept{return image_data(m_idat);}
-
-  size_t  calculate_stream_size() const noexcept;
-
-  bool  read_png_from_stream(const uint8_t*  ptr) noexcept;
-  bool  read_png_from_file(const char*  path) noexcept;
-
-  bool  write_png_to_file(const char*  path) const noexcept;
-  bool  write_png_to_stream(uint8_t*  ptr) const noexcept;
 
   void  print() const noexcept;
 
