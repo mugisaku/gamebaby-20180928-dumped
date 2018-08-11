@@ -42,7 +42,8 @@ read_after_ihdr(const chunk*&  it, const chunk*  it_end) noexcept
         {
           m_idat.emplace_back(&chk);
 
-          read_idat(it,it_end);
+          read_idat(      it,it_end);
+          read_after_idat(it,it_end);
 
           return;
         }
@@ -106,17 +107,17 @@ read_idat(const chunk*&  it, const chunk*  it_end) noexcept
 {
     while(it != it_end)
     {
-      auto&  chk = *it++;
+      auto&  chk = *it;
 
         if(chk == "IDAT")
         {
           m_idat.emplace_back(&chk);
+
+          ++it;
         }
 
       else
         {
-          m_after_idat.emplace_back(&chk);
-
           break;
         }
     }
@@ -176,7 +177,7 @@ read_fdat(const chunk*&  it, const chunk*  it_end, animation_element*  e) noexce
         }
 
       else
-        if(chk == "dcTL")
+        if(chk == "fcTL")
         {
           m_animation_elements.emplace_back(&chk);
 
@@ -222,11 +223,15 @@ void
 chunk_set::
 print() const noexcept
 {
+  printf("{\n");
   m_ihdr->print();
+  printf("}\n\n");
 
     for(auto  chk: m_between_ihdr_and_idat)
     {
+      printf("{\n");
       chk->print();
+      printf("}\n\n");
     }
 
 
@@ -250,13 +255,17 @@ print() const noexcept
 
     for(auto  chk: m_idat)
     {
+      printf("{\n");
       chk->print();
+      printf("}\n\n");
     }
 
 
     for(auto  chk: m_after_idat)
     {
+      printf("{\n");
       chk->print();
+      printf("}\n\n");
     }
 
 

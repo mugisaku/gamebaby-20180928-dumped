@@ -74,7 +74,7 @@ class chunk_list;
 class chunk_set;
 class image;
 class image_header;
-class picture;
+class movie;
 class palette;
 
 
@@ -320,10 +320,10 @@ frame_data: public image_data
 
 public:
   frame_data(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept{assign(seq_num,ls);}
-  frame_data(const chunk&  chk) noexcept{assign(chk);}
+  frame_data(uint32_t  seq_num, image_data&&  idat) noexcept{assign(seq_num,std::move(idat));}
 
   frame_data&  assign(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept;
-  frame_data&  assign(const chunk&  chk) noexcept;
+  frame_data&  assign(uint32_t  seq_num, image_data&&  idat) noexcept;
 
   uint32_t  get_sequence_number() const noexcept{return m_sequence_number;}
 
@@ -404,7 +404,8 @@ public:
   frame_control&  operator=(const chunk&  chk) noexcept{return assign(chk);}
   frame_control&  assign(const chunk&  chk) noexcept;
 
-  uint32_t  get_sequence_number() const noexcept{return m_sequence_number;}
+  uint32_t  get_sequence_number(           ) const noexcept{return m_sequence_number    ;}
+  void      set_sequence_number(uint32_t  n)       noexcept{       m_sequence_number = n;}
 
   uint32_t  get_x_offset() const noexcept{return m_x_offset;}
   uint32_t  get_y_offset() const noexcept{return m_y_offset;}
@@ -415,6 +416,9 @@ public:
   uint32_t  get_width()  const noexcept{return m_width;}
   uint32_t  get_height() const noexcept{return m_height;}
 
+  void  set_width( uint32_t  v) noexcept{m_width  = v;}
+  void  set_height(uint32_t  v) noexcept{m_height = v;}
+
   uint16_t  get_delay_numerator()   const noexcept{return m_delay_numerator;}
   uint16_t  get_delay_denominator() const noexcept{return m_delay_denominator;}
 
@@ -424,8 +428,8 @@ public:
   dispose_type  get_dispose_type() const noexcept{return m_dispose_type;}
   blend_type    get_blend_type()   const noexcept{return m_blend_type;}
 
-  void  get_dispose_type(dispose_type  t) noexcept{m_dispose_type = t;}
-  void    get_blend_type(blend_type  t)   noexcept{m_blend_type   = t;}
+  void  set_dispose_type(dispose_type  t) noexcept{m_dispose_type = t;}
+  void    set_blend_type(blend_type  t)   noexcept{m_blend_type   = t;}
 
   chunk  make_chunk() const noexcept;
 
@@ -453,6 +457,7 @@ image
 public:
    image() noexcept{}
    image(const image_header&  ihdr) noexcept;
+   image(const image_header&  ihdr, const palette*  plte, const image_data&  idat) noexcept{assign(ihdr,plte,idat);}
    image(const chunk_list&  ls) noexcept{assign(ls);}
    image(const image&   rhs) noexcept{*this = rhs;}
    image(      image&&  rhs) noexcept{*this = std::move(rhs);}
@@ -486,56 +491,6 @@ public:
 
 
 class
-animation_chunk_set
-{
-
-};
-
-
-
-
-class
-animation_frame: public image
-{
-  uint32_t  m_x_offset=0;
-  uint32_t  m_y_offset=0;
-
-  uint16_t  m_delay_numerator=0;
-  uint16_t  m_delay_denominator=0;
-
-  dispose_type  m_dispose_type=dispose_type::none;
-  blend_type    m_blend_type  =blend_type::source;
-
-public:
-  using image::image;
-
-  uint32_t  get_x_offset() const noexcept{return m_x_offset;}
-  uint32_t  get_y_offset() const noexcept{return m_y_offset;}
-
-  void  set_x_offset(uint32_t  v) noexcept{m_x_offset = v;}
-  void  set_y_offset(uint32_t  v) noexcept{m_y_offset = v;}
-
-  uint16_t  get_delay_numerator()   const noexcept{return m_delay_numerator;}
-  uint16_t  get_delay_denominator() const noexcept{return m_delay_denominator;}
-
-  void  set_delay_numerator(uint16_t  v)   noexcept{m_delay_numerator   = v;}
-  void  set_delay_denominator(uint16_t  v) noexcept{m_delay_denominator = v;}
-
-  dispose_type  get_dispose_type() const noexcept{return m_dispose_type;}
-  blend_type    get_blend_type()   const noexcept{return m_blend_type;}
-
-  void  get_dispose_type(dispose_type  t) noexcept{m_dispose_type = t;}
-  void    get_blend_type(blend_type  t)   noexcept{m_blend_type   = t;}
-
-  chunk  make_chunk(uint32_t  sequence_number) const noexcept;
-  chunk  make_control_chunk(uint32_t  sequence_number) const noexcept;
-
-};
-
-
-
-
-class
 animation_element
 {
   const chunk*  m_fctl;
@@ -546,6 +501,29 @@ public:
   animation_element(const chunk*  fctl) noexcept: m_fctl(fctl){}
 
   void  append(const chunk*  fdat) noexcept{m_fdat.emplace_back(fdat);}
+
+};
+
+
+class
+animation_frame
+{
+  image  m_image;
+
+  uint32_t  m_sequence_number=0;
+
+  uint16_t  m_delay_numerator  =0;
+  uint16_t  m_delay_denominator=0;
+
+public:
+  animation_frame(image&&  img, const frame_control&  fctl) noexcept{assign(std::move(img),fctl);}
+
+  animation_frame&  assign(image&&  img, const frame_control&  fctl) noexcept;
+
+  const image&  get_image() const noexcept{return m_image;}
+
+  chunk  make_data_chunk() const noexcept;
+  chunk  make_control_chunk() const noexcept;
 
 };
 
@@ -606,8 +584,14 @@ public:
 
   void  clear() noexcept;
 
+  bool  is_animation() const noexcept{return m_actl;}
+
   image_header  get_image_header() const noexcept{return image_header(*m_ihdr);}
   image_data    get_image_data()   const noexcept{return image_data(m_idat);}
+
+  const chunk*  get_actl_chunk() const noexcept{return m_actl;}
+  const chunk*  get_plte_chunk() const noexcept{return m_plte;}
+  const chunk*  get_top_fctl_chunk() const noexcept{return m_top_fctl;}
 
   void  print() const noexcept;
 
@@ -615,33 +599,33 @@ public:
 
 
 class
-picture: public image
+movie
 {
-  uint32_t  m_number_of_plays=0;
+  int  m_width =0;
+  int  m_height=0;
 
-  bool  m_use_main_image_as_first_frame=false;
+  uint32_t  m_number_of_plays=0;
 
   std::vector<animation_frame>  m_frame_list;
 
 public:
-  using image::image;
+  movie(const chunk_list&  ls) noexcept{assign(ls);}
+  movie(const chunk_set&  set) noexcept{assign(set);}
 
-  picture(const chunk_set&  set) noexcept{assign(set);}
+  movie&  operator=(const chunk_list&  ls) noexcept{return assign(ls);}
+  movie&  operator=(const chunk_set&  set) noexcept{return assign(set);}
+  movie&  assign(const chunk_list&  ls) noexcept;
+  movie&  assign(const chunk_set&  set) noexcept;
 
-  picture&  operator=(const chunk_set&  set) noexcept{return assign(set);}
-  picture&  assign(const chunk_set&  set) noexcept;
+  int  get_width()  const noexcept{return m_width ;}
+  int  get_height() const noexcept{return m_height;}
 
   uint32_t  get_number_of_plays(           ) const noexcept{return m_number_of_plays    ;}
   void      set_number_of_plays(uint32_t  n)       noexcept{       m_number_of_plays = n;}
 
-  bool  does_use_main_image_as_first_frame() const noexcept{return m_use_main_image_as_first_frame;}
-  void    use_main_image_as_first_frame() noexcept{m_use_main_image_as_first_frame =  true;}
-  void  unuse_main_image_as_first_frame() noexcept{m_use_main_image_as_first_frame = false;}
-
-  chunk  make_frame_control_chunk() const noexcept;
-  chunk  make_control_chunk() const noexcept;
-
   const std::vector<animation_frame>&  get_frame_list() const noexcept{return m_frame_list;}
+
+  chunk  make_control_chunk() const noexcept;
 
 };
 

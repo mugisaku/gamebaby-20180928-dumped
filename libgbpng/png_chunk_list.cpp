@@ -201,7 +201,9 @@ print() const noexcept
 {
     for(auto&  chk: m_container)
     {
+      printf("{\n");
       chk.print();
+      printf("}\n\n");
     }
 }
 

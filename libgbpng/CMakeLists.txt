@@ -15,7 +15,7 @@ set(SOURCES
   png_binary.cpp
   png_binary__unfilter.cpp
   png_binary__filter.cpp
-  png_picture.cpp
+  png_movie.cpp
   png_animation_frame.cpp
   png_animation_control.cpp
   png_frame_control.cpp

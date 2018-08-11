@@ -10,23 +10,18 @@ namespace gbpng{
 
 
 
-chunk
+animation_frame&
 animation_frame::
-make_chunk(uint32_t  sequence_number) const noexcept
+assign(image&&  img, const frame_control&  fctl) noexcept
 {
-  auto  idat = image::make_image_data();
+  m_image = std::move(img);
 
-  size_t  size = 4+idat.get_data_size();
+  m_sequence_number   = fctl.get_sequence_number();
+  m_delay_numerator   = fctl.get_delay_numerator();
+  m_delay_denominator = fctl.get_delay_denominator();
 
-  uint8_t  buffer[size];
 
-  uint8_t*  p = buffer;
-
-  put_be32(sequence_number,p);
-
-  std::memcpy(p,idat.get_data(),idat.get_data_size());
-
-  return chunk(binary(buffer,size),"fdAT");
+  return *this;
 }
 
 
@@ -34,26 +29,30 @@ make_chunk(uint32_t  sequence_number) const noexcept
 
 chunk
 animation_frame::
-make_control_chunk(uint32_t  sequence_number) const noexcept
+make_control_chunk() const noexcept
 {
-  size_t  size = 4+4+4+4+4+2+2+1+1;
+  frame_control  fctl;
 
-  uint8_t  buffer[size];
+  fctl.set_sequence_number(m_sequence_number);
+  fctl.set_width( m_image.get_width());
+  fctl.set_height(m_image.get_height());
+  fctl.set_delay_numerator(m_delay_numerator);
+  fctl.set_delay_denominator(m_delay_denominator);
+  fctl.set_dispose_type(dispose_type::background);
 
-  uint8_t*  p = buffer;
+  return fctl.make_chunk();
+}
 
-  put_be32(sequence_number,p);
-  put_be32(get_width(),p);
-  put_be32(get_height(),p);
-  put_be32(m_x_offset,p);
-  put_be32(m_y_offset,p);
-  put_be16(m_delay_numerator,p);
-  put_be16(m_delay_denominator,p);
 
-  *p++ = static_cast<int>(m_dispose_type);
-  *p++ = static_cast<int>(m_blend_type);
+chunk
+animation_frame::
+make_data_chunk() const noexcept
+{
+  auto  idat = m_image.make_image_data();
 
-  return chunk(binary(buffer,size),"fcTL");
+  frame_data  fdat(m_sequence_number,std::move(idat));
+
+  return fdat.make_chunk();
 }
 
 

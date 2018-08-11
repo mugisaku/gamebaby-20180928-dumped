@@ -50,7 +50,7 @@ main(int  argc, char**  argv)
 
     if(chkls.read_png_from_file(argv[1]))
     {
-      chkls.print();
+//      chkls.print();
     }
 
   else
@@ -61,9 +61,9 @@ main(int  argc, char**  argv)
     }
 
 
-  image  img(chkls);
+  movie  mov(chkls);
 
-    if(!img.get_width() || !img.get_height())
+    if(!mov.get_width() || !mov.get_height())
     {
       return 0;
     }
@@ -78,7 +78,7 @@ main(int  argc, char**  argv)
 
   SDL_Init(SDL_INIT_VIDEO);
 
-  g_window = SDL_CreateWindow("GAME BABY - " __DATE__,0,0,img.get_width(),img.get_height(),0);
+  g_window = SDL_CreateWindow("GAME BABY - " __DATE__,0,0,mov.get_width(),mov.get_height(),0);
 
     if(!g_window)
     {
@@ -87,14 +87,18 @@ main(int  argc, char**  argv)
 
 
   g_renderer = SDL_CreateRenderer(g_window,-1,SDL_RENDERER_ACCELERATED);
-  g_texture  = SDL_CreateTexture(g_renderer,SDL_PIXELFORMAT_ABGR8888,SDL_TEXTUREACCESS_STREAMING,img.get_width(),img.get_height());
+  g_texture  = SDL_CreateTexture(g_renderer,SDL_PIXELFORMAT_ABGR8888,SDL_TEXTUREACCESS_STREAMING,mov.get_width(),mov.get_height());
 
-  update_screen(img);
+  int  i = 0;
+
+  auto&  ls = mov.get_frame_list();
 
   static SDL_Event  evt;
 
     for(;;)
     {
+      const image&  img = ls[i].get_image();
+
         while(SDL_PollEvent(&evt))
         {
             switch(evt.type)
@@ -110,6 +114,8 @@ main(int  argc, char**  argv)
 
 
       SDL_Delay(20);
+
+      
     }
 
 

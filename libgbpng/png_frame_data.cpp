@@ -16,7 +16,39 @@ assign(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept
 {
   m_sequence_number = seq_num;
 
-  image_data::assign(ls);
+  size_t  size = 0;
+
+    for(auto  chk: ls)
+    {
+      size += chk->get_data_size()-4;
+    }
+
+
+  resize(size);
+
+  auto  p = begin();
+
+    for(auto  chk: ls)
+    {
+      const uint8_t*  it = chk->begin();
+
+      auto  n = get_be32(it);
+
+        if(n != m_sequence_number)
+        {
+          printf("frame_data assign error: wrong sequence number\n");
+
+          break;
+        }
+
+
+      auto  current_size = chk->get_data_size()-4;
+
+      std::memcpy(p,it,current_size);
+
+      p += current_size;
+    }
+
 
   return *this;
 }
@@ -24,13 +56,11 @@ assign(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept
 
 frame_data&
 frame_data::
-assign(const chunk&  chk) noexcept
+assign(uint32_t  seq_num, image_data&&  idat) noexcept
 {
-  const uint8_t*  p = chk.begin();
+  m_sequence_number = seq_num;
 
-  m_sequence_number = get_be32(p);
-
-  binary::assign(p,chk.get_data_size()-4);
+  binary::assign(std::move(idat));
 
   return *this;
 }

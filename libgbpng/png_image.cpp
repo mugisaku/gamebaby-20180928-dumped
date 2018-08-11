@@ -162,6 +162,7 @@ assign(const chunk_list&  ls) noexcept
 {
   chunk_set  set(ls);
 
+set.print();
   image_header  ihdr = set.get_image_header();
   image_data    idat = set.get_image_data();
 
