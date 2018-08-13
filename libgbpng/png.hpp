@@ -74,6 +74,8 @@ class chunk_list;
 class chunk_set;
 class image;
 class image_header;
+class frame_control;
+class frame_data;
 class movie;
 class palette;
 
@@ -264,6 +266,8 @@ public:
   image_header(int  w, int  h) noexcept: m_width(w), m_height(h){}
   image_header(const chunk&  chk) noexcept;
 
+  image_header  operator+(const frame_control&  fctl) const noexcept;
+
   int  get_width()  const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
 
@@ -319,6 +323,7 @@ frame_data: public image_data
   uint32_t  m_sequence_number=0;
 
 public:
+  frame_data() noexcept{}
   frame_data(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept{assign(seq_num,ls);}
   frame_data(uint32_t  seq_num, image_data&&  idat) noexcept{assign(seq_num,std::move(idat));}
 
@@ -456,8 +461,10 @@ image
 
 public:
    image() noexcept{}
+   image(int  w, int  h) noexcept{resize(w,h);}
    image(const image_header&  ihdr) noexcept;
-   image(const image_header&  ihdr, const palette*  plte, const image_data&  idat) noexcept{assign(ihdr,plte,idat);}
+   image(const image_header&  ihdr, const palette*  plte,                             const image_data&  idat) noexcept{assign(ihdr,plte,idat);}
+   image(const image_header&  ihdr, const palette*  plte, const frame_control&  fctl, const frame_data&  fdat) noexcept{assign(ihdr,plte,fctl,fdat);}
    image(const chunk_list&  ls) noexcept{assign(ls);}
    image(const image&   rhs) noexcept{*this = rhs;}
    image(      image&&  rhs) noexcept{*this = std::move(rhs);}
@@ -470,11 +477,12 @@ public:
   image&  assign(int  w, int  h,       uint8_t*      data) noexcept;
   image&  assign(int  w, int  h, const uint8_t*  src_data) noexcept;
   image&  assign(const image_header&  ihdr, const palette*  plte, const image_data&  idat) noexcept;
+  image&  assign(const image_header&  ihdr, const palette*  plte, const frame_control&  fctl, const frame_data&  fdat) noexcept;
   image&  assign(const chunk_list&  ls) noexcept;
 
   void  resize(int  w, int  h) noexcept;
 
-  void  clear() noexcept;
+  void  fill() noexcept;
 
   int  get_width()  const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
@@ -484,6 +492,9 @@ public:
 
   image_header  make_image_header() const noexcept;
   image_data    make_image_data() const noexcept;
+
+  static void  blend(const image&  src, const image&  dst, uint32_t  x_offset, uint32_t  y_offset) noexcept;
+  static void   copy(const image&  src, const image&  dst, uint32_t  x_offset, uint32_t  y_offset) noexcept;
 
 };
 
@@ -502,28 +513,33 @@ public:
 
   void  append(const chunk*  fdat) noexcept{m_fdat.emplace_back(fdat);}
 
+  void  get(frame_control&  fctl, frame_data&  fdat) const noexcept
+  {
+    fctl.assign(*m_fctl);
+
+    fdat.assign(fctl.get_sequence_number(),m_fdat);
+  }
+
 };
 
 
 class
 animation_frame
 {
+  frame_control  m_control;
+
   image  m_image;
 
-  uint32_t  m_sequence_number=0;
-
-  uint16_t  m_delay_numerator  =0;
-  uint16_t  m_delay_denominator=0;
-
 public:
-  animation_frame(image&&  img, const frame_control&  fctl) noexcept{assign(std::move(img),fctl);}
+  animation_frame(const frame_control&  fctl, const image&   img) noexcept{assign(fctl,img);}
+  animation_frame(const frame_control&  fctl,       image&&  img) noexcept{assign(fctl,std::move(img));}
 
-  animation_frame&  assign(image&&  img, const frame_control&  fctl) noexcept;
+  animation_frame&  assign(const frame_control&  fctl, const image&   img) noexcept;
+  animation_frame&  assign(const frame_control&  fctl,       image&&  img) noexcept;
+
+  const frame_control&  get_control() const noexcept{return m_control;}
 
   const image&  get_image() const noexcept{return m_image;}
-
-  chunk  make_data_chunk() const noexcept;
-  chunk  make_control_chunk() const noexcept;
 
 };
 
@@ -593,6 +609,8 @@ public:
   const chunk*  get_plte_chunk() const noexcept{return m_plte;}
   const chunk*  get_top_fctl_chunk() const noexcept{return m_top_fctl;}
 
+  const std::vector<animation_element>&  get_animation_elements() const noexcept{return m_animation_elements;}
+
   void  print() const noexcept;
 
 };
@@ -606,7 +624,14 @@ movie
 
   uint32_t  m_number_of_plays=0;
 
+  image  m_previous;
+  image  m_current ;
+
   std::vector<animation_frame>  m_frame_list;
+
+  int  m_index=0;
+
+  void  read_animation_data(const chunk_set&  set) noexcept;
 
 public:
   movie(const chunk_list&  ls) noexcept{assign(ls);}
@@ -623,7 +648,11 @@ public:
   uint32_t  get_number_of_plays(           ) const noexcept{return m_number_of_plays    ;}
   void      set_number_of_plays(uint32_t  n)       noexcept{       m_number_of_plays = n;}
 
-  const std::vector<animation_frame>&  get_frame_list() const noexcept{return m_frame_list;}
+  const image&  get_image() const noexcept{return m_current;}
+
+  void  render() noexcept;
+
+  void  advance() noexcept;
 
   chunk  make_control_chunk() const noexcept;
 

@@ -39,7 +39,17 @@ update_screen(const image&  img) noexcept
       SDL_RenderPresent(g_renderer);
     }
 }
+/*
 
+uint32_t
+get_next_time(const animation_frame&  frm) noexcept
+{
+  auto  den = frm.get_delay_denominator();
+  auto  num =   frm.get_delay_numerator();
+
+  return num? (((den*1000)<<10)/num)>>10:0;
+}
+*/
 
 
 
@@ -89,22 +99,18 @@ main(int  argc, char**  argv)
   g_renderer = SDL_CreateRenderer(g_window,-1,SDL_RENDERER_ACCELERATED);
   g_texture  = SDL_CreateTexture(g_renderer,SDL_PIXELFORMAT_ABGR8888,SDL_TEXTUREACCESS_STREAMING,mov.get_width(),mov.get_height());
 
-  int  i = 0;
-
-  auto&  ls = mov.get_frame_list();
-
   static SDL_Event  evt;
+
+  mov.render();
 
     for(;;)
     {
-      const image&  img = ls[i].get_image();
-
         while(SDL_PollEvent(&evt))
         {
             switch(evt.type)
             {
           case(SDL_WINDOWEVENT):
-              update_screen(img);
+              update_screen(mov.get_image());
               break;
           case(SDL_QUIT):
               goto QUIT;
@@ -113,9 +119,12 @@ main(int  argc, char**  argv)
         }
 
 
-      SDL_Delay(20);
+      SDL_Delay(200);
 
-      
+      mov.advance();
+      mov.render();
+
+      update_screen(mov.get_image());
     }
 
 

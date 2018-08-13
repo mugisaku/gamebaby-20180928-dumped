@@ -272,6 +272,15 @@ print() const noexcept
     if(m_animation_elements.size())
     {
       printf("have %4d animation elements\n",m_animation_elements.size());
+/*
+        for(auto&  e: m_animation_elements)
+        {
+          frame_control  fctl;
+          frame_data     fdat;
+
+          e.get(fctl,fdat);
+        }
+*/
     }
 }
 

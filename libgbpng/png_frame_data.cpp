@@ -14,7 +14,7 @@ frame_data&
 frame_data::
 assign(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept
 {
-  m_sequence_number = seq_num;
+  m_sequence_number = seq_num++;
 
   size_t  size = 0;
 
@@ -34,13 +34,13 @@ assign(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept
 
       auto  n = get_be32(it);
 
-        if(n != m_sequence_number)
+        if(n != seq_num)
         {
-          printf("frame_data assign error: wrong sequence number\n");
-
-          break;
+          printf("frame_data assign error: wrong sequence number %d %d\n",seq_num,n);
         }
 
+
+      ++seq_num;
 
       auto  current_size = chk->get_data_size()-4;
 

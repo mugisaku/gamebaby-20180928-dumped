@@ -158,11 +158,20 @@ assign(const image_header&  ihdr, const palette*  plte, const image_data&  idat)
 
 image&
 image::
+assign(const image_header&  ihdr, const palette*  plte, const frame_control&  fctl, const frame_data&  fdat) noexcept
+{
+  auto  tmp_ihdr = ihdr+fctl;
+
+  return assign(tmp_ihdr,plte,fdat);
+}
+
+
+image&
+image::
 assign(const chunk_list&  ls) noexcept
 {
   chunk_set  set(ls);
 
-set.print();
   image_header  ihdr = set.get_image_header();
   image_data    idat = set.get_image_data();
 
@@ -174,7 +183,7 @@ set.print();
 
 void
 image::
-clear() noexcept
+fill() noexcept
 {
   std::memset(m_data,0,4*m_width*m_height);
 }
@@ -192,7 +201,7 @@ resize(int  w, int  h) noexcept
   m_width  = w;
   m_height = h;
 
-  clear();
+  fill();
 }
 
 
@@ -343,6 +352,69 @@ make_image_data() const noexcept
   auto  filtered = src.get_filtered(ihdr);
 
   return image_data(filtered.get_compressed());
+}
+
+
+
+
+void
+image::
+blend(const image&  src, const image&  dst, uint32_t  x_offset, uint32_t  y_offset) noexcept
+{
+  int  w = src.get_width() ;
+  int  h = src.get_height();
+
+    for(int  y = 0;  y < h;  ++y){
+    for(int  x = 0;  x < w;  ++x){
+      auto  src_p = src.get_rgba_pointer(x,y);
+
+      auto  dst_p = &dst.m_data[4*dst.m_width*(y_offset+y)+4*(x_offset+x)];
+
+      uint8_t  src_r = src_p[0];
+      uint8_t  src_g = src_p[1];
+      uint8_t  src_b = src_p[2];
+      uint8_t      a = src_p[3];
+
+      uint8_t&  dst_r = dst_p[0];
+      uint8_t&  dst_g = dst_p[1];
+      uint8_t&  dst_b = dst_p[2];
+
+        if(a == 255)
+        {
+          dst_r = src_r;
+          dst_g = src_g;
+          dst_b = src_b;
+        }
+
+      else
+        if(a > 0)
+        {
+          dst_r = ((src_r-dst_r)*a>>8)+dst_r;
+          dst_g = ((src_g-dst_g)*a>>8)+dst_g;
+          dst_b = ((src_b-dst_b)*a>>8)+dst_b;
+        }
+    }}
+}
+
+
+void
+image::
+copy(const image&  src, const image&  dst, uint32_t  x_offset, uint32_t  y_offset) noexcept
+{
+  int  w = src.get_width() ;
+  int  h = src.get_height();
+
+    for(int  y = 0;  y < h;  ++y){
+    for(int  x = 0;  x < w;  ++x){
+      auto  src_p = src.get_rgba_pointer(x,y);
+
+      auto  dst_p = &dst.m_data[4*dst.m_width*(y_offset+y)+4*(x_offset+x)];
+
+      dst_p[0] = src_p[0];
+      dst_p[1] = src_p[1];
+      dst_p[2] = src_p[2];
+      dst_p[3] = src_p[3];
+    }}
 }
 
 

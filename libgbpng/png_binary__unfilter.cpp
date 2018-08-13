@@ -239,11 +239,13 @@ get_unfiltered(const image_header&  ihdr) const noexcept
     }
 
 
+/*
   printf("   none: %6d\n",   none_count);
   printf("    sub: %6d\n",    sub_count);
   printf("     up: %6d\n",     up_count);
   printf("average: %6d\n",average_count);
   printf("  paeth: %6d\n",  paeth_count);
+*/
 
   return std::move(tmp);
 }

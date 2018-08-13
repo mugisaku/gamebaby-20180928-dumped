@@ -137,15 +137,49 @@ get_uncompressed() const noexcept
     {
       unsigned long int  size = tmp.m_data_size;
 
-        if(uncompress(tmp.m_data,&size,m_data,m_data_size) == Z_OK)
+      auto  res = uncompress(tmp.m_data,&size,m_data,m_data_size);
+
+        if(res == Z_OK)
         {
           tmp.resize(size);
 
           break;
         }
 
+      else
+        if(res == Z_DATA_ERROR)
+        {
+          printf("get_uncompressed error: invalid input data\n");
 
-      tmp.resize(tmp.m_data_size*2);
+          tmp.resize(0);
+
+          break;
+        }
+
+      else
+        if(res == Z_MEM_ERROR)
+        {
+          printf("get_uncompressed error: could not allocate memory\n");
+
+          tmp.resize(0);
+
+          break;
+        }
+
+      else
+        if(res == Z_BUF_ERROR)
+        {
+          tmp.resize(tmp.m_data_size*2);
+        }
+
+      else
+        {
+          printf("get_uncompressed error: unkonwn error\n");
+
+          tmp.resize(0);
+
+          break;
+        }
     }
 
 

@@ -28,6 +28,21 @@ image_header(const chunk&  chk) noexcept
 
 
 
+image_header
+image_header::
+operator+(const frame_control&  fctl) const noexcept
+{
+  auto  tmp = *this;
+
+  tmp.m_width  = fctl.get_width() ;
+  tmp.m_height = fctl.get_height();
+
+  return tmp;
+}
+
+
+
+
 int
 image_header::
 get_number_of_bytes_per_pixel() const noexcept
