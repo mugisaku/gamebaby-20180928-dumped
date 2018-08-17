@@ -30,9 +30,9 @@ assign(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept
 
     for(auto  chk: ls)
     {
-      const uint8_t*  it = chk->begin();
+      binary_view  bv(*chk);
 
-      auto  n = get_be32(it);
+      auto  n = bv.get_be32();
 
         if(n != seq_num)
         {
@@ -44,7 +44,7 @@ assign(uint32_t  seq_num, const std::vector<const chunk*>&  ls) noexcept
 
       auto  current_size = chk->get_data_size()-4;
 
-      std::memcpy(p,it,current_size);
+      std::memcpy(p,bv.get_pointer(),current_size);
 
       p += current_size;
     }
@@ -74,11 +74,11 @@ make_chunk() const noexcept
 {
   binary  bin(4+get_data_size());
 
-  auto  p = bin.begin();
+  binary_cursor  bc(bin);
 
-  put_be32(m_sequence_number,p);
+  bc.put_be32(m_sequence_number);
 
-  std::memcpy(p,begin(),get_data_size());
+  std::memcpy(bc.get_pointer(),begin(),get_data_size());
 
   return chunk(std::move(bin),chunk_name("fdAT"));
 }

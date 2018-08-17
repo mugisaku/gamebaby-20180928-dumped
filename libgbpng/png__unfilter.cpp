@@ -1,7 +1,6 @@
 #include"libgbpng/png.hpp"
 #include<cstdlib>
 #include<cstring>
-#include<zlib.h>
 
 
 
@@ -146,8 +145,7 @@ unfilter_paeth(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, ui
 
 
 binary
-binary::
-get_unfiltered(const image_header&  ihdr) const noexcept
+get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
 {
   constexpr int     none = 0;
   constexpr int      sub = 1;
@@ -155,18 +153,17 @@ get_unfiltered(const image_header&  ihdr) const noexcept
   constexpr int  average = 3;
   constexpr int    paeth = 4;
 
-  int  bpp = ihdr.get_number_of_bytes_per_pixel();
+  int  pitch = ihdr.get_pitch();
+
+  int  bpp = get_number_of_bytes_per_pixel(ihdr.get_pixel_format());
 
   int  w = ihdr.get_width() ;
   int  h = ihdr.get_height();
-
-  int  pitch = bpp*w;
 
 
   binary  tmp(pitch*h);
 
   auto  dst = tmp.begin();
-  auto  src =     begin();
 
   std::memset(dst,0,pitch*h);
 

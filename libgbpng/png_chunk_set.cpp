@@ -18,15 +18,11 @@ clear() noexcept
 
   m_between_ihdr_and_idat.clear();
 
-  m_actl     = nullptr;
-  m_plte     = nullptr;
-  m_top_fctl = nullptr;
+  m_plte = nullptr;
 
   m_idat.clear();
 
   m_after_idat.clear();
-
-  m_animation_elements.clear();
 }
 
 
@@ -63,31 +59,31 @@ read_after_ihdr(const chunk*&  it, const chunk*  it_end) noexcept
         }
 
       else
-        if(chk == "acTL")
+        if(chk == "tRNS")
         {
           m_between_ihdr_and_idat.emplace_back(&chk);
 
-            if(m_actl)
+            if(m_trns)
             {
-              printf("chunk_set read error: there are multiple animation controls\n");
+              printf("chunk_set read error: there are multiple tRNSes\n");
             }
 
 
-          m_actl = &chk;
+          m_trns = &chk;
         }
 
       else
-        if(chk == "fcTL")
+        if(chk == "bKGD")
         {
           m_between_ihdr_and_idat.emplace_back(&chk);
 
-            if(m_top_fctl)
+            if(m_bkgd)
             {
-              printf("chunk_set read error: there are multiple top flame controls\n");
+              printf("chunk_set read error: there are multiple bKGDes\n");
             }
 
 
-          m_top_fctl = &chk;
+          m_bkgd = &chk;
         }
 
       else
@@ -132,62 +128,7 @@ read_after_idat(const chunk*&  it, const chunk*  it_end) noexcept
     {
       auto&  chk = *it++;
 
-        if(chk == "fcTL")
-        {
-          m_animation_elements.emplace_back(&chk);
-        }
-
-      else
-        if(chk == "fdAT")
-        {
-            if(m_animation_elements.empty())
-            {
-              printf("chunk_set read error: invalid position fdAT\n");
-            }
-
-          else
-            {
-              auto&  e = m_animation_elements.back();
-
-              e.append(&chk);
-
-              read_fdat(it,it_end,&e);
-            }
-        }
-
-      else
-        {
-          m_after_idat.emplace_back(&chk);
-        }
-    }
-}
-
-
-void
-chunk_set::
-read_fdat(const chunk*&  it, const chunk*  it_end, animation_element*  e) noexcept
-{
-    while(it != it_end)
-    {
-      auto&  chk = *it++;
-
-        if(chk == "fdAT")
-        {
-          e->append(&chk);
-        }
-
-      else
-        if(chk == "fcTL")
-        {
-          m_animation_elements.emplace_back(&chk);
-
-          e = &m_animation_elements.back();
-        }
-
-      else
-        {
-          m_after_idat.emplace_back(&chk);
-        }
+      m_after_idat.emplace_back(&chk);
     }
 }
 
@@ -241,18 +182,6 @@ print() const noexcept
     }
 
 
-    if(m_actl)
-    {
-      printf("have animation control\n");
-    }
-
-
-    if(m_top_fctl)
-    {
-      printf("have top frame control\n");
-    }
-
-
     for(auto  chk: m_idat)
     {
       printf("{\n");
@@ -266,21 +195,6 @@ print() const noexcept
       printf("{\n");
       chk->print();
       printf("}\n\n");
-    }
-
-
-    if(m_animation_elements.size())
-    {
-      printf("have %4d animation elements\n",m_animation_elements.size());
-/*
-        for(auto&  e: m_animation_elements)
-        {
-          frame_control  fctl;
-          frame_data     fdat;
-
-          e.get(fctl,fdat);
-        }
-*/
     }
 }
 

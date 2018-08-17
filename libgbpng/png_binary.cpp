@@ -44,22 +44,6 @@ assign(binary&&  rhs) noexcept
 
 
 
-/*
-binary&
-binary::
-assign(void*  ptr, uint32_t  size) noexcept
-{
-  m_data_size = size;
-
-  delete[] m_data                                  ;
-           m_data = reinterpret_cast<uint8_t*>(ptr);
-
-
-  return *this;
-}
-*/
-
-
 binary&
 binary::
 assign(const void*  ptr, uint32_t  size) noexcept
@@ -113,17 +97,17 @@ binary
 binary::
 get_compressed() const noexcept
 {
-  binary  tmp((m_data_size*2)+12);
+  unsigned long  dst_size = (m_data_size*2)+12;
 
-  unsigned long  dst_size = tmp.m_data_size;
+  uint8_t  buf[dst_size];
 
-    if(compress(tmp.m_data,&dst_size,m_data,m_data_size) != Z_OK)
+    if(compress(buf,&dst_size,m_data,m_data_size) != Z_OK)
     {
       printf("image make_image_data error\n");
     }
 
 
-  return std::move(tmp);
+  return binary(buf,dst_size);
 }
 
 

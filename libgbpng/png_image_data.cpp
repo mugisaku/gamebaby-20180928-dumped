@@ -40,6 +40,18 @@ assign(const std::vector<const chunk*>&  ls) noexcept
 }
 
 
+image_data&
+image_data::
+assign(const uint8_t*  ptr, const image_header&  ihdr) noexcept
+{
+  auto  filtered = get_filtered(ptr,ihdr);
+
+  binary::assign(filtered.get_compressed());
+
+  return *this;
+}
+
+
 
 
 chunk

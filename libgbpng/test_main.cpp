@@ -25,7 +25,7 @@ update_screen(const image&  img) noexcept
 
         for(int  y = 0;  y < img.get_height();  ++y)
         {
-          SDL_memcpy(dst,img.get_rgba_pointer(0,y),4*img.get_width());
+          SDL_memcpy(dst,img.get_row_pointer(y),4*img.get_width());
 
           dst += pitch;
         }
@@ -39,56 +39,65 @@ update_screen(const image&  img) noexcept
       SDL_RenderPresent(g_renderer);
     }
 }
-/*
-
-uint32_t
-get_next_time(const animation_frame&  frm) noexcept
-{
-  auto  den = frm.get_delay_denominator();
-  auto  num =   frm.get_delay_numerator();
-
-  return num? (((den*1000)<<10)/num)>>10:0;
-}
-*/
 
 
 
 int
 main(int  argc, char**  argv)
 {
-  chunk_list  chkls;
+  --argc;
+  ++argv;
 
-    if(chkls.read_png_from_file(argv[1]))
+  std::vector<image>  image_list;
+
+    while(argc--)
     {
-//      chkls.print();
-    }
-
-  else
-    {
-      printf("read error\n");
-
-      return 0;
+      image_list.emplace_back(*argv++);
     }
 
 
-  movie  mov(chkls);
-
-    if(!mov.get_width() || !mov.get_height())
+/*
+    if(image_list.size())
     {
-      return 0;
+      auto&  first = image_list.front();
+
+      int  w = first.get_width() ;
+      int  h = first.get_height();
+
+      animation_builder  bldr;
+
+      bldr.reset(w,h,20);
+
+        for(auto&  img: image_list)
+        {
+            if((img.get_width()  != w) ||
+               (img.get_height() != h))
+            {
+              printf("bad size\n");
+            }
+
+          else
+            {
+              bldr.append(img.get_rgba_pointer(0,0));
+            }
+        }
+
+
+      auto  ls = bldr.build();
+
+      ls.write_png_to_file("__output.png");
     }
+*/
 
 
-//  chunk_list  tmp(img);
+  auto&  first = image_list.front();
 
-//  tmp.print();
-
-//  write_png_to_file(tmp,"output.png");
-
+  int  w = first.get_width() ;
+  int  h = first.get_height();
 
   SDL_Init(SDL_INIT_VIDEO);
 
-  g_window = SDL_CreateWindow("GAME BABY - " __DATE__,0,0,mov.get_width(),mov.get_height(),0);
+  g_window = SDL_CreateWindow("GAME BABY - " __DATE__,0,0,w,h,0);
 
     if(!g_window)
     {
@@ -97,11 +106,12 @@ main(int  argc, char**  argv)
 
 
   g_renderer = SDL_CreateRenderer(g_window,-1,SDL_RENDERER_ACCELERATED);
-  g_texture  = SDL_CreateTexture(g_renderer,SDL_PIXELFORMAT_ABGR8888,SDL_TEXTUREACCESS_STREAMING,mov.get_width(),mov.get_height());
+  g_texture  = SDL_CreateTexture(g_renderer,SDL_PIXELFORMAT_ABGR8888,SDL_TEXTUREACCESS_STREAMING,w,h);
 
   static SDL_Event  evt;
 
-  mov.render();
+  auto  it     = image_list.begin();
+  auto  it_end = image_list.end();
 
     for(;;)
     {
@@ -110,7 +120,7 @@ main(int  argc, char**  argv)
             switch(evt.type)
             {
           case(SDL_WINDOWEVENT):
-              update_screen(mov.get_image());
+              update_screen(*it);
               break;
           case(SDL_QUIT):
               goto QUIT;
@@ -119,12 +129,15 @@ main(int  argc, char**  argv)
         }
 
 
-      SDL_Delay(200);
+      SDL_Delay(20);
 
-      mov.advance();
-      mov.render();
+        if(++it == it_end)
+        {
+          it = image_list.begin();
+        }
 
-      update_screen(mov.get_image());
+
+      update_screen(*it);
     }
 
 
@@ -134,7 +147,6 @@ QUIT:
   SDL_DestroyWindow(g_window);
 
   SDL_Quit();
-
 
   return 0;
 }

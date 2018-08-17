@@ -14,18 +14,18 @@ frame_control&
 frame_control::
 assign(const chunk&  chk) noexcept
 {
-  const uint8_t*  p = chk.begin();
+  binary_view  bv(chk);
 
-  m_sequence_number   = get_be32(p);
-  m_width             = get_be32(p);
-  m_height            = get_be32(p);
-  m_x_offset          = get_be32(p);
-  m_y_offset          = get_be32(p);
-  m_delay_numerator   = get_be16(p);
-  m_delay_denominator = get_be16(p);
+  m_sequence_number   = bv.get_be32();
+  m_width             = bv.get_be32();
+  m_height            = bv.get_be32();
+  m_x_offset          = bv.get_be32();
+  m_y_offset          = bv.get_be32();
+  m_delay_numerator   = bv.get_be16();
+  m_delay_denominator = bv.get_be16();
 
-  m_dispose_type = static_cast<dispose_type>(*p++);
-  m_blend_type   = static_cast<  blend_type>(*p++);
+  m_dispose_type = static_cast<dispose_type>(bv.get_8());
+  m_blend_type   = static_cast<  blend_type>(bv.get_8());
 
   return *this;
 }
@@ -37,18 +37,18 @@ make_chunk() const noexcept
 {
   binary  bin(26);
 
-  auto  p = bin.begin();
+  binary_cursor  bc(bin);
 
-  put_be32(m_sequence_number,p);
-  put_be32(m_width,p);
-  put_be32(m_height,p);
-  put_be32(m_x_offset,p);
-  put_be32(m_y_offset,p);
-  put_be16(m_delay_numerator,p);
-  put_be16(m_delay_denominator,p);
+  bc.put_be32(m_sequence_number);
+  bc.put_be32(m_width);
+  bc.put_be32(m_height);
+  bc.put_be32(m_x_offset);
+  bc.put_be32(m_y_offset);
+  bc.put_be16(m_delay_numerator);
+  bc.put_be16(m_delay_denominator);
 
-  *p++ = static_cast<int>(m_dispose_type);
-  *p++ = static_cast<int>(m_blend_type);
+  bc.put_8(static_cast<int>(m_dispose_type));
+  bc.put_8(static_cast<int>(m_blend_type)  );
 
   return chunk(std::move(bin),chunk_name("fcTL"));
 }

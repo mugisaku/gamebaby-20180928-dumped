@@ -11,13 +11,43 @@ namespace gbpng{
 
 
 namespace{
-constexpr const uint8_t
-g_signature[] = {0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A}; 
+constexpr uint8_t
+g_signature[] = {0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A};
 
 
 const chunk
 g_end_chunk(binary(),chunk_name("IEND"));
 }
+
+
+
+
+void
+chunk_list::
+push_front(chunk&&  chk) noexcept
+{
+  std::vector<chunk>  tmp;
+
+  tmp.emplace_back(std::move(chk));
+
+    for(auto&&  e: m_container)
+    {
+      tmp.emplace_back(std::move(e));
+    }
+
+
+  m_container = std::move(tmp);
+}
+
+
+void
+chunk_list::
+push_back(chunk&&  chk) noexcept
+{
+  m_container.emplace_back(std::move(chk));
+}
+
+
 
 
 uint32_t

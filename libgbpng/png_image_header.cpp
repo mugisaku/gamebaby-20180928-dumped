@@ -12,68 +12,48 @@ namespace gbpng{
 image_header::
 image_header(const chunk&  chk) noexcept
 {
-  auto  src = chk.get_data();
+  binary_view  bv(chk);
 
-  m_width     = get_be32(src);
-  m_height    = get_be32(src);
-  m_bit_depth = *src++;
-  m_flags     = *src++;
+  m_width     = bv.get_be32();
+  m_height    = bv.get_be32();
+  m_bit_depth = bv.get_8();
+ 
+  set_pixel_format(static_cast<pixel_format>(bv.get_8()));
 
-  auto  compression_method = *src++;
-  auto       filter_method = *src++;
+  auto  compression_method = bv.get_8();
+  auto       filter_method = bv.get_8();
 
-  m_interlaced = *src++;
+  m_interlaced = bv.get_8();
 }
 
 
 
 
-image_header
+void
 image_header::
-operator+(const frame_control&  fctl) const noexcept
+set_pixel_format(pixel_format  fmt) noexcept
 {
-  auto  tmp = *this;
-
-  tmp.m_width  = fctl.get_width() ;
-  tmp.m_height = fctl.get_height();
-
-  return tmp;
+  m_pixel_format              = fmt;
+  m_number_of_bytes_per_pixel = gbpng::get_number_of_bytes_per_pixel(fmt);
 }
-
-
+/*
 
 
 int
 image_header::
-get_number_of_bytes_per_pixel() const noexcept
+get_pitch() const noexcept
 {
-    if(does_use_palette())
+  auto  bpp = m_number_of_bytes_per_pixel;
+
+    if(bpp == 1)
     {
-      return 1;
-    }
-
-  else
-    {
-        if(does_use_color())
-        {        
-          return does_use_alpha()? 4:3;
-        }
-
-      else
-        if(does_use_alpha())
-        {        
-          return 2;
-        }
-
-      else
-        {        
-          return 1;
-        }
+      return (m_width+(8-m_bit_depth))/8*8;
     }
 
 
-  return 1;
+  return bpp*m_width;
 }
+*/
 
 
 chunk
@@ -82,20 +62,20 @@ make_chunk() const noexcept
 {
   constexpr size_t  size = 13;
 
-  uint8_t  buffer[size];
+  binary  bin(size);
 
-  auto  p = buffer;
+  binary_cursor  bc(bin);
 
-  put_be32(m_width ,p);
-  put_be32(m_height,p);
+  bc.put_be32(m_width );
+  bc.put_be32(m_height);
 
-  *p++ = m_bit_depth;
-  *p++ = m_flags;
-  *p++ = 0;
-  *p++ = 0;
-  *p++ = 0;
+  bc.put_8(m_bit_depth);
+  bc.put_8(static_cast<int>(m_pixel_format));
+  bc.put_8( 0);
+  bc.put_8( 0);
+  bc.put_8( 0);
 
-  return chunk(binary(buffer,size),chunk_name("IHDR"));
+  return chunk(std::move(bin),chunk_name("IHDR"));
 }
 
 
@@ -106,11 +86,7 @@ print() const noexcept
   printf("width: %d\n",m_width);
   printf("height: %d\n",m_height);
   printf("bit_depth: %d\n",m_bit_depth);
-  printf("color_type: %s %s %s\n",
-    does_use_color()? "color ":"",
-    does_use_palette()? "palette ":"",
-    does_use_alpha()? "alpha ":""
-  );
+  printf("color_type: %s\n",get_pixel_format_name(m_pixel_format));
 
 
   printf("interlace: %s\n",m_interlaced? "true":"false");

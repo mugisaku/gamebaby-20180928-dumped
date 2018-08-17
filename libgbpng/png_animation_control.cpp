@@ -14,10 +14,10 @@ animation_control&
 animation_control::
 assign(const chunk&  chk) noexcept
 {
-  const uint8_t*  p = chk.begin();
+  binary_view  bv(chk);
 
-  m_number_of_frames = get_be32(p);
-  m_number_of_plays  = get_be32(p);
+  m_number_of_frames = bv.get_be32();
+  m_number_of_plays  = bv.get_be32();
 
   return *this;
 }
@@ -31,10 +31,10 @@ make_chunk() const noexcept
 {
   binary  bin(8);
 
-  auto  p = bin.begin();
+  binary_cursor  bc(bin);
 
-  put_be32(m_number_of_frames,p);
-  put_be32(m_number_of_plays ,p);
+  bc.put_be32(m_number_of_frames);
+  bc.put_be32(m_number_of_plays );
 
   return chunk(std::move(bin),chunk_name("acTL"));
 }
