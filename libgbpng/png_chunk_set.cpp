@@ -19,6 +19,8 @@ clear() noexcept
   m_between_ihdr_and_idat.clear();
 
   m_plte = nullptr;
+  m_trns = nullptr;
+  m_bkgd = nullptr;
 
   m_idat.clear();
 
@@ -179,6 +181,18 @@ print() const noexcept
     if(m_plte)
     {
       printf("have palette\n");
+    }
+
+
+    if(m_trns)
+    {
+      printf("have tRNS\n");
+    }
+
+
+    if(m_bkgd)
+    {
+      printf("have bKGD\n");
     }
 
 

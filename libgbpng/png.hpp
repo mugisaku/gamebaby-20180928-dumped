@@ -46,6 +46,7 @@ public:
    binary(      binary&&  rhs) noexcept{assign(std::move(rhs));}
   ~binary(){clear_data();}
 
+        uint8_t&  operator[](int  i)       noexcept{return m_data[i];}
   const uint8_t&  operator[](int  i) const noexcept{return m_data[i];}
 
   operator bool() const noexcept{return m_data_size;}
@@ -63,6 +64,7 @@ public:
 
   void  write(const uint8_t*  ptr, size_t  size, uint32_t  i) noexcept;
 
+        uint8_t*  get_data()       noexcept{return m_data;}
   const uint8_t*  get_data() const noexcept{return m_data;}
 
   uint32_t  get_data_size() const noexcept{return m_data_size;}
@@ -247,6 +249,8 @@ pixel_format
   indexed              = 3,
   rgb                  = 2,
   rgba                 = 6,
+  unknown              = 8,
+  null                 = 16,
 
 };
 
@@ -261,6 +265,8 @@ get_pixel_format_name(pixel_format  fmt) noexcept
   case(pixel_format::indexed             ): return "indexed color";
   case(pixel_format::rgb                 ): return "RGB";
   case(pixel_format::rgba                ): return "RGBA";
+  case(pixel_format::unknown             ): return "unknown";
+  case(pixel_format::null                ): return "null";
     }
 
 
@@ -278,6 +284,8 @@ get_number_of_bytes_per_pixel(pixel_format  fmt) noexcept
   case(pixel_format::indexed             ): return 1;
   case(pixel_format::rgb                 ): return 3;
   case(pixel_format::rgba                ): return 4;
+  case(pixel_format::unknown             ): return 1;
+  case(pixel_format::null                ): return 1;
     }
 
 
@@ -303,6 +311,7 @@ image_header
 public:
   image_header() noexcept{}
   image_header(int  w, int  h) noexcept: m_width(w), m_height(h){}
+  image_header(int  w, int  h, pixel_format  fmt) noexcept: m_width(w), m_height(h){set_pixel_format(fmt);}
   image_header(const chunk&  chk) noexcept;
 
   int  get_width()  const noexcept{return m_width ;}
@@ -330,34 +339,68 @@ public:
 
 
 class
-image: public image_header
+image
 {
-  uint8_t*  m_data=nullptr;
+  int  m_width =0;
+  int  m_height=0;
 
-  int  bpp() const noexcept{return get_number_of_bytes_per_pixel();}
+  binary  m_binary;
+
+protected:
+  void  allocate(int  bpp, int  w, int  h) noexcept;
+  void  store(binary&&  bin, int  w, int  h) noexcept;
+
+        uint8_t*  get_row_pointer(int  bpp, int  y)       noexcept{return m_binary.get_data()+((bpp*m_width)*y);}
+  const uint8_t*  get_row_pointer(int  bpp, int  y) const noexcept{return m_binary.get_data()+((bpp*m_width)*y);}
+
+        uint8_t*  get_pixel_pointer(int  bpp, int  x, int  y)       noexcept{return get_row_pointer(bpp,y)+(bpp*x);}
+  const uint8_t*  get_pixel_pointer(int  bpp, int  x, int  y) const noexcept{return get_row_pointer(bpp,y)+(bpp*x);}
 
 public:
-  image() noexcept{}
-  image(const char*  path) noexcept{read_png_from_file(path);}
-  image(const image_header&  ihdr, uint8_t*   ptr) noexcept: image_header(ihdr), m_data(ptr){}
-  image(const image&   rhs) noexcept{assign(rhs);}
-  image(      image&&  rhs) noexcept{assign(std::move(rhs));}
+  int  get_width()  const noexcept{return m_width ;}
+  int  get_height() const noexcept{return m_height;}
 
-  image&  operator=(const image&   rhs) noexcept{return assign(rhs);}
-  image&  operator=(      image&&  rhs) noexcept{return assign(std::move(rhs));}
+};
 
-  image&  assign(const image&   rhs) noexcept;
-  image&  assign(      image&&  rhs) noexcept;
 
-  void  clear() noexcept;
+class
+indexed_color_image: public image
+{
+  palette  m_palette;
 
-        uint8_t*  get_row_pointer(int  y)       noexcept{return m_data+(get_pitch()*y);}
-  const uint8_t*  get_row_pointer(int  y) const noexcept{return m_data+(get_pitch()*y);}
+public:
+  void  allocate(int  w, int  h) noexcept{image::allocate(1,w,h);}
 
-        uint8_t*  get_pixel_pointer(int  x, int  y)       noexcept{return get_row_pointer(y)+(bpp()*x);}
-  const uint8_t*  get_pixel_pointer(int  x, int  y) const noexcept{return get_row_pointer(y)+(bpp()*x);}
+         palette&  get_palette()       noexcept{return m_palette;}
+   const palette&  get_palette() const noexcept{return m_palette;}
 
-  bool  read_png_from_file(const char*  path) noexcept;
+        uint8_t*  get_row_pointer(int  y)       noexcept{return image::get_row_pointer(1,y);}
+  const uint8_t*  get_row_pointer(int  y) const noexcept{return image::get_row_pointer(1,y);}
+
+        uint8_t*  get_pixel_pointer(int  x, int  y)       noexcept{return get_row_pointer(y)+(x);}
+  const uint8_t*  get_pixel_pointer(int  x, int  y) const noexcept{return get_row_pointer(y)+(x);}
+
+};
+
+
+class
+direct_color_image: public image
+{
+
+public:
+  direct_color_image() noexcept{}
+  direct_color_image(const char*  path) noexcept{load_file(path);}
+
+  void  load_file(const char*  path) noexcept;
+
+  void  allocate(int  w, int  h) noexcept{image::allocate(4,w,h);}
+
+        uint8_t*  get_row_pointer(int  y)       noexcept{return image::get_row_pointer(4,y);}
+  const uint8_t*  get_row_pointer(int  y) const noexcept{return image::get_row_pointer(4,y);}
+
+        uint8_t*  get_pixel_pointer(int  x, int  y)       noexcept{return get_row_pointer(y)+(4*x);}
+  const uint8_t*  get_pixel_pointer(int  x, int  y) const noexcept{return get_row_pointer(y)+(4*x);}
+
 
 };
 
@@ -376,7 +419,7 @@ public:
 
   chunk  make_chunk() const noexcept;
 
-  image  extract(const image_header&  ihdr) const noexcept;
+  binary  extract(const image_header&  ihdr) const noexcept;
 
   void  print() const noexcept;
 
@@ -388,46 +431,104 @@ public:
 class
 transparency_info
 {
+  pixel_format  m_pixel_format=pixel_format::null;
+
+  int  m_number_of_values=0;
+
+  union{
+    uint8_t*   m_uint8 =nullptr;
+    uint16_t*  m_uint16;
+  };
+
+public:
+  transparency_info() noexcept{}
+  transparency_info(const transparency_info&   rhs) noexcept{assign(rhs);}
+  transparency_info(      transparency_info&&  rhs) noexcept{assign(std::move(rhs));}
+  transparency_info(const chunk&  chk, pixel_format  fmt) noexcept{assign(chk,fmt);}
+ ~transparency_info() noexcept{clear();}
+
+  transparency_info&  operator=(const transparency_info&   rhs) noexcept{return assign(rhs);}
+  transparency_info&  operator=(      transparency_info&&  rhs) noexcept{return assign(std::move(rhs));}
+
+  transparency_info&  assign(const transparency_info&   rhs) noexcept;
+  transparency_info&  assign(      transparency_info&&  rhs) noexcept;
+  transparency_info&  assign(const chunk&  chk, pixel_format  fmt) noexcept;
+
+  void  clear() noexcept;
+
+  int   get_number_of_values(      ) const noexcept{return m_number_of_values    ;}
+  void  set_number_of_values(int  n)       noexcept{       m_number_of_values = n;}
+
+  uint8_t  get_alpha(uint8_t  i) const noexcept;
+  uint8_t  get_alpha(uint16_t  v) const noexcept;
+  uint8_t  get_alpha(uint16_t  r, uint16_t  g, uint16_t  b) const noexcept;
+
+  chunk  make_chunk() const noexcept;
+
+  void  print() const noexcept;
+
+};
+
+
+
+
+class
+indexed_color_background_info
+{
+  uint8_t  m_value=0;
+
+public:
+  indexed_color_background_info(const chunk&  chk) noexcept{assign(chk);}
+
+  indexed_color_background_info&  assign(const chunk&  chk) noexcept;
+
+  uint8_t  get_value() const noexcept{return m_value;}
+
+  chunk  make_chunk() const noexcept;
+
+  void  print() const noexcept;
+
 };
 
 
 class
-background_info
+grayscale_background_info
 {
-  enum class kind{
-    palette,
-    grayscale,
-    color,
-  } m_kind;
-
-  union{
-    uint8_t  i;
-
-    uint16_t  l;
-
-    struct{
-      uint16_t  r;
-      uint16_t  g;
-      uint16_t  b;
-    };
-  } m_data;
+  uint16_t  m_value=0;
 
 public:
-  background_info(const chunk&  chk) noexcept{assign(chk);}
+  grayscale_background_info(const chunk&  chk) noexcept{assign(chk);}
 
-  background_info&  assign(const chunk&  chk) noexcept;
+  grayscale_background_info&  assign(const chunk&  chk) noexcept;
 
-  bool  is_for_palette()   const noexcept{return m_kind == kind::palette;}
-  bool  is_for_grayscale() const noexcept{return m_kind == kind::grayscale;}
-  bool  is_for_color()     const noexcept{return m_kind == kind::color;}
+  uint16_t  get_value() const noexcept{return m_value;}
 
-  uint8_t  get_color_index() const noexcept{return m_data.i;}
+  chunk  make_chunk() const noexcept;
 
-  uint16_t  get_grayscale_value() const noexcept{return m_data.l;}
+  void  print() const noexcept;
 
-  uint16_t  get_r() const noexcept{return m_data.r;}
-  uint16_t  get_g() const noexcept{return m_data.g;}
-  uint16_t  get_b() const noexcept{return m_data.b;}
+};
+
+
+class
+direct_color_background_info
+{
+  uint16_t  m_r=0;
+  uint16_t  m_g=0;
+  uint16_t  m_b=0;
+
+public:
+  direct_color_background_info(const chunk&  chk) noexcept{assign(chk);}
+
+  direct_color_background_info&  assign(const chunk&  chk) noexcept;
+
+  uint16_t  get_r() const noexcept{return m_r;}
+  uint16_t  get_g() const noexcept{return m_g;}
+  uint16_t  get_b() const noexcept{return m_b;}
+
+  chunk  make_chunk() const noexcept;
+
+  void  print() const noexcept;
 
 };
 
@@ -492,6 +593,8 @@ public:
   image_data    get_image_data()   const noexcept{return image_data(m_idat);}
 
   const chunk*  get_plte_chunk() const noexcept{return m_plte;}
+  const chunk*  get_trns_chunk() const noexcept{return m_trns;}
+  const chunk*  get_bkgd_chunk() const noexcept{return m_bkgd;}
 
   void  print() const noexcept;
 

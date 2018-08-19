@@ -13,7 +13,7 @@ SDL_Texture*    g_texture;
 
 
 void
-update_screen(const image&  img) noexcept
+update_screen(const direct_color_image&  img) noexcept
 {
   int  pitch;
 
@@ -48,11 +48,13 @@ main(int  argc, char**  argv)
   --argc;
   ++argv;
 
-  std::vector<image>  image_list;
+  std::vector<direct_color_image>  image_list;
 
     while(argc--)
     {
-      image_list.emplace_back(*argv++);
+      auto  path = *argv++;
+
+      image_list.emplace_back(path);
     }
 
 

@@ -22,7 +22,9 @@ set(SOURCES
   png_chunk.cpp
   png_chunk__calculate_crc.cpp
   png_palette.cpp
+  png_transparency_info.cpp
   png_background_info.cpp
+  png_direct_color_image.cpp
   png_image.cpp
   png_image_data.cpp
   png_image_data__extract.cpp

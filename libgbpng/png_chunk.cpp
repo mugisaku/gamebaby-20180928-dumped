@@ -162,6 +162,8 @@ print() const noexcept
       break;
   case(chunk_name("PLTE")):
       break;
+  case(chunk_name("tRNS")):
+      break;
     }
 }
 

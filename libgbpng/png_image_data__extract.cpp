@@ -233,7 +233,7 @@ copy_gray_with_alpha(const uint8_t*  src, int  w, int  h, uint8_t*  dst) noexcep
 
 
 
-image
+binary
 image_data::
 extract(const image_header&  ihdr) const noexcept
 {
@@ -246,7 +246,9 @@ extract(const image_header&  ihdr) const noexcept
   int  h = ihdr.get_height();
   int  bit_depth = ihdr.get_bit_depth();
 
-  auto  dst = new uint8_t[ihdr.get_image_size()];
+  binary  bin(ihdr.get_image_size());
+
+  uint8_t*  dst = bin.begin();
 
     switch(ihdr.get_pixel_format())
     {
@@ -279,7 +281,7 @@ extract(const image_header&  ihdr) const noexcept
     }
 
 
-  return image(ihdr,dst);
+  return std::move(bin);
 }
 
 
