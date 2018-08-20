@@ -8,8 +8,9 @@
 namespace gbpng{
 
 
+palette&
 palette::
-palette(const chunk&  chk) noexcept
+assign(const chunk&  chk) noexcept
 {
   auto  it     = std::begin(m_colors);
   auto  it_end = std::end(m_colors);
@@ -36,6 +37,9 @@ palette(const chunk&  chk) noexcept
 
       ++it;
     }
+
+
+  return *this;
 }
 
 

@@ -99,17 +99,34 @@ assign(const chunk&  chk, pixel_format  fmt) noexcept
       break;
   case(pixel_format::indexed):
       m_number_of_values = chk.get_data_size();
+
       m_uint8 = new uint8_t[chk.get_data_size()];
+
+      std::memcpy(m_uint8,chk.begin(),chk.get_data_size());
       break;
   case(pixel_format::grayscale):
       m_number_of_values = chk.get_data_size()/sizeof(uint16_t);
 
       m_uint16 = new uint16_t[chk.get_data_size()/sizeof(uint16_t)];
+
+        for(int  i = 0;  i < m_number_of_values;  ++i)
+        {
+          m_uint16[i] = bv.get_be16();
+        }
       break;
   case(pixel_format::rgb):
       m_number_of_values = chk.get_data_size()/sizeof(uint16_t)/3;
 
       m_uint16 = new uint16_t[chk.get_data_size()/sizeof(uint16_t)];
+
+        for(int  i = 0;  i < m_number_of_values;  ++i)
+        {
+          auto  dst = &m_uint16[3*i];
+
+          *dst++ = bv.get_be16();
+          *dst++ = bv.get_be16();
+          *dst++ = bv.get_be16();
+        }
       break;
   default:
       printf("transparency_info assign error: invalid format\n");
@@ -160,7 +177,7 @@ get_alpha(uint8_t  i) const noexcept
     }
 
 
-  return 0;
+  return 255;
 }
 
 
@@ -177,10 +194,13 @@ get_alpha(uint16_t  v) const noexcept
               return 255;
             }
         }
+
+
+      return 0;
     }
 
 
-  return 0;
+  return 255;
 }
 
 
@@ -205,10 +225,70 @@ get_alpha(uint16_t  r, uint16_t  g, uint16_t  b) const noexcept
 
           p += 3;
         }
+
+
+      return 0;
     }
 
 
-  return 0;
+  return 255;
+}
+
+
+
+
+chunk
+transparency_info::
+make_chunk() const noexcept
+{
+  binary  bin;
+
+  binary_cursor  bc;
+
+    switch(m_pixel_format)
+    {
+  case(pixel_format::null):
+      break;
+  case(pixel_format::indexed):
+      bin = binary(m_number_of_values);
+
+      bc = binary_cursor(bin);
+
+        for(int  i = 0;  i < m_number_of_values;  ++i)
+        {
+          bc.put_8(m_uint8[i]);
+        }
+      break;
+  case(pixel_format::grayscale):
+      bin = binary(2*m_number_of_values);
+
+      bc = binary_cursor(bin);
+
+        for(int  i = 0;  i < m_number_of_values;  ++i)
+        {
+          bc.put_be16(m_uint16[i]);
+        }
+      break;
+  case(pixel_format::rgb):
+      bin = binary(6*m_number_of_values);
+
+      bc = binary_cursor(bin);
+
+        for(int  i = 0;  i < m_number_of_values;  ++i)
+        {
+          auto  src = &m_uint16[3*i];
+
+          bc.put_be16(*src++);
+          bc.put_be16(*src++);
+          bc.put_be16(*src++);
+        }
+      break;
+  default:
+      printf("transparency_info assign error: invalid format\n");
+    }
+
+
+  return chunk(std::move(bin),chunk_name("tRNS"));
 }
 
 
@@ -220,169 +300,6 @@ print() const noexcept
 {
   printf("%d values",m_number_of_values);
 }
-
-
-
-
-/*
-indexed_color_transparency_info&
-indexed_color_transparency_info::
-assign(const chunk&  chk) noexcept
-{
-
-  uint8_t*  dst = m_values;
-
-  int  n = std::min((int)chk.get_data_size(),256);
-
-    for(int  i = 0;  i < n;  ++i)
-    {
-      *dst++ = bv.get_8();
-    }
-
-
-  return *this;
-}
-
-
-chunk
-indexed_color_transparency_info::
-make_chunk() const noexcept
-{
-  binary  bin(get_number_of_values());
-
-  binary_cursor  bc(bin);
-
-  int  n = get_number_of_values();
-
-    for(int  i = 0;  i < n;  ++i)
-    {
-      bc.put_8(m_values[i]);
-    }
-
-
-  return chunk(std::move(bin),chunk_name("tRNS"));
-}
-
-
-void
-indexed_color_transparency_info::
-print() const noexcept
-{
-  transparency_info_base::print();
-}
-
-
-
-
-grayscale_transparency_info&
-grayscale_transparency_info::
-assign(const chunk&  chk) noexcept
-{
-  binary_view  bv(chk);
-
-  int  n = chk.get_data_size()/4;
-
-  delete[] m_values;
-
-                   m_values = new uint16_t[2*n];
-  uint16_t*  dst = m_values                    ;
-
-    for(int  i = 0;  i < n;  ++i)
-    {
-      *dst++ = bv.get_be16();
-    }
-
-
-  return *this;
-}
-
-
-chunk
-grayscale_transparency_info::
-make_chunk() const noexcept
-{
-  int  n = get_number_of_values();
-
-  binary  bin(2*n);
-
-  binary_cursor  bc(bin);
-
-    for(int  i = 0;  i < n;  ++i)
-    {
-      bc.put_be16(m_values[i]);
-    }
-
-
-  return chunk(std::move(bin),chunk_name("tRNS"));
-}
-
-
-void
-grayscale_transparency_info::
-print() const noexcept
-{
-  transparency_info_base::print();
-}
-
-
-
-
-direct_color_transparency_info&
-direct_color_transparency_info::
-assign(const chunk&  chk) noexcept
-{
-  binary_view  bv(chk);
-
-  int  n = chk.get_data_size()/6;
-
-  delete[] m_values;
-
-                   m_values = new uint16_t[3*n];
-  uint16_t*  dst = m_values                    ;
-
-    for(int  i = 0;  i < n;  ++i)
-    {
-      *dst++ = bv.get_be16();
-      *dst++ = bv.get_be16();
-      *dst++ = bv.get_be16();
-    }
-
-
-  return *this;
-}
-
-
-chunk
-direct_color_transparency_info::
-make_chunk() const noexcept
-{
-  int  n = get_number_of_values();
-
-  binary  bin(6*n);
-
-  binary_cursor  bc(bin);
-
-  const uint16_t*  src = m_values;
-
-    for(int  i = 0;  i < n;  ++i)
-    {
-      bc.put_be16(*src++);
-      bc.put_be16(*src++);
-      bc.put_be16(*src++);
-    }
-
-
-  return chunk(std::move(bin),chunk_name("tRNS"));
-}
-
-
-void
-direct_color_transparency_info::
-print() const noexcept
-{
-  transparency_info_base::print();
-}
-*/
 
 
 

@@ -10,13 +10,34 @@ namespace gbpng{
 
 
 
-indexed_color_background_info&
-indexed_color_background_info::
-assign(const chunk&  chk) noexcept
+background_info&
+background_info::
+assign(const chunk&  chk, pixel_format  fmt) noexcept
 {
+  m_pixel_format = fmt;
+
   binary_view  bv(chk);
 
-  m_value = bv.get_8();
+    switch(m_pixel_format)
+    {
+  case(pixel_format::null):
+      break;
+  case(pixel_format::indexed):
+      m_values[0] = bv.get_8();
+      break;
+  case(pixel_format::grayscale):
+  case(pixel_format::grayscale_with_alpha):
+      m_values[0] = bv.get_be16();
+      break;
+  case(pixel_format::rgb):
+  case(pixel_format::rgba):
+      m_values[0] = bv.get_be16();
+      m_values[1] = bv.get_be16();
+      m_values[2] = bv.get_be16();
+      break;
+  default:
+      printf("background_info assign error: invalid format\n");
+    }
 
 
   return *this;
@@ -24,99 +45,51 @@ assign(const chunk&  chk) noexcept
 
 
 chunk
-indexed_color_background_info::
+background_info::
 make_chunk() const noexcept
 {
-  binary  bin(1);
+  binary  bin;
 
-  binary_cursor  bc(bc);
+  binary_cursor  bc;
 
-  bc.put_8(m_value);
+    switch(m_pixel_format)
+    {
+  case(pixel_format::null):
+      break;
+  case(pixel_format::indexed):
+      bin = binary(1);
+
+      *bin.begin() = m_values[0];
+      break;
+  case(pixel_format::grayscale):
+  case(pixel_format::grayscale_with_alpha):
+      bin = binary(2);
+
+      bc = binary_cursor(bin);
+
+      bc.put_be16(m_values[0]);
+      break;
+  case(pixel_format::rgb):
+  case(pixel_format::rgba):
+      bin = binary(6);
+
+      bc = binary_cursor(bin);
+
+      bc.put_be16(m_values[0]);
+      bc.put_be16(m_values[1]);
+      bc.put_be16(m_values[2]);
+      break;
+  default:
+      printf("background_info assign error: invalid format\n");
+    }
+
 
   return chunk(std::move(bin),chunk_name("bKGD"));
 }
 
 
 void
-indexed_color_background_info::
-print() const noexcept
-{
-  printf("");
-}
-
-
-
-
-grayscale_background_info&
-grayscale_background_info::
-assign(const chunk&  chk) noexcept
-{
-  binary_view  bv(chk);
-
-  m_value = bv.get_be16();
-
-
-  return *this;
-}
-
-
-chunk
-grayscale_background_info::
-make_chunk() const noexcept
-{
-  binary  bin(2);
-
-  binary_cursor  bc(bc);
-
-  bc.put_be16(m_value);
-
-  return chunk(std::move(bin),chunk_name("bKGD"));
-}
-
-
-void
-grayscale_background_info::
-print() const noexcept
-{
-  printf("");
-}
-
-
-
-
-direct_color_background_info&
-direct_color_background_info::
-assign(const chunk&  chk) noexcept
-{
-  binary_view  bv(chk);
-
-  m_r = bv.get_be16();
-  m_g = bv.get_be16();
-  m_b = bv.get_be16();
-
-
-  return *this;
-}
-
-
-chunk
-direct_color_background_info::
-make_chunk() const noexcept
-{
-  binary  bin(6);
-
-  binary_cursor  bc(bc);
-
-  bc.put_be16(m_r);
-  bc.put_be16(m_g);
-  bc.put_be16(m_b);
-
-  return chunk(std::move(bin),chunk_name("bKGD"));
-}
-
-
-void
-direct_color_background_info::
+background_info::
 print() const noexcept
 {
   printf("");

@@ -94,6 +94,11 @@ main(int  argc, char**  argv)
 
   auto&  first = image_list.front();
 
+  first.save_file("__save_gray1.png",pixel_format::grayscale,1);
+  first.save_file("__save_gray2.png",pixel_format::grayscale,2);
+  first.save_file("__save_gray4.png",pixel_format::grayscale,4);
+  first.save_file("__save_gray8.png",pixel_format::grayscale,8);
+
   int  w = first.get_width() ;
   int  h = first.get_height();
 
@@ -112,8 +117,9 @@ main(int  argc, char**  argv)
 
   static SDL_Event  evt;
 
-  auto  it     = image_list.begin();
-  auto  it_end = image_list.end();
+  auto  it = image_list.begin();
+
+  update_screen(*it);
 
     for(;;)
     {
@@ -132,14 +138,6 @@ main(int  argc, char**  argv)
 
 
       SDL_Delay(20);
-
-        if(++it == it_end)
-        {
-          it = image_list.begin();
-        }
-
-
-      update_screen(*it);
     }
 
 

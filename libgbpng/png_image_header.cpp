@@ -36,24 +36,6 @@ set_pixel_format(pixel_format  fmt) noexcept
   m_pixel_format              = fmt;
   m_number_of_bytes_per_pixel = gbpng::get_number_of_bytes_per_pixel(fmt);
 }
-/*
-
-
-int
-image_header::
-get_pitch() const noexcept
-{
-  auto  bpp = m_number_of_bytes_per_pixel;
-
-    if(bpp == 1)
-    {
-      return (m_width+(8-m_bit_depth))/8*8;
-    }
-
-
-  return bpp*m_width;
-}
-*/
 
 
 chunk

@@ -94,7 +94,6 @@ copy_rgb(const uint8_t*  src, int  w, int  h, uint8_t*  dst) noexcept
       *dst++ = *src++;
       *dst++ = *src++;
       *dst++ = *src++;
-      *dst++ =    255;
     }}
 }
 
@@ -104,26 +103,10 @@ copy_rgba(const uint8_t*  src, int  w, int  h, uint8_t*  dst) noexcept
 {
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
-      auto  r = *src++;
-      auto  g = *src++;
-      auto  b = *src++;
-      auto  a = *src++;
-
-        if(!a)
-        {
-          *dst++ = 0;
-          *dst++ = 0;
-          *dst++ = 0;
-          *dst++ = 0;
-        }
-
-      else
-        {
-          *dst++ = r;
-          *dst++ = g;
-          *dst++ = b;
-          *dst++ = a;
-        }
+      *dst++ = *src++;
+      *dst++ = *src++;
+      *dst++ = *src++;
+      *dst++ = *src++;
     }}
 }
 
@@ -214,19 +197,8 @@ copy_gray_with_alpha(const uint8_t*  src, int  w, int  h, uint8_t*  dst) noexcep
 {
     for(int  y = 0;  y < h;  ++y){
     for(int  x = 0;  x < w;  ++x){
-      auto  l = *src++;
-      auto  a = *src++;
-
-        if(!a)
-        {
-          l = 0;
-        }
-
-      
-      *dst++ = l;
-      *dst++ = l;
-      *dst++ = l;
-      *dst++ = a;
+      *dst++ = *src++;
+      *dst++ = *src++;
     }}
 }
 }
