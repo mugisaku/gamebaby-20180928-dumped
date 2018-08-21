@@ -24,6 +24,7 @@ set(SOURCES
   png_palette.cpp
   png_transparency_info.cpp
   png_background_info.cpp
+  png_indexed_color_image.cpp
   png_direct_color_image.cpp
   png_image.cpp
   png_image_data.cpp

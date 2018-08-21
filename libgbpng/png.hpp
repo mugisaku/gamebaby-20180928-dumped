@@ -228,6 +228,9 @@ public:
 
   palette&  assign(const chunk&  chk) noexcept;
 
+  int    find_color(const color&  color) const noexcept;
+  int  append_color(const color&  color)       noexcept;
+
         color&  get_color(int  i)       noexcept{return m_colors[i];}
   const color&  get_color(int  i) const noexcept{return m_colors[i];}
 
@@ -390,12 +393,21 @@ public:
 };
 
 
+class direct_color_image;
+
+
 class
 indexed_color_image: public image
 {
   palette  m_palette;
 
 public:
+  indexed_color_image() noexcept{}
+  indexed_color_image(const direct_color_image&  src_img) noexcept{assign(src_img);}
+
+  indexed_color_image&  operator=(const direct_color_image&  src_img) noexcept{return assign(src_img);}
+  indexed_color_image&     assign(const direct_color_image&  src_img) noexcept;
+
   void  allocate(int  w, int  h) noexcept{image::allocate(1,w,h);}
 
          palette&  get_palette()       noexcept{return m_palette;}
@@ -407,6 +419,10 @@ public:
         uint8_t*  get_pixel_pointer(int  x, int  y)       noexcept{return get_row_pointer(y)+(x);}
   const uint8_t*  get_pixel_pointer(int  x, int  y) const noexcept{return get_row_pointer(y)+(x);}
 
+  void  save_file(const char*  path, int  bit_depth) const noexcept;
+
+  image_data  get_image_data(int  bit_depth) const noexcept;
+
 };
 
 
@@ -416,7 +432,6 @@ class image_source;
 class
 direct_color_image: public image
 {
-
 public:
   direct_color_image() noexcept{}
   direct_color_image(image_source&  isrc) noexcept{assign(isrc);}

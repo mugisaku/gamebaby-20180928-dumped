@@ -94,10 +94,12 @@ main(int  argc, char**  argv)
 
   auto&  first = image_list.front();
 
-  first.save_file("__save_gray1.png",pixel_format::grayscale,1);
-  first.save_file("__save_gray2.png",pixel_format::grayscale,2);
-  first.save_file("__save_gray4.png",pixel_format::grayscale,4);
-  first.save_file("__save_gray8.png",pixel_format::grayscale,8);
+  indexed_color_image  tmp = first;
+
+  tmp.save_file("__save_1.png",1);
+  tmp.save_file("__save_2.png",2);
+  tmp.save_file("__save_4.png",4);
+  tmp.save_file("__save_8.png",8);
 
   int  w = first.get_width() ;
   int  h = first.get_height();

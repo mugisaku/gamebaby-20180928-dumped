@@ -8,6 +8,8 @@
 namespace gbpng{
 
 
+
+
 palette&
 palette::
 assign(const chunk&  chk) noexcept
@@ -40,6 +42,60 @@ assign(const chunk&  chk) noexcept
 
 
   return *this;
+}
+
+
+
+
+int
+palette::
+find_color(const color&  color) const noexcept
+{
+    for(int  i = 0;  i < m_number_of_colors;  ++i)
+    {
+      auto&  current = m_colors[i];
+
+        if((current.r == color.r) &&
+           (current.g == color.g) &&
+           (current.b == color.b))
+        {
+          return i;
+        }
+    }
+
+
+  return -1;
+}
+
+
+int
+palette::
+append_color(const color&  color) noexcept
+{
+    if(m_number_of_colors < 256)
+    {
+        for(int  i = 0;  i < m_number_of_colors;  ++i)
+        {
+          auto&  current = m_colors[i];
+
+            if((current.r == color.r) &&
+               (current.g == color.g) &&
+               (current.b == color.b))
+            {
+              return i;
+            }
+        }
+
+
+      int  i = m_number_of_colors++;
+
+      m_colors[i] = color;
+
+      return i;
+    }
+
+
+  return -1;
 }
 
 

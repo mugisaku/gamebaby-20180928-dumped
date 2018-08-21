@@ -37,6 +37,53 @@ bitpack_grayscale1(const uint8_t*  ptr) noexcept
         ((ptr[6]>>7)<<1)|
         ((ptr[7]>>7)   );
 }
+uint8_t
+bitpack_indexed4(const uint8_t*  ptr) noexcept
+{
+  return((ptr[0]&0xF)<<4)|
+        ((ptr[1]&0xF)   );
+}
+uint8_t
+bitpack_indexed2(const uint8_t*  ptr) noexcept
+{
+  return((ptr[0]&0b11)<<6)|
+        ((ptr[1]&0b11)<<4)|
+        ((ptr[2]&0b11)<<2)|
+        ((ptr[3]&0b11)   );
+}
+uint8_t
+bitpack_indexed1(const uint8_t*  ptr) noexcept
+{
+  return((ptr[0]&1)<<7)|
+        ((ptr[1]&1)<<6)|
+        ((ptr[2]&1)<<5)|
+        ((ptr[3]&1)<<4)|
+        ((ptr[4]&1)<<3)|
+        ((ptr[5]&1)<<2)|
+        ((ptr[6]&1)<<1)|
+        ((ptr[7]&1)   );
+}
+void
+write(const uint8_t*&  src, int  w, int  n, uint8_t  (*bitpack)(const uint8_t*), uint8_t*&  dst) noexcept
+{
+    while(w)
+    {
+      uint8_t  table[n] = {0};
+
+        for(int  i = 0;  i < n;  ++i)
+        {
+          table[i] = *src++;
+
+            if(!--w)
+            {
+              break;
+            }
+        }
+    
+
+      *dst++ = bitpack(table);
+    }
+}
 }
 
 
@@ -75,102 +122,20 @@ get_filtered(const uint8_t*  src, const image_header&  ihdr) noexcept
             {
                 switch(bit_depth)
                 {
-              case(4):
-                    for(int  x = 0;  x < (w/2);  ++x)
-                    {
-                      *dst    = (*src++)<<4;
-                      *dst++ |= (*src++)&0b1111;
-                    }
-                  break;
-              case(2):
-                    for(int  x = 0;  x < (w/4);  ++x)
-                    {
-                      *dst    = ((*src++)&0b11)<<6;
-                      *dst   |= ((*src++)&0b11)<<4;
-                      *dst   |= ((*src++)&0b11)<<2;
-                      *dst++ |= ((*src++)&0b11)   ;
-                    }
-                  break;
-              case(1):
-                    for(int  x = 0;  x < (w/8);  ++x)
-                    {
-                      *dst    = ((*src++)&0b1)<<7;
-                      *dst   |= ((*src++)&0b1)<<6;
-                      *dst   |= ((*src++)&0b1)<<5;
-                      *dst   |= ((*src++)&0b1)<<4;
-                      *dst   |= ((*src++)&0b1)<<3;
-                      *dst   |= ((*src++)&0b1)<<2;
-                      *dst   |= ((*src++)&0b1)<<1;
-                      *dst++ |= ((*src++)&0b1)   ;
-                    }
-                  break;
+              case(4): write(src,w,2,bitpack_indexed4,dst);break;
+              case(2): write(src,w,4,bitpack_indexed2,dst);break;
+              case(1): write(src,w,8,bitpack_indexed1,dst);break;
                 }
             }
 
           else
             if(fmt == pixel_format::grayscale)
             {
-              int  n = w;
-
                 switch(bit_depth)
                 {
-              case(4):
-                    while(n)
-                    {
-                      uint8_t  table[2] = {0};
-
-                        for(int  i = 0;  i < 2;  ++i)
-                        {
-                          table[i] = *src++;
-
-                            if(!--n)
-                            {
-                              break;
-                            }
-                        }
-
-
-                      *dst++ = bitpack_grayscale4(table);
-                    }
-                  break;
-              case(2):
-                    while(n)
-                    {
-                      uint8_t  table[4] = {0};
-
-                        for(int  i = 0;  i < 4;  ++i)
-                        {
-                          table[i] = *src++;
-
-                            if(!--n)
-                            {
-                              break;
-                            }
-                        }
-
-
-                      *dst++ = bitpack_grayscale4(table);
-                    }
-                  break;
-              case(1):
-                    while(n)
-                    {
-                      uint8_t  table[8] = {0};
-
-                        for(int  i = 0;  i < 8;  ++i)
-                        {
-                          table[i] = *src++;
-
-                            if(!--n)
-                            {
-                              break;
-                            }
-                        }
-
-
-                      *dst++ = bitpack_grayscale1(table);
-                    }
-                  break;
+              case(4): write(src,w,2,bitpack_grayscale4,dst);break;
+              case(2): write(src,w,4,bitpack_grayscale2,dst);break;
+              case(1): write(src,w,8,bitpack_grayscale1,dst);break;
                 }
             }
         }
