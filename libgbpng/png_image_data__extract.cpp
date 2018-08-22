@@ -216,9 +216,12 @@ extract(const image_header&  ihdr) const noexcept
 
   int  w = ihdr.get_width() ;
   int  h = ihdr.get_height();
+
+  int  bpp = ihdr.get_number_of_bytes_per_pixel();
+
   int  bit_depth = ihdr.get_bit_depth();
 
-  binary  bin(ihdr.get_image_size());
+  binary  bin(bpp*w*h);
 
   uint8_t*  dst = bin.begin();
 

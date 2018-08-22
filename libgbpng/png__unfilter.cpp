@@ -153,22 +153,23 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
   constexpr int  average = 3;
   constexpr int    paeth = 4;
 
-  int  pitch = ihdr.get_pitch();
-
-  int  bpp = get_number_of_bytes_per_pixel(ihdr.get_pixel_format());
+  int  bit_depth = ihdr.get_bit_depth();
 
   int  w = ihdr.get_width() ;
   int  h = ihdr.get_height();
 
+  int  bpp = ihdr.get_number_of_bytes_per_pixel();
 
-  binary  tmp(pitch*h);
+  int  dst_pitch = bpp*w;
+  int  src_pitch = ihdr.get_pitch();
+
+
+  binary  tmp(dst_pitch*h);
 
   auto  dst = tmp.begin();
 
-  std::memset(dst,0,pitch*h);
 
-
-  const uint8_t  dummy_line[pitch] = {0};
+  const uint8_t  dummy_line[src_pitch] = {0};
 
   const uint8_t*  up_src = dummy_line;
 
@@ -231,8 +232,8 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
 
       up_src = dst;
 
-      src += pitch;
-      dst += pitch;
+      src += src_pitch;
+      dst += dst_pitch;
     }
 
 

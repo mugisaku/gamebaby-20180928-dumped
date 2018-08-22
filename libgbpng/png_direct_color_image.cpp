@@ -133,8 +133,6 @@ assign(image_source&  isrc) noexcept
     }
 
 
-  isrc.ihdr.print();
-
   return *this;
 }
 
@@ -194,11 +192,7 @@ load_file(const char*  path) noexcept
     }
 
 
-  printf("%s{\n",path);
-
   assign(isrc);
-
-  printf("}\n\n");
 }
 
 
@@ -215,6 +209,8 @@ get_image_data(pixel_format  fmt, int  bit_depth) const noexcept
 
   image_header  ihdr(w,h,fmt);
 
+  int  bpp = ihdr.get_number_of_bytes_per_pixel();
+
   ihdr.set_bit_depth(bit_depth);
 
     if(fmt == pixel_format::rgba)
@@ -223,7 +219,7 @@ get_image_data(pixel_format  fmt, int  bit_depth) const noexcept
     }
 
 
-  binary  bin(ihdr.get_image_size());
+  binary  bin(bpp*w*h);
 
   uint8_t*  dst = bin.begin();
 
@@ -262,6 +258,12 @@ get_image_data(pixel_format  fmt, int  bit_depth) const noexcept
                   ++src;
       }}
       break;
+    }
+
+
+    if((fmt == pixel_format::grayscale) && (bit_depth < 8))
+    {
+      bin = get_bitpacked(bin.begin(),ihdr);
     }
 
 

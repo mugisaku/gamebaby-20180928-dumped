@@ -83,6 +83,9 @@ public:
 binary    get_filtered(const uint8_t*  src, const image_header&  ihdr) noexcept;
 binary  get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept;
 
+binary    get_bitpacked(const uint8_t*  src, const image_header&  ihdr) noexcept;
+binary  get_unbitpacked(const uint8_t*  src, const image_header&  ihdr) noexcept;
+
 
 
 
@@ -260,44 +263,6 @@ pixel_format
 };
 
 
-constexpr const char*
-get_pixel_format_name(pixel_format  fmt) noexcept
-{
-    switch(fmt)
-    {
-  case(pixel_format::grayscale           ): return "grayscale";
-  case(pixel_format::grayscale_with_alpha): return "grayscale with alpha";
-  case(pixel_format::indexed             ): return "indexed color";
-  case(pixel_format::rgb                 ): return "RGB";
-  case(pixel_format::rgba                ): return "RGBA";
-  case(pixel_format::unknown             ): return "unknown";
-  case(pixel_format::null                ): return "null";
-    }
-
-
-  return "unknown";
-}
-
-
-constexpr int
-get_number_of_bytes_per_pixel(pixel_format  fmt) noexcept
-{
-    switch(fmt)
-    {
-  case(pixel_format::grayscale           ): return 1;
-  case(pixel_format::grayscale_with_alpha): return 2;
-  case(pixel_format::indexed             ): return 1;
-  case(pixel_format::rgb                 ): return 3;
-  case(pixel_format::rgba                ): return 4;
-  case(pixel_format::unknown             ): return 1;
-  case(pixel_format::null                ): return 1;
-    }
-
-
-  return 0;
-}
-
-
 
 class
 image_header
@@ -306,8 +271,6 @@ image_header
   int  m_height=0;
 
   int  m_bit_depth=8;
-
-  int  m_number_of_bytes_per_pixel=0;
 
   pixel_format  m_pixel_format=pixel_format::rgba;
 
@@ -325,14 +288,13 @@ public:
   int   get_bit_depth(      ) const noexcept{return m_bit_depth    ;}
   void  set_bit_depth(int  v)       noexcept{       m_bit_depth = v;}
 
-  void                 set_pixel_format(pixel_format  fmt)       noexcept;
-  const pixel_format&  get_pixel_format(                 ) const noexcept{return m_pixel_format;}
+  void                 set_pixel_format(pixel_format  fmt)       noexcept{       m_pixel_format = fmt;}
+  const pixel_format&  get_pixel_format(                 ) const noexcept{return m_pixel_format      ;}
 
-  int  get_number_of_bytes_per_pixel() const noexcept{return m_number_of_bytes_per_pixel;}
+  const char*  get_pixel_format_name() const noexcept;
+  int  get_number_of_bytes_per_pixel() const noexcept;
 
-  int  get_pitch() const noexcept{return m_number_of_bytes_per_pixel*m_width;}
-
-  int  get_image_size() const noexcept{return get_pitch()*m_height;}
+  int  get_pitch() const noexcept;
 
   bool  is_interlaced() const noexcept{return m_interlaced;}
 

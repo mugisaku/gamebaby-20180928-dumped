@@ -45,64 +45,20 @@ update_screen(const direct_color_image&  img) noexcept
 int
 main(int  argc, char**  argv)
 {
-  --argc;
-  ++argv;
-
-  std::vector<direct_color_image>  image_list;
-
-    while(argc--)
+    if(argc != 2)
     {
-      auto  path = *argv++;
-
-      image_list.emplace_back(path);
+      return 0;
     }
 
 
-/*
-    if(image_list.size())
-    {
-      auto&  first = image_list.front();
+  auto  path = argv[1];
 
-      int  w = first.get_width() ;
-      int  h = first.get_height();
+  direct_color_image  img;
 
-      animation_builder  bldr;
+  img.load_file(path);
 
-      bldr.reset(w,h,20);
-
-        for(auto&  img: image_list)
-        {
-            if((img.get_width()  != w) ||
-               (img.get_height() != h))
-            {
-              printf("bad size\n");
-            }
-
-          else
-            {
-              bldr.append(img.get_rgba_pointer(0,0));
-            }
-        }
-
-
-      auto  ls = bldr.build();
-
-      ls.write_png_to_file("__output.png");
-    }
-*/
-
-
-  auto&  first = image_list.front();
-
-  indexed_color_image  tmp = first;
-
-  tmp.save_file("__save_1.png",1);
-  tmp.save_file("__save_2.png",2);
-  tmp.save_file("__save_4.png",4);
-  tmp.save_file("__save_8.png",8);
-
-  int  w = first.get_width() ;
-  int  h = first.get_height();
+  int  w = img.get_width() ;
+  int  h = img.get_height();
 
   SDL_Init(SDL_INIT_VIDEO);
 
@@ -119,9 +75,7 @@ main(int  argc, char**  argv)
 
   static SDL_Event  evt;
 
-  auto  it = image_list.begin();
-
-  update_screen(*it);
+  update_screen(img);
 
     for(;;)
     {
@@ -130,7 +84,7 @@ main(int  argc, char**  argv)
             switch(evt.type)
             {
           case(SDL_WINDOWEVENT):
-              update_screen(*it);
+              update_screen(img);
               break;
           case(SDL_QUIT):
               goto QUIT;

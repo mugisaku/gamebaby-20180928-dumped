@@ -15,6 +15,8 @@ set(SOURCES
   png_binary.cpp
   png_binary_view.cpp
   png_binary_cursor.cpp
+  png__bitpack.cpp
+  png__unbitpack.cpp
   png__unfilter.cpp
   png__filter.cpp
   png_chunk_list.cpp
@@ -40,10 +42,10 @@ set(SOURCES
 include_directories(./)
 include_directories(../)
 add_library("gbpng" ${SOURCES})
-add_executable(print_chunk_info print_chunk_info.cpp)
-add_executable(test_png test_main.cpp)
-target_link_libraries(print_chunk_info "gbpng" "z")
-target_link_libraries(test_png "gbpng" "z" "SDL2" "SDL2main")
+add_executable(test_png_rw test_png_rw)
+add_executable(view_png  view_png.cpp)
+target_link_libraries(test_png_rw "gbpng" "z")
+target_link_libraries(view_png "gbpng" "z" "SDL2" "SDL2main")
 
 
 

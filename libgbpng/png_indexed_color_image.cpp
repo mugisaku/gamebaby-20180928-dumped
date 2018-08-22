@@ -89,6 +89,13 @@ get_image_data(int  bit_depth) const noexcept
 
   ihdr.set_bit_depth(bit_depth);
 
+    if(bit_depth < 8)
+    {
+      auto  bitpacked = get_bitpacked(get_row_pointer(0),ihdr);
+
+      return image_data(bitpacked.begin(),ihdr);
+    }
+
 
   return image_data(get_row_pointer(0),ihdr);
 }
