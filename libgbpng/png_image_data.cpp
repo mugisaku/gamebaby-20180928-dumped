@@ -54,6 +54,18 @@ assign(const uint8_t*  ptr, const image_header&  ihdr) noexcept
 
 
 
+binary
+image_data::
+extract(const image_header&  ihdr) const noexcept
+{
+  auto  uncompressed = get_uncompressed();
+
+  return get_unfiltered(uncompressed.get_data(),ihdr);
+}
+
+
+
+
 chunk
 image_data::
 make_chunk() const noexcept

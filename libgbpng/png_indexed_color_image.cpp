@@ -55,6 +55,20 @@ assign(const direct_color_image&  src_img) noexcept
 }
 
 
+indexed_color_image&
+indexed_color_image::
+assign(image_source&  isrc) noexcept
+{
+  m_palette = isrc.plte;
+
+  store(std::move(isrc.data),isrc.ihdr.get_width(),isrc.ihdr.get_height());
+
+  return *this;
+}
+
+
+
+
 void
 indexed_color_image::
 save_file(const char*  path, int  bit_depth) const noexcept

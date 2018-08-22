@@ -96,20 +96,25 @@ get_unbitpacked(const uint8_t*  src, const image_header&  ihdr) noexcept
   int  w = ihdr.get_width() ;
   int  h = ihdr.get_height();
 
-  int  bpp = ihdr.get_number_of_bytes_per_pixel();
-
-  int  dst_pitch = bpp*w;
   int  src_pitch = ihdr.get_pitch();
+  int  dst_pitch = w;
 
 
   binary  tmp(dst_pitch*h);
 
   auto  dst = tmp.begin();
 
-
     for(int  y = 0;  y < h;  ++y)
     {
-        if(bit_depth < 8)
+        if(bit_depth == 8)
+        {
+            for(int  x = 0;  x < w;  ++x)
+            {
+              *dst++ = *src++;
+            }
+        }
+
+      else
         {
             if(ihdr.get_pixel_format() == pixel_format::indexed)
             {
@@ -117,7 +122,18 @@ get_unbitpacked(const uint8_t*  src, const image_header&  ihdr) noexcept
                 {
               case(4): read(src,w,2,unbitpack_indexed4,dst);break;
               case(2): read(src,w,4,unbitpack_indexed2,dst);break;
-              case(1): read(src,w,0,unbitpack_indexed1,dst);break;
+              case(1): read(src,w,8,unbitpack_indexed1,dst);break;
+                }
+            }
+
+          else
+            if(ihdr.get_pixel_format() == pixel_format::grayscale)
+            {
+                switch(bit_depth)
+                {
+              case(4): read(src,w,2,unbitpack_grayscale4,dst);break;
+              case(2): read(src,w,4,unbitpack_grayscale2,dst);break;
+              case(1): read(src,w,8,unbitpack_grayscale1,dst);break;
                 }
             }
         }

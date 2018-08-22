@@ -27,9 +27,7 @@ assign(image_source&  isrc) noexcept
     switch(isrc.ihdr.get_pixel_format())
     {
   case(pixel_format::indexed):
-      allocate(w,h);
-
-      dst_p = get_row_pointer(0);
+      dst_p = allocate(w,h);
 
         for(int  y = 0;  y < h;  ++y){
         for(int  x = 0;  x < w;  ++x){
@@ -57,9 +55,7 @@ assign(image_source&  isrc) noexcept
         }}
       break;
   case(pixel_format::grayscale):
-      allocate(w,h);
-
-      dst_p = get_row_pointer(0);
+      dst_p = allocate(w,h);
 
         for(int  y = 0;  y < h;  ++y){
         for(int  x = 0;  x < w;  ++x){
@@ -85,9 +81,7 @@ assign(image_source&  isrc) noexcept
         }}
       break;
   case(pixel_format::grayscale_with_alpha):
-      allocate(w,h);
-
-      dst_p = get_row_pointer(0);
+      dst_p = allocate(w,h);
 
         for(int  y = 0;  y < h;  ++y){
         for(int  x = 0;  x < w;  ++x){
@@ -98,9 +92,7 @@ assign(image_source&  isrc) noexcept
         }}
       break;
   case(pixel_format::rgb):
-      allocate(w,h);
-
-      dst_p = get_row_pointer(0);
+      dst_p = allocate(w,h);
 
         for(int  y = 0;  y < h;  ++y){
         for(int  x = 0;  x < w;  ++x){
@@ -176,6 +168,12 @@ load_file(const char*  path) noexcept
   auto  idat = set.get_image_data();
 
   isrc.data = idat.extract(isrc.ihdr);
+
+    if(isrc.ihdr.get_bit_depth() < 8)
+    {
+      isrc.data = get_unbitpacked(isrc.data.begin(),isrc.ihdr);
+    }
+
 
   auto  trns_chunk = set.get_trns_chunk();
   auto  plte_chunk = set.get_plte_chunk();

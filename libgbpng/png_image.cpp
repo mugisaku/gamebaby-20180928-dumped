@@ -10,7 +10,7 @@ namespace gbpng{
 
 
 
-void
+uint8_t*
 image::
 allocate(int  bpp, int  w, int  h) noexcept
 {
@@ -18,6 +18,9 @@ allocate(int  bpp, int  w, int  h) noexcept
 
   m_width  = w;
   m_height = h;
+
+
+  return m_binary.begin();
 }
 
 

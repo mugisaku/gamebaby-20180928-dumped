@@ -153,23 +153,22 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
   constexpr int  average = 3;
   constexpr int    paeth = 4;
 
-  int  bit_depth = ihdr.get_bit_depth();
-
   int  w = ihdr.get_width() ;
   int  h = ihdr.get_height();
 
   int  bpp = ihdr.get_number_of_bytes_per_pixel();
 
-  int  dst_pitch = bpp*w;
-  int  src_pitch = ihdr.get_pitch();
+  int  bit_depth = ihdr.get_bit_depth();
+
+  int  pitch = ihdr.get_pitch();
 
 
-  binary  tmp(dst_pitch*h);
+  binary  tmp(pitch*h);
 
   auto  dst = tmp.begin();
 
 
-  const uint8_t  dummy_line[src_pitch] = {0};
+  const uint8_t  dummy_line[pitch] = {0};
 
   const uint8_t*  up_src = dummy_line;
 
@@ -187,7 +186,7 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
         {
           ++none_count;
 
-          unfilter_none(src,bpp,w,dst);
+          unfilter_none(src,bpp,((bit_depth < 8)? pitch:w),dst);
         }
 
       else
@@ -195,7 +194,7 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
         {
           ++sub_count;
 
-          unfilter_sub(src,bpp,w,dst);
+          unfilter_sub(src,bpp,((bit_depth < 8)? pitch:w),dst);
         }
 
       else
@@ -203,7 +202,7 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
         {
           ++up_count;
 
-          unfilter_up(src,up_src,bpp,w,dst);
+          unfilter_up(src,up_src,bpp,((bit_depth < 8)? pitch:w),dst);
         }
 
       else
@@ -211,7 +210,7 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
         {
           ++average_count;
 
-          unfilter_average(src,up_src,bpp,w,dst);
+          unfilter_average(src,up_src,bpp,((bit_depth < 8)? pitch:w),dst);
         }
 
       else
@@ -219,7 +218,7 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
         {
           ++paeth_count;
 
-          unfilter_paeth(src,up_src,bpp,w,dst);
+          unfilter_paeth(src,up_src,bpp,((bit_depth < 8)? pitch:w),dst);
         }
 
       else
@@ -232,8 +231,8 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
 
       up_src = dst;
 
-      src += src_pitch;
-      dst += dst_pitch;
+      src += pitch;
+      dst += pitch;
     }
 
 

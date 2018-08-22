@@ -30,7 +30,6 @@ set(SOURCES
   png_direct_color_image.cpp
   png_image.cpp
   png_image_data.cpp
-  png_image_data__extract.cpp
   png_image_header.cpp
   png_animation_control.cpp
   png_frame_control.cpp

@@ -282,6 +282,9 @@ public:
   image_header(int  w, int  h, pixel_format  fmt) noexcept: m_width(w), m_height(h){set_pixel_format(fmt);}
   image_header(const chunk&  chk) noexcept;
 
+  bool  operator==(pixel_format  fmt) const noexcept{return m_pixel_format == fmt;}
+  bool  operator!=(pixel_format  fmt) const noexcept{return m_pixel_format != fmt;}
+
   int  get_width()  const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
 
@@ -339,7 +342,7 @@ image
   binary  m_binary;
 
 protected:
-  void  allocate(int  bpp, int  w, int  h) noexcept;
+  uint8_t*  allocate(int  bpp, int  w, int  h) noexcept;
   void  store(binary&&  bin, int  w, int  h) noexcept;
 
         uint8_t*  get_row_pointer(int  bpp, int  y)       noexcept{return m_binary.get_data()+((bpp*m_width)*y);}
@@ -356,6 +359,7 @@ public:
 
 
 class direct_color_image;
+class image_source;
 
 
 class
@@ -365,12 +369,16 @@ indexed_color_image: public image
 
 public:
   indexed_color_image() noexcept{}
+  indexed_color_image(image_source&  isrc) noexcept{assign(isrc);}
   indexed_color_image(const direct_color_image&  src_img) noexcept{assign(src_img);}
 
   indexed_color_image&  operator=(const direct_color_image&  src_img) noexcept{return assign(src_img);}
   indexed_color_image&     assign(const direct_color_image&  src_img) noexcept;
 
-  void  allocate(int  w, int  h) noexcept{image::allocate(1,w,h);}
+  indexed_color_image&  operator=(image_source&  isrc) noexcept{return assign(isrc);}
+  indexed_color_image&     assign(image_source&  isrc) noexcept;
+
+  uint8_t*  allocate(int  w, int  h) noexcept{return image::allocate(1,w,h);}
 
          palette&  get_palette()       noexcept{return m_palette;}
    const palette&  get_palette() const noexcept{return m_palette;}
@@ -388,9 +396,6 @@ public:
 };
 
 
-class image_source;
-
-
 class
 direct_color_image: public image
 {
@@ -404,7 +409,7 @@ public:
   void  save_file(const char*  path, pixel_format  fmt, int  bit_depth) const noexcept;
   void  load_file(const char*  path) noexcept;
 
-  void  allocate(int  w, int  h) noexcept{image::allocate(4,w,h);}
+  uint8_t*  allocate(int  w, int  h) noexcept{return image::allocate(4,w,h);}
 
         uint8_t*  get_row_pointer(int  y)       noexcept{return image::get_row_pointer(4,y);}
   const uint8_t*  get_row_pointer(int  y) const noexcept{return image::get_row_pointer(4,y);}
