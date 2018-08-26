@@ -12,7 +12,7 @@ namespace gbpng{
 
 direct_color_image&
 direct_color_image::
-assign(image_source&  isrc) noexcept
+assign(image_source&  isrc)
 {
   int  w = isrc.ihdr.get_width() ;
   int  h = isrc.ihdr.get_height();
@@ -129,41 +129,18 @@ assign(image_source&  isrc) noexcept
 }
 
 
-void
+direct_color_image&
 direct_color_image::
-save_file(const char*  path, pixel_format  fmt, int  bit_depth) const noexcept
+assign(const chunk_list&  ls)
 {
-  chunk_list  ls;
-
-  image_header  ihdr(get_width(),get_height(),fmt);
-
-  ihdr.set_bit_depth(bit_depth);
-
-  ls.push_back(ihdr.make_chunk());
-
-
-  auto  idat = get_image_data(fmt,bit_depth);
-
-  ls.push_back(idat.make_chunk());
-
-  ls.write_png_to_file(path);
-}
-
-
-void
-direct_color_image::
-load_file(const char*  path) noexcept
-{
-  chunk_list  ls;
-
-  ls.read_png_from_file(path);
-
-
   chunk_set  set(ls);
 
   image_source  isrc;
 
   isrc.ihdr = set.get_image_header();
+
+  isrc.ihdr.check_error();
+
 
   auto  idat = set.get_image_data();
 
@@ -190,7 +167,103 @@ load_file(const char*  path) noexcept
     }
 
 
-  assign(isrc);
+  return assign(isrc);
+}
+
+
+
+
+chunk_list
+direct_color_image::
+make_chunk_list(pixel_format  fmt, int  bit_depth) const
+{
+  chunk_list  ls;
+
+  image_header  ihdr(get_width(),get_height(),fmt);
+
+  ihdr.set_bit_depth(bit_depth);
+
+  ihdr.check_error();
+
+
+  ls.push_back(ihdr.make_chunk());
+
+
+  auto  idat = get_image_data(fmt,bit_depth);
+
+  ls.push_back(idat.make_chunk());
+
+
+  return std::move(ls);
+}
+
+
+void
+direct_color_image::
+write_png_to_memory(uint8_t*  ptr, pixel_format  fmt, int  bit_depth) const
+{
+  auto  ls = make_chunk_list(fmt,bit_depth);
+
+  ls.write_png_to_memory(ptr);
+}
+
+
+void
+direct_color_image::
+write_png_to_file(FILE*  f, pixel_format  fmt, int  bit_depth) const
+{
+  auto  ls = make_chunk_list(fmt,bit_depth);
+
+  ls.write_png_to_file(f);
+}
+
+
+void
+direct_color_image::
+write_png_to_file(const char*  path, pixel_format  fmt, int  bit_depth) const
+{
+  auto  ls = make_chunk_list(fmt,bit_depth);
+
+  ls.write_png_to_file(path);
+}
+
+
+
+
+void
+direct_color_image::
+read_png_from_memory(const uint8_t*  ptr)
+{
+  chunk_list  ls;
+
+  ls.read_png_from_memory(ptr);
+
+
+  assign(ls);
+}
+
+
+void
+direct_color_image::
+read_png_from_file(FILE*  f)
+{
+  chunk_list  ls;
+
+  ls.read_png_from_file(f);
+
+  assign(ls);
+}
+
+
+void
+direct_color_image::
+read_png_from_file(const char*  path)
+{
+  chunk_list  ls;
+
+  ls.read_png_from_file(path);
+
+  assign(ls);
 }
 
 
@@ -198,7 +271,7 @@ load_file(const char*  path) noexcept
 
 image_data
 direct_color_image::
-get_image_data(pixel_format  fmt, int  bit_depth) const noexcept
+get_image_data(pixel_format  fmt, int  bit_depth) const
 {
   int  w = get_width() ;
   int  h = get_height();
@@ -210,6 +283,8 @@ get_image_data(pixel_format  fmt, int  bit_depth) const noexcept
   int  bpp = ihdr.get_number_of_bytes_per_pixel();
 
   ihdr.set_bit_depth(bit_depth);
+
+  ihdr.check_error();
 
     if(fmt == pixel_format::rgba)
     {

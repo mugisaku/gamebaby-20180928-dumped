@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "-std=c++1z -Werror -I/usr/include/SDL2")
 
 
 set(SOURCES
+  png_file_wrapper.cpp
   png_binary.cpp
   png_binary_view.cpp
   png_binary_cursor.cpp

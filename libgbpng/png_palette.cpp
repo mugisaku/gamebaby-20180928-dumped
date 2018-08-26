@@ -21,6 +21,12 @@ assign(const chunk&  chk) noexcept
 
   m_number_of_colors = chk.get_data_size()/3;
 
+    if(m_number_of_colors > 256)
+    {
+      m_number_of_colors = 256;
+    }
+
+
     for(int  i = 0;  i < m_number_of_colors;  ++i)
     {
       it->r = *src++;

@@ -95,7 +95,7 @@ clear_data() noexcept
 
 binary
 binary::
-get_compressed() const noexcept
+get_compressed() const
 {
   unsigned long  dst_size = (m_data_size*2)+12;
 
@@ -103,7 +103,7 @@ get_compressed() const noexcept
 
     if(compress(buf,&dst_size,m_data,m_data_size) != Z_OK)
     {
-      printf("image make_image_data error\n");
+      throw_error("compression is failed\n");
     }
 
 
@@ -113,7 +113,7 @@ get_compressed() const noexcept
 
 binary
 binary::
-get_uncompressed() const noexcept
+get_uncompressed() const
 {
   binary  tmp(m_data_size*2);
 
@@ -133,21 +133,13 @@ get_uncompressed() const noexcept
       else
         if(res == Z_DATA_ERROR)
         {
-          printf("get_uncompressed error: invalid input data\n");
-
-          tmp.resize(0);
-
-          break;
+          throw_error("invalid input data");
         }
 
       else
         if(res == Z_MEM_ERROR)
         {
-          printf("get_uncompressed error: could not allocate memory\n");
-
-          tmp.resize(0);
-
-          break;
+          throw_error("could not allocate memory\n");
         }
 
       else
@@ -158,11 +150,7 @@ get_uncompressed() const noexcept
 
       else
         {
-          printf("get_uncompressed error: unkonwn error\n");
-
-          tmp.resize(0);
-
-          break;
+          throw_error("get_uncompressed error: unkonwn error\n");
         }
     }
 

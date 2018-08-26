@@ -20,15 +20,62 @@ image_header(const chunk&  chk) noexcept
  
   set_pixel_format(static_cast<pixel_format>(bv.get_8()));
 
-  auto  compression_method = bv.get_8();
-  auto       filter_method = bv.get_8();
-
-  m_interlaced = bv.get_8();
+  m_compression_method = bv.get_8();
+  m_filter_method      = bv.get_8();
+  m_interlace_method   = bv.get_8();
 }
 
 
 
 
+void
+image_header::
+check_error() const
+{
+    if(!m_width)
+    {
+      throw_error("width is zero");
+    }
+
+
+    if(!m_height)
+    {
+      throw_error("height is zero");
+    }
+
+
+    if(m_bit_depth == 16)
+    {
+      throw_error("this programs does not handle format with bit depth of 16");
+    }
+
+
+    if((m_bit_depth != 1) &&
+       (m_bit_depth != 2) &&
+       (m_bit_depth != 4) &&
+       (m_bit_depth != 8))
+    {
+      throw_error("bit depth is invalid");
+    }
+
+
+    if(m_compression_method != 0)
+    {
+      throw_error("unknown compression method");
+    }
+
+
+    if(m_filter_method != 0)
+    {
+      throw_error("unknown filter method");
+    }
+
+
+    if(m_interlace_method != 0)
+    {
+      throw_error("this programs does not handle interlaced image");
+    }
+}
 
 
 const char*
@@ -97,9 +144,9 @@ make_chunk() const noexcept
 
   bc.put_8(m_bit_depth);
   bc.put_8(static_cast<int>(m_pixel_format));
-  bc.put_8( 0);
-  bc.put_8( 0);
-  bc.put_8( 0);
+  bc.put_8(m_compression_method);
+  bc.put_8(m_filter_method);
+  bc.put_8(m_interlace_method);
 
   return chunk(std::move(bin),chunk_name("IHDR"));
 }
@@ -115,7 +162,7 @@ print() const noexcept
   printf("color_type: %s\n",get_pixel_format_name());
 
 
-  printf("interlace: %s\n",m_interlaced? "true":"false");
+  printf("interlace: %d\n",m_interlace_method);
 }
 
 

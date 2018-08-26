@@ -145,7 +145,7 @@ unfilter_paeth(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, ui
 
 
 binary
-get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
+get_unfiltered(const uint8_t*  src, const image_header&  ihdr)
 {
   constexpr int     none = 0;
   constexpr int      sub = 1;
@@ -223,9 +223,7 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept
 
       else
         {
-          printf("png file unfilter error: unkmown filter type\n");
-
-          break;
+          throw_error("unkmown filter type");
         }
 
 

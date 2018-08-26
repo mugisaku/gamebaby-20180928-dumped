@@ -68,9 +68,9 @@ operator=(chunk&&  rhs) noexcept
 
 
 
-uint8_t*
+void
 chunk::
-write(uint8_t*  dst) const noexcept
+write(uint8_t*&  dst) const noexcept
 {
   binary_cursor  bc(dst);
 
@@ -94,13 +94,13 @@ write(uint8_t*  dst) const noexcept
 
   bc.put_be32(m_crc);
 
-  return bc.get_pointer();
+  dst = bc.get_pointer();
 }
 
 
-const uint8_t*
+void
 chunk::
-read(const uint8_t*  src) noexcept
+read(const uint8_t*&  src)
 {
   binary_view  bv(src);
 
@@ -125,13 +125,11 @@ read(const uint8_t*  src) noexcept
 
     if(!test_crc())
     {
-      printf("png chunk load error: %s crc not matched\n",buf);
-
-      src = nullptr;
+      throw_error("%s crc not matched\n",buf);
     }
 
 
-  return bv.get_pointer();
+  src = bv.get_pointer();
 }
 
 

@@ -70,15 +70,13 @@ calculate_stream_size() const noexcept
 
 
 
-bool
+void
 chunk_list::
-read_png_from_stream(const uint8_t*  p) noexcept
+read_png_from_memory(const uint8_t*  p)
 {
     if(std::memcmp(p,g_signature,8) != 0)
     {
-      printf("chunk_set read error: signature is invalid\n");
-
-      return false;
+      throw_error("signature is invalid\n");
     }
 
 
@@ -90,46 +88,25 @@ read_png_from_stream(const uint8_t*  p) noexcept
 
     for(;;)
     {
-      p = tmp.read(p);
+      tmp.read(p);
 
-        if(p)
+        if(tmp == "IEND")
         {
-            if(tmp == "IEND")
-            {
-              break;
-            }
-
-          else
-            {
-              m_container.emplace_back(std::move(tmp));
-            }
+          break;
         }
 
       else
         {
-          return false;
+          m_container.emplace_back(std::move(tmp));
         }
     }
-
-
-  return true;
 }
 
 
-bool
+void
 chunk_list::
-read_png_from_file(const char*  path) noexcept
+read_png_from_file(FILE*  f)
 {
-  auto  f = fopen(path,"rb");
-
-    if(!f)
-    {
-      printf("read_png_from_file error: could not open file\n");
-
-      return false;
-    }
-
-
   std::vector<uint8_t>  buf;
 
     for(;;)
@@ -144,9 +121,7 @@ read_png_from_file(const char*  path) noexcept
 
         if(ferror(f))
         {
-          printf("open_file error: file error\n");
-
-          break;
+          throw_error("file error\n");
         }
 
 
@@ -154,17 +129,31 @@ read_png_from_file(const char*  path) noexcept
     }
 
 
-  fclose(f);
+  read_png_from_memory(buf.data());
+}
 
-  return read_png_from_stream(buf.data());
+
+void
+chunk_list::
+read_png_from_file(const char*  path)
+{
+  auto  f = file_wrapper(fopen(path,"rb"));
+
+    if(!f)
+    {
+      throw_error("could not open file\n");
+    }
+
+
+  read_png_from_file(f);
 }
 
 
 
 
-bool
+void
 chunk_list::
-write_png_to_stream(uint8_t*  p) const noexcept
+write_png_to_memory(uint8_t*  p) const noexcept
 {
     for(auto  c: g_signature)
     {
@@ -174,52 +163,44 @@ write_png_to_stream(uint8_t*  p) const noexcept
 
     for(auto&  chk: m_container)
     {
-      p = chk.write(p);
-
-        if(!p)
-        {
-          return false;
-        }
+      chk.write(p);
     }
 
 
   g_end_chunk.write(p);
-
-  return true;
 }
 
 
-bool
+void
 chunk_list::
-write_png_to_file(const char*  path) const noexcept
+write_png_to_file(FILE*  f) const
 {
-  auto  f = fopen(path,"wb");
+  auto  size = calculate_stream_size();
+
+  auto  ptr = std::make_unique<uint8_t[]>(size);
+
+  write_png_to_memory(ptr.get());
+
+    if(fwrite(ptr.get(),size,1,f) != 1)
+    {
+      throw_error("file writing error\n");
+    }
+}
+
+
+void
+chunk_list::
+write_png_to_file(const char*  path) const
+{
+  auto  f = file_wrapper(fopen(path,"wb"));
 
     if(!f)
     {
-      printf("write_png_to_file error: could not open file\n");
-
-      return false;
+      throw_error("could not open file\n");
     }
 
 
-  auto  size = calculate_stream_size();
-
-  auto  ptr = new uint8_t[size];
-
-  write_png_to_stream(ptr);
-
-    if(fwrite(ptr,size,1,f) != 1)
-    {
-      printf("write_png_to_file error: file writing error\n");
-    }
-
-
-  fclose(f);
-
-  delete[] ptr;
-
-  return true;
+  write_png_to_file(f);
 }
 
 

@@ -6,16 +6,72 @@
 #include<cstdio>
 #include<cstring>
 #include<utility>
+#include<memory>
 #include<list>
 #include<vector>
+#include<stdexcept>
+#include<cstdarg>
 
 
 #ifndef report
 #define report  printf("%s %d: %s\n",__FILE__,__LINE__,__func__);
 #endif
 
+#ifndef throw_error
+#define throw_error(...)  report; throw error(__VA_ARGS__);
+#endif
+
 
 namespace gbpng{
+
+
+
+
+class
+file_wrapper
+{
+  FILE*  m_file=nullptr;
+
+public:
+  file_wrapper() noexcept{}
+  file_wrapper(FILE*  f) noexcept: m_file(f){}
+  file_wrapper(const file_wrapper&) noexcept=delete;
+ ~file_wrapper(){close();}
+
+  file_wrapper&  operator=(const file_wrapper&) noexcept=delete;
+
+  operator FILE*() const noexcept{return m_file;}
+
+  operator bool() const noexcept{return m_file;}
+
+  bool  open_ro(const char*  path) noexcept;
+  bool  open_rw(const char*  path) noexcept;
+
+  void  close() noexcept;
+
+};
+
+
+class
+error: public std::exception
+{
+  char  m_buffer[256];
+
+public:
+  error(const char*  fmt, ...)
+  {
+    va_list  ap;
+    va_start(ap,fmt);
+
+    vsnprintf(m_buffer,sizeof(m_buffer),fmt,ap);
+
+    va_end(ap);
+  }
+
+  const char*  what() const noexcept{return m_buffer;}
+
+};
+
 
 
 class chunk_list;
@@ -72,8 +128,8 @@ public:
   uint8_t*  begin() const noexcept{return m_data;}
   uint8_t*    end() const noexcept{return m_data+m_data_size;}
 
-  binary    get_compressed() const noexcept;
-  binary  get_uncompressed() const noexcept;
+  binary    get_compressed() const;
+  binary  get_uncompressed() const;
 
 };
 
@@ -81,7 +137,7 @@ public:
 
 
 binary    get_filtered(const uint8_t*  src, const image_header&  ihdr) noexcept;
-binary  get_unfiltered(const uint8_t*  src, const image_header&  ihdr) noexcept;
+binary  get_unfiltered(const uint8_t*  src, const image_header&  ihdr);
 
 binary    get_bitpacked(const uint8_t*  src, const image_header&  ihdr) noexcept;
 binary  get_unbitpacked(const uint8_t*  src, const image_header&  ihdr) noexcept;
@@ -194,8 +250,8 @@ public:
 
   uint32_t  get_stream_size() const noexcept{return 12+get_data_size();}
 
-        uint8_t*  write(      uint8_t*  dst) const noexcept;
-  const uint8_t*   read(const uint8_t*  src)       noexcept;
+  void  write(      uint8_t*&  dst) const noexcept;
+  void   read(const uint8_t*&  src)               ;
 
   void  update_crc() noexcept{m_crc = calculate_crc();}
 
@@ -274,7 +330,9 @@ image_header
 
   pixel_format  m_pixel_format=pixel_format::rgba;
 
-  bool  m_interlaced=false;
+  int  m_compression_method=0;
+  int  m_filter_method     =0;
+  int  m_interlace_method  =0;
 
 public:
   image_header() noexcept{}
@@ -284,6 +342,8 @@ public:
 
   bool  operator==(pixel_format  fmt) const noexcept{return m_pixel_format == fmt;}
   bool  operator!=(pixel_format  fmt) const noexcept{return m_pixel_format != fmt;}
+
+  void  check_error() const;
 
   int  get_width()  const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}
@@ -299,7 +359,7 @@ public:
 
   int  get_pitch() const noexcept;
 
-  bool  is_interlaced() const noexcept{return m_interlaced;}
+  bool  is_interlaced() const noexcept{return m_interlace_method;}
 
   chunk  make_chunk() const noexcept;
 
@@ -369,14 +429,18 @@ indexed_color_image: public image
 
 public:
   indexed_color_image() noexcept{}
-  indexed_color_image(image_source&  isrc) noexcept{assign(isrc);}
-  indexed_color_image(const direct_color_image&  src_img) noexcept{assign(src_img);}
+  indexed_color_image(image_source&  isrc){assign(isrc);}
+  indexed_color_image(const chunk_list&  ls){assign(ls);}
+  indexed_color_image(const direct_color_image&  src_img){assign(src_img);}
 
-  indexed_color_image&  operator=(const direct_color_image&  src_img) noexcept{return assign(src_img);}
-  indexed_color_image&     assign(const direct_color_image&  src_img) noexcept;
+  indexed_color_image&  operator=(const direct_color_image&  src_img){return assign(src_img);}
+  indexed_color_image&     assign(const direct_color_image&  src_img);
 
-  indexed_color_image&  operator=(image_source&  isrc) noexcept{return assign(isrc);}
-  indexed_color_image&     assign(image_source&  isrc) noexcept;
+  indexed_color_image&  operator=(image_source&  isrc){return assign(isrc);}
+  indexed_color_image&     assign(image_source&  isrc);
+
+  indexed_color_image&  operator=(const chunk_list&  ls){return assign(ls);}
+  indexed_color_image&     assign(const chunk_list&  ls);
 
   uint8_t*  allocate(int  w, int  h) noexcept{return image::allocate(1,w,h);}
 
@@ -389,9 +453,17 @@ public:
         uint8_t*  get_pixel_pointer(int  x, int  y)       noexcept{return get_row_pointer(y)+(x);}
   const uint8_t*  get_pixel_pointer(int  x, int  y) const noexcept{return get_row_pointer(y)+(x);}
 
-  void  save_file(const char*  path, int  bit_depth) const noexcept;
+  chunk_list  make_chunk_list(int  bit_depth) const;
 
-  image_data  get_image_data(int  bit_depth) const noexcept;
+  void  write_png_to_memory(uint8_t*  ptr, int  bit_depth) const;
+  void  write_png_to_file(FILE*  f, int  bit_depth) const;
+  void  write_png_to_file(const char*  path, int  bit_depth) const;
+
+  void  read_png_from_memory(const uint8_t*  ptr);
+  void  read_png_from_file(FILE*  f);
+  void  read_png_from_file(const char*  path);
+
+  image_data  get_image_data(int  bit_depth) const;
 
 };
 
@@ -401,13 +473,24 @@ direct_color_image: public image
 {
 public:
   direct_color_image() noexcept{}
-  direct_color_image(image_source&  isrc) noexcept{assign(isrc);}
-  direct_color_image(const char*  path) noexcept{load_file(path);}
+  direct_color_image(image_source&  isrc){assign(isrc);}
+  direct_color_image(const chunk_list&  ls){assign(ls);}
+  direct_color_image(const char*  path){read_png_from_file(path);}
 
-  direct_color_image&  assign(image_source&  isrc) noexcept;
+  direct_color_image&  assign(image_source&  isrc);
+  direct_color_image&  assign(const chunk_list&  ls);
 
-  void  save_file(const char*  path, pixel_format  fmt, int  bit_depth) const noexcept;
-  void  load_file(const char*  path) noexcept;
+  chunk_list  make_chunk_list(pixel_format  fmt, int  bit_depth) const;
+
+  void  write_png_to_memory(uint8_t*  ptr, pixel_format  fmt, int  bit_depth) const;
+  void  write_png_to_file(FILE*  f, pixel_format  fmt, int  bit_depth) const;
+  void  write_png_to_file(const char*  path, pixel_format  fmt, int  bit_depth) const;
+
+  bool  read_png_from_chunk_list(const chunk_list&  ls) noexcept;
+
+  void  read_png_from_memory(const uint8_t*  ptr);
+  void  read_png_from_file(FILE*  f);
+  void  read_png_from_file(const char*  path);
 
   uint8_t*  allocate(int  w, int  h) noexcept{return image::allocate(4,w,h);}
 
@@ -417,7 +500,7 @@ public:
         uint8_t*  get_pixel_pointer(int  x, int  y)       noexcept{return get_row_pointer(y)+(4*x);}
   const uint8_t*  get_pixel_pointer(int  x, int  y) const noexcept{return get_row_pointer(y)+(4*x);}
 
-  image_data  get_image_data(pixel_format  fmt, int  bit_depth) const noexcept;
+  image_data  get_image_data(pixel_format  fmt, int  bit_depth) const;
 
 };
 
@@ -511,16 +594,23 @@ chunk_list
   std::vector<chunk>  m_container;
 
 public:
+  chunk_list() noexcept{}
+  chunk_list(const char*  path) noexcept{}
+
+  operator bool() const noexcept{return m_container.size();}
+
   void  push_front(chunk&&  chk) noexcept;
   void  push_back( chunk&&  chk) noexcept;
 
   uint32_t  calculate_stream_size() const noexcept;
 
-  bool  read_png_from_stream(const uint8_t*  p) noexcept;
-  bool  read_png_from_file(const char*  path) noexcept;
+  void  write_png_to_memory(uint8_t*  ptr) const noexcept;
+  void  write_png_to_file(FILE*  f) const;
+  void  write_png_to_file(const char*  path) const;
 
-  bool  write_png_to_stream(uint8_t*  p) const noexcept;
-  bool  write_png_to_file(const char*  path) const noexcept;
+  void  read_png_from_memory(const uint8_t*  ptr);
+  void  read_png_from_file(FILE*  f);
+  void  read_png_from_file(const char*  path);
 
   const chunk*  begin() const noexcept{return m_container.data();}
   const chunk*    end() const noexcept{return m_container.data()+m_container.size();}

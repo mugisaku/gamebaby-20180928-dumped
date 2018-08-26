@@ -55,7 +55,19 @@ main(int  argc, char**  argv)
 
   direct_color_image  img;
 
-  img.load_file(path);
+  try
+  {
+    img.read_png_from_file(path);
+  }
+
+
+  catch(const std::exception&  e)
+  {
+    printf("%s\n",e.what());
+
+    return -1;
+  }
+
 
   int  w = img.get_width() ;
   int  h = img.get_height();
