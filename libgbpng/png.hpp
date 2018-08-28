@@ -811,6 +811,8 @@ animation_builder
 {
   image_header  m_ihdr;
 
+  palette  m_palette;
+
   uint32_t  m_delay_ms=0;
 
   uint32_t  m_sequence_number=0;

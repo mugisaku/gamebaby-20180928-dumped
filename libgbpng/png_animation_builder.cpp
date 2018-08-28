@@ -14,6 +14,8 @@ void
 animation_builder::
 reset(const image_header&  ihdr, uint32_t  delay_ms) noexcept
 {
+  m_palette.set_number_of_colors(0);
+
   m_buffer.clear();
 
   m_ihdr = ihdr;
@@ -49,23 +51,49 @@ append(const direct_color_image&  img)
 
   m_buffer.emplace_back(fctl.make_chunk());
 
-    if(m_buffer.size() == 1)
-    {
-      image_data  idat = img.get_image_data(m_ihdr.get_pixel_format(),m_ihdr.get_bit_depth());
+  auto  fmt       = m_ihdr.get_pixel_format();
+  auto  bit_depth = m_ihdr.get_bit_depth();
 
-      m_buffer.emplace_back(idat.make_chunk());
+  chunk  chk;  
+
+    if(fmt == pixel_format::indexed)
+    {
+      auto  iimg = img.make_indexed_color_image(m_palette);
+
+      auto  idat = iimg.get_image_data(bit_depth);
+
+        if(m_buffer.size() == 1)
+        {
+          chk = idat.make_chunk();
+        }
+
+      else
+        {
+          frame_data  fdat(m_sequence_number++,std::move(idat));
+
+          chk = fdat.make_chunk();
+        }
     }
 
   else
     {
-      image_data  idat = img.get_image_data(m_ihdr.get_pixel_format(),m_ihdr.get_bit_depth());
+      auto  idat = img.get_image_data(fmt,bit_depth);
 
+        if(m_buffer.size() == 1)
+        {
+          chk = idat.make_chunk();
+        }
 
-      frame_data  fdat(m_sequence_number++,std::move(idat));
+      else
+        {
+          frame_data  fdat(m_sequence_number++,std::move(idat));
 
-      m_buffer.emplace_back(fdat.make_chunk());
+          chk = fdat.make_chunk();
+        }
     }
 
+
+  m_buffer.emplace_back(std::move(chk));
 
   ++m_number_of_frames;
 }
@@ -94,6 +122,12 @@ build(uint32_t  number_of_plays) const
   actl.set_number_of_plays(number_of_plays);
 
   ls.push_back(actl.make_chunk());
+
+    if(m_ihdr.get_pixel_format() == pixel_format::indexed)
+    {
+      ls.push_back(m_palette.make_chunk());
+    }
+
 
     for(auto&  chk: m_buffer)
     {

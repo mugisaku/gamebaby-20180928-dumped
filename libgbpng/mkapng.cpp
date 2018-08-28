@@ -21,7 +21,7 @@ process(animation_builder&  ani, const char*  path)
 
       ihdr.check_error();
 
-      ani.reset(ihdr,200);
+      ani.reset(ihdr,40);
     }
 
 
