@@ -30,8 +30,15 @@ reset(const image_header&  ihdr, uint32_t  delay_ms) noexcept
 
 void
 animation_builder::
-append(const uint8_t*  ptr) noexcept
+append(const direct_color_image&  img)
 {
+    if((img.get_width()  != m_ihdr.get_width() ) ||
+       (img.get_height() != m_ihdr.get_height()))
+    {
+      throw_error("size is mismatched");
+    }
+
+
   frame_control  fctl;
 
   fctl.set_sequence_number(m_sequence_number++);
@@ -44,14 +51,14 @@ append(const uint8_t*  ptr) noexcept
 
     if(m_buffer.size() == 1)
     {
-      image_data  idat(ptr,m_ihdr);
+      image_data  idat = img.get_image_data(m_ihdr.get_pixel_format(),m_ihdr.get_bit_depth());
 
       m_buffer.emplace_back(idat.make_chunk());
     }
 
   else
     {
-      image_data  idat(ptr,m_ihdr);
+      image_data  idat = img.get_image_data(m_ihdr.get_pixel_format(),m_ihdr.get_bit_depth());
 
 
       frame_data  fdat(m_sequence_number++,std::move(idat));
@@ -68,8 +75,14 @@ append(const uint8_t*  ptr) noexcept
 
 chunk_list
 animation_builder::
-build(uint32_t  number_of_plays) const noexcept
+build(uint32_t  number_of_plays) const
 {
+    if(!m_number_of_frames)
+    {
+      throw_error("have no frames");
+    }
+
+
   chunk_list  ls;
 
   ls.push_back(m_ihdr.make_chunk());

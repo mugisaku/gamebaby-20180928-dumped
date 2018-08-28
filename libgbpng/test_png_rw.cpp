@@ -4,18 +4,9 @@
 using namespace gbpng;
 
 
-int
-main(int  argc, char**  argv)
+void
+process(const char*  path)
 {
-    if(argc != 2)
-    {
-      return 0;
-    }
-
-
-  auto  path = argv[1];
-
-
   chunk_list  ls;
 
   ls.read_png_from_file(path);
@@ -64,12 +55,92 @@ main(int  argc, char**  argv)
   img.write_png_to_file("__save_rgba.png",pixel_format::rgba,8);
 
 
-  indexed_color_image  tmp = img;
+  auto  tmp = img.make_indexed_color_image();
 
   tmp.write_png_to_file("__save_1.png",1);
   tmp.write_png_to_file("__save_2.png",2);
   tmp.write_png_to_file("__save_4.png",4);
   tmp.write_png_to_file("__save_8.png",8);
+
+
+  image_header  ihdr(img.get_width(),img.get_height(),pixel_format::rgba);
+
+  ihdr.check_error();
+
+
+  animation_builder  ani(ihdr,200);
+
+  img.read_png_from_file("__save_g1.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_g2.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_g4.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_g8.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_rgb.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_1.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_2.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_4.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_8.png");
+
+  ani.append(img);
+
+  img.read_png_from_file("__save_rgba.png");
+
+  ani.append(img);
+
+
+  auto  anils = ani.build();
+
+  anils.write_png_to_file("__output.png");
+}
+
+
+int
+main(int  argc, char**  argv)
+{
+    if(argc != 2)
+    {
+      return 0;
+    }
+
+
+  auto  path = argv[1];
+
+    try
+    {
+      process(path);
+    }
+
+
+    catch(const std::exception&  e)
+    {
+      printf("error: %s\n",e.what());
+
+      return -1;
+    }
+
 
   return 0;
 }

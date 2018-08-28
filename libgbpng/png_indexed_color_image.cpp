@@ -12,51 +12,6 @@ namespace gbpng{
 
 indexed_color_image&
 indexed_color_image::
-assign(const direct_color_image&  src_img)
-{
-  int  w = src_img.get_width() ;
-  int  h = src_img.get_height();
-
-  allocate(w,h);
-
-  int  num_pixels = w*h;
-
-  m_palette.set_number_of_colors(0);
-
-  auto  dst =         get_row_pointer(0);
-  auto  src = src_img.get_row_pointer(0);
-
-    for(int  i = 0;  i < num_pixels;  ++i)
-    {
-      color  c;
-
-      c.r = *src++;
-      c.g = *src++;
-      c.b = *src++;
-           ++src;
-
-      auto  res = m_palette.append_color(c);
-
-        if(res >= 0)
-        {
-          *dst++ = res;
-        }
-
-      else
-        {
-          printf("indexed_color_image assign error: number of colors is over\n");
-
-          break;
-        }
-    }
-
-
-  return *this;
-}
-
-
-indexed_color_image&
-indexed_color_image::
 assign(image_source&  isrc)
 {
   m_palette = isrc.plte;

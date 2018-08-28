@@ -34,6 +34,13 @@ chunk_setからPNG画像データを抽出し、そのピクセル形式に関�
 RGBAバイト列に変換して保持します
 
 
+animation_builderは、APNGを構築するためのクラス
+同一サイズのdirect_color_imageを受け取って、APNGを構築します
+アニメーションの間隔は全フレーム一定で、ミリ秒単位です
+
+
+
+
 使用例：
   try
   {

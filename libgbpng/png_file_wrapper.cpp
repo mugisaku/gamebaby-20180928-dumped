@@ -11,6 +11,20 @@ namespace gbpng{
 
 
 
+file_wrapper&
+file_wrapper::
+assign(FILE*  f) noexcept
+{
+  close();
+
+  m_file = f;
+
+  return *this;
+}
+
+
+
+
 bool
 file_wrapper::
 open_ro(const char*  path) noexcept

@@ -40,6 +40,9 @@ public:
 
   file_wrapper&  operator=(const file_wrapper&) noexcept=delete;
 
+  file_wrapper&  operator=(FILE*  f) noexcept{return assign(f);}
+  file_wrapper&  assign(FILE*  f) noexcept;
+
   operator FILE*() const noexcept{return m_file;}
 
   operator bool() const noexcept{return m_file;}
@@ -277,24 +280,34 @@ color
 class
 palette
 {
-  int  m_number_of_colors=0;
+  struct data;
 
-  color  m_colors[256];
+  data*  m_data=nullptr;
+
+  void  unrefer() noexcept;
 
 public:
-  palette() noexcept{}
+  palette();
   palette(const chunk&  chk) noexcept{assign(chk);}
+  palette(const palette&   rhs)         {assign(rhs);}
+  palette(      palette&&  rhs) noexcept{assign(std::move(rhs));}
+ ~palette(){unrefer();}
+
+  palette&  operator=(const palette&   rhs)         {return assign(rhs);}
+  palette&  operator=(      palette&&  rhs) noexcept{return assign(std::move(rhs));}
+
+  palette&  assign(const palette&   rhs)         ;
+  palette&  assign(      palette&&  rhs) noexcept;
 
   palette&  assign(const chunk&  chk) noexcept;
 
   int    find_color(const color&  color) const noexcept;
-  int  append_color(const color&  color)       noexcept;
+  int  append_color(const color&  color) const noexcept;
 
-        color&  get_color(int  i)       noexcept{return m_colors[i];}
-  const color&  get_color(int  i) const noexcept{return m_colors[i];}
+  color&  get_color(int  i) const noexcept;
 
-  int   get_number_of_colors(      ) const noexcept{return m_number_of_colors         ;}
-  void  set_number_of_colors(int  n)       noexcept{       m_number_of_colors = n&0xFF;}
+  int   get_number_of_colors(      ) const noexcept;
+  void  set_number_of_colors(int  n) const noexcept;
 
   chunk  make_chunk() const noexcept;
 
@@ -431,10 +444,6 @@ public:
   indexed_color_image() noexcept{}
   indexed_color_image(image_source&  isrc){assign(isrc);}
   indexed_color_image(const chunk_list&  ls){assign(ls);}
-  indexed_color_image(const direct_color_image&  src_img){assign(src_img);}
-
-  indexed_color_image&  operator=(const direct_color_image&  src_img){return assign(src_img);}
-  indexed_color_image&     assign(const direct_color_image&  src_img);
 
   indexed_color_image&  operator=(image_source&  isrc){return assign(isrc);}
   indexed_color_image&     assign(image_source&  isrc);
@@ -444,8 +453,8 @@ public:
 
   uint8_t*  allocate(int  w, int  h) noexcept{return image::allocate(1,w,h);}
 
-         palette&  get_palette()       noexcept{return m_palette;}
-   const palette&  get_palette() const noexcept{return m_palette;}
+  void            set_palette(const palette&  pal)       noexcept{       m_palette = pal;}
+  const palette&  get_palette(                   ) const noexcept{return m_palette      ;}
 
         uint8_t*  get_row_pointer(int  y)       noexcept{return image::get_row_pointer(1,y);}
   const uint8_t*  get_row_pointer(int  y) const noexcept{return image::get_row_pointer(1,y);}
@@ -501,6 +510,9 @@ public:
   const uint8_t*  get_pixel_pointer(int  x, int  y) const noexcept{return get_row_pointer(y)+(4*x);}
 
   image_data  get_image_data(pixel_format  fmt, int  bit_depth) const;
+
+  indexed_color_image  make_indexed_color_image(                    ) const;
+  indexed_color_image  make_indexed_color_image(const palette&  plte) const;
 
 };
 
@@ -625,7 +637,7 @@ public:
 class
 chunk_set
 {
-  void  read_after_ihdr(const chunk*&  it, const chunk*  it_end) noexcept;
+  void  read_after_ihdr(const chunk*&  it, const chunk*  it_end);
   void  read_idat(      const chunk*&  it, const chunk*  it_end) noexcept;
   void  read_after_idat(const chunk*&  it, const chunk*  it_end) noexcept;
 
@@ -643,9 +655,9 @@ chunk_set
 
 public:
   chunk_set() noexcept{clear();}
-  chunk_set(const chunk_list&  ls) noexcept{assign(ls);}
+  chunk_set(const chunk_list&  ls){assign(ls);}
 
-  chunk_set&  assign(const chunk_list&  ls) noexcept;
+  chunk_set&  assign(const chunk_list&  ls);
 
   void  clear() noexcept;
 
@@ -811,11 +823,13 @@ public:
   animation_builder() noexcept{}
   animation_builder(const image_header&  ihdr, uint32_t  delay_ms) noexcept{reset(ihdr,delay_ms);}
 
+  uint32_t  get_number_of_frames() const noexcept{return m_number_of_frames;}
+
   void  reset(const image_header&  ihdr, uint32_t  delay_ms) noexcept;
 
-  void  append(const uint8_t*  ptr) noexcept;
+  void  append(const direct_color_image&  img);
 
-  chunk_list  build(uint32_t  number_of_plays=0) const noexcept;
+  chunk_list  build(uint32_t  number_of_plays=0) const;
 
 };
 

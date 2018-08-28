@@ -346,6 +346,65 @@ get_image_data(pixel_format  fmt, int  bit_depth) const
 
 
 
+indexed_color_image
+direct_color_image::
+make_indexed_color_image() const
+{
+  palette  plte;
+
+  return make_indexed_color_image(plte);
+}
+
+
+indexed_color_image
+direct_color_image::
+make_indexed_color_image(const palette&  plte) const
+{
+  indexed_color_image  img;
+
+  int  w = get_width() ;
+  int  h = get_height();
+
+  img.allocate(w,h);
+
+  img.set_palette(plte);
+
+  int  num_pixels = w*h;
+
+  auto  dst = img.get_row_pointer(0);
+  auto  src =     get_row_pointer(0);
+
+    for(int  i = 0;  i < num_pixels;  ++i)
+    {
+      color  c;
+
+      c.r = *src++;
+      c.g = *src++;
+      c.b = *src++;
+           ++src;
+
+      auto  res = plte.append_color(c);
+
+        if(res >= 0)
+        {
+          *dst++ = res;
+        }
+
+      else
+        {
+          printf("indexed_color_image assign error: number of colors is over\n");
+
+          break;
+        }
+    }
+
+
+  return std::move(img);
+}
+
+
+
+
 }
 
 

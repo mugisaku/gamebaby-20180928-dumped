@@ -30,7 +30,7 @@ clear() noexcept
 
 void
 chunk_set::
-read_after_ihdr(const chunk*&  it, const chunk*  it_end) noexcept
+read_after_ihdr(const chunk*&  it, const chunk*  it_end)
 {
     while(it != it_end)
     {
@@ -95,7 +95,7 @@ read_after_ihdr(const chunk*&  it, const chunk*  it_end) noexcept
     }
 
 
-  printf("chunk_set read_png error: there is no IDAT\n");
+  throw_error("have no IDAT chunk");
 }
 
 
@@ -137,7 +137,7 @@ read_after_idat(const chunk*&  it, const chunk*  it_end) noexcept
 
 chunk_set&
 chunk_set::
-assign(const chunk_list&  ls) noexcept
+assign(const chunk_list&  ls)
 {
   clear();
 
@@ -146,9 +146,7 @@ assign(const chunk_list&  ls) noexcept
 
     if((it == it_end) || (*it != "IHDR"))
     {
-      printf("chunk_set assign error: \n");
-
-      return *this;
+      throw_error("have no IHDR chunk at first");
     }
 
 

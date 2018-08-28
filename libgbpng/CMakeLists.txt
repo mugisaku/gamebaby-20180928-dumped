@@ -44,7 +44,9 @@ include_directories(../)
 add_library("gbpng" ${SOURCES})
 add_executable(test_png_rw test_png_rw)
 add_executable(view_png  view_png.cpp)
+add_executable(mkapng  mkapng.cpp)
 target_link_libraries(test_png_rw "gbpng" "z")
+target_link_libraries(mkapng "gbpng" "z")
 target_link_libraries(view_png "gbpng" "z" "SDL2" "SDL2main")
 
 
