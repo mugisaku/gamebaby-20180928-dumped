@@ -148,7 +148,7 @@ public:
 
   void  render(image_cursor  cur) noexcept override;
 
-  void  save_as_webp(const std::vector<point>&  pts, uint32_t  delay) const noexcept;
+  void  save_as_apng(const std::vector<point>&  pts, uint32_t  delay) const noexcept;
 
 };
 

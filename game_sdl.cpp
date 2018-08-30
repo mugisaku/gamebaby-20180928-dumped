@@ -151,9 +151,9 @@ main_loop() noexcept
 {
   auto&  condev = sdl::update_control_device();
 
-    if(condev.dropped_file_content.size())
+    if(condev.dropped_file.size())
     {
-      auto&  v = condev.dropped_file_content;
+      auto&  v = condev.dropped_file;
 
       auto&  stg = g_stage_table[g_stage_index];
 

@@ -56,10 +56,6 @@ public:
 
   std::vector<uint8_t>  make_image_data() const noexcept;
 
-  void  load_from_webp(const uint8_t*  data, size_t  data_size) noexcept;
-  void  load_from_webp(const char*  filepath)       noexcept;
-  void    save_to_webp(const char*  filepath) const noexcept;
-
   void  load_from_png(const uint8_t*  data, size_t  data_size) noexcept;
   void  load_from_png(const char*  filepath)       noexcept;
   void    save_to_png(const char*  filepath) const noexcept;

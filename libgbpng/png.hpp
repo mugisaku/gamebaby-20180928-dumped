@@ -482,6 +482,7 @@ direct_color_image: public image
 {
 public:
   direct_color_image() noexcept{}
+  direct_color_image(int  w, int  h) noexcept{allocate(w,h);}
   direct_color_image(image_source&  isrc){assign(isrc);}
   direct_color_image(const chunk_list&  ls){assign(ls);}
   direct_color_image(const char*  path){read_png_from_file(path);}

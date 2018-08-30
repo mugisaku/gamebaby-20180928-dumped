@@ -68,7 +68,13 @@ write(const uint8_t*&  src, int  w, int  n, uint8_t  (*bitpack)(const uint8_t*),
 {
     while(w)
     {
-      uint8_t  table[n] = {0};
+      uint8_t  table[n];
+
+        for(int  i = 0;  i < n;  ++i)
+        {
+          table[i] = 0;
+        }
+
 
         for(int  i = 0;  i < n;  ++i)
         {

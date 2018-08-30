@@ -122,6 +122,8 @@ assign(image_source&  isrc)
   case(pixel_format::rgba):
       store(std::move(isrc.data),w,h);
       break;
+  default:
+      throw_error("unknown format");
     }
 
 
@@ -331,6 +333,8 @@ get_image_data(pixel_format  fmt, int  bit_depth) const
                   ++src;
       }}
       break;
+  default:
+      throw_error("unknown format");
     }
 
 

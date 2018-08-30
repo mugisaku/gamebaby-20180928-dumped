@@ -295,12 +295,6 @@ load(const std::vector<uint8_t>&  bin) noexcept
       img.load_from_png(bin.data(),bin.size());
     }
 
-  else
-    if(is_webp(bin.data()))
-    {
-      img.load_from_webp(bin.data(),bin.size());
-    }
-
 
     if(img.get_width())
     {
@@ -368,7 +362,7 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
   ge->m_canvas->set_style(ge->m_bg_style);
   ge->m_menu->set_style(  ge->m_bg_style);
 
-  ge->m_save_button = new widgets::button(new widgets::label(u"save"),[](widgets::button&  btn){
+  ge->m_png_save_button = new widgets::button(new widgets::label(u"save as png"),[](widgets::button&  btn){
     auto  ge = btn.get_userdata<graphics_editor>();
 
       if(btn.get_count())
@@ -376,21 +370,33 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
         btn.reset_count();
 
 #ifdef __EMSCRIPTEN__
-        auto  buf = ge->m_source_image.make_image_data();
-
-        transfer_to_javascript(buf.data(),buf.size());
-
-        download_image();
+        download((const uint8_t*)"usi",3,"__test.txtrxr");
 #else
-        ge->m_source_image.save_to_png("__anigra.png");
-
-//        ge->m_canvas->save_as_webp(ge->m_animation_points,ge->m_animation_delay);
 #endif
       }
   });
 
 
-  ge->m_save_button->set_userdata(ge);
+  ge->m_png_save_button->set_userdata(ge);
+
+
+
+  ge->m_apng_save_button = new widgets::button(new widgets::label(u"save as apng"),[](widgets::button&  btn){
+    auto  ge = btn.get_userdata<graphics_editor>();
+
+      if(btn.get_count())
+      {
+        btn.reset_count();
+
+#ifdef __EMSCRIPTEN__
+#else
+        ge->m_source_image.save_to_png("__anigra.apng");
+#endif
+      }
+  });
+
+
+  ge->m_apng_save_button->set_userdata(ge);
 
 
   return ge;

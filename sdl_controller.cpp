@@ -1,53 +1,5 @@
 #include"sdl.hpp"
-
-
-#ifdef EMSCRIPTEN
-#include<emscripten.h>
-
-
-EM_JS(bool,test_dropped_file,(),
-{
-  return g_file_is_dropped;
-});
-
-
-EM_JS(bool,dropped_file_is_image,(),
-{
-  return g_dropped_file_is_image;
-});
-
-
-EM_JS(void,unset_dropped_file,(),
-{
-  g_file_is_dropped = false;
-});
-
-
-EM_JS(int,get_dropped_image_width,(),
-{
-  return g_image_data.width;
-});
-
-
-EM_JS(int,get_dropped_image_height,(),
-{
-  return g_image_data.height;
-});
-
-
-EM_JS(int,get_dropped_image_data,(int  i),
-{
-  return g_image_data.data[i];
-});
-
-
-EM_JS(int,get_dropped_file_size,(),
-{
-  return dropped_file.length;
-});
-
-
-#endif
+#include"libgbstd/utility.hpp"
 
 
 namespace sdl{
@@ -156,42 +108,9 @@ process_mouse_motion(const SDL_MouseMotionEvent&  evt, gbstd::mouse&  m, std::ve
 void
 try_read_dropped_file(gbstd::control_device&  dev) noexcept
 {
-    if(test_dropped_file())
+    if(gbstd::get_number_of_dropped_files())
     {
-        if(dropped_file_is_image())
-        {
-          auto  w = get_dropped_image_width();
-          auto  h = get_dropped_image_height();
-
-          auto  n = w*h;
-
-          dev.dropped_file_content.resize(3+4+(4*n));
-
-          uint8_t*  p = dev.dropped_file_content.data();
-
-          *p++ = 'i';
-          *p++ = 'm';
-          *p++ = 'g';
-
-          *p++ = w>>8;
-          *p++ = w&0xFF;
-
-          *p++ = h>>8;
-          *p++ = h&0xFF;
-
-            for(int  i = 0;  i < n;  ++i)
-            {
-              auto  ii = i*4;
-
-              *p++ = get_dropped_image_data(ii++);
-              *p++ = get_dropped_image_data(ii++);
-              *p++ = get_dropped_image_data(ii++);
-              *p++ = get_dropped_image_data(ii  );
-            }
-        }
-
-
-      unset_dropped_file();
+      dev.dropped_file = gbstd::pop_front_dropped_file();
     }
 }
 #else
@@ -202,7 +121,7 @@ read_dropped_file(gbstd::control_device&  dev, const char*  filepath) noexcept
 
     if(f)
     {
-      dev.dropped_file_content.resize(0);
+      dev.dropped_file.clear();
 
         for(;;)
         {
@@ -214,7 +133,7 @@ read_dropped_file(gbstd::control_device&  dev, const char*  filepath) noexcept
             }
 
 
-          dev.dropped_file_content.emplace_back(c);
+          dev.dropped_file.emplace_back(c);
         }
 
 

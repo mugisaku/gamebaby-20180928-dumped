@@ -185,8 +185,8 @@ append_color(const color&  color) const noexcept
 
 color&  palette::get_color(int  i) const noexcept{return m_data->m_colors[i];}
 
-int   palette::get_number_of_colors(      ) const noexcept{return m_data->m_number_of_colors;}
-void  palette::set_number_of_colors(int  n) const noexcept{       m_data->m_number_of_colors;}
+int   palette::get_number_of_colors(      ) const noexcept{return m_data->m_number_of_colors    ;}
+void  palette::set_number_of_colors(int  n) const noexcept{       m_data->m_number_of_colors = n;}
 
 
 

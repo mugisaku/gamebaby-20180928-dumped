@@ -41,7 +41,7 @@ set(SOURCES
 
 include_directories(./)
 include_directories(../)
-add_library("gbpng" ${SOURCES})
+add_library("gbpng" SHARED ${SOURCES})
 add_executable(test_png_rw test_png_rw)
 add_executable(view_png  view_png.cpp)
 add_executable(mkapng  mkapng.cpp)

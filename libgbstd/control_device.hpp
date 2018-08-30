@@ -140,7 +140,7 @@ control_device
 
   std::vector<point>  point_list;
 
-  std::vector<uint8_t>  dropped_file_content;
+  std::vector<uint8_t>  dropped_file;
 
   bool  needed_to_redraw;
 

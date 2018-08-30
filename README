@@ -6,7 +6,7 @@ https://drive.google.com/open?id=0B_7bNzvT8p7UdzVpN3ZUUjBLaVE
 
 ソースコードはC++11以降で書かれています
 mainプログラムがSDL2を使用する以外は、
-標準C++ライブラリ,zlib,libpng,libwebpのみで動くように作られています
+標準C++ライブラリ,zlibのみで動くように作られています
 
  
 

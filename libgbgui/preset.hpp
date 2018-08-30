@@ -45,7 +45,8 @@ graphics_editor
   widgets::label*  m_cursor_label;
   widgets::label*  m_table_offset_label;
 
-  widgets::button*  m_save_button;
+  widgets::button*   m_png_save_button;
+  widgets::button*  m_apng_save_button;
 
   widgets::menu*  m_menu;
 

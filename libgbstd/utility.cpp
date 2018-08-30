@@ -94,49 +94,38 @@ EM_JS(void,js_set_description,(const char*  s),{
   var  desc = document.getElementById("description");
   desc.innerHTML = UTF8ToString(s);
 });
-EM_JS(void,js_new_array,(int  n),{
-  g_transferred_data = new Uint8Array(n);
+EM_JS(int,js_get_from_front_dropped_file,(int  i),{
+  return g_dropped_file_list[0][i];
 });
-EM_JS(void,js_put,(int  c, int  i),{
-  g_transferred_data[i] = c;
-});
-EM_JS(void,js_download_image,(),{
-  var  i = 3;
-  var  w  = g_transferred_data[i++]<<8;
-       w |= g_transferred_data[i++]   ;
-  var  h  = g_transferred_data[i++]<<8;
-       h |= g_transferred_data[i++]   ;
-  var  n = w*h;
-
-  var  cv = document.createElement("canvas");
-
-  cv.width  = w;
-  cv.height = h;
-
-  var  ctx = cv.getContext("2d");
-
-  var  imgdat = ctx.createImageData(w,h);
-
-  var  dst_i = 0;
-
-    while(n--)
+EM_JS(void,js_download,(const uint8_t*  ptr, size_t  size, const char*  filename),{
+    if(!window.FileReader)
     {
-      imgdat.data[dst_i++] = g_transferred_data[i++];
-      imgdat.data[dst_i++] = g_transferred_data[i++];
-      imgdat.data[dst_i++] = g_transferred_data[i++];
-      imgdat.data[dst_i++] = g_transferred_data[i++];
+      console.log("error");
     }
 
 
-  ctx.putImageData(imgdat,0,0);
+  var  base = new Blob([HEAP8],{type:"application/octet-stream"});
+
+  var  target = base.slice(ptr,ptr+size);
 
   var  a = document.createElement("a");
 
-  a.download = "new.png";
+  a.download = UTF8ToString(filename);
 
-  a.href = cv.toDataURL();
+  var  fr = new FileReader();
 
-  a.click();
+  fr.anchor = a;
+
+  fr.onload = function(e){
+    var  a = this.anchor;
+
+    a.href = this.result;
+
+    a.click();
+  };
+
+
+  fr.readAsDataURL(target);
 });
 
 
@@ -151,19 +140,33 @@ set_description(const char*  s) noexcept
   js_set_description(s);
 }
 void
-download_image() noexcept
+download(const uint8_t*  ptr, size_t  size, const char*  filename) noexcept
 {
-  js_download_image();
+  js_download(ptr,size,filename);
 }
-void
-transfer_to_javascript(const uint8_t*  data, size_t  data_size) noexcept
+int
+get_number_of_dropped_files() noexcept
 {
-  js_new_array(data_size);
+  return EM_ASM_INT(return g_dropped_file_list.length);
+}
+std::vector<uint8_t>
+pop_front_dropped_file() noexcept
+{
+  int  n = EM_ASM_INT(return g_dropped_file_list[0].length);
 
-    for(int  i = 0;  i < data_size;  ++i)
+  std::vector<uint8_t>  buf(n);
+
+    for(int  i = 0;  i < n;  ++i)
     {
-      js_put(*data++,i);
+      buf[i] = js_get_from_front_dropped_file(i);
     }
+
+
+  EM_ASM(
+    g_dropped_file_list.shift();
+  );
+
+  return std::move(buf);
 }
 #endif
 

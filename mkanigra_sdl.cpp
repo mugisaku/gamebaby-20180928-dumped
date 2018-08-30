@@ -260,13 +260,13 @@ main_loop() noexcept
 {
   auto&  condev = sdl::update_control_device();
 
-  auto&  cont = condev.dropped_file_content;
+  auto&  f = condev.dropped_file;
 
-    if(cont.size())
+    if(f.size())
     {
-      ge->load(cont);
+      ge->load(f);
 
-      cont.resize(0);
+      f.clear();
     }
 
 
@@ -389,7 +389,7 @@ main(int  argc, char**  argv)
   auto  right       = new widgets::table_column({right_upper,last_w});
 
 
-  auto  left = new widgets::table_column({ge->m_canvas_frame,ge->m_save_button});
+  auto  left = new widgets::table_column({ge->m_canvas_frame,ge->m_png_save_button,ge->m_apng_save_button});
 
   root.set_node_target(new widgets::table_row({left,right}));
 
@@ -407,7 +407,7 @@ main(int  argc, char**  argv)
 
 
 #ifdef EMSCRIPTEN
-  emscripten_set_main_loop(main_loop,0,false);
+  emscripten_set_main_loop(main_loop,10,false);
 #else
     for(;;)
     {

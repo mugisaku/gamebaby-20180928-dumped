@@ -68,7 +68,13 @@ read(const uint8_t*&  src, int  w, int  n, void  (*unbitpack)(uint8_t,uint8_t*),
 {
     while(w)
     {
-      uint8_t  table[n] = {0};
+      uint8_t  table[n];
+
+        for(int  i = 0;  i < n;  ++i)
+        {
+          table[i] = 0;
+        }
+
 
       unbitpack(*src++,table);
 

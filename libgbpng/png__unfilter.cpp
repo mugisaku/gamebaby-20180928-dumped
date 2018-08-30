@@ -27,7 +27,13 @@ unfilter_none(const uint8_t*  src, int  bpp, int  w, uint8_t*  dst) noexcept
 void
 unfilter_sub(const uint8_t*  src, int  bpp, int  w, uint8_t*  dst) noexcept
 {
-  const uint8_t  dummy[bpp] = {0};
+  uint8_t  dummy[bpp];
+
+    for(int  i = 0;  i < bpp;  ++i)
+    {
+      dummy[i] = 0;
+    }
+
 
   const uint8_t*  left_src = dummy;
 
@@ -66,7 +72,13 @@ unfilter_up(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, uint8
 void
 unfilter_average(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, uint8_t*  dst) noexcept
 {
-  const uint8_t  dummy[bpp] = {0};
+  uint8_t  dummy[bpp];
+
+    for(int  i = 0;  i < bpp;  ++i)
+    {
+      dummy[i] = 0;
+    }
+
 
   const uint8_t*  left_src = dummy;
 
@@ -88,13 +100,20 @@ unfilter_average(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, 
 
 
 constexpr int
+get_abs(int  i) noexcept
+{
+  return (i < 0)? -i:i;
+}
+
+
+constexpr int
 paeth(int  a, int  b, int  c) noexcept
 {
   int  p = a+b-c;
 
-  int  pa = std::abs(p-a);
-  int  pb = std::abs(p-b);
-  int  pc = std::abs(p-c);
+  int  pa = get_abs(p-a);
+  int  pb = get_abs(p-b);
+  int  pc = get_abs(p-c);
 
     if((pa <= pb) && (pa <= pc))
     {
@@ -115,7 +134,13 @@ paeth(int  a, int  b, int  c) noexcept
 void
 unfilter_paeth(const uint8_t*  src, const uint8_t*  up_src, int  bpp, int  w, uint8_t*  dst) noexcept
 {
-  const uint8_t  dummy[bpp] = {0};
+  uint8_t  dummy[bpp];
+
+    for(int  i = 0;  i < bpp;  ++i)
+    {
+      dummy[i] = 0;
+    }
+
 
   const uint8_t*     left_src = dummy;
   const uint8_t*  up_left_src = dummy;
@@ -168,7 +193,13 @@ get_unfiltered(const uint8_t*  src, const image_header&  ihdr)
   auto  dst = tmp.begin();
 
 
-  const uint8_t  dummy_line[pitch] = {0};
+  uint8_t  dummy_line[pitch];
+
+    for(int  i = 0;  i < pitch;  ++i)
+    {
+      dummy_line[i] = 0;
+    }
+
 
   const uint8_t*  up_src = dummy_line;
 

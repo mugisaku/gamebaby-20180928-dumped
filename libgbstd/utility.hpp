@@ -89,8 +89,9 @@ public:
 #ifdef EMSCRIPTEN
 void  set_caption(const char*  s) noexcept;
 void  set_description(const char*  s) noexcept;
-void  download_image() noexcept;
-void  transfer_to_javascript(const uint8_t*  data, size_t  data_size) noexcept;
+void  download(const uint8_t*  ptr, size_t  size, const char*  filename) noexcept;
+int  get_number_of_dropped_files() noexcept;
+std::vector<uint8_t>  pop_front_dropped_file() noexcept;
 #endif
 
 
