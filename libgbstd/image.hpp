@@ -52,13 +52,10 @@ public:
 
   void  resize(int  w, int  h) noexcept;
 
-  void  load_from_image_data(const uint8_t*  data) noexcept;
+  std::vector<uint8_t>  make_png_stream(                   ) const noexcept;
+  void                  read_png_stream(const uint8_t*  ptr)       noexcept;
 
-  std::vector<uint8_t>  make_image_data() const noexcept;
-
-  void  load_from_png(const uint8_t*  data, size_t  data_size) noexcept;
-  void  load_from_png(const char*  filepath)       noexcept;
-  void    save_to_png(const char*  filepath) const noexcept;
+  void  load_png(const char*  path) noexcept;
 
   int   get_width() const noexcept{return m_width ;}
   int  get_height() const noexcept{return m_height;}

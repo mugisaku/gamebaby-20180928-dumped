@@ -10,7 +10,7 @@
 namespace gbstd{
 
 
-void  save_file(gbstd::string_view  filename, gbstd::string_view  content) noexcept;
+void  write_to_file(const void*  ptr, size_t  size, const char*  filepath) noexcept;
 
 
 }

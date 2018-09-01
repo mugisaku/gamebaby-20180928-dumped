@@ -187,7 +187,7 @@ function(e)
   var  r = new FileReader();
 
   r.onload = function(e){
-    g_dropped_file_list.push(new Uint8Array(e.result));
+    g_dropped_file_list.push(new Uint8Array(this.result));
   }
 
 

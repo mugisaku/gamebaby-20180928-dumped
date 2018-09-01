@@ -7,15 +7,17 @@ namespace gbstd{
 
 
 void
-save_file(gbstd::string_view  filename, gbstd::string_view  content) noexcept
+write_to_file(const void*  ptr, size_t  size, const char*  filepath) noexcept
 {
-  auto  f = fopen(filename.data(),"wb");
+  auto  f = fopen(filepath,"wb");
 
     if(f)
     {
-        for(auto  c: content)
+      auto  u8ptr = static_cast<const uint8_t*>(ptr);
+
+        while(size--)
         {
-          fputc(c,f);
+          fputc(*u8ptr++,f);
         }
 
 

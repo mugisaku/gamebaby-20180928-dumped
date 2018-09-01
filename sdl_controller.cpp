@@ -108,7 +108,7 @@ process_mouse_motion(const SDL_MouseMotionEvent&  evt, gbstd::mouse&  m, std::ve
 void
 try_read_dropped_file(gbstd::control_device&  dev) noexcept
 {
-    if(gbstd::get_number_of_dropped_files())
+    if(dev.dropped_file.empty() && gbstd::get_number_of_dropped_files())
     {
       dev.dropped_file = gbstd::pop_front_dropped_file();
     }

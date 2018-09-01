@@ -407,7 +407,7 @@ main(int  argc, char**  argv)
 
 
 #ifdef EMSCRIPTEN
-  emscripten_set_main_loop(main_loop,10,false);
+  emscripten_set_main_loop(main_loop,0,false);
 #else
     for(;;)
     {

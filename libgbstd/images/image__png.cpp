@@ -13,13 +13,13 @@ using namespace gbpng;
 
 void
 image::
-load_from_png(const uint8_t*  data, size_t  data_size) noexcept
+read_png_stream(const uint8_t*  ptr) noexcept
 {
     try
     {
       direct_color_image  png;
 
-      png.read_png_from_memory(data);
+      png.read_png_from_memory(ptr);
 
       resize(png.get_width(),png.get_height());
 
@@ -27,10 +27,10 @@ load_from_png(const uint8_t*  data, size_t  data_size) noexcept
 
         for(auto&  pix: m_pixels)
         {
-          uint8_t  a = *p++;
           uint8_t  r = *p++;
           uint8_t  g = *p++;
           uint8_t  b = *p++;
+          uint8_t  a = *p++;
 
           pix.color = a? color(r>>5,g>>5,b>>5):color();
         }
@@ -44,23 +44,12 @@ load_from_png(const uint8_t*  data, size_t  data_size) noexcept
 }
 
 
-void
+std::vector<uint8_t>
 image::
-load_from_png(const char*  filepath) noexcept
+make_png_stream() const noexcept
 {
-  auto  s = make_string_from_file(filepath);
+  std::vector<uint8_t>  buf;
 
-    if(s.size())
-    {
-      load_from_png(reinterpret_cast<const uint8_t*>(s.data()),s.size());
-    }
-}
-
-
-void
-image::
-save_to_png(const char*  filepath) const noexcept
-{
     try
     {
       direct_color_image  png(get_width(),get_height());
@@ -73,10 +62,10 @@ save_to_png(const char*  filepath) const noexcept
 
             if(color)
             {
-              *p++ = 255;
               *p++ = color.get_r255();
               *p++ = color.get_g255();
               *p++ = color.get_b255();
+              *p++ = 255;
             }
 
           else
@@ -89,7 +78,11 @@ save_to_png(const char*  filepath) const noexcept
         }
 
 
-      png.write_png_to_file(filepath,pixel_format::rgba,8);
+      auto  ls = png.make_chunk_list(pixel_format::rgba,8);
+
+      buf.resize(ls.calculate_stream_size());
+
+      ls.write_png_to_memory(buf.data());
     }
 
 
@@ -97,6 +90,19 @@ save_to_png(const char*  filepath) const noexcept
     {
       printf("error: %s\n",e.what());
     }
+
+
+  return std::move(buf);
+}
+
+
+void
+image::
+load_png(const char*  path) noexcept
+{
+  auto  s = make_string_from_file(path);
+
+  read_png_stream(reinterpret_cast<const uint8_t*>(s.data()));
 }
 
 

@@ -1,4 +1,5 @@
 #include"libgbgui/preset.hpp"
+#include"libgbstd/io.hpp"
 
 
 
@@ -282,19 +283,15 @@ void
 graphics_editor::
 load(const std::vector<uint8_t>&  bin) noexcept
 {
+    if(!is_png(bin.data()))
+    {
+      return;
+    }
+
+
   images::image  img;
 
-    if(is_image_data(bin.data()))
-    {
-      img.load_from_image_data(bin.data());
-    }
-
-  else
-    if(is_png(bin.data()))
-    {
-      img.load_from_png(bin.data(),bin.size());
-    }
-
+  img.read_png_stream(bin.data());
 
     if(img.get_width())
     {
@@ -369,9 +366,14 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
       {
         btn.reset_count();
 
+        auto  bin = ge->m_source_image.make_png_stream();
+
+        constexpr const char*  filepath = "noName.png";
+
 #ifdef __EMSCRIPTEN__
-        download((const uint8_t*)"usi",3,"__test.txtrxr");
+        download(bin.data(),bin.size(),filepath);
 #else
+        write_to_file(bin.data(),bin.size(),filepath);
 #endif
       }
   });
@@ -384,14 +386,22 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
   ge->m_apng_save_button = new widgets::button(new widgets::label(u"save as apng"),[](widgets::button&  btn){
     auto  ge = btn.get_userdata<graphics_editor>();
 
-      if(btn.get_count())
+      if(btn.get_count() )
       {
         btn.reset_count();
 
+          if(ge->m_animation_points.size())
+          {
+            auto  bin = ge->m_canvas->make_apng_stream(ge->m_animation_points,ge->m_animation_delay);
+
+            constexpr const char*  filepath = "noName.apng";
+
 #ifdef __EMSCRIPTEN__
+            download(bin.data(),bin.size(),filepath);
 #else
-        ge->m_source_image.save_to_png("__anigra.apng");
+            write_to_file(bin.data(),bin.size(),filepath);
 #endif
+          }
       }
   });
 

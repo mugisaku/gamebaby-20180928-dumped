@@ -77,7 +77,7 @@ save_stage() noexcept
 
 #ifdef __EMSCRIPTEN__
 #else
-  gbstd::save_file("__stage.txt",s);
+  gbstd::write_to_file(s.data(),s.size(),"__stage.txt");
 #endif
 }
 
@@ -230,9 +230,9 @@ main(int  argc, char**  argv)
 
   sdl::init(g_screen_width,g_screen_height,1.5);
 
-  gbact::characters::g_image.load_from_png("__resources/lady_and.png");
-  gbact::g_bg_image.load_from_png("__resources/bg.png");
-  gbstd::g_misc_image.load_from_png("__resources/misc.png");
+  gbact::characters::g_image.load_png("__resources/lady_and.png");
+  gbact::g_bg_image.load_png("__resources/bg.png");
+  gbstd::g_misc_image.load_png("__resources/misc.png");
 
   g_final_image = sdl::make_screen_image();
 

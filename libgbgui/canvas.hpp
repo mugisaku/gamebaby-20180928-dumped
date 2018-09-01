@@ -148,7 +148,7 @@ public:
 
   void  render(image_cursor  cur) noexcept override;
 
-  void  save_as_apng(const std::vector<point>&  pts, uint32_t  delay) const noexcept;
+  std::vector<uint8_t>  make_apng_stream(const std::vector<point>&  pts, uint32_t  delay) const noexcept;
 
 };
 
