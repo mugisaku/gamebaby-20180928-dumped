@@ -17,6 +17,8 @@ button
 {
   bool  m_state=false;
 
+  uint32_t  m_counter=0;
+
 public:
   void  press(bool&  flag) noexcept
   {
@@ -36,10 +38,15 @@ public:
         m_state = false;
 
         flag = true;
+
+        ++m_counter;
       }
   }
 
   operator bool() const noexcept{return m_state;}
+
+  uint32_t  get_counter() const noexcept{return m_counter;}
+  void    reset_counter(uint32_t  v=0) noexcept{m_counter = v;}
 
 };
 

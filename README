@@ -8,11 +8,11 @@ https://drive.google.com/open?id=0B_7bNzvT8p7UdzVpN3ZUUjBLaVE
 mainプログラムがSDL2を使用する以外は、
 標準C++ライブラリ,zlibのみで動くように作られています
 
+常に開発中であり、安定版はありません
+取り分け、CMakeLists.txtは汚いです
+
  
-
-
 以下を入力して、ビルドします(-DEMSC=onを付けた場合、emscriptenを使い、javascript版ができる)
-mkdir builddir
 cd builddir
 cmake .. [-DEMSC=on]
 make

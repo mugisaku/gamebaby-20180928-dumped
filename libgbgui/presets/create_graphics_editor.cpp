@@ -359,7 +359,7 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
   ge->m_canvas->set_style(ge->m_bg_style);
   ge->m_menu->set_style(  ge->m_bg_style);
 
-  ge->m_png_save_button = new widgets::button(new widgets::label(u"save as png"),[](widgets::button&  btn){
+  ge->m_png_save_button = new widgets::button(new widgets::label(u"save as PNG"),[](widgets::button&  btn){
     auto  ge = btn.get_userdata<graphics_editor>();
 
       if(btn.get_count())
@@ -383,7 +383,7 @@ create_graphics_editor(int  cell_w, int  cell_h, int  table_w, int  table_h) noe
 
 
 
-  ge->m_apng_save_button = new widgets::button(new widgets::label(u"save as apng"),[](widgets::button&  btn){
+  ge->m_apng_save_button = new widgets::button(new widgets::label(u"save as APNG"),[](widgets::button&  btn){
     auto  ge = btn.get_userdata<graphics_editor>();
 
       if(btn.get_count() )

@@ -130,6 +130,24 @@ EM_JS(void,js_download,(const uint8_t*  ptr, size_t  size, const char*  filename
 
 
 void
+show_github_link() noexcept
+{
+  EM_ASM(
+    var  ln = document.getElementById("github_link");
+
+    ln.style.visibility = "visible";
+  );
+}
+void
+show_twitter_link() noexcept
+{
+  EM_ASM(
+    var  ln = document.getElementById("twitter_link");
+
+    ln.style.visibility = "visible";
+  );
+}
+void
 set_caption(const char*  s) noexcept
 {
   js_set_caption(s);

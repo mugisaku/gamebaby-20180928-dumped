@@ -86,6 +86,8 @@ public:
 
 
 #ifdef EMSCRIPTEN
+void  show_github_link() noexcept;
+void  show_twitter_link() noexcept;
 void  set_caption(const char*  s) noexcept;
 void  set_description(const char*  s) noexcept;
 void  download(const uint8_t*  ptr, size_t  size, const char*  filename) noexcept;
